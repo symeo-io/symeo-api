@@ -1,9 +1,9 @@
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import Configuration from 'src/domain/model/configuration.model';
-import ConfigurationRepository from 'src/infrastructure/mongodb-adapter/repository/configuration.repository';
-import ConfigurationEntity from 'src/infrastructure/mongodb-adapter/entity/configuration.entity';
+import ConfigurationRepository from 'src/infrastructure/dynamodb-adapter/repository/configuration.repository';
+import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 
-export default class MongodbConfigurationAdapter
+export default class DynamodbConfigurationAdapter
   implements ConfigurationStoragePort
 {
   constructor(private configurationRepository: ConfigurationRepository) {}

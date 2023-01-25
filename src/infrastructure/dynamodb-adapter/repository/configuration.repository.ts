@@ -1,4 +1,4 @@
-import ConfigurationEntity from 'src/infrastructure/mongodb-adapter/entity/configuration.entity';
+import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 
 export default class ConfigurationRepository {
   private storage: ConfigurationEntity[] = [];

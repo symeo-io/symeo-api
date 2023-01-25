@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import ConfigurationService from 'src/domain/service/configuration.service';
-import { MongodbAdapterModule } from 'src/bootstrap/mongodb-adapter.module';
+import { DynamodbAdapterModule } from 'src/bootstrap/dynamodb-adapter.module';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
   useFactory: (configurationStoragePort: ConfigurationStoragePort) =>
     new ConfigurationService(configurationStoragePort),
-  inject: ['MongodbConfigurationAdapter'],
+  inject: ['DynamodbConfigurationAdapter'],
 };
 
 @Module({
-  imports: [MongodbAdapterModule],
+  imports: [DynamodbAdapterModule],
   providers: [ConfigurationFacadeProvider],
   exports: [ConfigurationFacadeProvider],
 })
