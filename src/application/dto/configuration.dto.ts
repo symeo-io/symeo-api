@@ -7,10 +7,6 @@ export default class ConfigurationDTO {
     this.id = id;
   }
 
-  public toDomain(): Configuration {
-    return new Configuration(this.id);
-  }
-
   public static fromDomain(configuration: Configuration): ConfigurationDTO {
     return new ConfigurationDTO(configuration.id);
   }

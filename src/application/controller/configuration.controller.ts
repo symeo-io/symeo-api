@@ -32,7 +32,7 @@ export class ConfigurationController {
 
   @Post()
   async create(): Promise<ConfigurationDTO> {
-    const configuration = new Configuration(uuid());
+    const configuration = new Configuration(uuid(), 'test');
 
     await this.configurationFacade.save(configuration);
 

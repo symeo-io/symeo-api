@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import DynamodbConfigurationAdapter from 'src/infrastructure/dynamodb-adapter/adapter/dynamodb.configuration.adapter';
 import ConfigurationRepository from 'src/infrastructure/dynamodb-adapter/repository/configuration.repository';
+import { DynamoDBClient } from 'src/infrastructure/dynamodb-adapter/dynamodb.client';
 
 const DynamodbConfigurationAdapterProvider = {
   provide: 'DynamodbConfigurationAdapter',
@@ -11,13 +12,21 @@ const DynamodbConfigurationAdapterProvider = {
 
 const ConfigurationRepositoryProvider = {
   provide: 'ConfigurationRepository',
-  useClass: ConfigurationRepository,
+  useFactory: (dynamoDBClient: DynamoDBClient) =>
+    new ConfigurationRepository(dynamoDBClient),
+  inject: ['DynamoDBClient'],
+};
+
+const DynamoDBClientProvider = {
+  provide: 'DynamoDBClient',
+  useClass: DynamoDBClient,
 };
 
 @Module({
   providers: [
     DynamodbConfigurationAdapterProvider,
     ConfigurationRepositoryProvider,
+    DynamoDBClientProvider,
   ],
   exports: [DynamodbConfigurationAdapterProvider],
 })
