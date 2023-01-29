@@ -24,7 +24,7 @@ export class ConfigurationController {
     const configuration = await this.configurationFacade.findById(id);
 
     if (!configuration) {
-      throw new HttpException('NotFound', HttpStatus.NOT_FOUND);
+      throw new HttpException('NotFound', HttpStatus.NOT_FOUND); // TODO implement error management
     }
 
     return ConfigurationDTO.fromDomain(configuration);

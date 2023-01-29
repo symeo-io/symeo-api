@@ -1,0 +1,6 @@
+aws:
+  region: "eu-west-1"
+database:
+  dynamodb-url: "http://127.0.0.1:8000"
+  configuration:
+    table-name: "symeo-api-configurations-test"
