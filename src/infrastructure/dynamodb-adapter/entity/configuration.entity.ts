@@ -6,8 +6,6 @@ import {
 } from '@aws/dynamodb-data-mapper-annotations';
 import { config } from 'symeo/config';
 
-console.log('config', config);
-
 @table(config.database.configuration.tableName)
 export default class ConfigurationEntity {
   @hashKey()

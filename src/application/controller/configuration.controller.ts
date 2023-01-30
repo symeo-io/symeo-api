@@ -12,7 +12,7 @@ import Configuration from 'src/domain/model/configuration.model';
 import { v4 as uuid } from 'uuid';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 
-@Controller('configuration')
+@Controller('configurations')
 export class ConfigurationController {
   constructor(
     @Inject('ConfigurationFacade')

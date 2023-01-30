@@ -1,6 +1,8 @@
 aws:
-  region: "eu-west-1"
+  secretAccessKey: "0"
+  accessKeyId: "0"
+  region: "eu-west-3"
 database:
-  dynamodb-url: "http://127.0.0.1:8000"
+  dynamodbUrl: "http://127.0.0.1:8000"
   configuration:
-    table-name: "symeo-api-configurations-test"
+    tableName: "symeo-api-configurations-test"
