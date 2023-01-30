@@ -1,13 +1,22 @@
-version: 2
+version: 2.1
+
+orbs:
+  slack: circleci/slack@4.10.1
+
 jobs:
   install:
     working_directory: ~/symeo-api
     docker:
-    - image: circleci/node:10.12.0
+      - image: cimg/node:18.12.1
     steps:
     - checkout
     - restore_cache:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+    - run:
+        name: Authenticate to registry
+        command: |
+          echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
     - run:
         name: Install dependencies
         command: yarn install
@@ -16,28 +25,53 @@ jobs:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
         paths:
         - node_modules
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
   test:
     working_directory: ~/symeo-api
     machine: true
-    docker:
-     - image: cimg/node:18.12.1
     steps:
     - checkout
     - restore_cache:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
-    - setup_remote_docker
+    - run:
+        name: Change NodeJS version
+        command: |
+          export NVM_DIR="/opt/circleci/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install v18.12.1
+          nvm alias default v18.12.1
+    - run:
+        name: Install Yarn
+        command: |
+          export NVM_DIR="/opt/circleci/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          npm i -g yarn
     - run:
         name: Start database
         command: docker-compose up -d
     - run:
         name: Test
-        command: yarn test
+        command: |
+          export NVM_DIR="/opt/circleci/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          yarn test
     - store_artifacts:
         path: ~/symeo-api/coverage
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
   lint:
     working_directory: ~/symeo-api
     docker:
-    - image: circleci/node:10.12.0
+      - image: cimg/node:18.12.1
     steps:
     - checkout
     - restore_cache:
@@ -45,15 +79,27 @@ jobs:
     - run:
         name: Lint
         command: yarn lint
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
 
 workflows:
-  version: 2
   ci:
     jobs:
-    - install
-    - test:
-        requires:
-        - install
-    - lint:
-        requires:
-        - install
+      - install:
+          context:
+            - slack-notifications
+            - github-packages
+      - test:
+          requires:
+            - install
+          context:
+            - slack-notifications
+      - lint:
+          requires:
+            - install
+          context:
+            - slack-notifications
