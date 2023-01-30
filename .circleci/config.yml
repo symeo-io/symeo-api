@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  aws-cli: circleci/aws-cli@3.1
   slack: circleci/slack@4.10.1
 
 jobs:
@@ -85,6 +86,75 @@ jobs:
     - slack/notify:
         event: pass
         template: basic_success_1
+  deploy:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - aws-cli/setup
+      - restore_cache:
+          key: build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Authenticate to registry
+          command: |
+            echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
+            echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
+      - run:
+          name: Build docker
+          command: |
+            cd .aws && ./build_docker.sh \
+              --region ${AWS_REGION} \
+              --env ${ENVIRONMENT} \
+              --tag ${CIRCLE_SHA1} \
+               -s "symeo-report-api-${ENVIRONMENT}" -sp "aws" --registry "symeo-report-api-ecs-repository-${ENVIRONMENT}"
+      - run:
+          name: Deploy
+          command: |
+            cd .aws && ./deploy.sh \
+              --region ${AWS_REGION} \
+              --env ${ENVIRONMENT} \
+              --datadog-api-key ${DATADOG_API_KEY} \
+              --tag ${CIRCLE_SHA1}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+  build-aws-infrastructure:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - aws-cli/setup
+      - restore_cache:
+          key: build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Authenticate to registry
+          command: |
+            echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
+            echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
+      - run:
+          name: Build infrastructure
+          command: |
+            cd .aws && ./build_infrastructure.sh \
+              --region ${AWS_REGION} \
+              --env ${ENVIRONMENT} \
+              --datadog-api-key ${DATADOG_API_KEY} \
+              --datadog-app-key ${DATADOG_APP_KEY} \
+              --domain ${DOMAIN} \
+              --prefix-url ${PREFIX_URL_CONFIG} \
+              --acm-arn ${ACM_ARN} \
+              --acm-arn-alb ${ACM_ARN_ALB} \
+              --tag ${CIRCLE_SHA1} \
+              --vpc-id ${VPC_ID} \
+              --subnets ${SUBNETS}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
 workflows:
   ci:
@@ -103,3 +173,65 @@ workflows:
             - install
           context:
             - slack-notifications
+      - deploy:
+          requires:
+            - lint
+            - test
+          context:
+            - staging
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - staging
+      - deploy:
+          requires:
+            - lint
+            - test
+          context:
+            - demo
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - demo
+      - deploy:
+          requires:
+            - lint
+            - test
+          context:
+            - production
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - main
+  build-infrastructure:
+    jobs:
+      - build-aws-infrastructure:
+          context:
+            - staging
+            - slack-notifications
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure-staging-.+$/
+      - build-aws-infrastructure:
+          context:
+            - demo
+            - slack-notifications
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure-demo-.+$/
+      - build-aws-infrastructure:
+          context:
+            - production
+            - slack-notifications
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure-production-.+$/
