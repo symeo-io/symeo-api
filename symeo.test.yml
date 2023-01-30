@@ -1,0 +1,8 @@
+aws:
+  secretAccessKey: "0"
+  accessKeyId: "0"
+  region: "eu-west-3"
+database:
+  dynamodbUrl: "http://127.0.0.1:8000"
+  configuration:
+    tableName: "symeo-api-configurations-test"

@@ -1,10 +1,16 @@
 aws:
+  secretAccessKey:
+    type: string
+    optional: true
+  accessKeyId:
+    type: string
+    optional: true
   region:
     type: string
 database:
-  dynamodb-url:
+  dynamodbUrl:
     type: string
     optional: true
   configuration:
-    table-name:
+    tableName:
       type: string

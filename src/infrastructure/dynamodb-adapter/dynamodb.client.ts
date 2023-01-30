@@ -8,6 +8,13 @@ export class DynamoDBClient {
   constructor() {
     this.dataMapper = new DataMapper({
       client: new AWS.DynamoDB({
+        credentials:
+          config.aws.secretAccessKey && config.aws.accessKeyId
+            ? {
+                secretAccessKey: config.aws.secretAccessKey,
+                accessKeyId: config.aws.accessKeyId,
+              }
+            : undefined,
         endpoint: config.database.dynamodbUrl,
         region: config.aws.region,
       }),
