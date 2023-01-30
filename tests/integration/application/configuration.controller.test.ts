@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import { v4 as uuid } from 'uuid';
@@ -22,6 +22,7 @@ describe('ConfigurationController', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
@@ -53,12 +54,24 @@ describe('ConfigurationController', () => {
   });
 
   describe('(POST) /configurations', () => {
-    it('should create a new configuration', async () => {
+    it('should return 400 for missing repository id', async () => {
       // Given
 
+      await request(app.getHttpServer())
+        // When
+        .post(`/configurations`)
+        .send({})
+        // Then
+        .expect(400);
+    });
+
+    it('should create a new configuration', async () => {
+      // Given
+      const repositoryId = uuid();
       const response = await request(app.getHttpServer())
         // When
         .post(`/configurations`)
+        .send({ repositoryId })
         // Then
         .expect(201);
 
@@ -69,6 +82,7 @@ describe('ConfigurationController', () => {
       );
 
       expect(configuration).toBeDefined();
+      expect(configuration.repositoryId).toEqual(repositoryId);
     });
   });
 });

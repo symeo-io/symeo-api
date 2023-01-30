@@ -26,6 +26,8 @@
     "@nestjs/platform-express": "^9.0.0",
     "@symeo-io/symeo": "0.0.5",
     "aws-sdk": "^2.1303.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "uuid": "^9.0.0",
@@ -72,6 +74,8 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "collectCoverageFrom": ["src/**/*.ts"]
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ]
   }
 }

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Inject,
@@ -10,6 +11,7 @@ import ConfigurationDTO from 'src/application/dto/configuration.dto';
 import Configuration from 'src/domain/model/configuration.model';
 import { v4 as uuid } from 'uuid';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
+import { CreateConfigurationDTO } from 'src/application/dto/create-configuration.dto';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -32,8 +34,13 @@ export class ConfigurationController {
   }
 
   @Post()
-  async create(): Promise<ConfigurationDTO> {
-    const configuration = new Configuration(uuid(), 'test');
+  async create(
+    @Body() createConfigurationDTO: CreateConfigurationDTO,
+  ): Promise<ConfigurationDTO> {
+    const configuration = new Configuration(
+      uuid(),
+      createConfigurationDTO.repositoryId,
+    );
 
     await this.configurationFacade.save(configuration);
 

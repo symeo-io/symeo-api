@@ -9,13 +9,13 @@ import { config } from 'symeo/config';
 @table(config.database.configuration.tableName)
 export default class ConfigurationEntity {
   @hashKey()
-  id?: string;
+  id: string;
 
   @attribute()
-  repositoryId?: string;
+  repositoryId: string;
 
   public toDomain(): Configuration {
-    return new Configuration(this.id as string, this.repositoryId as string);
+    return new Configuration(this.id, this.repositoryId);
   }
 
   static fromDomain(configuration: Configuration): ConfigurationEntity {
