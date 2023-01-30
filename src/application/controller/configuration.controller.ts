@@ -1,9 +1,8 @@
 import {
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Inject,
+  NotFoundException,
   Param,
   Post,
 } from '@nestjs/common';
@@ -24,7 +23,9 @@ export class ConfigurationController {
     const configuration = await this.configurationFacade.findById(id);
 
     if (!configuration) {
-      throw new HttpException('NotFound', HttpStatus.NOT_FOUND); // TODO implement error management
+      throw new NotFoundException({
+        message: `No configuration found with id ${id}`,
+      }); // TODO implement error management
     }
 
     return ConfigurationDTO.fromDomain(configuration);
