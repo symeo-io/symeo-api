@@ -3,6 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { passportJwtSecret } from 'jwks-rsa';
 import { config } from 'symeo/config';
+import User from 'src/domain/model/user.model';
+import { JwtPayload } from 'src/application/authentication/jwt-payload.type';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -22,7 +25,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: unknown): unknown {
-    return payload;
+  validate(payload: JwtPayload): unknown {
+    return new User(
+      payload.sub,
+      payload['https://symeo.io/email'],
+      payload.sub.split('|')[0] as VCSProvider,
+    );
   }
 }
