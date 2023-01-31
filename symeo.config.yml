@@ -14,3 +14,12 @@ database:
   configuration:
     tableName:
       type: string
+auth0:
+  audience:
+    type: string
+  issuer:
+    type: string
+cors:
+  origin:
+    type: string
+    optional: true
