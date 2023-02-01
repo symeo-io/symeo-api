@@ -14,3 +14,18 @@ database:
   configuration:
     tableName:
       type: string
+auth0:
+  clientId:
+    type: string
+  clientSecret:
+    type: string
+  audience:
+    type: string
+  issuer:
+    type: string
+  domain:
+    type: string
+cors:
+  origin:
+    type: string
+    optional: true

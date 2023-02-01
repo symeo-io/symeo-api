@@ -1,37 +1,53 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
-import { ApplicationModule } from 'src/bootstrap/application.module';
 import { v4 as uuid } from 'uuid';
 import { DynamoDbTestUtils } from '../../utils/dynamo-db-test.utils';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
+import { AppClient } from 'tests/utils/app.client';
+import User from 'src/domain/model/user.model';
+import { faker } from '@faker-js/faker';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 
 describe('ConfigurationController', () => {
-  let app: INestApplication;
+  let appClient: AppClient;
   let dynamoDBTestUtils: DynamoDbTestUtils;
+  let vcsAccessTokenStorage: VCSAccessTokenStorage;
+
+  const currentUser = new User(
+    uuid(),
+    faker.internet.email(),
+    VCSProvider.GitHub,
+  );
 
   beforeAll(async () => {
     dynamoDBTestUtils = new DynamoDbTestUtils();
+    appClient = new AppClient();
+
+    await appClient.init();
+
+    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
+      'VCSAccessTokenAdapter',
+    );
+  });
+
+  afterAll(async () => {
+    await appClient.close();
   });
 
   beforeEach(async () => {
     await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
-
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ApplicationModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
-    await app.init();
+    jest
+      .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
+      .mockImplementation(() => Promise.resolve(uuid()));
   });
 
   describe('(GET) /configurations/:id', () => {
     it('should respond 404 with unknown id', () => {
       // Given
       const configurationId = uuid();
+
       return (
-        request(app.getHttpServer())
+        appClient
+          .request(currentUser)
           // When
           .get(`/configurations/${configurationId}`)
           // Then
@@ -47,7 +63,8 @@ describe('ConfigurationController', () => {
 
       await dynamoDBTestUtils.put(configuration);
 
-      return request(app.getHttpServer())
+      return appClient
+        .request(currentUser)
         .get(`/configurations/${configuration.id}`)
         .expect(200);
     });
@@ -57,7 +74,8 @@ describe('ConfigurationController', () => {
     it('should return 400 for missing repository id', async () => {
       // Given
 
-      await request(app.getHttpServer())
+      await appClient
+        .request(currentUser)
         // When
         .post(`/configurations`)
         .send({})
@@ -68,7 +86,8 @@ describe('ConfigurationController', () => {
     it('should create a new configuration', async () => {
       // Given
       const repositoryId = uuid();
-      const response = await request(app.getHttpServer())
+      const response = await appClient
+        .request(currentUser)
         // When
         .post(`/configurations`)
         .send({ repositoryId })

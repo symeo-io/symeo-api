@@ -12,16 +12,29 @@ import Configuration from 'src/domain/model/configuration.model';
 import { v4 as uuid } from 'uuid';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { CreateConfigurationDTO } from 'src/application/dto/create-configuration.dto';
+import { CurrentUser } from 'src/application/decorator/current-user.decorator';
+import User from 'src/domain/model/user.model';
+import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 
 @Controller('configurations')
 export class ConfigurationController {
   constructor(
     @Inject('ConfigurationFacade')
     private readonly configurationFacade: ConfigurationFacade,
+    @Inject('VCSAccessTokenAdapter')
+    private readonly vcsAccessTokenStorage: VCSAccessTokenStorage,
   ) {}
 
   @Get(':id')
-  async getById(@Param('id') id: string): Promise<ConfigurationDTO | null> {
+  async getById(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<ConfigurationDTO | null> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+      user.id,
+    );
+    console.log('token', token);
+
     const configuration = await this.configurationFacade.findById(id);
 
     if (!configuration) {
