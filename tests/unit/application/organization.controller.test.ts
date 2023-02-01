@@ -48,7 +48,7 @@ describe('OrganizationController', () => {
       jest
         .spyOn(organizationFacade, 'getOrganizations')
         .mockImplementation(() => Promise.resolve(vcsOrganizations));
-      organizationController.getOrganizationsForUser();
+      organizationController.getOrganizations();
 
       // Then
       expect(

@@ -12,7 +12,7 @@ export class OrganizationController {
   ) {}
 
   @Get()
-  async getOrganizationsForUser(
+  async getOrganizations(
     @CurrentUser() user: User,
   ): Promise<GetOrganizationsResponseDTO> {
     return GetOrganizationsResponseDTO.fromDomains(
