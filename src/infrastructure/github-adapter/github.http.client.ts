@@ -4,7 +4,10 @@ import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage'
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 
 export class GithubHttpClient {
-  constructor(private vcsAccessTokenStorage: VCSAccessTokenStorage) {}
+  constructor(
+    private vcsAccessTokenStorage: VCSAccessTokenStorage,
+    private client: Octokit,
+  ) {}
 
   async getOrganizations(
     user: User,
@@ -14,8 +17,9 @@ export class GithubHttpClient {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
       user.id,
     );
-    const client = new Octokit({ auth: token });
-    const response = await client.rest.orgs.listForAuthenticatedUser();
+    const response = await this.client.rest.orgs.listForAuthenticatedUser({
+      headers: { Authorization: `token ${token}` },
+    });
 
     return response.data;
   }

@@ -3,6 +3,7 @@ import { GithubHttpClient } from '../infrastructure/github-adapter/github.http.c
 import GithubAdapter from '../infrastructure/github-adapter/adapter/github.adapter';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Auth0AdapterModule } from 'src/bootstrap/auth0-adapter.module';
+import { Octokit } from '@octokit/rest';
 
 const GithubAdapterProvider = {
   provide: 'GithubAdapter',
@@ -13,14 +14,19 @@ const GithubAdapterProvider = {
 
 const GithubHttpClientProvider = {
   provide: 'GithubHttpClient',
-  useFactory: (vcsAccessTokenStorage: VCSAccessTokenStorage) =>
-    new GithubHttpClient(vcsAccessTokenStorage),
-  inject: ['VCSAccessTokenAdapter'],
+  useFactory: (vcsAccessTokenStorage: VCSAccessTokenStorage, client: Octokit) =>
+    new GithubHttpClient(vcsAccessTokenStorage, client),
+  inject: ['VCSAccessTokenAdapter', 'Octokit'],
+};
+
+const OctokitProvider = {
+  provide: 'Octokit',
+  useValue: new Octokit(),
 };
 
 @Module({
   imports: [Auth0AdapterModule],
-  providers: [GithubAdapterProvider, GithubHttpClientProvider],
-  exports: [GithubAdapterProvider, GithubHttpClientProvider],
+  providers: [GithubAdapterProvider, GithubHttpClientProvider, OctokitProvider],
+  exports: [GithubAdapterProvider],
 })
 export class GithubAdapterModule {}
