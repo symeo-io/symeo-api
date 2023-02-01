@@ -9,6 +9,7 @@ import {
 import User from 'src/domain/model/user.model';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import supertest from 'supertest';
+import { DomainModule } from '../../src/bootstrap/domain.module';
 
 let loggedInUser: User | undefined;
 

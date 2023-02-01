@@ -1,4 +1,4 @@
-import { User } from '../../domain/model/user.model';
+import User from '../../domain/model/user.model';
 import { HttpService } from '@nestjs/axios';
 import { GithubOrganizationDTO } from './dto/github.organization.dto';
 import { firstValueFrom } from 'rxjs';

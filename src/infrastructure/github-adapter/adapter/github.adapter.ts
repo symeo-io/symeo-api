@@ -1,5 +1,5 @@
 import GithubAdapterPort from '../../../domain/port/out/github.adapter.port';
-import { User } from '../../../domain/model/user.model';
+import User from '../../../domain/model/user.model';
 import { GithubHttpClient } from '../github.http.client';
 import { VcsOrganization } from '../../../domain/model/vcs.organization.model';
 import { GithubOrganizationDTO } from '../dto/github.organization.dto';
