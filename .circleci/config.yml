@@ -107,7 +107,8 @@ jobs:
               --region ${AWS_REGION} \
               --env ${ENVIRONMENT} \
               --tag ${CIRCLE_SHA1} \
-               -s "symeo-report-api-${ENVIRONMENT}" -sp "aws" --registry "symeo-report-api-ecs-repository-${ENVIRONMENT}"
+              --service "symeo-api-${ENVIRONMENT}" \
+              --registry "symeo-api-ecs-repository-${ENVIRONMENT}"
       - run:
           name: Deploy
           command: |

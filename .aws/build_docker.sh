@@ -32,10 +32,6 @@ case $key in
     DD_SERVICE="$2"
     shift # past argument
     ;;
-    -sp|--spring-profile)
-    SPRING_PROFILES_ACTIVE="$2"
-    shift # past argument
-    ;;
     -ry|--registry)
     REGISTRY="$2"
     shift # past argument
@@ -59,7 +55,7 @@ fi
 
 GIT_ROOT_PATH=$(git rev-parse --show-toplevel)
 
-build_and_push_docker_image $GIT_ROOT_PATH "Dockerfile" ${REGISTRY} "SymeoApiRepository" $REGION $TAG $DD_SERVICE $SPRING_PROFILES_ACTIVE $ENV
+build_and_push_docker_image $GIT_ROOT_PATH "Dockerfile" ${REGISTRY} "SymeoApiRepository" $REGION $TAG $DD_SERVICE $ENV
 
 echo "DONE"
 

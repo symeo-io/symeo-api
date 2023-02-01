@@ -134,7 +134,7 @@ if docker_image_exists_in_ecr $SymeoApiRepositoryName $MY_TAG $REGION; then
   echo "Docker image with tag ${MY_TAG} already exists, skipping build..."
 else
   echo "No image found with tag ${MY_TAG}, building it..."
-  ./build_docker.sh -r "$REGION" -e "$ENV" -t "$MY_TAG" -p "$PROFILE" --service "symeo-api-${ENV}" --spring-profile "aws" --registry "symeo-api-ecs-repository-${ENV}"
+  ./build_docker.sh -r "$REGION" -e "$ENV" -t "$MY_TAG" -p "$PROFILE" --service "symeo-api-${ENV}" --registry "symeo-api-ecs-repository-${ENV}"
 fi
 
 ## ECS Cluster

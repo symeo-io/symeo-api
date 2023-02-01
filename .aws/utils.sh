@@ -49,7 +49,6 @@ function build_and_push_docker_image() {
   local region=$5
   local tag=$6
   local dd_service=$7
-  local spring_profiles_active=$8
   local dd_env=$9
 
   local docker_file_path="${docker_base_path}/${docker_file_name}"
@@ -65,7 +64,6 @@ function build_and_push_docker_image() {
     --tag "${repository}:latest" \
     --build-arg dd_service="$dd_service" \
     --build-arg dd_env="$dd_env" \
-    --build-arg spring_profiles_active="$spring_profiles_active" \
     -f $docker_file_path $docker_base_path
   docker push "${repository}" --all-tags
 }
