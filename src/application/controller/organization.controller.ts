@@ -4,6 +4,7 @@ import { VcsOrganization } from '../../domain/model/vcs.organization.model';
 import { OrganizationDTO } from '../dto/organization.dto';
 import User from '../../domain/model/user.model';
 import { VCSProvider } from '../../domain/model/vcs-provider.enum';
+import { CurrentUser } from '../decorator/current-user.decorator';
 
 @Controller('user')
 export class OrganizationController {
@@ -13,14 +14,11 @@ export class OrganizationController {
   ) {}
 
   @Get('organizations/github')
-  async getOrganizationsForUser(): Promise<VcsOrganization[] | null> {
-    const authenticatedUser: User = new User(
-      'fake-id',
-      'fake-email',
-      VCSProvider.GitHub,
-    ); // TODO : get the authenticated user;
+  async getOrganizationsForUser(
+    @CurrentUser() user: User,
+  ): Promise<VcsOrganization[] | null> {
     return OrganizationDTO.fromDomainToContract(
-      await this.organizationFacade.getOrganizationsForUser(authenticatedUser),
+      await this.organizationFacade.getOrganizationsForUser(user),
     );
   }
 }
