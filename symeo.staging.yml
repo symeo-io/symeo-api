@@ -9,3 +9,5 @@ auth0:
   audience: "https://api-staging.symeo.io"
   issuer: "https://symeo-staging.eu.auth0.com/"
   domain: "symeo-staging.eu.auth0.com"
+cors:
+  origin: "https://app-config-staging.symeo.io/"
