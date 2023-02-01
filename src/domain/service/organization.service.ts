@@ -2,15 +2,17 @@ import { OrganizationFacade } from '../port/in/organization.facade.port';
 import GithubAdapterPort from '../port/out/github.adapter.port';
 import User from '../model/user.model';
 import { VcsOrganization } from '../model/vcs.organization.model';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export class OrganizationService implements OrganizationFacade {
   constructor(private readonly githubAdapterPort: GithubAdapterPort) {}
 
-  async getOrganizationsForUser(
-    authenticatedUser: User,
-  ): Promise<VcsOrganization[]> {
-    return await this.githubAdapterPort.getOrganizationsForUser(
-      authenticatedUser,
-    );
+  async getOrganizations(user: User): Promise<VcsOrganization[]> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.getOrganizations(user);
+      default:
+        return [];
+    }
   }
 }

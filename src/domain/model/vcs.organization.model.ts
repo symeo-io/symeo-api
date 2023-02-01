@@ -1,9 +1,20 @@
-export class VcsOrganization {
-  id: number;
-  login: string;
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
-  constructor(id: number, login: string) {
-    this.id = id;
-    this.login = login;
+export class VcsOrganization {
+  vcsId: number;
+  name: string;
+  avatarUrl: string;
+  vcsType: VCSProvider;
+
+  constructor(
+    vcsId: number,
+    name: string,
+    avatarUrl: string,
+    vcsType: VCSProvider,
+  ) {
+    this.vcsId = vcsId;
+    this.name = name;
+    this.avatarUrl = avatarUrl;
+    this.vcsType = vcsType;
   }
 }

@@ -1,23 +1,27 @@
-import { VcsOrganization } from '../../domain/model/vcs.organization.model';
+import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
 
 export class OrganizationDTO {
-  id: number;
-  login: string;
+  vcsId: number;
+  name: string;
+  avatarUrl: string;
 
-  constructor(id: number, login: string) {
-    this.id = id;
-    this.login = login;
+  constructor(vcsId: number, name: string, avatarUrl: string) {
+    this.vcsId = vcsId;
+    this.name = name;
+    this.avatarUrl = avatarUrl;
   }
 
-  public static fromDomainToContract(
+  public static fromDomain(vcsOrganization: VcsOrganization): OrganizationDTO {
+    return new OrganizationDTO(
+      vcsOrganization.vcsId,
+      vcsOrganization.name,
+      vcsOrganization.avatarUrl,
+    );
+  }
+
+  public static fromDomains(
     vcsOrganizations: VcsOrganization[],
   ): OrganizationDTO[] {
-    const organizationDTOS: OrganizationDTO[] = [];
-    vcsOrganizations.forEach((vcsOrganization) =>
-      organizationDTOS.push(
-        new OrganizationDTO(vcsOrganization.id, vcsOrganization.login),
-      ),
-    );
-    return organizationDTOS;
+    return vcsOrganizations.map(OrganizationDTO.fromDomain);
   }
 }

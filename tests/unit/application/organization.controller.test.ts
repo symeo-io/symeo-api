@@ -10,7 +10,7 @@ describe('OrganizationController', () => {
   let organizationFacade: OrganizationFacade;
 
   const organizationFacadeMock: jest.Mocked<OrganizationFacade> = {
-    getOrganizationsForUser: jest.fn(),
+    getOrganizations: jest.fn(),
   };
   const organizationController = new OrganizationController(
     organizationFacadeMock,
@@ -46,13 +46,13 @@ describe('OrganizationController', () => {
 
       // When
       jest
-        .spyOn(organizationFacade, 'getOrganizationsForUser')
+        .spyOn(organizationFacade, 'getOrganizations')
         .mockImplementation(() => Promise.resolve(vcsOrganizations));
       organizationController.getOrganizationsForUser();
 
       // Then
       expect(
-        organizationFacade.getOrganizationsForUser({
+        organizationFacade.getOrganizations({
           id: 'fake-id',
           email: 'fake-email',
           provider: VCSProvider.GitHub,

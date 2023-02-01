@@ -1,26 +1,16 @@
 import GithubAdapterPort from '../../../domain/port/out/github.adapter.port';
 import User from '../../../domain/model/user.model';
 import { GithubHttpClient } from '../github.http.client';
-import { VcsOrganization } from '../../../domain/model/vcs.organization.model';
-import { GithubOrganizationDTO } from '../dto/github.organization.dto';
+import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
 import { GithubOrganizationMapper } from '../mapper/github.organization.mapper';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
 
-  async collectRepositoriesForVcsOrganization(
-    vcsOrganizationName: string,
-  ): Promise<void> {
-    const pageNumber = 1;
-  }
-
-  async getOrganizationsForUser(
-    authenticatedUser: User,
-  ): Promise<VcsOrganization[]> {
-    const githubOrganizationDTOS: GithubOrganizationDTO[] =
-      await this.githubHttpClient
-        .getOrganizationsForUser(authenticatedUser)
-        .then((response) => response as GithubOrganizationDTO[]);
+  async getOrganizations(user: User): Promise<VcsOrganization[]> {
+    const githubOrganizationDTOS = await this.githubHttpClient.getOrganizations(
+      user,
+    );
     return GithubOrganizationMapper.dtoToDomain(githubOrganizationDTOS);
   }
 }

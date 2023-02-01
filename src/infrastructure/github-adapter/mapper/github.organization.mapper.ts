@@ -1,9 +1,10 @@
-import { VcsOrganization } from '../../../domain/model/vcs.organization.model';
-import { GithubOrganizationDTO } from '../dto/github.organization.dto';
+import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 
 export class GithubOrganizationMapper {
   static dtoToDomain(
-    githubOrganizationDTOS: GithubOrganizationDTO[],
+    githubOrganizationDTOS: RestEndpointMethodTypes['orgs']['listForAuthenticatedUser']['response']['data'],
   ): VcsOrganization[] {
     const vcsOrganizationArray: VcsOrganization[] = [];
     githubOrganizationDTOS.forEach((githubOrganizationDTO) =>
@@ -11,6 +12,8 @@ export class GithubOrganizationMapper {
         new VcsOrganization(
           githubOrganizationDTO.id,
           githubOrganizationDTO.login,
+          githubOrganizationDTO.avatar_url,
+          VCSProvider.GitHub,
         ),
       ),
     );
