@@ -10,4 +10,6 @@ auth0:
   issuer: "https://symeo-staging.eu.auth0.com/"
   domain: "symeo-staging.eu.auth0.com"
 cors:
-  origin: "https://app-config-staging.symeo.io"
+  origin: "https://app-config-staging.symeo.io/"
+vcsProvider:
+  paginationLength: 100

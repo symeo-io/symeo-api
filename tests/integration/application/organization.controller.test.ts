@@ -32,11 +32,11 @@ describe('OrganizationController', () => {
     await appClient.close();
   });
 
-  describe('(GET) /configurations/:id', () => {
+  describe('(GET) /organizations', () => {
     it('should respond 200 with github organization', async () => {
       // Given
       const mockGitHubToken = uuid();
-      const mockGitHubOrganizationsResponse = {
+      const mockGitHubOrganizationsResponse1 = {
         status: 200 as const,
         headers: {},
         url: '',
@@ -59,14 +59,25 @@ describe('OrganizationController', () => {
           },
         ],
       };
+      const mockGitHubOrganizationsResponse2 = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: [],
+      };
 
       jest
         .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
         .mockImplementation(() => Promise.resolve(mockGitHubToken));
       jest
         .spyOn(githubClient.rest.orgs, 'listForAuthenticatedUser')
-        .mockImplementation(() =>
-          Promise.resolve(mockGitHubOrganizationsResponse),
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockGitHubOrganizationsResponse1),
+        );
+      jest
+        .spyOn(githubClient.rest.orgs, 'listForAuthenticatedUser')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockGitHubOrganizationsResponse2),
         );
 
       return appClient

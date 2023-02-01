@@ -11,6 +11,8 @@ export class GithubHttpClient {
 
   async getOrganizations(
     user: User,
+    page: number,
+    paginationLength: number,
   ): Promise<
     RestEndpointMethodTypes['orgs']['listForAuthenticatedUser']['response']['data']
   > {
@@ -18,6 +20,8 @@ export class GithubHttpClient {
       user.id,
     );
     const response = await this.client.rest.orgs.listForAuthenticatedUser({
+      page: page,
+      per_page: paginationLength,
       headers: { Authorization: `token ${token}` },
     });
 

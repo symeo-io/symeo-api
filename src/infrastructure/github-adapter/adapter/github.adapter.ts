@@ -1,16 +1,46 @@
-import GithubAdapterPort from '../../../domain/port/out/github.adapter.port';
-import User from '../../../domain/model/user.model';
-import { GithubHttpClient } from '../github.http.client';
 import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
-import { GithubOrganizationMapper } from '../mapper/github.organization.mapper';
+import { config } from 'symeo/config';
+import { GithubOrganizationMapper } from 'src/infrastructure/github-adapter/mapper/github.organization.mapper';
+import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
+import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';
+import User from 'src/domain/model/user.model';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
 
   async getOrganizations(user: User): Promise<VcsOrganization[]> {
-    const githubOrganizationDTOS = await this.githubHttpClient.getOrganizations(
-      user,
+    let page = 1;
+    const perPage: number = config.vcsProvider.paginationLength;
+    const alreadyCollectedOrganizationsDTO: Array<any> = [];
+    let githubOrganizationsDTO: Array<any> =
+      await this.githubHttpClient.getOrganizations(user, page, perPage);
+    this.addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
+      githubOrganizationsDTO,
+      alreadyCollectedOrganizationsDTO,
     );
-    return GithubOrganizationMapper.dtoToDomain(githubOrganizationDTOS);
+    while (githubOrganizationsDTO.length === perPage) {
+      page += 1;
+      githubOrganizationsDTO = await this.githubHttpClient.getOrganizations(
+        user,
+        page,
+        perPage,
+      );
+      this.addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
+        githubOrganizationsDTO,
+        alreadyCollectedOrganizationsDTO,
+      );
+    }
+    return GithubOrganizationMapper.dtoToDomain(
+      alreadyCollectedOrganizationsDTO,
+    );
+  }
+
+  private addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
+    organizationsDTO: Array<any>,
+    alreadyCollectedOrganizationsDTO: Array<any>,
+  ) {
+    organizationsDTO.map((organizationDTO) =>
+      alreadyCollectedOrganizationsDTO.push(organizationDTO),
+    );
   }
 }
