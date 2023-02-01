@@ -6,6 +6,7 @@ import { config } from 'symeo/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApplicationModule);
+  app.setGlobalPrefix('api/v1');
   app.enableCors({
     credentials: true,
     origin: config.cors.origin,
