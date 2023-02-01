@@ -1,4 +1,4 @@
-import { DynamoDBClient } from '../../src/infrastructure/dynamodb-adapter/dynamodb.client';
+import { DynamoDBClient } from 'src/infrastructure/dynamodb-adapter/dynamodb.client';
 import { ZeroArgumentsConstructor } from '@aws/dynamodb-data-marshaller';
 import { StringToAnyObjectMap } from '@aws/dynamodb-data-mapper/build/constants';
 
