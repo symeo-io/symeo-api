@@ -12,3 +12,5 @@ auth0:
   audience: "https://api-staging.symeo.io"
   issuer: "https://symeo-staging.eu.auth0.com/"
   domain: "symeo-staging.eu.auth0.com"
+vcsProvider:
+  paginationLength: 1

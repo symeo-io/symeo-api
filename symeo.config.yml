@@ -29,3 +29,6 @@ cors:
   origin:
     type: string
     optional: true
+vcsProvider:
+  paginationLength:
+    type: integer
