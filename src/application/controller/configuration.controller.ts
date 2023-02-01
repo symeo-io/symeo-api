@@ -30,7 +30,6 @@ export class ConfigurationController {
     @Param('id') id: string,
     @CurrentUser() user: User,
   ): Promise<ConfigurationDTO | null> {
-    console.log('toto');
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
       user.id,
     );
