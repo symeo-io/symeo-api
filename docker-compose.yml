@@ -10,7 +10,7 @@ services:
 
   init-dynamo:
     image: amazon/aws-cli
-    command: dynamodb create-table --table-name symeo-api-configurations-test --attribute-definitions AttributeName=id,AttributeType=S AttributeName=rangeKey,AttributeType=S --key-schema AttributeName=id,KeyType=HASH AttributeName=rangeKey,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb:8000
+    command: dynamodb create-table --table-name symeo-api-configurations-test --attribute-definitions AttributeName=hashKey,AttributeType=S AttributeName=rangeKey,AttributeType=S --key-schema AttributeName=hashKey,KeyType=HASH AttributeName=rangeKey,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb:8000
     links:
       - dynamodb
     environment:

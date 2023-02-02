@@ -15,6 +15,16 @@ export default class ConfigurationService implements ConfigurationFacade {
   ): Promise<Configuration | undefined> {
     return this.configurationStoragePort.findById(vcsType, vcsRepositoryId, id);
   }
+
+  findAllForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<Configuration[]> {
+    return this.configurationStoragePort.findAllForRepositoryId(
+      vcsType,
+      vcsRepositoryId,
+    );
+  }
   save(configuration: Configuration): Promise<void> {
     return this.configurationStoragePort.save(configuration);
   }

@@ -86,10 +86,11 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.rangeKey = ConfigurationEntity.buildRangeKey(
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
         VCSProvider.GitHub,
         repositoryVcsId,
       );
+      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
 
       await dynamoDBTestUtils.put(configuration);
@@ -111,10 +112,11 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.rangeKey = ConfigurationEntity.buildRangeKey(
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
         VCSProvider.GitHub,
         repositoryVcsId,
       );
+      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
 
       await dynamoDBTestUtils.put(configuration);
@@ -141,6 +143,95 @@ describe('ConfigurationController', () => {
       expect(response.body.configuration).toBeDefined();
       expect(response.body.configuration.id).toEqual(configuration.id);
       expect(response.body.configuration.name).toEqual(configuration.name);
+    });
+  });
+
+  describe('(GET) /configurations/github/:repositoryVcsId', () => {
+    it('should respond 404 with unknown repository id', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const configuration1 = new ConfigurationEntity();
+      configuration1.id = uuid();
+      configuration1.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration1.rangeKey = configuration1.id;
+      configuration1.name = faker.name.jobTitle();
+
+      const configuration2 = new ConfigurationEntity();
+      configuration2.id = uuid();
+      configuration2.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration2.rangeKey = configuration2.id;
+      configuration2.name = faker.name.jobTitle();
+
+      await Promise.all([
+        dynamoDBTestUtils.put(configuration1),
+        dynamoDBTestUtils.put(configuration2),
+      ]);
+
+      githubClientRequestMock.mockImplementation(() => {
+        throw { status: 404 };
+      });
+
+      appClient
+        .request(currentUser)
+        // When
+        .get(`/configurations/github/${repositoryVcsId}`)
+        // Then
+        .expect(404);
+    });
+
+    it('should respond 200 with known repository and id', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const configuration1 = new ConfigurationEntity();
+      configuration1.id = uuid();
+      configuration1.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration1.rangeKey = configuration1.id;
+      configuration1.name = faker.name.jobTitle();
+
+      const configuration2 = new ConfigurationEntity();
+      configuration2.id = uuid();
+      configuration2.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration2.rangeKey = configuration2.id;
+      configuration2.name = faker.name.jobTitle();
+
+      await Promise.all([
+        dynamoDBTestUtils.put(configuration1),
+        dynamoDBTestUtils.put(configuration2),
+      ]);
+
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      const response = await appClient
+        .request(currentUser)
+        .get(`/configurations/github/${repositoryVcsId}`)
+        .expect(200);
+
+      expect(response.body.configurations).toBeDefined();
+      expect(response.body.configurations.length).toEqual(2);
     });
   });
 
@@ -176,10 +267,11 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.rangeKey = ConfigurationEntity.buildRangeKey(
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
         VCSProvider.GitHub,
         repositoryVcsId,
       );
+      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
 
       await dynamoDBTestUtils.put(configuration);
@@ -201,10 +293,11 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.rangeKey = ConfigurationEntity.buildRangeKey(
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
         VCSProvider.GitHub,
         repositoryVcsId,
       );
+      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
       configuration.vcsType = VCSProvider.GitHub;
       configuration.repository = {
@@ -241,7 +334,7 @@ describe('ConfigurationController', () => {
 
       const deletedConfiguration: ConfigurationEntity =
         await dynamoDBTestUtils.get(ConfigurationEntity, {
-          id: configuration.id,
+          hashKey: configuration.hashKey,
           rangeKey: configuration.rangeKey,
         });
 
@@ -321,11 +414,11 @@ describe('ConfigurationController', () => {
       const configuration: ConfigurationEntity = await dynamoDBTestUtils.get(
         ConfigurationEntity,
         {
-          id: response.body.id,
-          rangeKey: ConfigurationEntity.buildRangeKey(
+          hashKey: ConfigurationEntity.buildHashKey(
             VCSProvider.GitHub,
             repositoryVcsId,
           ),
+          rangeKey: response.body.id,
         },
       );
 

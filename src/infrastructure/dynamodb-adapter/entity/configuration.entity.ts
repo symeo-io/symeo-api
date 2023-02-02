@@ -27,10 +27,13 @@ class OwnerEntity {
 @table(config.database.configuration.tableName)
 export default class ConfigurationEntity extends AbstractEntity {
   @hashKey()
-  id: string;
+  hashKey: string;
 
   @rangeKey()
   rangeKey: string;
+
+  @attribute()
+  id: string;
 
   @attribute()
   name: string;
@@ -64,11 +67,12 @@ export default class ConfigurationEntity extends AbstractEntity {
 
   static fromDomain(configuration: Configuration): ConfigurationEntity {
     const entity = new ConfigurationEntity();
-    entity.id = configuration.id;
-    entity.rangeKey = ConfigurationEntity.buildRangeKey(
+    entity.hashKey = ConfigurationEntity.buildHashKey(
       configuration.vcsType,
       configuration.repository.vcsId,
     );
+    entity.rangeKey = configuration.id;
+    entity.id = configuration.id;
     entity.name = configuration.name;
     entity.vcsType = configuration.vcsType;
     entity.repository = configuration.repository;
@@ -79,7 +83,7 @@ export default class ConfigurationEntity extends AbstractEntity {
     return entity;
   }
 
-  static buildRangeKey(vcsType: VCSProvider, repositoryVcsId: number) {
+  static buildHashKey(vcsType: VCSProvider, repositoryVcsId: number) {
     return `${vcsType}|${repositoryVcsId}`;
   }
 }

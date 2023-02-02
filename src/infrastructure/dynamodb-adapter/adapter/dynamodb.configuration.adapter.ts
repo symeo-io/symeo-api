@@ -24,6 +24,17 @@ export default class DynamodbConfigurationAdapter
     return entity.toDomain();
   }
 
+  async findAllForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<Configuration[]> {
+    const entities = await this.configurationRepository.findAllForRepositoryId(
+      vcsType,
+      vcsRepositoryId,
+    );
+    return entities.map((entity) => entity.toDomain());
+  }
+
   save(configuration: Configuration): Promise<void> {
     return this.configurationRepository.save(
       ConfigurationEntity.fromDomain(configuration),
