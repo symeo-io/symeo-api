@@ -78,7 +78,7 @@ export default class GithubAdapter implements GithubAdapterPort {
         alreadyCollectedRepositoriesDTO,
       );
     }
-    return GithubRepositoryMapper.dtoToDomain(
+    return GithubRepositoryMapper.dtosToDomain(
       organizationName,
       alreadyCollectedRepositoriesDTO,
     );
