@@ -45,6 +45,15 @@ export class DynamoDbTestUtils {
     return this.client.dataMapper.get(Object.assign(new Model(), { id }));
   }
 
+  public async get<T extends StringToAnyObjectMap>(
+    Model: ZeroArgumentsConstructor<T>,
+    params: any,
+  ) {
+    return this.client.dataMapper.get(
+      Object.assign(new Model(), { ...params }),
+    );
+  }
+
   public async put<T extends StringToAnyObjectMap>(value: T) {
     return this.client.dataMapper.put(value);
   }

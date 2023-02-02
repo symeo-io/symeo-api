@@ -44,7 +44,7 @@ describe('VCSAccessTokenAdapter', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith({ id: userId });
       expect(receivedToken).toEqual(mockGitHubAccessToken);
-      spy.mockClear();
+      spy.mockRestore();
     });
 
     it('should return undefined when no identities for user', async () => {
@@ -66,7 +66,7 @@ describe('VCSAccessTokenAdapter', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith({ id: userId });
       expect(receivedToken).toEqual(undefined);
-      spy.mockClear();
+      spy.mockRestore();
     });
 
     it('should return undefined when no github identity', async () => {
@@ -97,7 +97,7 @@ describe('VCSAccessTokenAdapter', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith({ id: userId });
       expect(receivedToken).toEqual(undefined);
-      spy.mockClear();
+      spy.mockRestore();
     });
   });
 });
