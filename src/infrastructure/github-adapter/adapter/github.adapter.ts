@@ -29,12 +29,16 @@ export default class GithubAdapter implements GithubAdapterPort {
         alreadyCollectedOrganizationsDTO,
       );
     }
-    return GithubOrganizationMapper.dtosToDomain(
-      alreadyCollectedOrganizationsDTO.filter(
-        (dto, position) =>
-          alreadyCollectedOrganizationsDTO.indexOf(dto) == position,
-      ),
-    );
+    const vcsOrganizations: VcsOrganization[] =
+      GithubOrganizationMapper.dtoToDomains(alreadyCollectedOrganizationsDTO);
+    return [
+      ...new Map(
+        vcsOrganizations.map((vcsOrganization) => [
+          vcsOrganization.vcsId,
+          vcsOrganization,
+        ]),
+      ).values(),
+    ];
   }
 
   private addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
@@ -79,7 +83,7 @@ export default class GithubAdapter implements GithubAdapterPort {
         alreadyCollectedRepositoriesDTO,
       );
     }
-    return GithubRepositoryMapper.dtosToDomain(alreadyCollectedRepositoriesDTO);
+    return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
 
   private addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(

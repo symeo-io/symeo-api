@@ -3,10 +3,10 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 
 export class GithubOrganizationMapper {
-  static dtosToDomain(
-    githubRepositoriesForUserDTO: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'],
+  static dtoToDomains(
+    githubRepositoryForUserDTOs: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'],
   ): VcsOrganization[] {
-    return githubRepositoriesForUserDTO.map(this.dtoToDomain);
+    return githubRepositoryForUserDTOs.map(this.dtoToDomain);
   }
 
   static dtoToDomain(
