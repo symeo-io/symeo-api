@@ -18,6 +18,7 @@ export class GithubRepositoryMapper {
       {
         name: githubRepositoryDTO.owner.login,
         id: githubRepositoryDTO.owner.id,
+        avatarUrl: githubRepositoryDTO.owner.avatar_url,
       },
       githubRepositoryDTO.pushed_at
         ? new Date(githubRepositoryDTO.pushed_at)

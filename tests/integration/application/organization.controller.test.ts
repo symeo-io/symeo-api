@@ -101,6 +101,8 @@ describe('OrganizationController', () => {
       const mockVcsId = mockGitHubRepositoriesStub1[0].id;
       const mockOrganizationName = mockGitHubRepositoriesStub1[0].owner.login;
       const mockOrganizationId = mockGitHubRepositoriesStub1[0].owner.id;
+      const mockOrganizationAvatarUrl =
+        mockGitHubRepositoriesStub1[0].owner.avatar_url;
       const mockGitHubRepositoriesResponse1 = {
         status: 200 as const,
         headers: {},
@@ -140,6 +142,7 @@ describe('OrganizationController', () => {
               owner: {
                 name: mockOrganizationName,
                 vcsId: mockOrganizationId,
+                avatarUrl: mockOrganizationAvatarUrl,
               },
               pushedAt: '2011-01-26T19:06:43.000Z',
               vcsType: VCSProvider.GitHub,

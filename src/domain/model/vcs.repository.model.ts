@@ -3,7 +3,7 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 export class VcsRepository {
   id: number;
   name: string;
-  owner: { name: string; id: number };
+  owner: { name: string; id: number; avatarUrl: string };
   pushedAt?: Date;
   vcsType: VCSProvider;
   vcsUrl: string;
@@ -11,7 +11,7 @@ export class VcsRepository {
   constructor(
     id: number,
     name: string,
-    owner: { name: string; id: number },
+    owner: { name: string; id: number; avatarUrl: string },
     pushedAt: Date | undefined,
     vcsType: VCSProvider,
     vcsUrl: string,
