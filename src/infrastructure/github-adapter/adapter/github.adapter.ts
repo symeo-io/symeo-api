@@ -4,6 +4,8 @@ import { GithubOrganizationMapper } from 'src/infrastructure/github-adapter/mapp
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';
 import User from 'src/domain/model/user.model';
+import { VcsRepository } from 'src/domain/model/vcs.repository.model';
+import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -41,6 +43,53 @@ export default class GithubAdapter implements GithubAdapterPort {
   ) {
     organizationsDTO.map((organizationDTO) =>
       alreadyCollectedOrganizationsDTO.push(organizationDTO),
+    );
+  }
+
+  async getRepositories(
+    user: User,
+    organizationName: string,
+  ): Promise<VcsRepository[]> {
+    let page = 1;
+    const perPage: number = config.vcsProvider.paginationLength;
+    const alreadyCollectedRepositoriesDTO: Array<any> = [];
+    let githubRepositoriesDTO: Array<any> =
+      await this.githubHttpClient.getRepositories(
+        user,
+        organizationName,
+        page,
+        perPage,
+      );
+    this.addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
+      githubRepositoriesDTO,
+      alreadyCollectedRepositoriesDTO,
+    );
+
+    while (githubRepositoriesDTO.length === perPage) {
+      page += 1;
+      githubRepositoriesDTO = await this.githubHttpClient.getRepositories(
+        user,
+        organizationName,
+        page,
+        perPage,
+      );
+      this.addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
+        githubRepositoriesDTO,
+        alreadyCollectedRepositoriesDTO,
+      );
+    }
+    return GithubRepositoryMapper.dtoToDomain(
+      organizationName,
+      alreadyCollectedRepositoriesDTO,
+    );
+  }
+
+  private addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
+    githubRepositoriesDTO: Array<any>,
+    alreadyCollectedRepositoriesDTO: Array<any>,
+  ) {
+    githubRepositoriesDTO.map((RepositoryDTO) =>
+      alreadyCollectedRepositoriesDTO.push(RepositoryDTO),
     );
   }
 }
