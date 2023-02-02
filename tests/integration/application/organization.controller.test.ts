@@ -93,7 +93,6 @@ describe('OrganizationController', () => {
     it('should respond 200 with github repository', async () => {
       // Given
       const mockGitHubToken = uuid();
-      const mockOrganizationName = faker.name.firstName();
       const mockGitHubRepositoriesStub1 = JSON.parse(
         fs
           .readFileSync(
@@ -101,6 +100,7 @@ describe('OrganizationController', () => {
           )
           .toString(),
       );
+      const mockOrganizationName = mockGitHubRepositoriesStub1[0].owner.login;
       const mockGitHubRepositoriesResponse1 = {
         status: 200 as const,
         headers: {},

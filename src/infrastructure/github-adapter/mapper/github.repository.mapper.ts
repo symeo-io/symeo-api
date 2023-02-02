@@ -4,22 +4,18 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export class GithubRepositoryMapper {
   static dtosToDomain(
-    organizationName: string,
     githubRepositoriesDTO: RestEndpointMethodTypes['repos']['listForOrg']['response']['data'],
   ): VcsRepository[] {
-    return githubRepositoriesDTO.map((githubRepositoryDTO) =>
-      this.dtoToDomain(organizationName, githubRepositoryDTO),
-    );
+    return githubRepositoriesDTO.map(this.dtoToDomain);
   }
 
   private static dtoToDomain(
-    organizationName: string,
     githubRepositoryDTO: RestEndpointMethodTypes['repos']['listForOrg']['response']['data'][0],
   ): VcsRepository {
     return new VcsRepository(
       githubRepositoryDTO.id,
       githubRepositoryDTO.name,
-      organizationName,
+      githubRepositoryDTO.owner.login,
       githubRepositoryDTO.pushed_at == null
         ? ''
         : githubRepositoryDTO.pushed_at.toString(),
