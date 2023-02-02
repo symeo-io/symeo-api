@@ -13,8 +13,8 @@ export default class ConfigurationRepository {
     try {
       return await this.dynamoDBClient.dataMapper.get(
         Object.assign(new ConfigurationEntity(), {
-          id,
-          rangeKey: ConfigurationEntity.buildRangeKey(vcsType, vcsRepositoryId),
+          rangeKey: id,
+          hashKey: ConfigurationEntity.buildHashKey(vcsType, vcsRepositoryId),
         }),
       );
     } catch (e) {
@@ -24,6 +24,23 @@ export default class ConfigurationRepository {
 
       return undefined;
     }
+  }
+
+  public async findAllForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<ConfigurationEntity[]> {
+    const configurations: ConfigurationEntity[] = [];
+    for await (const configuration of this.dynamoDBClient.dataMapper.query(
+      ConfigurationEntity,
+      {
+        hashKey: ConfigurationEntity.buildHashKey(vcsType, vcsRepositoryId),
+      },
+    )) {
+      configurations.push(configuration);
+    }
+
+    return configurations;
   }
 
   public async save(configuration: ConfigurationEntity): Promise<void> {

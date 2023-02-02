@@ -7,6 +7,11 @@ export default interface ConfigurationFacade {
     vcsRepositoryId: number,
     id: string,
   ): Promise<Configuration | undefined>;
+
+  findAllForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<Configuration[]>;
   save(configuration: Configuration): Promise<void>;
   delete(configuration: Configuration): Promise<void>;
 }
