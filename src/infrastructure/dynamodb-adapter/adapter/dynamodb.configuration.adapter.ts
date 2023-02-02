@@ -2,13 +2,22 @@ import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationRepository from 'src/infrastructure/dynamodb-adapter/repository/configuration.repository';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export default class DynamodbConfigurationAdapter
   implements ConfigurationStoragePort
 {
   constructor(private configurationRepository: ConfigurationRepository) {}
-  async findById(id: string): Promise<Configuration | undefined> {
-    const entity = await this.configurationRepository.findById(id);
+  async findById(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<Configuration | undefined> {
+    const entity = await this.configurationRepository.findById(
+      vcsType,
+      vcsRepositoryId,
+      id,
+    );
 
     if (!entity) return undefined;
 

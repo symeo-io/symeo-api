@@ -1,13 +1,21 @@
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 import { DynamoDBClient } from 'src/infrastructure/dynamodb-adapter/dynamodb.client';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export default class ConfigurationRepository {
   constructor(private readonly dynamoDBClient: DynamoDBClient) {}
 
-  public async findById(id: string): Promise<ConfigurationEntity | undefined> {
+  public async findById(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<ConfigurationEntity | undefined> {
     try {
       return await this.dynamoDBClient.dataMapper.get(
-        Object.assign(new ConfigurationEntity(), { id }),
+        Object.assign(new ConfigurationEntity(), {
+          id,
+          rangeKey: ConfigurationEntity.buildRangeKey(vcsType, vcsRepositoryId),
+        }),
       );
     } catch (e) {
       if ((e as Error).name !== 'ItemNotFoundException') {

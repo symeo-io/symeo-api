@@ -50,8 +50,15 @@ export default class ConfigurationEntity extends AbstractEntity {
   static fromDomain(configuration: Configuration): ConfigurationEntity {
     const entity = new ConfigurationEntity();
     entity.id = configuration.id;
-    entity.rangeKey = `${configuration.vcsType}|${configuration.repository.vcsId}`;
+    entity.rangeKey = ConfigurationEntity.buildRangeKey(
+      configuration.vcsType,
+      configuration.repository.vcsId,
+    );
 
     return entity;
+  }
+
+  static buildRangeKey(vcsType: VCSProvider, repositoryVcsId: number) {
+    return `${vcsType}|${repositoryVcsId}`;
   }
 }
