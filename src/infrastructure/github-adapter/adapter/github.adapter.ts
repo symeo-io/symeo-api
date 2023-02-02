@@ -63,4 +63,11 @@ export default class GithubAdapter implements GithubAdapterPort {
     }
     return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
+
+  async hasAccessToRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<boolean> {
+    return this.githubHttpClient.hasAccessToRepository(user, repositoryVcsId);
+  }
 }

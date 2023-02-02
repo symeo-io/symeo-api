@@ -1,5 +1,5 @@
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
-import Configuration from 'src/domain/model/configuration.model';
+import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
