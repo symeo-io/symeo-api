@@ -14,14 +14,14 @@ const ConfigurationFacadeProvider = {
   inject: ['DynamodbConfigurationAdapter'],
 };
 
-const OrganizationFacade = {
+const OrganizationFacadeProvider = {
   provide: 'OrganizationFacade',
   useFactory: (githubAdapterPort: GithubAdapterPort) =>
     new OrganizationService(githubAdapterPort),
   inject: ['GithubAdapter'],
 };
 
-const RepositoryFacade = {
+const RepositoryFacadeProvider = {
   provide: 'RepositoryFacade',
   useFactory: (githubAdapterPort: GithubAdapterPort) =>
     new RepositoryService(githubAdapterPort),
@@ -32,9 +32,13 @@ const RepositoryFacade = {
   imports: [DynamodbAdapterModule, GithubAdapterModule],
   providers: [
     ConfigurationFacadeProvider,
-    OrganizationFacade,
-    RepositoryFacade,
+    OrganizationFacadeProvider,
+    RepositoryFacadeProvider,
   ],
-  exports: [ConfigurationFacadeProvider, OrganizationFacade, RepositoryFacade],
+  exports: [
+    ConfigurationFacadeProvider,
+    OrganizationFacadeProvider,
+    RepositoryFacadeProvider,
+  ],
 })
 export class DomainModule {}

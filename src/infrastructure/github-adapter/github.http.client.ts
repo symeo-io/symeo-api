@@ -47,4 +47,84 @@ export class GithubHttpClient {
     });
     return response.data;
   }
+
+  async getRepositoryById(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<
+    RestEndpointMethodTypes['repos']['get']['response']['data'] | undefined
+  > {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+      user.id,
+    );
+
+    try {
+      const response = await this.client.request('GET /repositories/{id}', {
+        id: repositoryVcsId,
+        headers: { Authorization: `token ${token}` },
+      });
+
+      return response.data;
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return undefined;
+      }
+
+      throw e;
+    }
+  }
+
+  async hasAccessToRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<boolean> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+      user.id,
+    );
+
+    try {
+      const response = await this.client.request('GET /repositories/{id}', {
+        id: repositoryVcsId,
+        headers: { Authorization: `token ${token}` },
+      });
+
+      return response.status === 200;
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return false;
+      }
+
+      throw e;
+    }
+  }
+
+  async checkFileExistsOnBranch(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+      user.id,
+    );
+
+    try {
+      const response = await this.client.repos.getContent({
+        owner: repositoryOwnerName,
+        repo: repositoryName,
+        path: filePath,
+        ref: branch,
+        headers: { Authorization: `token ${token}` },
+      });
+
+      return response.status === 200;
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return false;
+      }
+
+      throw e;
+    }
+  }
 }

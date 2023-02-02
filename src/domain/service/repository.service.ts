@@ -20,4 +20,55 @@ export class RepositoryService implements RepositoryFacade {
         return [];
     }
   }
+
+  async getRepositoryById(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsRepository | undefined> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.getRepositoryById(
+          user,
+          repositoryVcsId,
+        );
+      default:
+        return undefined;
+    }
+  }
+
+  async hasAccessToRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<boolean> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.hasAccessToRepository(
+          user,
+          repositoryVcsId,
+        );
+      default:
+        return false;
+    }
+  }
+
+  async checkFileExistsOnBranch(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.checkFileExistsOnBranch(
+          user,
+          repositoryOwnerName,
+          repositoryName,
+          filePath,
+          branch,
+        );
+      default:
+        return false;
+    }
+  }
 }

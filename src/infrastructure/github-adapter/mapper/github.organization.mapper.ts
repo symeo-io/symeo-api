@@ -4,18 +4,18 @@ import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/d
 
 export class GithubOrganizationMapper {
   static dtoToDomains(
-    githubRepositoryForUserDTOs: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'],
+    githubOrganizationDTOs: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0]['owner'][],
   ): VcsOrganization[] {
-    return githubRepositoryForUserDTOs.map(this.dtoToDomain);
+    return githubOrganizationDTOs.map(this.dtoToDomain);
   }
 
   static dtoToDomain(
-    githubRepositoryForUserDTO: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0],
+    githubOrganizationDTO: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0]['owner'],
   ): VcsOrganization {
     return new VcsOrganization(
-      githubRepositoryForUserDTO.owner.id,
-      githubRepositoryForUserDTO.owner.login,
-      githubRepositoryForUserDTO.owner.avatar_url,
+      githubOrganizationDTO.id,
+      githubOrganizationDTO.login,
+      githubOrganizationDTO.avatar_url,
       VCSProvider.GitHub,
     );
   }

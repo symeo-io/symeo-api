@@ -6,4 +6,19 @@ export interface RepositoryFacade {
     user: User,
     organizationName: string,
   ): Promise<VcsRepository[]>;
+
+  getRepositoryById(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsRepository | undefined>;
+
+  hasAccessToRepository(user: User, repositoryVcsId: number): Promise<boolean>;
+
+  checkFileExistsOnBranch(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean>;
 }

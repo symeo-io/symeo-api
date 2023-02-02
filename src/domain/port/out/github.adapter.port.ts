@@ -8,4 +8,17 @@ export default interface GithubAdapterPort {
     user: User,
     organizationName: string,
   ): Promise<VcsRepository[]>;
+  hasAccessToRepository(user: User, repositoryVcsId: number): Promise<boolean>;
+  getRepositoryById(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsRepository | undefined>;
+
+  checkFileExistsOnBranch(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean>;
 }

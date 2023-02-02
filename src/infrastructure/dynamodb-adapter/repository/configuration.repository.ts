@@ -1,13 +1,21 @@
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 import { DynamoDBClient } from 'src/infrastructure/dynamodb-adapter/dynamodb.client';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export default class ConfigurationRepository {
   constructor(private readonly dynamoDBClient: DynamoDBClient) {}
 
-  public async findById(id: string): Promise<ConfigurationEntity | undefined> {
+  public async findById(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<ConfigurationEntity | undefined> {
     try {
       return await this.dynamoDBClient.dataMapper.get(
-        Object.assign(new ConfigurationEntity(), { id }),
+        Object.assign(new ConfigurationEntity(), {
+          rangeKey: id,
+          hashKey: ConfigurationEntity.buildHashKey(vcsType, vcsRepositoryId),
+        }),
       );
     } catch (e) {
       if ((e as Error).name !== 'ItemNotFoundException') {
@@ -18,7 +26,29 @@ export default class ConfigurationRepository {
     }
   }
 
+  public async findAllForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<ConfigurationEntity[]> {
+    const configurations: ConfigurationEntity[] = [];
+    for await (const configuration of this.dynamoDBClient.dataMapper.query(
+      ConfigurationEntity,
+      {
+        hashKey: ConfigurationEntity.buildHashKey(vcsType, vcsRepositoryId),
+      },
+    )) {
+      configurations.push(configuration);
+    }
+
+    return configurations;
+  }
+
   public async save(configuration: ConfigurationEntity): Promise<void> {
+    configuration.updatedAt = new Date();
     await this.dynamoDBClient.dataMapper.put(configuration);
+  }
+
+  public async delete(configuration: ConfigurationEntity): Promise<void> {
+    await this.dynamoDBClient.dataMapper.delete(configuration);
   }
 }
