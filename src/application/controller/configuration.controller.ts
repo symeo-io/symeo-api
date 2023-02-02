@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -56,18 +57,30 @@ export class ConfigurationController {
   @Post('github')
   async createForGitHub(
     @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
+    @CurrentUser() user: User,
   ): Promise<ConfigurationDTO> {
+    const repository = await this.repositoryFacade.getRepositoryById(
+      user,
+      createConfigurationDTO.repositoryVcsId,
+    );
+
+    if (!repository) {
+      throw new BadRequestException({
+        message: `No repository found with id ${createConfigurationDTO.repositoryVcsId}`,
+      }); // TODO implement error management
+    }
+
     const configuration = new Configuration(
       uuid(),
       createConfigurationDTO.name,
       VCSProvider.GitHub,
       {
-        name: 'test',
+        name: repository.name,
         vcsId: createConfigurationDTO.repositoryVcsId,
       },
       {
-        name: 'test',
-        vcsId: 1234,
+        name: repository.owner.name,
+        vcsId: repository.owner.id,
       },
       createConfigurationDTO.configFormatFilePath,
       createConfigurationDTO.branch,

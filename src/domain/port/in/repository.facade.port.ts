@@ -6,5 +6,11 @@ export interface RepositoryFacade {
     user: User,
     organizationName: string,
   ): Promise<VcsRepository[]>;
+
+  getRepositoryById(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsRepository | undefined>;
+
   hasAccessToRepository(user: User, repositoryVcsId: number): Promise<boolean>;
 }

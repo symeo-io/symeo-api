@@ -6,6 +6,7 @@ import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.
 import User from 'src/domain/model/user.model';
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
+import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -34,6 +35,24 @@ export default class GithubAdapter implements GithubAdapterPort {
     }
     return GithubOrganizationMapper.dtoToDomain(
       alreadyCollectedOrganizationsDTO,
+    );
+  }
+
+  async getRepositoryById(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsRepository | undefined> {
+    const gitHubRepository = await this.githubHttpClient.getRepositoryById(
+      user,
+      repositoryVcsId,
+    );
+
+    if (!gitHubRepository) {
+      return undefined;
+    }
+
+    return GithubRepositoryMapper.dtoToDomain(
+      gitHubRepository as RestEndpointMethodTypes['repos']['listForOrg']['response']['data'][0],
     );
   }
 
