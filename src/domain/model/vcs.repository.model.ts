@@ -7,6 +7,7 @@ export class VcsRepository {
   pushedAt?: Date;
   vcsType: VCSProvider;
   vcsUrl: string;
+  configurationCount?: number;
 
   constructor(
     id: number,

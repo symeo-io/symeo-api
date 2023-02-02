@@ -8,6 +8,7 @@ export class VcsRepositoryDTO {
   pushedAt?: string;
   vcsType: VCSProvider;
   vcsUrl: string;
+  configurationCount?: number;
 
   constructor(
     vcsId: number,
@@ -16,6 +17,7 @@ export class VcsRepositoryDTO {
     pushedAt: string | undefined,
     vcsType: VCSProvider,
     vcsUrl: string,
+    configurationCount?: number,
   ) {
     this.vcsId = vcsId;
     this.name = name;
@@ -23,6 +25,7 @@ export class VcsRepositoryDTO {
     this.pushedAt = pushedAt;
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
+    this.configurationCount = configurationCount;
   }
 
   public static fromDomains(repositories: VcsRepository[]): VcsRepositoryDTO[] {
@@ -41,6 +44,7 @@ export class VcsRepositoryDTO {
       repository.pushedAt?.toISOString(),
       repository.vcsType,
       repository.vcsUrl,
+      repository.configurationCount,
     );
   }
 }

@@ -23,9 +23,11 @@ const OrganizationFacadeProvider = {
 
 const RepositoryFacadeProvider = {
   provide: 'RepositoryFacade',
-  useFactory: (githubAdapterPort: GithubAdapterPort) =>
-    new RepositoryService(githubAdapterPort),
-  inject: ['GithubAdapter'],
+  useFactory: (
+    githubAdapterPort: GithubAdapterPort,
+    configurationStoragePort: ConfigurationStoragePort,
+  ) => new RepositoryService(githubAdapterPort, configurationStoragePort),
+  inject: ['GithubAdapter', 'DynamodbConfigurationAdapter'],
 };
 
 @Module({
