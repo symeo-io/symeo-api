@@ -6,6 +6,7 @@ import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.
 import User from 'src/domain/model/user.model';
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
+import { uniqBy } from 'lodash';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -13,40 +14,21 @@ export default class GithubAdapter implements GithubAdapterPort {
   async getOrganizations(user: User): Promise<VcsOrganization[]> {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
-    const alreadyCollectedOrganizationsDTO: Array<any> = [];
-    let githubRepositoriesForUserDTO: Array<any> =
+    let githubRepositoriesForUserDTO =
       await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
-    this.addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
-      githubRepositoriesForUserDTO,
-      alreadyCollectedOrganizationsDTO,
-    );
+    let alreadyCollectedOrganizationsDTO = githubRepositoriesForUserDTO;
+
     while (githubRepositoriesForUserDTO.length === perPage) {
       page += 1;
       githubRepositoriesForUserDTO =
         await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
-      this.addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
-        githubRepositoriesForUserDTO,
-        alreadyCollectedOrganizationsDTO,
-      );
-    }
-    const vcsOrganizations: VcsOrganization[] =
-      GithubOrganizationMapper.dtoToDomains(alreadyCollectedOrganizationsDTO);
-    return [
-      ...new Map(
-        vcsOrganizations.map((vcsOrganization) => [
-          vcsOrganization.vcsId,
-          vcsOrganization,
-        ]),
-      ).values(),
-    ];
-  }
 
-  private addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
-    githubRepositoriesForUserDTO: Array<any>,
-    alreadyCollectedRepositoriesDTO: Array<any>,
-  ) {
-    githubRepositoriesForUserDTO.map((organizationDTO) =>
-      alreadyCollectedRepositoriesDTO.push(organizationDTO),
+      alreadyCollectedOrganizationsDTO =
+        alreadyCollectedOrganizationsDTO.concat(githubRepositoriesForUserDTO);
+    }
+
+    return GithubOrganizationMapper.dtoToDomains(
+      uniqBy(alreadyCollectedOrganizationsDTO, 'id'),
     );
   }
 
@@ -56,18 +38,14 @@ export default class GithubAdapter implements GithubAdapterPort {
   ): Promise<VcsRepository[]> {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
-    const alreadyCollectedRepositoriesDTO: Array<any> = [];
-    let githubRepositoriesForOrganizationDTO: Array<any> =
+    let githubRepositoriesForOrganizationDTO =
       await this.githubHttpClient.getRepositoriesForOrganization(
         user,
         organizationName,
         page,
         perPage,
       );
-    this.addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(
-      githubRepositoriesForOrganizationDTO,
-      alreadyCollectedRepositoriesDTO,
-    );
+    let alreadyCollectedRepositoriesDTO = githubRepositoriesForOrganizationDTO;
 
     while (githubRepositoriesForOrganizationDTO.length === perPage) {
       page += 1;
@@ -78,20 +56,11 @@ export default class GithubAdapter implements GithubAdapterPort {
           page,
           perPage,
         );
-      this.addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(
+
+      alreadyCollectedRepositoriesDTO = alreadyCollectedRepositoriesDTO.concat(
         githubRepositoriesForOrganizationDTO,
-        alreadyCollectedRepositoriesDTO,
       );
     }
     return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
-  }
-
-  private addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(
-    githubRepositoriesForOrganizationDTO: Array<any>,
-    alreadyCollectedRepositoriesDTO: Array<any>,
-  ) {
-    githubRepositoriesForOrganizationDTO.map((RepositoryForUserDTO) =>
-      alreadyCollectedRepositoriesDTO.push(RepositoryForUserDTO),
-    );
   }
 }
