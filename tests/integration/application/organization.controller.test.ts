@@ -6,7 +6,6 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
 import * as fs from 'fs';
-import path from 'path';
 
 describe('OrganizationController', () => {
   let appClient: AppClient;
@@ -99,7 +98,9 @@ describe('OrganizationController', () => {
           )
           .toString(),
       );
+      const mockVcsId = mockGitHubRepositoriesStub1[0].id;
       const mockOrganizationName = mockGitHubRepositoriesStub1[0].owner.login;
+      const mockOrganizationId = mockGitHubRepositoriesStub1[0].owner.id;
       const mockGitHubRepositoriesResponse1 = {
         status: 200 as const,
         headers: {},
@@ -134,9 +135,13 @@ describe('OrganizationController', () => {
         .expect({
           repositories: [
             {
+              vcsId: mockVcsId,
               name: 'Hello-World',
-              organization: mockOrganizationName,
-              pushedAt: '2011-01-26T19:06:43Z',
+              owner: {
+                name: mockOrganizationName,
+                vcsId: mockOrganizationId,
+              },
+              pushedAt: '2011-01-26T19:06:43.000Z',
               vcsType: VCSProvider.GitHub,
               vcsUrl: 'https://github.com/octocat/Hello-World',
             },
