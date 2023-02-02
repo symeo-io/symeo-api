@@ -17,19 +17,23 @@ export default class GithubAdapter implements GithubAdapterPort {
     const perPage: number = config.vcsProvider.paginationLength;
     let githubRepositoriesForUserDTO =
       await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
-    let alreadyCollectedOrganizationsDTO = githubRepositoriesForUserDTO;
+    let alreadyCollectedRepositoriesDTO = githubRepositoriesForUserDTO;
 
     while (githubRepositoriesForUserDTO.length === perPage) {
       page += 1;
       githubRepositoriesForUserDTO =
         await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
 
-      alreadyCollectedOrganizationsDTO =
-        alreadyCollectedOrganizationsDTO.concat(githubRepositoriesForUserDTO);
+      alreadyCollectedRepositoriesDTO = alreadyCollectedRepositoriesDTO.concat(
+        githubRepositoriesForUserDTO,
+      );
     }
 
+    const gitHubOrganizationsDTO = alreadyCollectedRepositoriesDTO.map(
+      (repository) => repository.owner,
+    );
     return GithubOrganizationMapper.dtoToDomains(
-      uniqBy(alreadyCollectedOrganizationsDTO, 'id'),
+      uniqBy(gitHubOrganizationsDTO, 'id'),
     );
   }
 
