@@ -8,4 +8,5 @@ export default interface ConfigurationStoragePort {
     id: string,
   ): Promise<Configuration | undefined>;
   save(configuration: Configuration): Promise<void>;
+  delete(configuration: Configuration): Promise<void>;
 }

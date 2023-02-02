@@ -29,4 +29,10 @@ export default class DynamodbConfigurationAdapter
       ConfigurationEntity.fromDomain(configuration),
     );
   }
+
+  delete(configuration: Configuration): Promise<void> {
+    return this.configurationRepository.delete(
+      ConfigurationEntity.fromDomain(configuration),
+    );
+  }
 }

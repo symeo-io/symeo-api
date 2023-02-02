@@ -38,20 +38,21 @@ export class DynamoDbTestUtils {
     return items;
   }
 
-  public async getById<T extends StringToAnyObjectMap>(
-    Model: ZeroArgumentsConstructor<T>,
-    id: string,
-  ) {
-    return this.client.dataMapper.get(Object.assign(new Model(), { id }));
-  }
-
   public async get<T extends StringToAnyObjectMap>(
     Model: ZeroArgumentsConstructor<T>,
     params: any,
   ) {
-    return this.client.dataMapper.get(
-      Object.assign(new Model(), { ...params }),
-    );
+    try {
+      return await this.client.dataMapper.get(
+        Object.assign(new Model(), { ...params }),
+      );
+    } catch (e) {
+      if ((e as Error).name !== 'ItemNotFoundException') {
+        throw e;
+      }
+
+      return undefined;
+    }
   }
 
   public async put<T extends StringToAnyObjectMap>(value: T) {
