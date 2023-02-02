@@ -2,21 +2,24 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
 
 export class VcsRepositoryDTO {
+  vcsId: number;
   name: string;
-  organization: string;
-  pushedAt: string;
+  owner: { vcsId: number; name: string };
+  pushedAt?: string;
   vcsType: VCSProvider;
   vcsUrl: string;
 
   constructor(
+    vcsId: number,
     name: string,
-    organization: string,
-    pushedAt: string,
+    owner: { vcsId: number; name: string },
+    pushedAt: string | undefined,
     vcsType: VCSProvider,
     vcsUrl: string,
   ) {
+    this.vcsId = vcsId;
     this.name = name;
-    this.organization = organization;
+    this.owner = owner;
     this.pushedAt = pushedAt;
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
@@ -28,9 +31,10 @@ export class VcsRepositoryDTO {
 
   public static fromDomain(repository: VcsRepository): VcsRepositoryDTO {
     return new VcsRepositoryDTO(
+      repository.id,
       repository.name,
-      repository.organization,
-      repository.pushedAt,
+      { vcsId: repository.owner.id, name: repository.owner.name },
+      repository.pushedAt?.toString(),
       repository.vcsType,
       repository.vcsUrl,
     );

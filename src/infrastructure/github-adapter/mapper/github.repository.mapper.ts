@@ -9,16 +9,19 @@ export class GithubRepositoryMapper {
     return githubRepositoryDTOs.map(this.dtoToDomain);
   }
 
-  private static dtoToDomain(
+  public static dtoToDomain(
     githubRepositoryDTO: RestEndpointMethodTypes['repos']['listForOrg']['response']['data'][0],
   ): VcsRepository {
     return new VcsRepository(
       githubRepositoryDTO.id,
       githubRepositoryDTO.name,
-      githubRepositoryDTO.owner.login,
-      githubRepositoryDTO.pushed_at == null
-        ? ''
-        : githubRepositoryDTO.pushed_at.toString(),
+      {
+        name: githubRepositoryDTO.owner.login,
+        id: githubRepositoryDTO.owner.id,
+      },
+      githubRepositoryDTO.pushed_at
+        ? new Date(githubRepositoryDTO.pushed_at)
+        : undefined,
       VCSProvider.GitHub,
       githubRepositoryDTO.html_url,
     );
