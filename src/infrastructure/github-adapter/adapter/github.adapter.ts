@@ -30,7 +30,10 @@ export default class GithubAdapter implements GithubAdapterPort {
       );
     }
     return GithubOrganizationMapper.dtosToDomain(
-      alreadyCollectedOrganizationsDTO,
+      alreadyCollectedOrganizationsDTO.filter(
+        (dto, position) =>
+          alreadyCollectedOrganizationsDTO.indexOf(dto) == position,
+      ),
     );
   }
 
