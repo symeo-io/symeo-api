@@ -34,7 +34,7 @@ export class VcsRepositoryDTO {
       repository.id,
       repository.name,
       { vcsId: repository.owner.id, name: repository.owner.name },
-      repository.pushedAt?.toString(),
+      repository.pushedAt?.toISOString(),
       repository.vcsType,
       repository.vcsUrl,
     );
