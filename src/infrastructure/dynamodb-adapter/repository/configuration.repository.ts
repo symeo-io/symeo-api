@@ -19,6 +19,7 @@ export default class ConfigurationRepository {
   }
 
   public async save(configuration: ConfigurationEntity): Promise<void> {
+    configuration.updatedAt = new Date();
     await this.dynamoDBClient.dataMapper.put(configuration);
   }
 }

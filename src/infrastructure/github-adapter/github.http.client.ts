@@ -47,4 +47,20 @@ export class GithubHttpClient {
     });
     return response.data;
   }
+
+  async hasAccessToRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<boolean> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+      user.id,
+    );
+
+    const response = await this.client.request('GET /repositories/{id}', {
+      id: repositoryVcsId,
+      headers: { Authorization: `token ${token}` },
+    });
+
+    return response.status === 200;
+  }
 }

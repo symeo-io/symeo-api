@@ -8,4 +8,5 @@ export default interface GithubAdapterPort {
     user: User,
     organizationName: string,
   ): Promise<VcsRepository[]>;
+  hasAccessToRepository(user: User, repositoryVcsId: number): Promise<boolean>;
 }
