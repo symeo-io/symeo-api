@@ -9,17 +9,17 @@ export class GithubHttpClient {
     private client: Octokit,
   ) {}
 
-  async getOrganizations(
+  async getRepositoriesForUser(
     user: User,
     page: number,
     perPage: number,
   ): Promise<
-    RestEndpointMethodTypes['orgs']['listForAuthenticatedUser']['response']['data']
+    RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data']
   > {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
       user.id,
     );
-    const response = await this.client.rest.orgs.listForAuthenticatedUser({
+    const response = await this.client.rest.repos.listForAuthenticatedUser({
       page: page,
       per_page: perPage,
       headers: { Authorization: `token ${token}` },
@@ -28,7 +28,7 @@ export class GithubHttpClient {
     return response.data;
   }
 
-  async getRepositories(
+  async getRepositoriesForOrganization(
     user: User,
     organizationName: string,
     page: number,

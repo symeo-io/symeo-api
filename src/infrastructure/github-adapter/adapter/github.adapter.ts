@@ -6,6 +6,7 @@ import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.
 import User from 'src/domain/model/user.model';
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
+import { uniqBy } from 'lodash';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -13,36 +14,21 @@ export default class GithubAdapter implements GithubAdapterPort {
   async getOrganizations(user: User): Promise<VcsOrganization[]> {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
-    const alreadyCollectedOrganizationsDTO: Array<any> = [];
-    let githubOrganizationsDTO: Array<any> =
-      await this.githubHttpClient.getOrganizations(user, page, perPage);
-    this.addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
-      githubOrganizationsDTO,
-      alreadyCollectedOrganizationsDTO,
-    );
-    while (githubOrganizationsDTO.length === perPage) {
-      page += 1;
-      githubOrganizationsDTO = await this.githubHttpClient.getOrganizations(
-        user,
-        page,
-        perPage,
-      );
-      this.addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
-        githubOrganizationsDTO,
-        alreadyCollectedOrganizationsDTO,
-      );
-    }
-    return GithubOrganizationMapper.dtoToDomain(
-      alreadyCollectedOrganizationsDTO,
-    );
-  }
+    let githubRepositoriesForUserDTO =
+      await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
+    let alreadyCollectedOrganizationsDTO = githubRepositoriesForUserDTO;
 
-  private addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
-    organizationsDTO: Array<any>,
-    alreadyCollectedOrganizationsDTO: Array<any>,
-  ) {
-    organizationsDTO.map((organizationDTO) =>
-      alreadyCollectedOrganizationsDTO.push(organizationDTO),
+    while (githubRepositoriesForUserDTO.length === perPage) {
+      page += 1;
+      githubRepositoriesForUserDTO =
+        await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
+
+      alreadyCollectedOrganizationsDTO =
+        alreadyCollectedOrganizationsDTO.concat(githubRepositoriesForUserDTO);
+    }
+
+    return GithubOrganizationMapper.dtoToDomains(
+      uniqBy(alreadyCollectedOrganizationsDTO, 'id'),
     );
   }
 
@@ -52,41 +38,29 @@ export default class GithubAdapter implements GithubAdapterPort {
   ): Promise<VcsRepository[]> {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
-    const alreadyCollectedRepositoriesDTO: Array<any> = [];
-    let githubRepositoriesDTO: Array<any> =
-      await this.githubHttpClient.getRepositories(
+    let githubRepositoriesForOrganizationDTO =
+      await this.githubHttpClient.getRepositoriesForOrganization(
         user,
         organizationName,
         page,
         perPage,
       );
-    this.addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
-      githubRepositoriesDTO,
-      alreadyCollectedRepositoriesDTO,
-    );
+    let alreadyCollectedRepositoriesDTO = githubRepositoriesForOrganizationDTO;
 
-    while (githubRepositoriesDTO.length === perPage) {
+    while (githubRepositoriesForOrganizationDTO.length === perPage) {
       page += 1;
-      githubRepositoriesDTO = await this.githubHttpClient.getRepositories(
-        user,
-        organizationName,
-        page,
-        perPage,
-      );
-      this.addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
-        githubRepositoriesDTO,
-        alreadyCollectedRepositoriesDTO,
+      githubRepositoriesForOrganizationDTO =
+        await this.githubHttpClient.getRepositoriesForOrganization(
+          user,
+          organizationName,
+          page,
+          perPage,
+        );
+
+      alreadyCollectedRepositoriesDTO = alreadyCollectedRepositoriesDTO.concat(
+        githubRepositoriesForOrganizationDTO,
       );
     }
-    return GithubRepositoryMapper.dtosToDomain(alreadyCollectedRepositoriesDTO);
-  }
-
-  private addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
-    githubRepositoriesDTO: Array<any>,
-    alreadyCollectedRepositoriesDTO: Array<any>,
-  ) {
-    githubRepositoriesDTO.map((RepositoryDTO) =>
-      alreadyCollectedRepositoriesDTO.push(RepositoryDTO),
-    );
+    return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
 }

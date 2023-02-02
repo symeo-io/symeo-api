@@ -3,10 +3,10 @@ import { VcsRepository } from 'src/domain/model/vcs.repository.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export class GithubRepositoryMapper {
-  static dtosToDomain(
-    githubRepositoriesDTO: RestEndpointMethodTypes['repos']['listForOrg']['response']['data'],
+  static dtoToDomains(
+    githubRepositoryDTOs: RestEndpointMethodTypes['repos']['listForOrg']['response']['data'],
   ): VcsRepository[] {
-    return githubRepositoriesDTO.map(this.dtoToDomain);
+    return githubRepositoryDTOs.map(this.dtoToDomain);
   }
 
   private static dtoToDomain(
