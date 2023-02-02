@@ -14,35 +14,32 @@ export default class GithubAdapter implements GithubAdapterPort {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     const alreadyCollectedOrganizationsDTO: Array<any> = [];
-    let githubOrganizationsDTO: Array<any> =
-      await this.githubHttpClient.getOrganizations(user, page, perPage);
-    this.addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
-      githubOrganizationsDTO,
+    let githubRepositoriesForUserDTO: Array<any> =
+      await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
+    this.addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
+      githubRepositoriesForUserDTO,
       alreadyCollectedOrganizationsDTO,
     );
-    while (githubOrganizationsDTO.length === perPage) {
+    while (githubRepositoriesForUserDTO.length === perPage) {
       page += 1;
-      githubOrganizationsDTO = await this.githubHttpClient.getOrganizations(
-        user,
-        page,
-        perPage,
-      );
-      this.addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
-        githubOrganizationsDTO,
+      githubRepositoriesForUserDTO =
+        await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
+      this.addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
+        githubRepositoriesForUserDTO,
         alreadyCollectedOrganizationsDTO,
       );
     }
-    return GithubOrganizationMapper.dtoToDomain(
+    return GithubOrganizationMapper.dtosToDomain(
       alreadyCollectedOrganizationsDTO,
     );
   }
 
-  private addOrganizationsDTOToAlreadyCollectedOrganizationsDTO(
-    organizationsDTO: Array<any>,
-    alreadyCollectedOrganizationsDTO: Array<any>,
+  private addRepositoriesForUserDTOToAlreadyCollectedOrganizationsDTO(
+    githubRepositoriesForUserDTO: Array<any>,
+    alreadyCollectedRepositoriesDTO: Array<any>,
   ) {
-    organizationsDTO.map((organizationDTO) =>
-      alreadyCollectedOrganizationsDTO.push(organizationDTO),
+    githubRepositoriesForUserDTO.map((organizationDTO) =>
+      alreadyCollectedRepositoriesDTO.push(organizationDTO),
     );
   }
 
@@ -53,40 +50,41 @@ export default class GithubAdapter implements GithubAdapterPort {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     const alreadyCollectedRepositoriesDTO: Array<any> = [];
-    let githubRepositoriesDTO: Array<any> =
-      await this.githubHttpClient.getRepositories(
+    let githubRepositoriesForOrganizationDTO: Array<any> =
+      await this.githubHttpClient.getRepositoriesForOrganization(
         user,
         organizationName,
         page,
         perPage,
       );
-    this.addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
-      githubRepositoriesDTO,
+    this.addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(
+      githubRepositoriesForOrganizationDTO,
       alreadyCollectedRepositoriesDTO,
     );
 
-    while (githubRepositoriesDTO.length === perPage) {
+    while (githubRepositoriesForOrganizationDTO.length === perPage) {
       page += 1;
-      githubRepositoriesDTO = await this.githubHttpClient.getRepositories(
-        user,
-        organizationName,
-        page,
-        perPage,
-      );
-      this.addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
-        githubRepositoriesDTO,
+      githubRepositoriesForOrganizationDTO =
+        await this.githubHttpClient.getRepositoriesForOrganization(
+          user,
+          organizationName,
+          page,
+          perPage,
+        );
+      this.addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(
+        githubRepositoriesForOrganizationDTO,
         alreadyCollectedRepositoriesDTO,
       );
     }
     return GithubRepositoryMapper.dtosToDomain(alreadyCollectedRepositoriesDTO);
   }
 
-  private addRepositoriesDTOToAlreadyCollectedRepositoriesDTO(
-    githubRepositoriesDTO: Array<any>,
+  private addRepositoriesForOrganizationDTOToAlreadyCollectedRepositoriesDTO(
+    githubRepositoriesForOrganizationDTO: Array<any>,
     alreadyCollectedRepositoriesDTO: Array<any>,
   ) {
-    githubRepositoriesDTO.map((RepositoryDTO) =>
-      alreadyCollectedRepositoriesDTO.push(RepositoryDTO),
+    githubRepositoriesForOrganizationDTO.map((RepositoryForUserDTO) =>
+      alreadyCollectedRepositoriesDTO.push(RepositoryForUserDTO),
     );
   }
 }
