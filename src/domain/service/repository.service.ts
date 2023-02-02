@@ -50,4 +50,25 @@ export class RepositoryService implements RepositoryFacade {
         return false;
     }
   }
+
+  async checkFileExistsOnBranch(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.checkFileExistsOnBranch(
+          user,
+          repositoryOwnerName,
+          repositoryName,
+          filePath,
+          branch,
+        );
+      default:
+        return false;
+    }
+  }
 }

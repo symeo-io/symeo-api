@@ -97,4 +97,34 @@ export class GithubHttpClient {
       throw e;
     }
   }
+
+  async checkFileExistsOnBranch(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+      user.id,
+    );
+
+    try {
+      const response = await this.client.repos.getContent({
+        owner: repositoryOwnerName,
+        repo: repositoryName,
+        path: filePath,
+        ref: branch,
+        headers: { Authorization: `token ${token}` },
+      });
+
+      return response.status === 200;
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return false;
+      }
+
+      throw e;
+    }
+  }
 }

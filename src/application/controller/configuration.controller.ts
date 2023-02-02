@@ -20,6 +20,8 @@ import { GetConfigurationResponseDTO } from 'src/application/dto/get-configurati
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { GetConfigurationsResponseDTO } from 'src/application/dto/get-configurations.response.dto';
+import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/dto/validate-create-github-configuration-parameters.dto';
+import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/validate-create-github-configuration-parameters.response.dto';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -29,6 +31,43 @@ export class ConfigurationController {
     @Inject('RepositoryFacade')
     private readonly repositoryFacade: RepositoryFacade,
   ) {}
+
+  @Get('github/validate')
+  async validateConfigurationCreationParameters(
+    @Body()
+    validateCreateGithubConfigurationParametersDTO: ValidateCreateGithubConfigurationParametersDTO,
+    @CurrentUser() user: User,
+  ): Promise<ValidateCreateGithubConfigurationParametersResponseDTO> {
+    const repository = await this.repositoryFacade.getRepositoryById(
+      user,
+      validateCreateGithubConfigurationParametersDTO.repositoryVcsId,
+    );
+
+    if (!repository) {
+      return new ValidateCreateGithubConfigurationParametersResponseDTO(
+        false,
+        `No repository found with id ${validateCreateGithubConfigurationParametersDTO.repositoryVcsId}`,
+      );
+    }
+
+    const fileExistsOnBranch =
+      await this.repositoryFacade.checkFileExistsOnBranch(
+        user,
+        repository.owner.name,
+        repository.name,
+        validateCreateGithubConfigurationParametersDTO.configFormatFilePath,
+        validateCreateGithubConfigurationParametersDTO.branch,
+      );
+
+    if (!fileExistsOnBranch) {
+      return new ValidateCreateGithubConfigurationParametersResponseDTO(
+        false,
+        `No ${validateCreateGithubConfigurationParametersDTO.configFormatFilePath} on branch ${validateCreateGithubConfigurationParametersDTO.branch}`,
+      );
+    }
+
+    return new ValidateCreateGithubConfigurationParametersResponseDTO(true);
+  }
 
   @Get('github/:vcsRepositoryId/:id')
   async getGitHubConfigurationById(

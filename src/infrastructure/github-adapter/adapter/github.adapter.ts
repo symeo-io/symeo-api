@@ -51,6 +51,13 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
   }
 
+  async hasAccessToRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<boolean> {
+    return this.githubHttpClient.hasAccessToRepository(user, repositoryVcsId);
+  }
+
   async getRepositories(
     user: User,
     organizationName: string,
@@ -83,10 +90,19 @@ export default class GithubAdapter implements GithubAdapterPort {
     return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
 
-  async hasAccessToRepository(
+  async checkFileExistsOnBranch(
     user: User,
-    repositoryVcsId: number,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
   ): Promise<boolean> {
-    return this.githubHttpClient.hasAccessToRepository(user, repositoryVcsId);
+    return await this.githubHttpClient.checkFileExistsOnBranch(
+      user,
+      repositoryOwnerName,
+      repositoryName,
+      filePath,
+      branch,
+    );
   }
 }
