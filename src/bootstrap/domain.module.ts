@@ -5,6 +5,7 @@ import { DynamodbAdapterModule } from 'src/bootstrap/dynamodb-adapter.module';
 import GithubAdapterPort from '../domain/port/out/github.adapter.port';
 import { GithubAdapterModule } from './github-adapter.module';
 import { OrganizationService } from '../domain/service/organization.service';
+import { RepositoryService } from 'src/domain/service/repository.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -20,9 +21,20 @@ const OrganizationFacade = {
   inject: ['GithubAdapter'],
 };
 
+const RepositoryFacade = {
+  provide: 'RepositoryFacade',
+  useFactory: (githubAdapterPort: GithubAdapterPort) =>
+    new RepositoryService(githubAdapterPort),
+  inject: ['GithubAdapter'],
+};
+
 @Module({
   imports: [DynamodbAdapterModule, GithubAdapterModule],
-  providers: [ConfigurationFacadeProvider, OrganizationFacade],
-  exports: [ConfigurationFacadeProvider, OrganizationFacade],
+  providers: [
+    ConfigurationFacadeProvider,
+    OrganizationFacade,
+    RepositoryFacade,
+  ],
+  exports: [ConfigurationFacadeProvider, OrganizationFacade, RepositoryFacade],
 })
 export class DomainModule {}

@@ -1,5 +1,5 @@
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
-import Configuration from 'src/domain/model/configuration.model';
+import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationRepository from 'src/infrastructure/dynamodb-adapter/repository/configuration.repository';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 

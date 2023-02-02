@@ -1,4 +1,4 @@
-import Configuration from 'src/domain/model/configuration.model';
+import Configuration from 'src/domain/model/configuration/configuration.model';
 
 export default class ConfigurationDTO {
   id: string;
