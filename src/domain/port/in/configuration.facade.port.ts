@@ -8,4 +8,5 @@ export default interface ConfigurationFacade {
     id: string,
   ): Promise<Configuration | undefined>;
   save(configuration: Configuration): Promise<void>;
+  delete(configuration: Configuration): Promise<void>;
 }

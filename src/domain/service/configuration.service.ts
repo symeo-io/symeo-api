@@ -18,4 +18,7 @@ export default class ConfigurationService implements ConfigurationFacade {
   save(configuration: Configuration): Promise<void> {
     return this.configurationStoragePort.save(configuration);
   }
+  delete(configuration: Configuration): Promise<void> {
+    return this.configurationStoragePort.delete(configuration);
+  }
 }

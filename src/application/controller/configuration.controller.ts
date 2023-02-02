@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   NotFoundException,
@@ -29,7 +30,7 @@ export class ConfigurationController {
   ) {}
 
   @Get('github/:vcsRepositoryId/:id')
-  async getById(
+  async getGitHubConfigurationById(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
@@ -52,6 +53,32 @@ export class ConfigurationController {
     }
 
     return GetConfigurationResponseDTO.fromDomain(configuration);
+  }
+
+  @Delete('github/:vcsRepositoryId/:id')
+  async deleteGitHubConfigurationById(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    const configuration = await this.configurationFacade.findById(
+      VCSProvider.GitHub,
+      parseInt(vcsRepositoryId),
+      id,
+    );
+    const hasUserAccessToConfigurationRepository =
+      await this.repositoryFacade.hasAccessToRepository(
+        user,
+        parseInt(vcsRepositoryId),
+      );
+
+    if (!configuration || !hasUserAccessToConfigurationRepository) {
+      throw new NotFoundException({
+        message: `No configuration found with id ${id}`,
+      }); // TODO implement error management
+    }
+
+    await this.configurationFacade.delete(configuration);
   }
 
   @Post('github')

@@ -7,12 +7,15 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
+import SpyInstance = jest.SpyInstance;
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
   let dynamoDBTestUtils: DynamoDbTestUtils;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
+  let getGitHubAccessTokenMock: SpyInstance;
+  let githubClientRequestMock: SpyInstance;
 
   const currentUser = new User(
     uuid(),
@@ -38,9 +41,17 @@ describe('ConfigurationController', () => {
 
   beforeEach(async () => {
     await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
-    jest
-      .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
-      .mockImplementation(() => Promise.resolve(uuid()));
+    githubClientRequestMock = jest.spyOn(githubClient, 'request');
+    getGitHubAccessTokenMock = jest.spyOn(
+      vcsAccessTokenStorage,
+      'getGitHubAccessToken',
+    );
+    getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
+  });
+
+  afterEach(() => {
+    getGitHubAccessTokenMock.mockRestore();
+    githubClientRequestMock.mockRestore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:id', () => {
@@ -58,11 +69,9 @@ describe('ConfigurationController', () => {
           owner: { login: 'symeo-io', id: 585863519 },
         },
       };
-      const spy = jest
-        .spyOn(githubClient, 'request')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoryResponse),
-        );
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
 
       appClient
         .request(currentUser)
@@ -70,8 +79,6 @@ describe('ConfigurationController', () => {
         .get(`/configurations/github/${repositoryVcsId}/${configurationId}`)
         // Then
         .expect(404);
-
-      spy.mockRestore();
     });
 
     it('should respond 404 with unknown repository id', async () => {
@@ -87,11 +94,9 @@ describe('ConfigurationController', () => {
 
       await dynamoDBTestUtils.put(configuration);
 
-      const spy = jest
-        .spyOn(githubClient, 'request')
-        .mockImplementationOnce(() => {
-          throw { status: 404 };
-        });
+      githubClientRequestMock.mockImplementation(() => {
+        throw { status: 404 };
+      });
 
       appClient
         .request(currentUser)
@@ -99,8 +104,6 @@ describe('ConfigurationController', () => {
         .get(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
         // Then
         .expect(404);
-
-      spy.mockRestore();
     });
 
     it('should respond 200 with known repository and id', async () => {
@@ -126,18 +129,123 @@ describe('ConfigurationController', () => {
           owner: { login: 'symeo-io', id: 585863519 },
         },
       };
-      const spy = jest
-        .spyOn(githubClient, 'request')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoryResponse),
-        );
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      const response = await appClient
+        .request(currentUser)
+        .get(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
+        .expect(200);
+
+      expect(response.body.configuration).toBeDefined();
+      expect(response.body.configuration.id).toEqual(configuration.id);
+      expect(response.body.configuration.name).toEqual(configuration.name);
+    });
+  });
+
+  describe('(DELETE) /configurations/github/:repositoryVcsId/:id', () => {
+    it('should respond 404 with unknown configuration id', () => {
+      // Given
+      const configurationId = uuid();
+      const repositoryVcsId = 105865802;
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
 
       appClient
         .request(currentUser)
-        .get(`/configurations/${configuration.id}`)
+        // When
+        .delete(`/configurations/github/${repositoryVcsId}/${configurationId}`)
+        // Then
+        .expect(404);
+    });
+
+    it('should respond 404 with unknown repository id', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.rangeKey = ConfigurationEntity.buildRangeKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration.name = faker.name.jobTitle();
+
+      await dynamoDBTestUtils.put(configuration);
+
+      githubClientRequestMock.mockImplementation(() => {
+        throw { status: 404 };
+      });
+
+      appClient
+        .request(currentUser)
+        // When
+        .delete(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
+        // Then
+        .expect(404);
+    });
+
+    it('should respond 200 with known repository and id', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.rangeKey = ConfigurationEntity.buildRangeKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration.name = faker.name.jobTitle();
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repository = {
+        vcsId: repositoryVcsId,
+        name: 'symeo-api',
+      };
+      configuration.owner = {
+        vcsId: 585863519,
+        name: 'symeo-io',
+      };
+      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.branch = 'staging';
+
+      await dynamoDBTestUtils.put(configuration);
+
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      await appClient
+        .request(currentUser)
+        .delete(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
         .expect(200);
 
-      spy.mockRestore();
+      const deletedConfiguration: ConfigurationEntity =
+        await dynamoDBTestUtils.get(ConfigurationEntity, {
+          id: configuration.id,
+          rangeKey: configuration.rangeKey,
+        });
+
+      expect(deletedConfiguration).toBeUndefined();
     });
   });
 
@@ -156,11 +264,9 @@ describe('ConfigurationController', () => {
     it('should not create configuration for non existing repository', async () => {
       // Given
       const repositoryVcsId = 105865802;
-      const spy = jest
-        .spyOn(githubClient, 'request')
-        .mockImplementationOnce(() => {
-          throw { status: 404 };
-        });
+      githubClientRequestMock.mockImplementation(() => {
+        throw { status: 404 };
+      });
 
       await appClient
         .request(currentUser)
@@ -174,8 +280,6 @@ describe('ConfigurationController', () => {
         })
         // Then
         .expect(400);
-
-      spy.mockRestore();
     });
 
     it('should create a new configuration', async () => {
@@ -194,11 +298,9 @@ describe('ConfigurationController', () => {
           owner: { login: ownerVcsName, id: ownerVcsId },
         },
       };
-      const spy = jest
-        .spyOn(githubClient, 'request')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoryResponse),
-        );
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
 
       const sendData = {
         name: faker.name.jobTitle(),
@@ -238,7 +340,6 @@ describe('ConfigurationController', () => {
         sendData.configFormatFilePath,
       );
       expect(configuration.branch).toEqual(sendData.branch);
-      spy.mockRestore();
     });
   });
 });

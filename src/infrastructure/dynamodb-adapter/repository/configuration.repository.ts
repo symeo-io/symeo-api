@@ -30,4 +30,8 @@ export default class ConfigurationRepository {
     configuration.updatedAt = new Date();
     await this.dynamoDBClient.dataMapper.put(configuration);
   }
+
+  public async delete(configuration: ConfigurationEntity): Promise<void> {
+    await this.dynamoDBClient.dataMapper.delete(configuration);
+  }
 }
