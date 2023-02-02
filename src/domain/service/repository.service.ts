@@ -6,16 +6,10 @@ import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 
 export class RepositoryService implements RepositoryFacade {
   constructor(private readonly githubAdapterPort: GithubAdapterPort) {}
-  async getRepositories(
-    user: User,
-    organizationName: string,
-  ): Promise<VcsRepository[]> {
+  async getRepositories(user: User): Promise<VcsRepository[]> {
     switch (user.provider) {
       case VCSProvider.GitHub:
-        return await this.githubAdapterPort.getRepositories(
-          user,
-          organizationName,
-        );
+        return await this.githubAdapterPort.getRepositories(user);
       default:
         return [];
     }

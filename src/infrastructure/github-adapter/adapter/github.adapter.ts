@@ -51,7 +51,7 @@ export default class GithubAdapter implements GithubAdapterPort {
     }
 
     return GithubRepositoryMapper.dtoToDomain(
-      gitHubRepository as RestEndpointMethodTypes['repos']['listForOrg']['response']['data'][0],
+      gitHubRepository as RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0],
     );
   }
 
@@ -62,30 +62,17 @@ export default class GithubAdapter implements GithubAdapterPort {
     return this.githubHttpClient.hasAccessToRepository(user, repositoryVcsId);
   }
 
-  async getRepositories(
-    user: User,
-    organizationName: string,
-  ): Promise<VcsRepository[]> {
+  async getRepositories(user: User): Promise<VcsRepository[]> {
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     let githubRepositoriesForOrganizationDTO =
-      await this.githubHttpClient.getRepositoriesForOrganization(
-        user,
-        organizationName,
-        page,
-        perPage,
-      );
+      await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
     let alreadyCollectedRepositoriesDTO = githubRepositoriesForOrganizationDTO;
 
     while (githubRepositoriesForOrganizationDTO.length === perPage) {
       page += 1;
       githubRepositoriesForOrganizationDTO =
-        await this.githubHttpClient.getRepositoriesForOrganization(
-          user,
-          organizationName,
-          page,
-          perPage,
-        );
+        await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
 
       alreadyCollectedRepositoriesDTO = alreadyCollectedRepositoriesDTO.concat(
         githubRepositoriesForOrganizationDTO,

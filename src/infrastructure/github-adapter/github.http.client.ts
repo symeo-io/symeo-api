@@ -36,16 +36,24 @@ export class GithubHttpClient {
   ): Promise<
     RestEndpointMethodTypes['repos']['listForOrg']['response']['data']
   > {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
-      user.id,
-    );
-    const response = await this.client.rest.repos.listForOrg({
-      org: organizationName,
-      page: page,
-      per_page: perPage,
-      headers: { Authorization: `token ${token}` },
-    });
-    return response.data;
+    try {
+      const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
+        user.id,
+      );
+      const response = await this.client.rest.repos.listForUser({
+        username: organizationName,
+        page: page,
+        per_page: perPage,
+        headers: { Authorization: `token ${token}` },
+      });
+      return response.data;
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return [];
+      }
+
+      throw e;
+    }
   }
 
   async getRepositoryById(
