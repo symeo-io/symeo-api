@@ -76,7 +76,7 @@ export class ConfigurationController {
       VCSProvider.GitHub,
       {
         name: repository.name,
-        vcsId: createConfigurationDTO.repositoryVcsId,
+        vcsId: repository.id,
       },
       {
         name: repository.owner.name,

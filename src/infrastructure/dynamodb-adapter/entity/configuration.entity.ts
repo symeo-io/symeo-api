@@ -8,6 +8,21 @@ import {
 import { config } from 'symeo/config';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import AbstractEntity from 'src/infrastructure/dynamodb-adapter/entity/abstract.entity';
+import { embed } from '@aws/dynamodb-data-mapper';
+
+class RepositoryEntity {
+  @attribute()
+  name: string;
+  @attribute()
+  vcsId: number;
+}
+
+class OwnerEntity {
+  @attribute()
+  name: string;
+  @attribute()
+  vcsId: number;
+}
 
 @table(config.database.configuration.tableName)
 export default class ConfigurationEntity extends AbstractEntity {
@@ -23,11 +38,11 @@ export default class ConfigurationEntity extends AbstractEntity {
   @attribute()
   vcsType: VCSProvider;
 
-  @attribute()
-  repository: { name: string; vcsId: number };
+  @attribute({ memberType: embed(RepositoryEntity) })
+  repository: RepositoryEntity;
 
-  @attribute()
-  owner: { name: string; vcsId: number };
+  @attribute({ memberType: embed(OwnerEntity) })
+  owner: OwnerEntity;
 
   @attribute()
   configFormatFilePath: string;
@@ -54,6 +69,12 @@ export default class ConfigurationEntity extends AbstractEntity {
       configuration.vcsType,
       configuration.repository.vcsId,
     );
+    entity.name = configuration.name;
+    entity.vcsType = configuration.vcsType;
+    entity.repository = configuration.repository;
+    entity.owner = configuration.owner;
+    entity.configFormatFilePath = configuration.configFormatFilePath;
+    entity.branch = configuration.branch;
 
     return entity;
   }
