@@ -56,11 +56,19 @@ export class GithubHttpClient {
       user.id,
     );
 
-    const response = await this.client.request('GET /repositories/{id}', {
-      id: repositoryVcsId,
-      headers: { Authorization: `token ${token}` },
-    });
+    try {
+      const response = await this.client.request('GET /repositories/{id}', {
+        id: repositoryVcsId,
+        headers: { Authorization: `token ${token}` },
+      });
 
-    return response.status === 200;
+      return response.status === 200;
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return false;
+      }
+
+      throw e;
+    }
   }
 }

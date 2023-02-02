@@ -1,6 +1,11 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export default interface ConfigurationStoragePort {
-  findById(id: string): Promise<Configuration | undefined>;
+  findById(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<Configuration | undefined>;
   save(configuration: Configuration): Promise<void>;
 }

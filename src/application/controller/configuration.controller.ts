@@ -11,11 +11,12 @@ import ConfigurationDTO from 'src/application/dto/configuration.dto';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { v4 as uuid } from 'uuid';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
-import { CreateConfigurationDTO } from 'src/application/dto/create-configuration.dto';
+import { CreateGitHubConfigurationDTO } from 'src/application/dto/create-github-configuration.dto';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
 import { GetConfigurationResponseDTO } from 'src/application/dto/get-configuration.response.dto';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
+import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -26,26 +27,24 @@ export class ConfigurationController {
     private readonly repositoryFacade: RepositoryFacade,
   ) {}
 
-  @Get(':id')
+  @Get('github/:vcsRepositoryId/:id')
   async getById(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
   ): Promise<GetConfigurationResponseDTO> {
-    const configuration = await this.configurationFacade.findById(id);
-
-    if (!configuration) {
-      throw new NotFoundException({
-        message: `No configuration found with id ${id}`,
-      }); // TODO implement error management
-    }
-
+    const configuration = await this.configurationFacade.findById(
+      VCSProvider.GitHub,
+      parseInt(vcsRepositoryId),
+      id,
+    );
     const hasUserAccessToConfigurationRepository =
-      this.repositoryFacade.hasAccessToRepository(
+      await this.repositoryFacade.hasAccessToRepository(
         user,
-        configuration.repository.vcsId,
+        parseInt(vcsRepositoryId),
       );
 
-    if (!hasUserAccessToConfigurationRepository) {
+    if (!configuration || !hasUserAccessToConfigurationRepository) {
       throw new NotFoundException({
         message: `No configuration found with id ${id}`,
       }); // TODO implement error management
@@ -54,21 +53,21 @@ export class ConfigurationController {
     return GetConfigurationResponseDTO.fromDomain(configuration);
   }
 
-  @Post()
-  async create(
-    @Body() createConfigurationDTO: CreateConfigurationDTO,
+  @Post('github')
+  async createForGitHub(
+    @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
   ): Promise<ConfigurationDTO> {
     const configuration = new Configuration(
       uuid(),
       createConfigurationDTO.name,
-      createConfigurationDTO.vcsType,
+      VCSProvider.GitHub,
       {
-        name: createConfigurationDTO.repositoryName,
+        name: 'test',
         vcsId: createConfigurationDTO.repositoryVcsId,
       },
       {
-        name: createConfigurationDTO.ownerName,
-        vcsId: createConfigurationDTO.ownerVcsId,
+        name: 'test',
+        vcsId: 1234,
       },
       createConfigurationDTO.configFormatFilePath,
       createConfigurationDTO.branch,
