@@ -1,5 +1,5 @@
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
-import { VcsRepositoryDTO } from 'src/application/dto/vcsRepositoryDTO';
+import { VcsRepositoryDTO } from 'src/application/dto/repository.dto';
 
 export class GetRepositoriesResponseDTO {
   repositories: VcsRepositoryDTO[];

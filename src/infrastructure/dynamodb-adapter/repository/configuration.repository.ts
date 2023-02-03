@@ -43,6 +43,18 @@ export default class ConfigurationRepository {
     return configurations;
   }
 
+  public async countForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<number> {
+    const repositories = await this.findAllForRepositoryId(
+      vcsType,
+      vcsRepositoryId,
+    );
+
+    return repositories.length;
+  }
+
   public async save(configuration: ConfigurationEntity): Promise<void> {
     configuration.updatedAt = new Date();
     await this.dynamoDBClient.dataMapper.put(configuration);

@@ -13,6 +13,11 @@ export default interface ConfigurationStoragePort {
     vcsRepositoryId: number,
   ): Promise<Configuration[]>;
 
+  countForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<number>;
+
   save(configuration: Configuration): Promise<void>;
 
   delete(configuration: Configuration): Promise<void>;

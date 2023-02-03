@@ -35,6 +35,16 @@ export default class DynamodbConfigurationAdapter
     return entities.map((entity) => entity.toDomain());
   }
 
+  async countForRepositoryId(
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+  ): Promise<number> {
+    return this.configurationRepository.countForRepositoryId(
+      vcsType,
+      vcsRepositoryId,
+    );
+  }
+
   save(configuration: Configuration): Promise<void> {
     return this.configurationRepository.save(
       ConfigurationEntity.fromDomain(configuration),
