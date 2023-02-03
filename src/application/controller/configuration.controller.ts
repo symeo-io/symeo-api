@@ -9,7 +9,6 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import ConfigurationDTO from 'src/application/dto/configuration.dto';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { v4 as uuid } from 'uuid';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
@@ -22,6 +21,7 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { GetConfigurationsResponseDTO } from 'src/application/dto/get-configurations.response.dto';
 import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/dto/validate-create-github-configuration-parameters.dto';
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/validate-create-github-configuration-parameters.response.dto';
+import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/create-github-configuration.response.dto';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -32,7 +32,7 @@ export class ConfigurationController {
     private readonly repositoryFacade: RepositoryFacade,
   ) {}
 
-  @Get('github/validate')
+  @Post('github/validate')
   async validateConfigurationCreationParameters(
     @Body()
     validateCreateGithubConfigurationParametersDTO: ValidateCreateGithubConfigurationParametersDTO,
@@ -152,7 +152,7 @@ export class ConfigurationController {
   async createForGitHub(
     @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
     @CurrentUser() user: User,
-  ): Promise<ConfigurationDTO> {
+  ): Promise<CreateGitHubConfigurationResponseDTO> {
     const repository = await this.repositoryFacade.getRepositoryById(
       user,
       createConfigurationDTO.repositoryVcsId,
@@ -163,6 +163,8 @@ export class ConfigurationController {
         message: `No repository found with id ${createConfigurationDTO.repositoryVcsId}`,
       }); // TODO implement error management
     }
+
+    // TODO check file exists
 
     const configuration = new Configuration(
       uuid(),
@@ -182,6 +184,6 @@ export class ConfigurationController {
 
     await this.configurationFacade.save(configuration);
 
-    return ConfigurationDTO.fromDomain(configuration);
+    return CreateGitHubConfigurationResponseDTO.fromDomain(configuration);
   }
 }
