@@ -189,6 +189,8 @@ describe('ConfigurationController', () => {
         sendData.configFormatFilePath,
       );
       expect(configuration.branch).toEqual(sendData.branch);
+      expect(configuration.environments).toBeDefined();
+      expect(configuration.environments.length).toEqual(2);
     });
   });
 });

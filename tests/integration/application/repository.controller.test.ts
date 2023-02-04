@@ -113,6 +113,7 @@ describe('RepositoryController', () => {
                 {
                   id: configuration.id,
                   name: configuration.name,
+                  environments: [],
                 },
               ],
             },

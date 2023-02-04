@@ -9,6 +9,7 @@ export default class ConfigurationDTO {
   owner: { name: string; vcsId: number };
   configFormatFilePath: string;
   branch: string;
+  environments: { id: string; name: string }[];
 
   constructor(
     id: string,
@@ -18,6 +19,7 @@ export default class ConfigurationDTO {
     owner: { name: string; vcsId: number },
     configFormatFilePath: string,
     branch: string,
+    environments: { id: string; name: string }[],
   ) {
     this.id = id;
     this.name = name;
@@ -26,6 +28,7 @@ export default class ConfigurationDTO {
     this.owner = owner;
     this.configFormatFilePath = configFormatFilePath;
     this.branch = branch;
+    this.environments = environments;
   }
 
   public static fromDomain(configuration: Configuration): ConfigurationDTO {
@@ -37,6 +40,7 @@ export default class ConfigurationDTO {
       configuration.owner,
       configuration.configFormatFilePath,
       configuration.branch,
+      configuration.environments,
     );
   }
 }

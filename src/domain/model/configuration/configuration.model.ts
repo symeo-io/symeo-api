@@ -1,4 +1,5 @@
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import Environment from 'src/domain/model/configuration/environment.model';
 
 export default class Configuration {
   id: string;
@@ -8,6 +9,7 @@ export default class Configuration {
   owner: { name: string; vcsId: number };
   configFormatFilePath: string;
   branch: string;
+  environments: Environment[];
 
   constructor(
     id: string,
@@ -17,6 +19,7 @@ export default class Configuration {
     owner: { name: string; vcsId: number },
     configFormatFilePath: string,
     branch: string,
+    environments: Environment[],
   ) {
     this.id = id;
     this.name = name;
@@ -25,5 +28,6 @@ export default class Configuration {
     this.owner = owner;
     this.configFormatFilePath = configFormatFilePath;
     this.branch = branch;
+    this.environments = environments ?? [];
   }
 }

@@ -6,7 +6,6 @@ import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
-import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/validate-create-github-configuration-parameters.response.dto';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -142,6 +141,16 @@ export default class ConfigurationService implements ConfigurationFacade {
       },
       configFormatFilePath,
       branch,
+      [
+        {
+          id: uuid(),
+          name: 'Staging',
+        },
+        {
+          id: uuid(),
+          name: 'Production',
+        },
+      ],
     );
 
     await this.configurationStoragePort.save(configuration);

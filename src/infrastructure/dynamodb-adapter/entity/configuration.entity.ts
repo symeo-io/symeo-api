@@ -9,6 +9,7 @@ import { config } from 'symeo/config';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import AbstractEntity from 'src/infrastructure/dynamodb-adapter/entity/abstract.entity';
 import { embed } from '@aws/dynamodb-data-mapper';
+import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 
 class RepositoryEntity {
   @attribute()
@@ -53,6 +54,9 @@ export default class ConfigurationEntity extends AbstractEntity {
   @attribute()
   branch: string;
 
+  @attribute({ memberType: embed(EnvironmentEntity) })
+  environments: EnvironmentEntity[];
+
   public toDomain(): Configuration {
     return new Configuration(
       this.id,
@@ -62,6 +66,7 @@ export default class ConfigurationEntity extends AbstractEntity {
       this.owner,
       this.configFormatFilePath,
       this.branch,
+      this.environments?.map((environment) => environment.toDomain()) ?? [],
     );
   }
 
@@ -79,6 +84,9 @@ export default class ConfigurationEntity extends AbstractEntity {
     entity.owner = configuration.owner;
     entity.configFormatFilePath = configuration.configFormatFilePath;
     entity.branch = configuration.branch;
+    entity.environments = configuration.environments
+      ? configuration.environments.map(EnvironmentEntity.fromDomain)
+      : [];
 
     return entity;
   }
