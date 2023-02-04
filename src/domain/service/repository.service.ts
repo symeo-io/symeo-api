@@ -25,9 +25,9 @@ export class RepositoryService implements RepositoryFacade {
     for (const repository of repositories) {
       promises.push(
         this.configurationStoragePort
-          .countForRepositoryId(repository.vcsType, repository.id)
-          .then((count) => {
-            repository.configurationCount = count;
+          .findAllForRepositoryId(repository.vcsType, repository.id)
+          .then((configurations) => {
+            repository.configurations = configurations;
           }),
       );
     }

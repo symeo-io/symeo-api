@@ -1,4 +1,5 @@
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import Configuration from 'src/domain/model/configuration/configuration.model';
 
 export class VcsRepository {
   id: number;
@@ -7,7 +8,7 @@ export class VcsRepository {
   pushedAt?: Date;
   vcsType: VCSProvider;
   vcsUrl: string;
-  configurationCount?: number;
+  configurations?: Configuration[];
 
   constructor(
     id: number,

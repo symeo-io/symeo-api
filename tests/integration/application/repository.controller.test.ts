@@ -109,7 +109,12 @@ describe('RepositoryController', () => {
               pushedAt: '2011-01-26T19:06:43.000Z',
               vcsType: VCSProvider.GitHub,
               vcsUrl: 'https://github.com/octocat/Hello-World',
-              configurationCount: 1,
+              configurations: [
+                {
+                  id: configuration.id,
+                  name: configuration.name,
+                },
+              ],
             },
           ],
         });

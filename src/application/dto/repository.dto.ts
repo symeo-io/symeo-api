@@ -1,5 +1,6 @@
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
+import ConfigurationDTO from 'src/application/dto/configuration.dto';
 
 export class VcsRepositoryDTO {
   vcsId: number;
@@ -8,7 +9,7 @@ export class VcsRepositoryDTO {
   pushedAt?: string;
   vcsType: VCSProvider;
   vcsUrl: string;
-  configurationCount?: number;
+  configurations?: ConfigurationDTO[];
 
   constructor(
     vcsId: number,
@@ -17,7 +18,7 @@ export class VcsRepositoryDTO {
     pushedAt: string | undefined,
     vcsType: VCSProvider,
     vcsUrl: string,
-    configurationCount?: number,
+    configurations?: ConfigurationDTO[],
   ) {
     this.vcsId = vcsId;
     this.name = name;
@@ -25,7 +26,7 @@ export class VcsRepositoryDTO {
     this.pushedAt = pushedAt;
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
-    this.configurationCount = configurationCount;
+    this.configurations = configurations;
   }
 
   public static fromDomains(repositories: VcsRepository[]): VcsRepositoryDTO[] {
@@ -44,7 +45,7 @@ export class VcsRepositoryDTO {
       repository.pushedAt?.toISOString(),
       repository.vcsType,
       repository.vcsUrl,
-      repository.configurationCount,
+      repository.configurations?.map(ConfigurationDTO.fromDomain),
     );
   }
 }
