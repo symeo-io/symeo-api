@@ -1,3 +1,5 @@
+import User from 'src/domain/model/user.model';
+
 export default interface VCSAccessTokenStorage {
-  getGitHubAccessToken(userId: string): Promise<string | undefined>;
+  getGitHubAccessToken(user: User): Promise<string | undefined>;
 }

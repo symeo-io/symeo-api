@@ -19,6 +19,7 @@ describe('RepositoryController', () => {
     uuid(),
     faker.internet.email(),
     VCSProvider.GitHub,
+    faker.datatype.number(),
   );
 
   beforeAll(async () => {

@@ -16,9 +16,7 @@ export class GithubHttpClient {
   ): Promise<
     RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data']
   > {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
-      user.id,
-    );
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const response = await this.client.rest.repos.listForAuthenticatedUser({
       page: page,
       per_page: perPage,
@@ -34,9 +32,7 @@ export class GithubHttpClient {
   ): Promise<
     RestEndpointMethodTypes['repos']['get']['response']['data'] | undefined
   > {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
-      user.id,
-    );
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
 
     try {
       const response = await this.client.request('GET /repositories/{id}', {
@@ -58,9 +54,7 @@ export class GithubHttpClient {
     user: User,
     repositoryVcsId: number,
   ): Promise<boolean> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
-      user.id,
-    );
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
 
     try {
       const response = await this.client.request('GET /repositories/{id}', {
@@ -85,9 +79,7 @@ export class GithubHttpClient {
     filePath: string,
     branch: string,
   ): Promise<boolean> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(
-      user.id,
-    );
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
 
     try {
       const response = await this.client.repos.getContent({

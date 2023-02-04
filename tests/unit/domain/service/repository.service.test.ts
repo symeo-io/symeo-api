@@ -14,6 +14,7 @@ describe('RepositoryService', () => {
         faker.datatype.uuid(),
         faker.internet.email(),
         VCSProvider.GitHub,
+        faker.datatype.number(),
       );
 
       const mockedConfigurationStoragePort: ConfigurationStoragePort =

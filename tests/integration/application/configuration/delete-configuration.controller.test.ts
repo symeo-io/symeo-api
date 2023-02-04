@@ -21,6 +21,7 @@ describe('ConfigurationController', () => {
     uuid(),
     faker.internet.email(),
     VCSProvider.GitHub,
+    faker.datatype.number(),
   );
 
   beforeAll(async () => {

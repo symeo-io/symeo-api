@@ -13,6 +13,7 @@ describe('OrganizationService', () => {
         faker.datatype.uuid(),
         faker.internet.email(),
         VCSProvider.GitHub,
+        faker.datatype.number(),
       );
       const mockedGithubAdapterPort: GithubAdapterPort =
         mock<GithubAdapterPort>();

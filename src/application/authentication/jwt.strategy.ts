@@ -25,11 +25,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: JwtPayload): unknown {
+  validate(payload: JwtPayload): User {
     return new User(
       payload.sub,
       payload['https://symeo.io/email'],
       payload.sub.split('|')[0] as VCSProvider,
+      payload.exp,
     );
   }
 }

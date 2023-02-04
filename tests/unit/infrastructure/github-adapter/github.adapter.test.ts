@@ -16,6 +16,7 @@ describe('GithubAdapter', () => {
       faker.datatype.uuid(),
       faker.internet.email(),
       VCSProvider.GitHub,
+      faker.datatype.number(),
     );
 
     it('should get organizations', async () => {
