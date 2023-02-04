@@ -1,5 +1,6 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import EnvironmentDTO from 'src/application/dto/environment.dto';
 
 export default class ConfigurationDTO {
   id: string;
@@ -9,7 +10,7 @@ export default class ConfigurationDTO {
   owner: { name: string; vcsId: number };
   configFormatFilePath: string;
   branch: string;
-  environments: { id: string; name: string }[];
+  environments: EnvironmentDTO[];
 
   constructor(
     id: string,
@@ -19,7 +20,7 @@ export default class ConfigurationDTO {
     owner: { name: string; vcsId: number },
     configFormatFilePath: string,
     branch: string,
-    environments: { id: string; name: string }[],
+    environments: EnvironmentDTO[],
   ) {
     this.id = id;
     this.name = name;
@@ -40,7 +41,7 @@ export default class ConfigurationDTO {
       configuration.owner,
       configuration.configFormatFilePath,
       configuration.branch,
-      configuration.environments,
+      configuration.environments.map(EnvironmentDTO.fromDomain),
     );
   }
 }

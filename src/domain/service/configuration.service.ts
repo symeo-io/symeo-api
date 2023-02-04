@@ -6,6 +6,8 @@ import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
+import Environment from 'src/domain/model/configuration/environment.model';
+import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -142,14 +144,8 @@ export default class ConfigurationService implements ConfigurationFacade {
       configFormatFilePath,
       branch,
       [
-        {
-          id: uuid(),
-          name: 'Staging',
-        },
-        {
-          id: uuid(),
-          name: 'Production',
-        },
+        new Environment(uuid(), 'Staging', EnvironmentColor.blue),
+        new Environment(uuid(), 'Production', EnvironmentColor.red),
       ],
     );
 
