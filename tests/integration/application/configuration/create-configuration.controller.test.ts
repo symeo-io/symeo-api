@@ -16,6 +16,7 @@ describe('ConfigurationController', () => {
   let githubClient: Octokit;
   let getGitHubAccessTokenMock: SpyInstance;
   let githubClientRequestMock: SpyInstance;
+  let checkFileExistsOnBranchMock: SpyInstance;
 
   const currentUser = new User(
     uuid(),
@@ -42,6 +43,7 @@ describe('ConfigurationController', () => {
   beforeEach(async () => {
     await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
     githubClientRequestMock = jest.spyOn(githubClient, 'request');
+    checkFileExistsOnBranchMock = jest.spyOn(githubClient.repos, 'getContent');
     getGitHubAccessTokenMock = jest.spyOn(
       vcsAccessTokenStorage,
       'getGitHubAccessToken',
@@ -51,6 +53,7 @@ describe('ConfigurationController', () => {
 
   afterEach(() => {
     getGitHubAccessTokenMock.mockRestore();
+    checkFileExistsOnBranchMock.mockRestore();
     githubClientRequestMock.mockRestore();
   });
 
@@ -87,6 +90,43 @@ describe('ConfigurationController', () => {
         .expect(400);
     });
 
+    it('should not create configuration for non existing config file', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const repositoryVcsName = 'symeo-api';
+      const ownerVcsId = 585863519;
+      const ownerVcsName = 'symeo-io';
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: repositoryVcsName,
+          id: repositoryVcsId,
+          owner: { login: ownerVcsName, id: ownerVcsId },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+      checkFileExistsOnBranchMock.mockImplementation(() => {
+        throw { status: 404 };
+      });
+
+      await appClient
+        .request(currentUser)
+        // When
+        .post(`/configurations/github`)
+        .send({
+          name: faker.name.jobTitle(),
+          branch: 'staging',
+          configFormatFilePath: './symeo.config.yml',
+          repositoryVcsId,
+        })
+        // Then
+        .expect(400);
+    });
+
     it('should create a new configuration', async () => {
       // Given
       const repositoryVcsId = 105865802;
@@ -106,6 +146,9 @@ describe('ConfigurationController', () => {
       githubClientRequestMock.mockImplementation(() =>
         Promise.resolve(mockGitHubRepositoryResponse),
       );
+      checkFileExistsOnBranchMock.mockImplementation(() =>
+        Promise.resolve({ status: 200 as const }),
+      );
 
       const sendData = {
         name: faker.name.jobTitle(),
@@ -122,7 +165,7 @@ describe('ConfigurationController', () => {
         // Then
         .expect(201);
 
-      expect(response.body.id).toBeDefined();
+      expect(response.body.configuration.id).toBeDefined();
       const configuration: ConfigurationEntity = await dynamoDBTestUtils.get(
         ConfigurationEntity,
         {
@@ -130,7 +173,7 @@ describe('ConfigurationController', () => {
             VCSProvider.GitHub,
             repositoryVcsId,
           ),
-          rangeKey: response.body.id,
+          rangeKey: response.body.configuration.id,
         },
       );
 

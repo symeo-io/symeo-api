@@ -1,17 +1,39 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user.model';
 
 export default interface ConfigurationFacade {
-  findById(
+  findByIdForUser(
+    user: User,
     vcsType: VCSProvider,
     vcsRepositoryId: number,
     id: string,
-  ): Promise<Configuration | undefined>;
+  ): Promise<Configuration>;
 
-  findAllForRepositoryId(
+  findAllForRepositoryIdForUser(
+    user: User,
     vcsType: VCSProvider,
     vcsRepositoryId: number,
   ): Promise<Configuration[]>;
-  save(configuration: Configuration): Promise<void>;
-  delete(configuration: Configuration): Promise<void>;
+
+  validateCreateForUser(
+    user: User,
+    repositoryVcsId: number,
+    configFormatFilePath: string,
+    branch: string,
+  ): Promise<{ isValid: boolean; message?: string }>;
+  createForUser(
+    user: User,
+    name: string,
+    repositoryVcsId: number,
+    configFormatFilePath: string,
+    branch: string,
+  ): Promise<Configuration>;
+
+  deleteByIdForUser(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<void>;
 }

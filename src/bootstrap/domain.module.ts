@@ -6,12 +6,15 @@ import GithubAdapterPort from '../domain/port/out/github.adapter.port';
 import { GithubAdapterModule } from './github-adapter.module';
 import { OrganizationService } from '../domain/service/organization.service';
 import { RepositoryService } from 'src/domain/service/repository.service';
+import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
-  useFactory: (configurationStoragePort: ConfigurationStoragePort) =>
-    new ConfigurationService(configurationStoragePort),
-  inject: ['DynamodbConfigurationAdapter'],
+  useFactory: (
+    configurationStoragePort: ConfigurationStoragePort,
+    repositoryFacade: RepositoryFacade,
+  ) => new ConfigurationService(configurationStoragePort, repositoryFacade),
+  inject: ['DynamodbConfigurationAdapter', 'RepositoryFacade'],
 };
 
 const OrganizationFacadeProvider = {
