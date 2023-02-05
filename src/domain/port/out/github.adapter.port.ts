@@ -18,4 +18,12 @@ export default interface GithubAdapterPort {
     filePath: string,
     branch: string,
   ): Promise<boolean>;
+
+  getFileContent(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<string | undefined>;
 }

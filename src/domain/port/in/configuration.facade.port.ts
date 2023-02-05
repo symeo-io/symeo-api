@@ -1,6 +1,7 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import User from 'src/domain/model/user.model';
+import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
 
 export default interface ConfigurationFacade {
   findByIdForUser(
@@ -22,6 +23,13 @@ export default interface ConfigurationFacade {
     configFormatFilePath: string,
     branch: string,
   ): Promise<{ isValid: boolean; message?: string }>;
+
+  findFormatByIdForUser(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<ConfigurationFormat>;
   createForUser(
     user: User,
     name: string,

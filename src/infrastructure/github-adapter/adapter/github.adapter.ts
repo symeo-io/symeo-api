@@ -96,4 +96,20 @@ export default class GithubAdapter implements GithubAdapterPort {
       branch,
     );
   }
+
+  async getFileContent(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<string | undefined> {
+    return await this.githubHttpClient.getFileContent(
+      user,
+      repositoryOwnerName,
+      repositoryName,
+      filePath,
+      branch,
+    );
+  }
 }

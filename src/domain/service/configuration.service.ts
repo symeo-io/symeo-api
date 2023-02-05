@@ -8,6 +8,8 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/configuration/environment.model';
 import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
+import { parse } from 'yaml';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -94,6 +96,41 @@ export default class ConfigurationService implements ConfigurationFacade {
     }
 
     return { isValid: true };
+  }
+
+  async findFormatByIdForUser(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+  ): Promise<ConfigurationFormat> {
+    const configuration = await this.configurationStoragePort.findById(
+      VCSProvider.GitHub,
+      vcsRepositoryId,
+      id,
+    );
+
+    if (!configuration) {
+      throw new NotFoundException({
+        message: `No configuration found with id ${id}`,
+      }); // TODO implement error management;
+    }
+
+    const configFormatString = await this.repositoryFacade.getFileContent(
+      user,
+      configuration.owner.name,
+      configuration.repository.name,
+      configuration.configFormatFilePath,
+      configuration.branch,
+    );
+
+    if (!configFormatString) {
+      throw new NotFoundException({
+        message: `No configuration file found at ${configuration.configFormatFilePath} on ${configuration.branch}`,
+      }); // TODO implement error management;
+    }
+
+    return parse(configFormatString) as ConfigurationFormat;
   }
 
   async createForUser(

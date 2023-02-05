@@ -99,4 +99,41 @@ export class GithubHttpClient {
       throw e;
     }
   }
+
+  async getFileContent(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<string | undefined> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+
+    try {
+      const response = await this.client.repos.getContent({
+        owner: repositoryOwnerName,
+        repo: repositoryName,
+        path: filePath,
+        ref: branch,
+        headers: { Authorization: `token ${token}` },
+      });
+
+      const content = (response.data as { content?: string }).content;
+      const encoding = (response.data as { encoding: BufferEncoding }).encoding;
+
+      if (!content) {
+        return undefined;
+      }
+
+      const buffer = new Buffer(content, encoding);
+
+      return buffer.toString();
+    } catch (e) {
+      if ((e as any).status && (e as any).status === 404) {
+        return undefined;
+      }
+
+      throw e;
+    }
+  }
 }

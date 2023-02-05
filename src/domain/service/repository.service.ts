@@ -87,4 +87,25 @@ export class RepositoryService implements RepositoryFacade {
         return false;
     }
   }
+
+  async getFileContent(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    filePath: string,
+    branch: string,
+  ): Promise<string | undefined> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.getFileContent(
+          user,
+          repositoryOwnerName,
+          repositoryName,
+          filePath,
+          branch,
+        );
+      default:
+        return '';
+    }
+  }
 }

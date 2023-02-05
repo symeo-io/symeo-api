@@ -18,6 +18,7 @@ import { GetConfigurationsResponseDTO } from 'src/application/dto/get-configurat
 import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/dto/validate-create-github-configuration-parameters.dto';
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/validate-create-github-configuration-parameters.response.dto';
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/create-github-configuration.response.dto';
+import { GetConfigurationFormatResponseDTO } from 'src/application/dto/get-configuration-format.response.dto';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -55,6 +56,22 @@ export class ConfigurationController {
     );
 
     return GetConfigurationResponseDTO.fromDomain(configuration);
+  }
+
+  @Get('github/:vcsRepositoryId/:id/format')
+  async getGitHubConfigurationFormatById(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<GetConfigurationFormatResponseDTO> {
+    const format = await this.configurationFacade.findFormatByIdForUser(
+      user,
+      VCSProvider.GitHub,
+      parseInt(vcsRepositoryId),
+      id,
+    );
+
+    return new GetConfigurationFormatResponseDTO(format);
   }
 
   @Get('github/:vcsRepositoryId')
