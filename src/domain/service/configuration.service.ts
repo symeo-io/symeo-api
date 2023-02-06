@@ -235,7 +235,6 @@ export default class ConfigurationService implements ConfigurationFacade {
         id,
       ),
     ]);
-
     if (!hasUserAccessToRepository || !configuration) {
       throw new NotFoundException({
         message: `No configuration found with id ${id}`,

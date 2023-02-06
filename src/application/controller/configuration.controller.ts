@@ -29,13 +29,14 @@ export class ConfigurationController {
     private readonly configurationFacade: ConfigurationFacade,
   ) {}
 
-  @Post('github/:vcsRepositoryId/:id')
+  @Post('github/:vcsRepositoryId/:id/environment')
   async createEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
     @CurrentUser() user: User,
   ): Promise<CreateEnvironmentResponseDTO> {
+    console.log('OK');
     const updatedConfiguration =
       await this.configurationFacade.createEnvironment(
         user,
