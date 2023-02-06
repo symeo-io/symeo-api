@@ -17,9 +17,9 @@ export default class ConfigurationRepository {
           hashKey: ConfigurationEntity.buildHashKey(vcsType, vcsRepositoryId),
         }),
       );
-    } catch (e) {
-      if ((e as Error).name !== 'ItemNotFoundException') {
-        throw e;
+    } catch (exception) {
+      if ((exception as Error).name !== 'ItemNotFoundException') {
+        throw exception;
       }
 
       return undefined;

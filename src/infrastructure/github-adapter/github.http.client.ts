@@ -41,12 +41,11 @@ export class GithubHttpClient {
       });
 
       return response.data;
-    } catch (e) {
-      if ((e as any).status && (e as any).status === 404) {
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
         return undefined;
       }
-
-      throw e;
+      throw exception;
     }
   }
 
@@ -63,12 +62,12 @@ export class GithubHttpClient {
       });
 
       return response.status === 200;
-    } catch (e) {
-      if ((e as any).status && (e as any).status === 404) {
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
         return false;
       }
 
-      throw e;
+      throw exception;
     }
   }
 
@@ -91,12 +90,12 @@ export class GithubHttpClient {
       });
 
       return response.status === 200;
-    } catch (e) {
-      if ((e as any).status && (e as any).status === 404) {
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
         return false;
       }
 
-      throw e;
+      throw exception;
     }
   }
 
@@ -128,12 +127,12 @@ export class GithubHttpClient {
       const buffer = new Buffer(content, encoding);
 
       return buffer.toString();
-    } catch (e) {
-      if ((e as any).status && (e as any).status === 404) {
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
         return undefined;
       }
 
-      throw e;
+      throw exception;
     }
   }
 }

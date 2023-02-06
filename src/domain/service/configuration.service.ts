@@ -4,12 +4,13 @@ import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/configuration/environment.model';
 import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
 import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
 import { parse } from 'yaml';
+import { SymeoException } from 'src/domain/exception/symeo.exception';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -33,9 +34,10 @@ export default class ConfigurationService implements ConfigurationFacade {
     ]);
 
     if (!hasUserAccessToRepository || !configuration) {
-      throw new NotFoundException({
-        message: `No configuration found with id ${id}`,
-      }); // TODO implement error management
+      throw new SymeoException(
+        `Configuration not found for id ${id}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
     }
 
     return configuration;
@@ -50,9 +52,10 @@ export default class ConfigurationService implements ConfigurationFacade {
       await this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId);
 
     if (!hasUserAccessToRepository) {
-      throw new NotFoundException({
-        message: `No repository found with id ${vcsRepositoryId}`,
-      }); // TODO implement error management;
+      throw new SymeoException(
+        `Repository not found for id ${vcsRepositoryId}`,
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+      );
     }
 
     return await this.configurationStoragePort.findAllForRepositoryId(
@@ -111,9 +114,10 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!configuration) {
-      throw new NotFoundException({
-        message: `No configuration found with id ${id}`,
-      }); // TODO implement error management;
+      throw new SymeoException(
+        `Configuration not found for id ${id}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
     }
 
     const configFormatString = await this.repositoryFacade.getFileContent(
@@ -125,9 +129,10 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!configFormatString) {
-      throw new NotFoundException({
-        message: `No configuration file found at ${configuration.configFormatFilePath} on ${configuration.branch}`,
-      }); // TODO implement error management;
+      throw new SymeoException(
+        `Configuration file not found at ${configuration.configFormatFilePath} on ${configuration.branch}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
     }
 
     return parse(configFormatString) as ConfigurationFormat;
@@ -146,9 +151,10 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!repository) {
-      throw new BadRequestException({
-        message: `No repository found with id ${repositoryVcsId}`,
-      }); // TODO implement error management
+      throw new SymeoException(
+        `Repository not found for repositoryVcsId ${repositoryVcsId}`,
+        SymeoExceptionCode.WRONG_REPOSITORY_DETAILS,
+      );
     }
 
     const fileExistsOnBranch =
@@ -161,9 +167,10 @@ export default class ConfigurationService implements ConfigurationFacade {
       );
 
     if (!fileExistsOnBranch) {
-      throw new BadRequestException({
-        message: `No ${configFormatFilePath} on branch ${branch}`,
-      }); // TODO implement error management
+      throw new SymeoException(
+        `Config file not found at ${configFormatFilePath} on branch ${branch}`,
+        SymeoExceptionCode.WRONG_CONFIG_FILE_DETAILS,
+      );
     }
 
     const configuration = new Configuration(
@@ -203,9 +210,10 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!configuration) {
-      throw new NotFoundException({
-        message: `No configuration found with id ${id}`,
-      }); // TODO implement error management
+      throw new SymeoException(
+        `Configuration not found for id ${id}`,
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+      );
     }
 
     return this.configurationStoragePort.delete(configuration);

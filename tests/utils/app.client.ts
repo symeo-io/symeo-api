@@ -10,6 +10,7 @@ import User from 'src/domain/model/user.model';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import supertest from 'supertest';
 import { DomainModule } from '../../src/bootstrap/domain.module';
+import { SymeoExceptionHttpFilter } from 'src/application/exception/symeo.exception.http.filter';
 
 let loggedInUser: User | undefined;
 
@@ -32,6 +33,7 @@ export class AppClient {
     }).compile();
 
     this.app = this.module.createNestApplication();
+    this.app.useGlobalFilters(new SymeoExceptionHttpFilter());
     this.app.useGlobalPipes(new ValidationPipe());
     this.app.useGlobalGuards(new AuthGuardMock());
 
