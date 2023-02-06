@@ -42,4 +42,36 @@ export class ValuesService implements ValuesFacade {
       environment,
     );
   }
+
+  async updateByIdForUser(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    configurationId: string,
+    environmentId: string,
+    values: ConfigurationValues,
+  ): Promise<void> {
+    const configuration = await this.configurationFacade.findByIdForUser(
+      user,
+      VCSProvider.GitHub,
+      vcsRepositoryId,
+      configurationId,
+    );
+
+    const environment = configuration.environments.find(
+      (env) => env.id === environmentId,
+    );
+
+    if (!environment) {
+      throw new SymeoException(
+        `No environment found with id ${environmentId}`,
+        SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
+      );
+    }
+
+    return await this.secretValuesStoragePort.setValuesForEnvironment(
+      environment,
+      values,
+    );
+  }
 }

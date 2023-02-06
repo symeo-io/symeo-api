@@ -10,4 +10,13 @@ export interface ValuesFacade {
     configurationId: string,
     environmentId: string,
   ): Promise<ConfigurationValues>;
+
+  updateByIdForUser(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    configurationId: string,
+    environmentId: string,
+    values: ConfigurationValues,
+  ): Promise<void>;
 }
