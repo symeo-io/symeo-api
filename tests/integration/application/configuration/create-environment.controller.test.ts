@@ -2,13 +2,17 @@ import { AppClient } from 'tests/utils/app.client';
 import { DynamoDbTestUtils } from 'tests/utils/dynamo-db-test.utils';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
-import SpyInstance = jest.SpyInstance;
 import User from 'src/domain/model/user.model';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import { CreateEnvironmentResponseDTO } from 'src/application/dto/create-environment.response.dto';
+import SpyInstance = jest.SpyInstance;
+import any = jasmine.any;
+import { string } from 'yaml/dist/schema/common/string';
+import { anyString } from 'ts-mockito';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -102,9 +106,8 @@ describe('ConfigurationController', () => {
       const repositoryVcsName = 'symeo-api';
       const ownerVcsId = 585863519;
       const ownerVcsName = 'symeo-io';
-
       const mockGithubRepositoryResponse = {
-        status: 200 as number,
+        status: 200 as const,
         headers: {},
         url: '',
         data: {
@@ -113,11 +116,11 @@ describe('ConfigurationController', () => {
           owner: { login: ownerVcsName, id: ownerVcsId },
         },
       };
-      githubClientRequestMock.mockImplementation(() => {
-        Promise.resolve(mockGithubRepositoryResponse);
-      });
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGithubRepositoryResponse),
+      );
 
-      const configuration: ConfigurationEntity = new ConfigurationEntity();
+      const configuration = new ConfigurationEntity();
       configuration.id = uuid();
       configuration.hashKey = ConfigurationEntity.buildHashKey(
         VCSProvider.GitHub,
@@ -125,12 +128,23 @@ describe('ConfigurationController', () => {
       );
       configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repository = {
+        vcsId: repositoryVcsId,
+        name: 'symeo-api',
+      };
+      configuration.owner = {
+        vcsId: 585863519,
+        name: 'symeo-io',
+      };
+      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.branch = 'staging';
 
       await dynamoDBTestUtils.put(configuration);
 
       const data = {
         name: faker.name.firstName(),
-        color: EnvironmentColor.blue.toString(),
+        environmentColor: EnvironmentColor.blue,
       };
 
       await appClient
@@ -141,7 +155,12 @@ describe('ConfigurationController', () => {
         )
         .send(data)
         // Then
-        .expect(200, { name: data.name, color: data.color });
+        .expect(201);
+
+      const configurationEntities: ConfigurationEntity[] =
+        await dynamoDBTestUtils.getAll(ConfigurationEntity);
+      expect(configurationEntities.length).toEqual(1);
+      expect(configurationEntities[0].environments.length).toEqual(1);
     });
   });
 });

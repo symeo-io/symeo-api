@@ -11,6 +11,7 @@ import { ConfigurationFormat } from 'src/domain/model/configuration/configuratio
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { NotFoundException } from '@nestjs/common';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -212,7 +213,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     if (!configuration) {
       throw new SymeoException(
         `Configuration not found for id ${id}`,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
 
@@ -236,9 +237,10 @@ export default class ConfigurationService implements ConfigurationFacade {
       ),
     ]);
     if (!hasUserAccessToRepository || !configuration) {
-      throw new NotFoundException({
-        message: `No configuration found with id ${id}`,
-      }); // TODO implement error management
+      throw new SymeoException(
+        `Configuration not found for id ${id}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
     }
 
     const environment: Environment = new Environment(

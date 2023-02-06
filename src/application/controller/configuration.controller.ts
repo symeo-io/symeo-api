@@ -36,7 +36,6 @@ export class ConfigurationController {
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
     @CurrentUser() user: User,
   ): Promise<CreateEnvironmentResponseDTO> {
-    console.log('OK');
     const updatedConfiguration =
       await this.configurationFacade.createEnvironment(
         user,
