@@ -218,4 +218,37 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     return this.configurationStoragePort.delete(configuration);
   }
+
+  async createEnvironment(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+    environmentName: string,
+    environmentColor: EnvironmentColor,
+  ): Promise<Configuration> {
+    const [hasUserAccessToRepository, configuration] = await Promise.all([
+      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.configurationStoragePort.findById(
+        VCSProvider.GitHub,
+        vcsRepositoryId,
+        id,
+      ),
+    ]);
+
+    if (!hasUserAccessToRepository || !configuration) {
+      throw new NotFoundException({
+        message: `No configuration found with id ${id}`,
+      }); // TODO implement error management
+    }
+
+    const environment: Environment = new Environment(
+      uuid(),
+      environmentName,
+      environmentColor,
+    );
+    configuration.environments.push(environment);
+    await this.configurationStoragePort.save(configuration);
+    return configuration;
+  }
 }

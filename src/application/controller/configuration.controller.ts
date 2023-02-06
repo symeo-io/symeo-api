@@ -19,6 +19,8 @@ import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/validate-create-github-configuration-parameters.response.dto';
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/create-github-configuration.response.dto';
 import { GetConfigurationFormatResponseDTO } from 'src/application/dto/get-configuration-format.response.dto';
+import { CreateEnvironmentDTO } from 'src/application/dto/create-environment.dto';
+import { CreateEnvironmentResponseDTO } from 'src/application/dto/create-environment.response.dto';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -26,6 +28,25 @@ export class ConfigurationController {
     @Inject('ConfigurationFacade')
     private readonly configurationFacade: ConfigurationFacade,
   ) {}
+
+  @Post('github/:vcsRepositoryId/:id')
+  async createEnvironment(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('id') id: string,
+    @Body() createEnvironmentDTO: CreateEnvironmentDTO,
+    @CurrentUser() user: User,
+  ): Promise<CreateEnvironmentResponseDTO> {
+    const updatedConfiguration =
+      await this.configurationFacade.createEnvironment(
+        user,
+        VCSProvider.GitHub,
+        parseInt(vcsRepositoryId),
+        id,
+        createEnvironmentDTO.name,
+        createEnvironmentDTO.environmentColor,
+      );
+    return CreateEnvironmentResponseDTO.fromDomain(updatedConfiguration);
+  }
 
   @Post('github/validate')
   @HttpCode(200)
