@@ -1,4 +1,9 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+} from '@nestjs/common';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/exception/symeo.exception.code.to.http.status.map';
 
@@ -15,6 +20,13 @@ export class SymeoExceptionHttpFilter implements ExceptionFilter {
       response.status(statusCode).json({
         statusCode: statusCode,
         message: exception.errorMessage,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      });
+    } else if (exception instanceof HttpException) {
+      response.status(exception.getStatus()).json({
+        statusCode: exception.getStatus(),
+        message: exception.message,
         timestamp: new Date().toISOString(),
         path: request.url,
       });
