@@ -19,6 +19,7 @@ auth0:
     type: string
   clientSecret:
     type: string
+    secret: true
   audience:
     type: string
   issuer:
