@@ -2,9 +2,6 @@ import User from '../../domain/model/user.model';
 import { Octokit } from '@octokit/rest';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
-import { SymeoException } from 'src/core/exception/symeo.exception';
-import { SymeoExceptionCode } from 'src/core/exception/symeo.exception.code.enum';
-import { NotFoundException } from '@nestjs/common';
 
 export class GithubHttpClient {
   constructor(
@@ -49,12 +46,7 @@ export class GithubHttpClient {
         return undefined;
       }
 
-      throw new SymeoException(
-        `Github repository not found for id ${repositoryVcsId}`,
-        404,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        new NotFoundException(),
-      );
+      throw exception;
     }
   }
 
@@ -76,12 +68,7 @@ export class GithubHttpClient {
         return false;
       }
 
-      throw new SymeoException(
-        `Github repository not found for id ${repositoryVcsId}`,
-        404,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        new NotFoundException(),
-      );
+      throw exception;
     }
   }
 
@@ -109,12 +96,7 @@ export class GithubHttpClient {
         return false;
       }
 
-      throw new SymeoException(
-        `Content not found for owner ${repositoryOwnerName}, repo ${repositoryName}, path ${filePath} and branch ${branch}`,
-        404,
-        SymeoExceptionCode.GITHUB_FILE_CONTENT_NOT_FOUND,
-        new NotFoundException(),
-      );
+      throw exception;
     }
   }
 
@@ -151,12 +133,7 @@ export class GithubHttpClient {
         return undefined;
       }
 
-      throw new SymeoException(
-        `Content not found for owner ${repositoryOwnerName}, repo ${repositoryName}, path ${filePath} and branch ${branch}`,
-        404,
-        SymeoExceptionCode.GITHUB_FILE_CONTENT_NOT_FOUND,
-        new NotFoundException(),
-      );
+      throw exception;
     }
   }
 }

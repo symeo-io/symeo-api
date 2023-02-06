@@ -1,9 +1,6 @@
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
 import { DynamoDBClient } from 'src/infrastructure/dynamodb-adapter/dynamodb.client';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import { SymeoException } from 'src/core/exception/symeo.exception';
-import { SymeoExceptionCode } from 'src/core/exception/symeo.exception.code.enum';
-import { NotFoundException } from '@nestjs/common';
 
 export default class ConfigurationRepository {
   constructor(private readonly dynamoDBClient: DynamoDBClient) {}
@@ -22,12 +19,7 @@ export default class ConfigurationRepository {
       );
     } catch (exception) {
       if ((exception as Error).name !== 'ItemNotFoundException') {
-        throw new SymeoException(
-          `Configuration not found for id ${id}, vcsType ${vcsType} and vcsRepositoryId ${vcsRepositoryId}`,
-          404,
-          SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-          new NotFoundException(),
-        );
+        throw exception;
       }
 
       return undefined;

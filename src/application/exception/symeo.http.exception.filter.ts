@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { SymeoException } from 'src/core/exception/symeo.exception';
+import { SymeoHttpException } from 'src/domain/exception/symeo.http.exception';
+import { SymeoHttpExceptionCodeMapper } from 'src/application/exception/symeo.http.exception.code.mapper';
 
 @Catch()
 export class SymeoHttpExceptionFilter implements ExceptionFilter {
@@ -8,10 +9,11 @@ export class SymeoHttpExceptionFilter implements ExceptionFilter {
     const response = context.getResponse();
     const request = context.getRequest();
 
-    if (exception instanceof SymeoException) {
-      response.status(exception.statusCode).json({
-        statusCode: exception.statusCode,
-        symeoExceptionCode: exception.symeoExceptionCode,
+    if (exception instanceof SymeoHttpException) {
+      const statusCode: number =
+        SymeoHttpExceptionCodeMapper[exception.symeoExceptionCode];
+      response.status(statusCode).json({
+        statusCode: statusCode,
         message: exception.message,
         timestamp: new Date().toISOString(),
         path: request.url,

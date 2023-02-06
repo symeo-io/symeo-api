@@ -4,14 +4,13 @@ import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/configuration/environment.model';
 import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
 import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
 import { parse } from 'yaml';
-import { SymeoException } from 'src/core/exception/symeo.exception';
-import { SymeoExceptionCode } from 'src/core/exception/symeo.exception.code.enum';
+import { SymeoHttpException } from 'src/domain/exception/symeo.http.exception';
+import { SymeoHttpExceptionCode } from 'src/domain/exception/symeo.http.exception.code.enum';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -35,11 +34,9 @@ export default class ConfigurationService implements ConfigurationFacade {
     ]);
 
     if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
+      throw new SymeoHttpException(
         `Configuration not found for id ${id}`,
-        404,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-        new NotFoundException(),
+        SymeoHttpExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
 
@@ -55,11 +52,9 @@ export default class ConfigurationService implements ConfigurationFacade {
       await this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId);
 
     if (!hasUserAccessToRepository) {
-      throw new SymeoException(
+      throw new SymeoHttpException(
         `Repository not found for id ${vcsRepositoryId}`,
-        404,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        new NotFoundException(),
+        SymeoHttpExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
 
@@ -119,11 +114,9 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!configuration) {
-      throw new SymeoException(
+      throw new SymeoHttpException(
         `Configuration not found for id ${id}`,
-        404,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-        new NotFoundException(),
+        SymeoHttpExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
 
@@ -136,11 +129,9 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!configFormatString) {
-      throw new SymeoException(
+      throw new SymeoHttpException(
         `Configuration file not found at ${configuration.configFormatFilePath} on ${configuration.branch}`,
-        404,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-        new NotFoundException(),
+        SymeoHttpExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
 
@@ -160,11 +151,9 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!repository) {
-      throw new SymeoException(
+      throw new SymeoHttpException(
         `Repository not found for repositoryVcsId ${repositoryVcsId}`,
-        400,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        new BadRequestException(),
+        SymeoHttpExceptionCode.WRONG_REPOSITORY_DETAILS,
       );
     }
 
@@ -178,11 +167,9 @@ export default class ConfigurationService implements ConfigurationFacade {
       );
 
     if (!fileExistsOnBranch) {
-      throw new SymeoException(
-        `No ${configFormatFilePath} on branch ${branch}`,
-        400,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        new BadRequestException(),
+      throw new SymeoHttpException(
+        `Config file not found at ${configFormatFilePath} on branch ${branch}`,
+        SymeoHttpExceptionCode.WRONG_CONFIG_FILE_DETAILS,
       );
     }
 
@@ -223,11 +210,9 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     if (!configuration) {
-      throw new SymeoException(
+      throw new SymeoHttpException(
         `Configuration not found for id ${id}`,
-        404,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        new NotFoundException(),
+        SymeoHttpExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
 
