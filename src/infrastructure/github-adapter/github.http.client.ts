@@ -45,7 +45,6 @@ export class GithubHttpClient {
       if ((exception as any).status && (exception as any).status === 404) {
         return undefined;
       }
-
       throw exception;
     }
   }

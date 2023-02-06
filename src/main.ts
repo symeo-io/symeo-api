@@ -3,11 +3,11 @@ import { ApplicationModule } from 'src/bootstrap/application.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { config } from 'symeo/config';
-import { SymeoExceptionFilter } from 'src/application/exception/symeo.exception.filter';
+import { SymeoExceptionHttpFilter } from 'src/application/exception/symeo.exception.http.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApplicationModule);
-  app.useGlobalFilters(new SymeoExceptionFilter());
+  app.useGlobalFilters(new SymeoExceptionHttpFilter());
   app.setGlobalPrefix('api/v1');
   app.enableCors({
     credentials: true,

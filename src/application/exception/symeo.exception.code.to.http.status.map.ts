@@ -1,6 +1,6 @@
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
-export const SymeoExceptionCodeMapper = {
+export const SymeoExceptionCodeToHttpStatusMap = {
   [SymeoExceptionCode.CONFIGURATION_NOT_FOUND]: 404,
   [SymeoExceptionCode.REPOSITORY_NOT_FOUND]: 404,
   [SymeoExceptionCode.WRONG_REPOSITORY_DETAILS]: 400,
