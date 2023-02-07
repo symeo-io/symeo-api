@@ -59,7 +59,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(DELETE) /configurations/github/:vcsRepositoryId/:configurationId/environment/:id', () => {
+  describe('(DELETE) /configurations/github/:vcsRepositoryId/:configurationId/environments/:id', () => {
     it('Should return 400 for non existing repository', async () => {
       // When
       const vcsRepositoryId: string = uuid();
@@ -72,7 +72,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environment/${environmentId}`,
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         // Then
         .expect(404);
@@ -134,7 +134,7 @@ describe('ConfigurationController', () => {
         .delete(
           `/configurations/github/${repositoryVcsId}/${
             configuration.id
-          }/environment/${uuid()}`,
+          }/environments/${uuid()}`,
         )
         // Then
         .expect(404);
@@ -195,7 +195,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environment/${environmentId}`,
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
         )
         // Then
         .expect(200);

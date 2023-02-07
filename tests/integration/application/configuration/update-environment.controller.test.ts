@@ -59,7 +59,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(PATCH) /configurations/github/:vcsRepositoryId/:id/environment', () => {
+  describe('(PATCH) /configurations/github/:vcsRepositoryId/:id/environments', () => {
     it('Should return 400 for missing environment data', async () => {
       const vcsRepositoryId: number = faker.datatype.number();
       const configurationId: string = uuid();
@@ -68,7 +68,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environment/${environmentId}`,
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         .send({})
         // Then
@@ -92,7 +92,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environment/${environmentId}`,
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         .send(data)
         // Then
@@ -161,7 +161,7 @@ describe('ConfigurationController', () => {
         .patch(
           `/configurations/github/${repositoryVcsId}/${
             configuration.id
-          }/environment/${uuid()}`,
+          }/environments/${uuid()}`,
         )
         .send(updatedEnvironmentData)
         // Then
@@ -227,7 +227,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environment/${environmentId}`,
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
         )
         .send(updatedEnvironmentData)
         // Then

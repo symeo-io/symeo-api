@@ -32,7 +32,7 @@ export class ConfigurationController {
     private readonly configurationFacade: ConfigurationFacade,
   ) {}
 
-  @Patch('github/:vcsRepositoryId/:configurationId/environment/:id')
+  @Patch('github/:vcsRepositoryId/:configurationId/environments/:id')
   async updateEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
@@ -53,7 +53,7 @@ export class ConfigurationController {
     return UpdateEnvironmentResponseDto.fromDomain(updatedConfiguration);
   }
 
-  @Delete('github/:vcsRepositoryId/:configurationId/environment/:id')
+  @Delete('github/:vcsRepositoryId/:configurationId/environments/:id')
   async deleteEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
@@ -69,7 +69,7 @@ export class ConfigurationController {
     );
   }
 
-  @Post('github/:vcsRepositoryId/:configurationId/environment')
+  @Post('github/:vcsRepositoryId/:configurationId/environments')
   async createEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
