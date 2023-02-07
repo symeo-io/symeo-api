@@ -5,6 +5,7 @@ import { AuthenticationModule } from 'src/bootstrap/authentication.module';
 import { OrganizationController } from '../application/controller/organization.controller';
 import { RepositoryController } from 'src/application/controller/repository.controller';
 import { ValuesController } from 'src/application/controller/values.controller';
+import { ApiKeyController } from 'src/application/controller/api-key.controller';
 
 @Module({
   imports: [DomainModule, AuthenticationModule],
@@ -13,6 +14,7 @@ import { ValuesController } from 'src/application/controller/values.controller';
     OrganizationController,
     RepositoryController,
     ValuesController,
+    ApiKeyController,
   ],
 })
 export class ApplicationModule {}

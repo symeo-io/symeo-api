@@ -14,7 +14,7 @@ database:
   configuration:
     tableName:
       type: string
-  apiKeys:
+  apiKey:
     tableName:
       type: string
 auth0:

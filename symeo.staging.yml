@@ -3,7 +3,7 @@ aws:
 database:
   configuration:
     tableName: "symeo-api-configurations-staging"
-  apiKeys:
+  apiKey:
     tableName: "symeo-api-api-keys-staging"
 auth0:
   clientId: "ya4wgNrcaU88SAhvgR0dz0LagajToRpf"

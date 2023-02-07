@@ -11,7 +11,7 @@ import { CurrentUser } from 'src/application/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { GetEnvironmentValuesResponseDTO } from 'src/application/dto/get-environment-values.response.dto';
-import { ValuesFacade } from 'src/domain/port/in/valuesFacade';
+import { ValuesFacade } from 'src/domain/port/in/values.facade';
 import { SetEnvironmentValuesResponseDTO } from 'src/application/dto/set-environment-values.dto';
 
 @Controller('configurations')
@@ -21,10 +21,12 @@ export class ValuesController {
     private readonly valuesFacade: ValuesFacade,
   ) {}
 
-  @Get('github/:vcsRepositoryId/:id/environments/:environmentId/values')
+  @Get(
+    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/values',
+  )
   async getEnvironmentValues(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
+    @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
   ): Promise<GetEnvironmentValuesResponseDTO> {
@@ -32,18 +34,20 @@ export class ValuesController {
       user,
       VCSProvider.GitHub,
       parseInt(vcsRepositoryId),
-      id,
+      configurationId,
       environmentId,
     );
 
     return new GetEnvironmentValuesResponseDTO(values);
   }
 
-  @Post('github/:vcsRepositoryId/:id/environments/:environmentId/values')
+  @Post(
+    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/values',
+  )
   @HttpCode(200)
   async setEnvironmentValues(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
+    @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
     @CurrentUser() user: User,
@@ -52,7 +56,7 @@ export class ValuesController {
       user,
       VCSProvider.GitHub,
       parseInt(vcsRepositoryId),
-      id,
+      configurationId,
       environmentId,
       setEnvironmentValuesResponseDTO.values,
     );
