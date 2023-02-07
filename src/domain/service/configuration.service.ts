@@ -224,7 +224,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     user: User,
     vcsType: VCSProvider,
     vcsRepositoryId: number,
-    id: string,
+    configurationId: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
   ): Promise<Configuration> {
@@ -233,12 +233,12 @@ export default class ConfigurationService implements ConfigurationFacade {
       this.configurationStoragePort.findById(
         VCSProvider.GitHub,
         vcsRepositoryId,
-        id,
+        configurationId,
       ),
     ]);
     if (!hasUserAccessToRepository || !configuration) {
       throw new SymeoException(
-        `Configuration not found for id ${id}`,
+        `Configuration not found for id ${configurationId}`,
         SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
@@ -251,5 +251,36 @@ export default class ConfigurationService implements ConfigurationFacade {
     configuration.environments.push(environment);
     await this.configurationStoragePort.save(configuration);
     return configuration;
+  }
+
+  async deleteEnvironment(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    configurationId: string,
+    environmentId: string,
+  ): Promise<void> {
+    const [hasUserAccessToRepository, configuration] = await Promise.all([
+      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.configurationStoragePort.findById(
+        VCSProvider.GitHub,
+        vcsRepositoryId,
+        configurationId,
+      ),
+    ]);
+    if (!hasUserAccessToRepository || !configuration) {
+      throw new SymeoException(
+        `Configuration not found for id ${configurationId}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
+    }
+    const indexOfEnvironmentToRemove: number =
+      configuration.environments.findIndex(
+        (environment) => environment.id === environmentId,
+      );
+    if (indexOfEnvironmentToRemove) {
+      configuration.environments.splice(indexOfEnvironmentToRemove, 1);
+      await this.configurationStoragePort.save(configuration);
+    }
   }
 }

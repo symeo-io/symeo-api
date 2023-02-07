@@ -29,10 +29,26 @@ export class ConfigurationController {
     private readonly configurationFacade: ConfigurationFacade,
   ) {}
 
-  @Post('github/:vcsRepositoryId/:id/environment')
+  @Delete('github/:vcsRepositoryId/:configurationId/environment/:id')
+  async deleteEnvironment(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('configurationId') configurationId: string,
+    @Param(':id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    await this.configurationFacade.deleteEnvironment(
+      user,
+      VCSProvider.GitHub,
+      parseInt(vcsRepositoryId),
+      configurationId,
+      id,
+    );
+  }
+
+  @Post('github/:vcsRepositoryId/:configurationId/environment')
   async createEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
+    @Param('configurationId') configurationId: string,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
     @CurrentUser() user: User,
   ): Promise<CreateEnvironmentResponseDTO> {
@@ -41,7 +57,7 @@ export class ConfigurationController {
         user,
         VCSProvider.GitHub,
         parseInt(vcsRepositoryId),
-        id,
+        configurationId,
         createEnvironmentDTO.name,
         createEnvironmentDTO.environmentColor,
       );

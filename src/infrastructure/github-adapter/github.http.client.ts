@@ -54,7 +54,6 @@ export class GithubHttpClient {
     repositoryVcsId: number,
   ): Promise<boolean> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
     try {
       const response = await this.client.request('GET /repositories/{id}', {
         id: repositoryVcsId,

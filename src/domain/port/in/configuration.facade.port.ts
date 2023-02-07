@@ -55,4 +55,12 @@ export default interface ConfigurationFacade {
     environmentName: string,
     environmentColor: EnvironmentColor,
   ): Promise<Configuration>;
+
+  deleteEnvironment(
+    user: User,
+    vcsType: VCSProvider,
+    vcsRepositoryId: number,
+    id: string,
+    environmentId: string,
+  ): Promise<void>;
 }
