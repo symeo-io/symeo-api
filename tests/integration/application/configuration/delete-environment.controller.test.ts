@@ -11,6 +11,7 @@ import { EnvironmentColor } from 'src/domain/model/configuration/environment-col
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import Environment from 'src/domain/model/configuration/environment.model';
 import SpyInstance = jest.SpyInstance;
+import { anyString, anything } from 'ts-mockito';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -72,6 +73,68 @@ describe('ConfigurationController', () => {
         // When
         .delete(
           `/configurations/github/${vcsRepositoryId}/${configurationId}/environment/${environmentId}`,
+        )
+        // Then
+        .expect(404);
+    });
+
+    it('Should return 404 for non existing environment', async () => {
+      // When
+      const repositoryVcsId: number = faker.datatype.number();
+      const repositoryVcsName = faker.name.firstName();
+      const ownerVcsId = faker.datatype.number();
+      const ownerVcsName = faker.name.firstName();
+      const mockGithubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: repositoryVcsName,
+          id: repositoryVcsId,
+          owner: { login: ownerVcsName, id: ownerVcsId },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGithubRepositoryResponse),
+      );
+
+      const environmentId = uuid();
+      const environmentName = faker.name.firstName();
+      const environmentColor = EnvironmentColor.blue;
+
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration.rangeKey = configuration.id;
+      configuration.name = faker.name.jobTitle();
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repository = {
+        vcsId: repositoryVcsId,
+        name: repositoryVcsName,
+      };
+      configuration.owner = {
+        vcsId: ownerVcsId,
+        name: ownerVcsName,
+      };
+      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.branch = 'staging';
+      configuration.environments = [
+        EnvironmentEntity.fromDomain(
+          new Environment(environmentId, environmentName, environmentColor),
+        ),
+      ];
+      await dynamoDBTestUtils.put(configuration);
+
+      await appClient
+        .request(currentUser)
+        // When
+        .delete(
+          `/configurations/github/${repositoryVcsId}/${
+            configuration.id
+          }/environment/${uuid()}`,
         )
         // Then
         .expect(404);

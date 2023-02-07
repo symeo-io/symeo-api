@@ -99,6 +99,75 @@ describe('ConfigurationController', () => {
         .expect(404);
     });
 
+    it('Should return 404 for non existing environment', async () => {
+      // When
+      const repositoryVcsId: number = faker.datatype.number();
+      const repositoryVcsName = faker.name.firstName();
+      const ownerVcsId = faker.datatype.number();
+      const ownerVcsName = faker.name.firstName();
+      const mockGithubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: repositoryVcsName,
+          id: repositoryVcsId,
+          owner: { login: ownerVcsName, id: ownerVcsId },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGithubRepositoryResponse),
+      );
+
+      const environmentId = uuid();
+      const environmentName = faker.name.firstName();
+      const environmentColor = EnvironmentColor.blue;
+
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration.rangeKey = configuration.id;
+      configuration.name = faker.name.jobTitle();
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repository = {
+        vcsId: repositoryVcsId,
+        name: repositoryVcsName,
+      };
+      configuration.owner = {
+        vcsId: ownerVcsId,
+        name: ownerVcsName,
+      };
+      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.branch = 'staging';
+      configuration.environments = [
+        EnvironmentEntity.fromDomain(
+          new Environment(environmentId, environmentName, environmentColor),
+        ),
+      ];
+
+      await dynamoDBTestUtils.put(configuration);
+
+      const updatedEnvironmentData: UpdateEnvironmentDTO = {
+        name: faker.name.firstName(),
+        environmentColor: EnvironmentColor.blueGrey,
+      };
+
+      await appClient
+        .request(currentUser)
+        // When
+        .patch(
+          `/configurations/github/${repositoryVcsId}/${
+            configuration.id
+          }/environment/${uuid()}`,
+        )
+        .send(updatedEnvironmentData)
+        // Then
+        .expect(404);
+    });
+
     it('Should return 200 and update environment of configuration', async () => {
       // When
       const repositoryVcsId: number = faker.datatype.number();

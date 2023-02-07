@@ -282,7 +282,10 @@ export default class ConfigurationService implements ConfigurationFacade {
       configuration.environments.splice(indexOfEnvironmentToRemove, 1);
       await this.configurationStoragePort.save(configuration);
     } else {
-      throw new NotFoundException();
+      throw new SymeoException(
+        `The environment to update with the id ${environmentId} was not found`,
+        SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
+      );
     }
   }
 
@@ -322,6 +325,9 @@ export default class ConfigurationService implements ConfigurationFacade {
       await this.configurationStoragePort.save(configuration);
       return configuration;
     }
-    throw new NotFoundException();
+    throw new SymeoException(
+      `The environment to update with the id ${environmentId} was not found`,
+      SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
+    );
   }
 }
