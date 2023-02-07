@@ -22,6 +22,8 @@ describe('ValuesController', () => {
   let getGitHubAccessTokenMock: SpyInstance;
   let githubClientRequestMock: SpyInstance;
   let secretManagerClientGetSecretMock: SpyInstance;
+  let secretManagerClientUpdateSecretMock: SpyInstance;
+  let secretManagerClientCreateSecretMock: SpyInstance;
 
   const currentUser = new User(
     uuid(),
@@ -60,6 +62,14 @@ describe('ValuesController', () => {
       secretManagerClient.client,
       'getSecretValue',
     );
+    secretManagerClientUpdateSecretMock = jest.spyOn(
+      secretManagerClient.client,
+      'putSecretValue',
+    );
+    secretManagerClientCreateSecretMock = jest.spyOn(
+      secretManagerClient.client,
+      'createSecret',
+    );
     getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
   });
 
@@ -67,9 +77,11 @@ describe('ValuesController', () => {
     getGitHubAccessTokenMock.mockRestore();
     githubClientRequestMock.mockRestore();
     secretManagerClientGetSecretMock.mockRestore();
+    secretManagerClientUpdateSecretMock.mockRestore();
+    secretManagerClientCreateSecretMock.mockRestore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/values', () => {
+  describe('(POST) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/values', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();
@@ -91,9 +103,10 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(
+        .post(
           `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
         )
+        .send({ values: { aws: { region: 'eu-west-3' } } })
         // Then
         .expect(404);
     });
@@ -124,9 +137,10 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(
+        .post(
           `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
+        .send({ values: { aws: { region: 'eu-west-3' } } })
         // Then
         .expect(404);
     });
@@ -163,16 +177,17 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(
+        .post(
           `/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}/values`,
         )
+        .send({ values: { aws: { region: 'eu-west-3' } } })
         // Then
         .expect(404);
     });
 
-    it('should respond 200 with values', async () => {
+    it('should update secret if it exists', async () => {
       // Given
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
@@ -206,27 +221,98 @@ describe('ValuesController', () => {
       );
 
       const mockGetSecretResponse = {
-        SecretString: '{ "aws": { "region": "eu-west-3" } }',
+        SecretString: '{ "aws": { "region": "eu-west-1" } }',
       };
 
       secretManagerClientGetSecretMock.mockImplementation(() => ({
         promise: () => Promise.resolve(mockGetSecretResponse),
       }));
 
-      const response = await appClient
+      secretManagerClientUpdateSecretMock.mockImplementation(() => ({
+        promise: () => Promise.resolve(),
+      }));
+
+      const sentValues = { aws: { region: 'eu-west-3' } };
+      await appClient
         .request(currentUser)
-        .get(
+        .post(
           `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
+        .send({ values: sentValues })
         .expect(200);
 
       expect(secretManagerClientGetSecretMock).toHaveBeenCalledTimes(1);
       expect(secretManagerClientGetSecretMock).toHaveBeenCalledWith({
         SecretId: configuration.environments[0].id,
       });
-      expect(response.body.values).toBeDefined();
-      expect(response.body.values.aws).toBeDefined();
-      expect(response.body.values.aws.region).toEqual('eu-west-3');
+      expect(secretManagerClientUpdateSecretMock).toHaveBeenCalledTimes(1);
+      expect(secretManagerClientUpdateSecretMock).toHaveBeenCalledWith({
+        SecretId: configuration.environments[0].id,
+        SecretString: JSON.stringify(sentValues),
+      });
+    });
+
+    it('should create secret if it does not exists', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
+      );
+      configuration.rangeKey = configuration.id;
+      configuration.name = faker.name.jobTitle();
+      configuration.environments = [
+        EnvironmentEntity.fromDomain(
+          new Environment(uuid(), faker.name.firstName(), EnvironmentColor.red),
+        ),
+      ];
+
+      await dynamoDBTestUtils.put(configuration);
+
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      secretManagerClientGetSecretMock.mockImplementation(() => ({
+        promise: () => {
+          throw { code: 'ResourceNotFoundException' };
+        },
+      }));
+
+      secretManagerClientCreateSecretMock.mockImplementation(() => ({
+        promise: () => Promise.resolve(),
+      }));
+
+      const sentValues = { aws: { region: 'eu-west-3' } };
+      await appClient
+        .request(currentUser)
+        .post(
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+        )
+        .send({ values: sentValues })
+        .expect(200);
+
+      expect(secretManagerClientGetSecretMock).toHaveBeenCalledTimes(1);
+      expect(secretManagerClientGetSecretMock).toHaveBeenCalledWith({
+        SecretId: configuration.environments[0].id,
+      });
+      expect(secretManagerClientCreateSecretMock).toHaveBeenCalledTimes(1);
+      expect(secretManagerClientCreateSecretMock).toHaveBeenCalledWith({
+        Name: configuration.environments[0].id,
+        SecretString: JSON.stringify(sentValues),
+      });
     });
   });
 });

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
@@ -32,6 +40,7 @@ export class ValuesController {
   }
 
   @Post('github/:vcsRepositoryId/:id/environments/:environmentId/values')
+  @HttpCode(200)
   async setEnvironmentValues(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
