@@ -29,6 +29,14 @@ export default class GithubAdapter implements GithubAdapterPort {
       );
     }
 
+    if (alreadyCollectedRepositoriesDTO.length === 0) {
+      return [
+        GithubOrganizationMapper.githubUserDtoToDomain(
+          await this.githubHttpClient.getAuthenticatedUser(user),
+        ),
+      ];
+    }
+
     const gitHubOrganizationsDTO = alreadyCollectedRepositoriesDTO.map(
       (repository) => repository.owner,
     );
