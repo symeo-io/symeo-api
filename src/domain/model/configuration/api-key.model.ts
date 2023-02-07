@@ -27,14 +27,14 @@ export default class ApiKey {
     return `${header}.${body}`;
   }
 
-  static generateKeyHeader(id: string, environmentId: string) {
+  private static generateKeyHeader(id: string, environmentId: string) {
     const objectHeader = { id, environmentId };
     const stringHeader = JSON.stringify(objectHeader);
 
     return base64encode(stringHeader);
   }
 
-  static generateKeyBody() {
+  private static generateKeyBody() {
     const size = 32;
     const format = 'base64';
     const buffer = randomBytes(size);
