@@ -8,9 +8,21 @@ services:
     volumes:
       - ./.data/dynamodb:/dynamodb_local_db
 
-  init-dynamo:
+  init-configuration-dynamo:
     image: amazon/aws-cli
     command: dynamodb create-table --table-name symeo-api-configurations-test --attribute-definitions AttributeName=hashKey,AttributeType=S AttributeName=rangeKey,AttributeType=S --key-schema AttributeName=hashKey,KeyType=HASH AttributeName=rangeKey,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb:8000
+    links:
+      - dynamodb
+    environment:
+      - AWS_ACCESS_KEY_ID=0
+      - AWS_SECRET_ACCESS_KEY=0
+      - AWS_REGION=eu-west-3
+    depends_on:
+      - dynamodb
+
+  init-api-key-dynamo:
+    image: amazon/aws-cli
+    command: dynamodb create-table --table-name symeo-api-api-keys-test --attribute-definitions AttributeName=hashKey,AttributeType=S AttributeName=rangeKey,AttributeType=S --key-schema AttributeName=hashKey,KeyType=HASH AttributeName=rangeKey,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb:8000
     links:
       - dynamodb
     environment:

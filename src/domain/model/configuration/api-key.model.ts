@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import crypto from 'crypto';
+import { randomBytes } from 'crypto';
 import { base64encode } from 'nodejs-base64';
 
 export default class ApiKey {
@@ -37,7 +37,7 @@ export default class ApiKey {
   static generateKeyBody() {
     const size = 32;
     const format = 'base64';
-    const buffer = crypto.randomBytes(size);
+    const buffer = randomBytes(size);
     return buffer.toString(format);
   }
 }
