@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import SpyInstance = jest.SpyInstance;
 
 describe('ConfigurationController', () => {
@@ -63,9 +63,7 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
-        )
+        .post(`/environments/github/${vcsRepositoryId}/${configurationId}`)
         .send({})
         // Then
         .expect(400);
@@ -80,15 +78,13 @@ describe('ConfigurationController', () => {
 
       const data = {
         name: faker.name.firstName(),
-        environmentColor: EnvironmentColor.blue,
+        color: EnvironmentColor.blue,
       };
 
       await appClient
         .request(currentUser)
         // When
-        .post(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
-        )
+        .post(`/environments/github/${vcsRepositoryId}/${configurationId}`)
         .send(data)
         // Then
         .expect(404);
@@ -137,23 +133,25 @@ describe('ConfigurationController', () => {
 
       const data = {
         name: faker.name.firstName(),
-        environmentColor: EnvironmentColor.blue,
+        color: EnvironmentColor.blue,
       };
 
       await appClient
         .request(currentUser)
         // When
-        .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments`,
-        )
+        .post(`/environments/github/${repositoryVcsId}/${configuration.id}`)
         .send(data)
         // Then
         .expect(201);
 
-      const configurationEntities: ConfigurationEntity[] =
-        await dynamoDBTestUtils.getAll(ConfigurationEntity);
-      expect(configurationEntities.length).toEqual(1);
-      expect(configurationEntities[0].environments.length).toEqual(1);
+      const configurationEntity: ConfigurationEntity =
+        await dynamoDBTestUtils.get(ConfigurationEntity, {
+          hashKey: configuration.hashKey,
+          rangeKey: configuration.rangeKey,
+        });
+      expect(configurationEntity).toBeTruthy();
+      expect(configurationEntity.environments.length).toEqual(1);
+      expect(configurationEntity.environments[0].name).toEqual(data.name);
     });
   });
 });

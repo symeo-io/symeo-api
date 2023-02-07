@@ -7,11 +7,11 @@ import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
-import Environment from 'src/domain/model/configuration/environment.model';
-import { UpdateEnvironmentDTO } from 'src/application/dto/configuration/update-environment.dto';
+import Environment from 'src/domain/model/environment/environment.model';
 import SpyInstance = jest.SpyInstance;
+import { anyString, anything } from 'ts-mockito';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -59,42 +59,21 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(PATCH) /configurations/github/:vcsRepositoryId/:id/environments', () => {
-    it('Should return 400 for missing environment data', async () => {
-      const vcsRepositoryId: number = faker.datatype.number();
+  describe('(DELETE) /environments/github/:vcsRepositoryId/:configurationId/:id', () => {
+    it('Should return 400 for non existing repository', async () => {
+      // When
+      const vcsRepositoryId: string = uuid();
       const configurationId: string = uuid();
-      const environmentId: string = uuid();
-      await appClient
-        .request(currentUser)
-        // When
-        .patch(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
-        )
-        .send({})
-        // Then
-        .expect(400);
-    });
-
-    it('Should return 404 for non existing repository', async () => {
-      const vcsRepositoryId = faker.datatype.number();
-      const configurationId = uuid();
       const environmentId: string = uuid();
       githubClientRequestMock.mockImplementation(() => {
         throw { status: 404 };
       });
-
-      const data = {
-        name: faker.name.firstName(),
-        environmentColor: EnvironmentColor.blue,
-      };
-
       await appClient
         .request(currentUser)
         // When
-        .patch(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
+        .delete(
+          `/environments/github/${vcsRepositoryId}/${configurationId}/${environmentId}`,
         )
-        .send(data)
         // Then
         .expect(404);
     });
@@ -147,28 +126,21 @@ describe('ConfigurationController', () => {
           new Environment(environmentId, environmentName, environmentColor),
         ),
       ];
-
       await dynamoDBTestUtils.put(configuration);
-
-      const updatedEnvironmentData: UpdateEnvironmentDTO = {
-        name: faker.name.firstName(),
-        environmentColor: EnvironmentColor.blueGrey,
-      };
 
       await appClient
         .request(currentUser)
         // When
-        .patch(
-          `/configurations/github/${repositoryVcsId}/${
+        .delete(
+          `/environments/github/${repositoryVcsId}/${
             configuration.id
-          }/environments/${uuid()}`,
+          }/${uuid()}`,
         )
-        .send(updatedEnvironmentData)
         // Then
         .expect(404);
     });
 
-    it('Should return 200 and update environment of configuration', async () => {
+    it('Should return 200 and delete environment from configuration', async () => {
       // When
       const repositoryVcsId: number = faker.datatype.number();
       const repositoryVcsName = faker.name.firstName();
@@ -219,32 +191,21 @@ describe('ConfigurationController', () => {
 
       await dynamoDBTestUtils.put(configuration);
 
-      const updatedEnvironmentData: UpdateEnvironmentDTO = {
-        name: faker.name.firstName(),
-        environmentColor: EnvironmentColor.blueGrey,
-      };
       await appClient
         .request(currentUser)
         // When
-        .patch(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
+        .delete(
+          `/environments/github/${repositoryVcsId}/${configuration.id}/${environmentId}`,
         )
-        .send(updatedEnvironmentData)
         // Then
         .expect(200);
-      const configurationEntities: ConfigurationEntity[] =
-        await dynamoDBTestUtils.getAll(ConfigurationEntity);
-      expect(configurationEntities.length).toEqual(1);
-      expect(configurationEntities[0].environments.length).toEqual(1);
-      expect(configurationEntities[0].environments[0].id).toEqual(
-        environmentId,
-      );
-      expect(configurationEntities[0].environments[0].name).toEqual(
-        updatedEnvironmentData.name,
-      );
-      expect(configurationEntities[0].environments[0].color).toEqual(
-        updatedEnvironmentData.environmentColor.toString(),
-      );
+      const configurationEntity: ConfigurationEntity =
+        await dynamoDBTestUtils.get(ConfigurationEntity, {
+          hashKey: configuration.hashKey,
+          rangeKey: configuration.rangeKey,
+        });
+      expect(configurationEntity).toBeTruthy();
+      expect(configurationEntity.environments.length).toEqual(0);
     });
   });
 });

@@ -5,8 +5,8 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { v4 as uuid } from 'uuid';
-import Environment from 'src/domain/model/configuration/environment.model';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import Environment from 'src/domain/model/environment/environment.model';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
@@ -218,116 +218,5 @@ export default class ConfigurationService implements ConfigurationFacade {
     }
 
     return this.configurationStoragePort.delete(configuration);
-  }
-
-  async createEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentName: string,
-    environmentColor: EnvironmentColor,
-  ): Promise<Configuration> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        vcsRepositoryId,
-        configurationId,
-      ),
-    ]);
-    if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${configurationId}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
-    const environment: Environment = new Environment(
-      uuid(),
-      environmentName,
-      environmentColor,
-    );
-    configuration.environments.push(environment);
-    await this.configurationStoragePort.save(configuration);
-    return configuration;
-  }
-
-  async deleteEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
-  ): Promise<void> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        vcsRepositoryId,
-        configurationId,
-      ),
-    ]);
-    if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${configurationId}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-    const indexOfEnvironmentToRemove: number =
-      configuration.environments.findIndex(
-        (environment) => environment.id === environmentId,
-      );
-    if (indexOfEnvironmentToRemove > -1) {
-      configuration.environments.splice(indexOfEnvironmentToRemove, 1);
-      await this.configurationStoragePort.save(configuration);
-    } else {
-      throw new SymeoException(
-        `The environment to update with the id ${environmentId} was not found`,
-        SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
-      );
-    }
-  }
-
-  async updateEnvironment(
-    user: User,
-    vcsProvider: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
-    environmentName: string,
-    environmentColor: EnvironmentColor,
-  ): Promise<Configuration> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        vcsRepositoryId,
-        configurationId,
-      ),
-    ]);
-    if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${configurationId}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-    const indexOfEnvironmentToUpdate: number =
-      configuration.environments.findIndex(
-        (environment) => environment.id === environmentId,
-      );
-    if (indexOfEnvironmentToUpdate > -1) {
-      configuration.environments[indexOfEnvironmentToUpdate] = new Environment(
-        environmentId,
-        environmentName,
-        environmentColor,
-      );
-      await this.configurationStoragePort.save(configuration);
-      return configuration;
-    }
-    throw new SymeoException(
-      `The environment to update with the id ${environmentId} was not found`,
-      SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
-    );
   }
 }

@@ -1,6 +1,6 @@
 import { attribute } from '@aws/dynamodb-data-mapper-annotations';
-import Environment from 'src/domain/model/configuration/environment.model';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import Environment from 'src/domain/model/environment/environment.model';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 
 export default class EnvironmentEntity {
   @attribute()

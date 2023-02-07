@@ -11,6 +11,7 @@ import { SecretManagerAdapterModule } from 'src/bootstrap/secret-manager-adapter
 import { ValuesService } from 'src/domain/service/values.service';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
+import { EnvironmentService } from 'src/domain/service/environment.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -18,6 +19,15 @@ const ConfigurationFacadeProvider = {
     configurationStoragePort: ConfigurationStoragePort,
     repositoryFacade: RepositoryFacade,
   ) => new ConfigurationService(configurationStoragePort, repositoryFacade),
+  inject: ['DynamodbConfigurationAdapter', 'RepositoryFacade'],
+};
+
+const EnvironmentFacadeProvider = {
+  provide: 'EnvironmentFacade',
+  useFactory: (
+    configurationStoragePort: ConfigurationStoragePort,
+    repositoryFacade: RepositoryFacade,
+  ) => new EnvironmentService(configurationStoragePort, repositoryFacade),
   inject: ['DynamodbConfigurationAdapter', 'RepositoryFacade'],
 };
 
@@ -54,12 +64,14 @@ const ValuesFacadeProvider = {
   ],
   providers: [
     ConfigurationFacadeProvider,
+    EnvironmentFacadeProvider,
     OrganizationFacadeProvider,
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
+    EnvironmentFacadeProvider,
     OrganizationFacadeProvider,
     RepositoryFacadeProvider,
     ValuesFacadeProvider,

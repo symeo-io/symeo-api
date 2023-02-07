@@ -1,4 +1,4 @@
-import Environment from 'src/domain/model/configuration/environment.model';
+import Environment from 'src/domain/model/environment/environment.model';
 
 export default class EnvironmentDTO {
   id: string;

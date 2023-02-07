@@ -2,8 +2,6 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import User from 'src/domain/model/user.model';
 import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
-import Environment from 'src/domain/model/configuration/environment.model';
 
 export default interface ConfigurationFacade {
   findByIdForUser(
@@ -46,31 +44,4 @@ export default interface ConfigurationFacade {
     vcsRepositoryId: number,
     id: string,
   ): Promise<void>;
-
-  createEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    id: string,
-    environmentName: string,
-    environmentColor: EnvironmentColor,
-  ): Promise<Configuration>;
-
-  deleteEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    id: string,
-    environmentId: string,
-  ): Promise<void>;
-
-  updateEnvironment(
-    user: User,
-    GitHub: VCSProvider,
-    number: number,
-    configurationId: string,
-    id: string,
-    name: string,
-    environmentColor: EnvironmentColor,
-  ): Promise<Configuration>;
 }

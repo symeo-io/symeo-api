@@ -7,10 +7,10 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import SpyInstance = jest.SpyInstance;
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
-import Environment from 'src/domain/model/configuration/environment.model';
+import Environment from 'src/domain/model/environment/environment.model';
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
 
 describe('ValuesController', () => {

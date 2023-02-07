@@ -20,10 +20,6 @@ import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/configuration/validate-create-github-configuration-parameters.response.dto';
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/configuration/create-github-configuration.response.dto';
 import { GetConfigurationFormatResponseDTO } from 'src/application/dto/configuration/get-configuration-format.response.dto';
-import { CreateEnvironmentDTO } from 'src/application/dto/configuration/create-environment.dto';
-import { CreateEnvironmentResponseDTO } from 'src/application/dto/configuration/create-environment.response.dto';
-import { UpdateEnvironmentResponseDto } from 'src/application/dto/configuration/update-environment.response.dto';
-import { UpdateEnvironmentDTO } from 'src/application/dto/configuration/update-environment.dto';
 
 @Controller('configurations')
 export class ConfigurationController {
@@ -31,62 +27,6 @@ export class ConfigurationController {
     @Inject('ConfigurationFacade')
     private readonly configurationFacade: ConfigurationFacade,
   ) {}
-
-  @Patch('github/:vcsRepositoryId/:configurationId/environments/:id')
-  async updateEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('id') id: string,
-    @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
-    @CurrentUser() user: User,
-  ): Promise<UpdateEnvironmentResponseDto> {
-    const updatedConfiguration =
-      await this.configurationFacade.updateEnvironment(
-        user,
-        VCSProvider.GitHub,
-        parseInt(vcsRepositoryId),
-        configurationId,
-        id,
-        updateEnvironmentDTO.name,
-        updateEnvironmentDTO.environmentColor,
-      );
-    return UpdateEnvironmentResponseDto.fromDomain(updatedConfiguration);
-  }
-
-  @Delete('github/:vcsRepositoryId/:configurationId/environments/:id')
-  async deleteEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('id') id: string,
-    @CurrentUser() user: User,
-  ): Promise<void> {
-    await this.configurationFacade.deleteEnvironment(
-      user,
-      VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
-      configurationId,
-      id,
-    );
-  }
-
-  @Post('github/:vcsRepositoryId/:configurationId/environments')
-  async createEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('configurationId') configurationId: string,
-    @Body() createEnvironmentDTO: CreateEnvironmentDTO,
-    @CurrentUser() user: User,
-  ): Promise<CreateEnvironmentResponseDTO> {
-    const updatedConfiguration =
-      await this.configurationFacade.createEnvironment(
-        user,
-        VCSProvider.GitHub,
-        parseInt(vcsRepositoryId),
-        configurationId,
-        createEnvironmentDTO.name,
-        createEnvironmentDTO.environmentColor,
-      );
-    return CreateEnvironmentResponseDTO.fromDomain(updatedConfiguration);
-  }
 
   @Post('github/validate')
   @HttpCode(200)
