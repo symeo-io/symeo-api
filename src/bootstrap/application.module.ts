@@ -4,6 +4,7 @@ import { DomainModule } from 'src/bootstrap/domain.module';
 import { AuthenticationModule } from 'src/bootstrap/authentication.module';
 import { OrganizationController } from '../application/controller/organization.controller';
 import { RepositoryController } from 'src/application/controller/repository.controller';
+import { ValuesController } from 'src/application/controller/values.controller';
 
 @Module({
   imports: [DomainModule, AuthenticationModule],
@@ -11,6 +12,7 @@ import { RepositoryController } from 'src/application/controller/repository.cont
     ConfigurationController,
     OrganizationController,
     RepositoryController,
+    ValuesController,
   ],
 })
 export class ApplicationModule {}

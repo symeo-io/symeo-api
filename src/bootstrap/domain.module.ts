@@ -7,6 +7,10 @@ import { GithubAdapterModule } from './github-adapter.module';
 import { OrganizationService } from '../domain/service/organization.service';
 import { RepositoryService } from 'src/domain/service/repository.service';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
+import { SecretManagerAdapterModule } from 'src/bootstrap/secret-manager-adapter.module';
+import { ValuesService } from 'src/domain/service/values.service';
+import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
+import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -33,17 +37,32 @@ const RepositoryFacadeProvider = {
   inject: ['GithubAdapter', 'DynamodbConfigurationAdapter'],
 };
 
+const ValuesFacadeProvider = {
+  provide: 'ValuesFacade',
+  useFactory: (
+    configurationFacade: ConfigurationFacade,
+    secretValuesStoragePort: SecretValuesStoragePort,
+  ) => new ValuesService(configurationFacade, secretValuesStoragePort),
+  inject: ['ConfigurationFacade', 'SecretManagerAdapter'],
+};
+
 @Module({
-  imports: [DynamodbAdapterModule, GithubAdapterModule],
+  imports: [
+    DynamodbAdapterModule,
+    GithubAdapterModule,
+    SecretManagerAdapterModule,
+  ],
   providers: [
     ConfigurationFacadeProvider,
     OrganizationFacadeProvider,
     RepositoryFacadeProvider,
+    ValuesFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
     OrganizationFacadeProvider,
     RepositoryFacadeProvider,
+    ValuesFacadeProvider,
   ],
 })
 export class DomainModule {}
