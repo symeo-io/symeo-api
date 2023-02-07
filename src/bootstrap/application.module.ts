@@ -6,6 +6,7 @@ import { OrganizationController } from '../application/controller/organization.c
 import { RepositoryController } from 'src/application/controller/repository.controller';
 import { ValuesController } from 'src/application/controller/values.controller';
 import { EnvironmentController } from 'src/application/controller/environment.controller';
+import { ApiKeyController } from 'src/application/controller/api-key.controller';
 
 @Module({
   imports: [DomainModule, AuthenticationModule],
@@ -15,6 +16,7 @@ import { EnvironmentController } from 'src/application/controller/environment.co
     RepositoryController,
     ValuesController,
     EnvironmentController,
+    ApiKeyController,
   ],
 })
 export class ApplicationModule {}

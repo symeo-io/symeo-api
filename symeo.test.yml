@@ -6,6 +6,8 @@ database:
   dynamodbUrl: "http://127.0.0.1:8000"
   configuration:
     tableName: "symeo-api-configurations-test"
+  apiKey:
+    tableName: "symeo-api-api-keys-test"
 auth0:
   clientId: "0"
   clientSecret: "0"

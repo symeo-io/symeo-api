@@ -123,7 +123,7 @@ export class GithubHttpClient {
         return undefined;
       }
 
-      const buffer = new Buffer(content, encoding);
+      const buffer = Buffer.from(content, encoding);
 
       return buffer.toString();
     } catch (exception) {

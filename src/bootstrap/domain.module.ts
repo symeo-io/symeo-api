@@ -12,6 +12,8 @@ import { ValuesService } from 'src/domain/service/values.service';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 import { EnvironmentService } from 'src/domain/service/environment.service';
+import { ApiKeyService } from 'src/domain/service/api-key.service';
+import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -56,6 +58,15 @@ const ValuesFacadeProvider = {
   inject: ['ConfigurationFacade', 'SecretManagerAdapter'],
 };
 
+const ApiKeyFacadeProvider = {
+  provide: 'ApiKeyFacade',
+  useFactory: (
+    configurationFacade: ConfigurationFacade,
+    apiKeyStoragePort: ApiKeyStoragePort,
+  ) => new ApiKeyService(configurationFacade, apiKeyStoragePort),
+  inject: ['ConfigurationFacade', 'DynamodbApiKeyAdapter'],
+};
+
 @Module({
   imports: [
     DynamodbAdapterModule,
@@ -68,6 +79,7 @@ const ValuesFacadeProvider = {
     OrganizationFacadeProvider,
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
+    ApiKeyFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -75,6 +87,7 @@ const ValuesFacadeProvider = {
     OrganizationFacadeProvider,
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
+    ApiKeyFacadeProvider,
   ],
 })
 export class DomainModule {}

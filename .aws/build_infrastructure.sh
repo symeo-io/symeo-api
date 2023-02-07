@@ -127,10 +127,10 @@ aws cloudformation deploy \
         Env=${ENV} \
         DynamoScalingRoleArn=${DynamoScalingRole} \
     --region ${REGION} \
-    --stack-name splane-api-dynamo-${ENV} \
+    --stack-name symeo-api-dynamo-${ENV} \
     --template-file cloudformation/dynamo.yml
 
-export_stack_outputs splane-api-dynamo-${ENV} ${REGION}
+export_stack_outputs symeo-api-dynamo-${ENV} ${REGION}
 
 ./build_infrastructure_api.sh \
   --region "$REGION" \
