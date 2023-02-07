@@ -63,4 +63,14 @@ export default interface ConfigurationFacade {
     id: string,
     environmentId: string,
   ): Promise<void>;
+
+  updateEnvironment(
+    user: User,
+    GitHub: VCSProvider,
+    number: number,
+    configurationId: string,
+    id: string,
+    name: string,
+    environmentColor: EnvironmentColor,
+  ): Promise<Configuration>;
 }

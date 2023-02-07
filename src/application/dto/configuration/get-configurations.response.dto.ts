@@ -1,5 +1,5 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
-import ConfigurationDTO from 'src/application/dto/configuration.dto';
+import ConfigurationDTO from 'src/application/dto/configuration/configuration.dto';
 
 export class GetConfigurationsResponseDTO {
   configurations: ConfigurationDTO[];

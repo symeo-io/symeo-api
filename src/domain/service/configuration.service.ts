@@ -278,9 +278,50 @@ export default class ConfigurationService implements ConfigurationFacade {
       configuration.environments.findIndex(
         (environment) => environment.id === environmentId,
       );
-    if (indexOfEnvironmentToRemove) {
+    if (indexOfEnvironmentToRemove > -1) {
       configuration.environments.splice(indexOfEnvironmentToRemove, 1);
       await this.configurationStoragePort.save(configuration);
+    } else {
+      throw new NotFoundException();
     }
+  }
+
+  async updateEnvironment(
+    user: User,
+    vcsProvider: VCSProvider,
+    vcsRepositoryId: number,
+    configurationId: string,
+    environmentId: string,
+    environmentName: string,
+    environmentColor: EnvironmentColor,
+  ): Promise<Configuration> {
+    const [hasUserAccessToRepository, configuration] = await Promise.all([
+      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.configurationStoragePort.findById(
+        VCSProvider.GitHub,
+        vcsRepositoryId,
+        configurationId,
+      ),
+    ]);
+    if (!hasUserAccessToRepository || !configuration) {
+      throw new SymeoException(
+        `Configuration not found for id ${configurationId}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
+    }
+    const indexOfEnvironmentToUpdate: number =
+      configuration.environments.findIndex(
+        (environment) => environment.id === environmentId,
+      );
+    if (indexOfEnvironmentToUpdate > -1) {
+      configuration.environments[indexOfEnvironmentToUpdate] = new Environment(
+        environmentId,
+        environmentName,
+        environmentColor,
+      );
+      await this.configurationStoragePort.save(configuration);
+      return configuration;
+    }
+    throw new NotFoundException();
   }
 }
