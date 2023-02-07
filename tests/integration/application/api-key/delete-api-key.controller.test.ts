@@ -12,6 +12,7 @@ import SpyInstance = jest.SpyInstance;
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import Environment from 'src/domain/model/configuration/environment.model';
 import ApiKeyEntity from 'src/infrastructure/dynamodb-adapter/entity/api-key.entity';
+import ApiKey from 'src/domain/model/configuration/api-key.model';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
@@ -59,7 +60,7 @@ describe('ApiKeyController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(POST) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/api-keys', () => {
+  describe('(DELETE) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/api-keys/:apiKeyId', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();
@@ -81,8 +82,8 @@ describe('ApiKeyController', () => {
       appClient
         .request(currentUser)
         // When
-        .post(
-          `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/api-keys`,
+        .delete(
+          `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/api-keys/${uuid()}`,
         )
         // Then
         .expect(404);
@@ -114,8 +115,12 @@ describe('ApiKeyController', () => {
       appClient
         .request(currentUser)
         // When
-        .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys`,
+        .delete(
+          `/configurations/github/${repositoryVcsId}/${
+            configuration.id
+          }/environments/${
+            configuration.environments[0].id
+          }/api-keys/${uuid()}`,
         )
         // Then
         .expect(404);
@@ -153,16 +158,16 @@ describe('ApiKeyController', () => {
       appClient
         .request(currentUser)
         // When
-        .post(
+        .delete(
           `/configurations/github/${repositoryVcsId}/${
             configuration.id
-          }/environments/${uuid()}/api-keys`,
+          }/environments/${uuid()}/api-keys/${uuid()}`,
         )
         // Then
         .expect(404);
     });
 
-    it('should respond 200 with api-keys', async () => {
+    it('should respond 404 with unknown apiKey id', async () => {
       // Given
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
@@ -195,26 +200,73 @@ describe('ApiKeyController', () => {
         Promise.resolve(mockGitHubRepositoryResponse),
       );
 
-      const response = await appClient
+      appClient
         .request(currentUser)
-        .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys`,
+        // When
+        .delete(
+          `/configurations/github/${repositoryVcsId}/${
+            configuration.id
+          }/environments/${
+            configuration.environments[0].id
+          }/api-keys/${uuid()}`,
         )
-        .expect(201);
+        // Then
+        .expect(404);
+    });
 
-      expect(response.body.apiKey).toBeDefined();
-      expect(response.body.apiKey.environmentId).toEqual(
-        configuration.environments[0].id,
+    it('should respond 200 with api-keys', async () => {
+      // Given
+      const repositoryVcsId = 105865802;
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.hashKey = ConfigurationEntity.buildHashKey(
+        VCSProvider.GitHub,
+        repositoryVcsId,
       );
-      const apiKeyResponse = response.body.apiKey;
+      configuration.rangeKey = configuration.id;
+      configuration.name = faker.name.jobTitle();
+      configuration.environments = [
+        EnvironmentEntity.fromDomain(
+          new Environment(uuid(), faker.name.firstName(), EnvironmentColor.red),
+        ),
+      ];
+      const apiKey = new ApiKeyEntity();
+      apiKey.id = uuid();
+      apiKey.environmentId = configuration.environments[0].id;
+      apiKey.rangeKey = apiKey.id;
+      apiKey.hashKey = apiKey.environmentId;
+      apiKey.key = ApiKey.generateKey(apiKey.id, apiKey.environmentId);
 
-      const createdApiKey = await dynamoDBTestUtils.get(ApiKeyEntity, {
-        hashKey: apiKeyResponse.environmentId,
-        rangeKey: apiKeyResponse.id,
+      await dynamoDBTestUtils.put(configuration);
+      await dynamoDBTestUtils.put(apiKey);
+
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      await appClient
+        .request(currentUser)
+        .delete(
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys/${apiKey.id}`,
+        )
+        .expect(200);
+
+      const deletedApiKey = await dynamoDBTestUtils.get(ApiKeyEntity, {
+        hashKey: apiKey.environmentId,
+        rangeKey: apiKey.id,
       });
 
-      expect(createdApiKey).toBeDefined();
-      expect(createdApiKey.key).toEqual(apiKeyResponse.key);
+      expect(deletedApiKey).toBeUndefined();
     });
   });
 });
