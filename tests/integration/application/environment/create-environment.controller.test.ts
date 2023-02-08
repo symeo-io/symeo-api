@@ -10,7 +10,7 @@ import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/conf
 import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import SpyInstance = jest.SpyInstance;
 
-describe('ConfigurationController', () => {
+describe('EnvironmentController', () => {
   let appClient: AppClient;
   let dynamoDBTestUtils: DynamoDbTestUtils;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
@@ -56,14 +56,16 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(POST) /configurations/github/:vcsRepositoryId/:id/environment', () => {
+  describe('(POST) /configurations/github/:vcsRepositoryId/:id/environments', () => {
     it('Should return 400 for missing environment data', async () => {
       const vcsRepositoryId: number = faker.datatype.number();
       const configurationId: string = uuid();
       await appClient
         .request(currentUser)
         // When
-        .post(`/environments/github/${vcsRepositoryId}/${configurationId}`)
+        .post(
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
+        )
         .send({})
         // Then
         .expect(400);
@@ -84,7 +86,9 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/environments/github/${vcsRepositoryId}/${configurationId}`)
+        .post(
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
+        )
         .send(data)
         // Then
         .expect(404);
@@ -139,7 +143,9 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/environments/github/${repositoryVcsId}/${configuration.id}`)
+        .post(
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments`,
+        )
         .send(data)
         // Then
         .expect(201);

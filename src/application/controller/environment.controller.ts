@@ -16,14 +16,14 @@ import { CreateEnvironmentDTO } from 'src/application/dto/environment/create-env
 import { CreateEnvironmentResponseDTO } from 'src/application/dto/configuration/create-environment.response.dto';
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
 
-@Controller('environments')
+@Controller('configurations')
 export class EnvironmentController {
   constructor(
     @Inject('EnvironmentFacade')
     private readonly configurationFacade: EnvironmentFacade,
   ) {}
 
-  @Patch('github/:vcsRepositoryId/:configurationId/:id')
+  @Patch('github/:vcsRepositoryId/:configurationId/environments/:id')
   async updateEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
@@ -44,7 +44,7 @@ export class EnvironmentController {
     return UpdateEnvironmentResponseDto.fromDomain(updatedConfiguration);
   }
 
-  @Delete('github/:vcsRepositoryId/:configurationId/:id')
+  @Delete('github/:vcsRepositoryId/:configurationId/environments/:id')
   async deleteEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
@@ -60,7 +60,7 @@ export class EnvironmentController {
     );
   }
 
-  @Post('github/:vcsRepositoryId/:configurationId')
+  @Post('github/:vcsRepositoryId/:configurationId/environments')
   async createEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,

@@ -11,9 +11,8 @@ import { EnvironmentColor } from 'src/domain/model/environment/environment-color
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import Environment from 'src/domain/model/environment/environment.model';
 import SpyInstance = jest.SpyInstance;
-import { anyString, anything } from 'ts-mockito';
 
-describe('ConfigurationController', () => {
+describe('EnvironmentController', () => {
   let appClient: AppClient;
   let dynamoDBTestUtils: DynamoDbTestUtils;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
@@ -59,7 +58,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(DELETE) /environments/github/:vcsRepositoryId/:configurationId/:id', () => {
+  describe('(DELETE) /configurations/github/:vcsRepositoryId/:configurationId/environments/:id', () => {
     it('Should return 400 for non existing repository', async () => {
       // When
       const vcsRepositoryId: string = uuid();
@@ -72,7 +71,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/environments/github/${vcsRepositoryId}/${configurationId}/${environmentId}`,
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         // Then
         .expect(404);
@@ -132,9 +131,9 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/environments/github/${repositoryVcsId}/${
+          `/configurations/github/${repositoryVcsId}/${
             configuration.id
-          }/${uuid()}`,
+          }/environments/${uuid()}`,
         )
         // Then
         .expect(404);
@@ -195,7 +194,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/environments/github/${repositoryVcsId}/${configuration.id}/${environmentId}`,
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
         )
         // Then
         .expect(200);

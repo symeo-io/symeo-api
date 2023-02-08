@@ -13,7 +13,7 @@ import Environment from 'src/domain/model/environment/environment.model';
 import { UpdateEnvironmentDTO } from 'src/application/dto/environment/update-environment.dto';
 import SpyInstance = jest.SpyInstance;
 
-describe('ConfigurationController', () => {
+describe('EnvironmentController', () => {
   let appClient: AppClient;
   let dynamoDBTestUtils: DynamoDbTestUtils;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
@@ -59,7 +59,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(PATCH) /configurations/github/:vcsRepositoryId/:id/environments', () => {
+  describe('(PATCH) /configurations/github/:vcsRepositoryId/environments/:id', () => {
     it('Should return 400 for missing environment data', async () => {
       const vcsRepositoryId: number = faker.datatype.number();
       const configurationId: string = uuid();
@@ -68,7 +68,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/environments/github/${vcsRepositoryId}/${configurationId}/${environmentId}`,
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         .send({})
         // Then
@@ -92,7 +92,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/environments/github/${vcsRepositoryId}/${configurationId}/${environmentId}`,
+          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         .send(data)
         // Then
@@ -159,9 +159,9 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/environments/github/${repositoryVcsId}/${
+          `/configurations/github/${repositoryVcsId}/${
             configuration.id
-          }/${uuid()}`,
+          }/environments/${uuid()}`,
         )
         .send(updatedEnvironmentData)
         // Then
@@ -227,7 +227,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/environments/github/${repositoryVcsId}/${configuration.id}/${environmentId}`,
+          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
         )
         .send(updatedEnvironmentData)
         // Then
