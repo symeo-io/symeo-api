@@ -4,7 +4,7 @@ import {
   table,
   rangeKey,
 } from '@aws/dynamodb-data-mapper-annotations';
-import { config } from 'symeo/config';
+import { config } from '@symeo-io/config';
 import AbstractEntity from 'src/infrastructure/dynamodb-adapter/entity/abstract.entity';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
 

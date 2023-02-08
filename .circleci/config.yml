@@ -108,6 +108,7 @@ jobs:
               --env ${ENVIRONMENT} \
               --tag ${CIRCLE_SHA1} \
               --service "symeo-api-${ENVIRONMENT}" \
+              --symeo-api-key ${SYMEO_API_KEY} \
               --registry "symeo-api-ecs-repository-${ENVIRONMENT}"
       - run:
           name: Deploy

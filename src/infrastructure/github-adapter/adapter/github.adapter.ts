@@ -1,5 +1,5 @@
 import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
-import { config } from 'symeo/config';
+import { config } from '@symeo-io/config';
 import { GithubOrganizationMapper } from 'src/infrastructure/github-adapter/mapper/github.organization.mapper';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';

@@ -5,7 +5,7 @@ import {
   table,
   rangeKey,
 } from '@aws/dynamodb-data-mapper-annotations';
-import { config } from 'symeo/config';
+import { config } from '@symeo-io/config';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import AbstractEntity from 'src/infrastructure/dynamodb-adapter/entity/abstract.entity';
 import { embed } from '@aws/dynamodb-data-mapper';

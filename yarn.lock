@@ -971,10 +971,10 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@symeo-io/symeo@0.0.5":
-  version "0.0.5"
-  resolved "https://npm.pkg.github.com/download/@symeo-io/symeo/0.0.5/f5ab822df6fcbc437f877b5686e467f50515e756#f5ab822df6fcbc437f877b5686e467f50515e756"
-  integrity sha512-gc+trWlsl9+tS1m+AgBy1vX0DpAD00XWillS6KJKn/SdcwUbgE27HNcdQMZ4uEA5HgokFQymb+ZfmmbPceOpiA==
+"@symeo-io/symeo@0.0.6":
+  version "0.0.6"
+  resolved "https://npm.pkg.github.com/download/@symeo-io/symeo/0.0.6/32fe76f40e9a7ccec2c1d9b8d95ac419955de8a9#32fe76f40e9a7ccec2c1d9b8d95ac419955de8a9"
+  integrity sha512-3fweyOTI0eKOQd10y0TCz++nWo5SWd/HjFPYQxKl0OfBa1sYaPwL04RQBQoLjn0tRpjyLfQuz1PqNQZYOf+FQA==
   dependencies:
     chalk "^4.1.2"
     checksum "^1.0.0"
@@ -984,6 +984,7 @@
     glob "^8.1.0"
     mkdirp "^2.1.3"
     ora "^5.4.1"
+    sync-fetch "^0.4.2"
     tmp-promise "^3.0.3"
     yamljs "^0.3.0"
 
@@ -1864,7 +1865,7 @@ buffer@4.9.2:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-buffer@^5.5.0:
+buffer@^5.5.0, buffer@^5.7.1:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.7.1.tgz#ba62e7c13133053582197160851a8f648e99eed0"
   integrity sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==
@@ -5123,6 +5124,14 @@ symbol-observable@4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-4.0.0.tgz#5b425f192279e87f2f9b937ac8540d1984b39205"
   integrity sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==
+
+sync-fetch@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/sync-fetch/-/sync-fetch-0.4.2.tgz#40ec3398f7193198c44fd0753b7b77a27185a117"
+  integrity sha512-vilDD6yTGwyUjm7/W5WUUOCw1GH1aV591zC21XhbV6MJNZqfZcNMs9DVPHzy1UAmQ2GAg6S03F5TQ3paegKSdg==
+  dependencies:
+    buffer "^5.7.1"
+    node-fetch "^2.6.1"
 
 tapable@^2.1.1, tapable@^2.2.0, tapable@^2.2.1:
   version "2.2.1"
