@@ -100,7 +100,7 @@ describe('OrganizationController', () => {
       const mockGitHubAuthenticatedUserStub1 = JSON.parse(
         fs
           .readFileSync(
-            './tests/integration/application/stubs/organization/get_authenticated_user.json',
+            './tests/utils/stubs/organization/get_authenticated_user.json',
           )
           .toString(),
       );
