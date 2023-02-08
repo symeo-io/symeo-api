@@ -19,4 +19,15 @@ export class GithubOrganizationMapper {
       VCSProvider.GitHub,
     );
   }
+
+  static githubUserDtoToDomain(
+    githubUserDTO: RestEndpointMethodTypes['users']['getAuthenticated']['response']['data'],
+  ): VcsOrganization {
+    return new VcsOrganization(
+      githubUserDTO.id,
+      githubUserDTO.login,
+      githubUserDTO.avatar_url,
+      VCSProvider.GitHub,
+    );
+  }
 }

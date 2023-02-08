@@ -26,6 +26,19 @@ export class GithubHttpClient {
     return response.data;
   }
 
+  async getAuthenticatedUser(
+    user: User,
+  ): Promise<
+    RestEndpointMethodTypes['users']['getAuthenticated']['response']['data']
+  > {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const response = await this.client.rest.users.getAuthenticated({
+      headers: { Authorization: `token ${token}` },
+    });
+
+    return response.data;
+  }
+
   async getRepositoryById(
     user: User,
     repositoryVcsId: number,

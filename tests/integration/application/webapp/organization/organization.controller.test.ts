@@ -86,5 +86,59 @@ describe('OrganizationController', () => {
           ],
         });
     });
+
+    it('should respond 200 with github organization when no repositories', async () => {
+      // Given
+      const mockGitHubToken = uuid();
+      const mockGitHubRepositoriesForUserResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: [],
+      };
+
+      const mockGitHubAuthenticatedUserStub1 = JSON.parse(
+        fs
+          .readFileSync(
+            './tests/utils/stubs/organization/get_authenticated_user.json',
+          )
+          .toString(),
+      );
+
+      const mockGitHubAuthenticatedUserResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: mockGitHubAuthenticatedUserStub1,
+      };
+
+      jest
+        .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
+        .mockImplementation(() => Promise.resolve(mockGitHubToken));
+      jest
+        .spyOn(githubClient.rest.repos, 'listForAuthenticatedUser')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockGitHubRepositoriesForUserResponse),
+        );
+      jest
+        .spyOn(githubClient.rest.users, 'getAuthenticated')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockGitHubAuthenticatedUserResponse),
+        );
+
+      return appClient
+        .request(currentUser)
+        .get(`/organizations`)
+        .expect(200)
+        .expect({
+          organizations: [
+            {
+              vcsId: 1,
+              name: 'octocat',
+              avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
+            },
+          ],
+        });
+    });
   });
 });
