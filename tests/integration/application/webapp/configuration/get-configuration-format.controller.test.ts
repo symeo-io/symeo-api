@@ -67,9 +67,7 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const mockConfigurationFormat = base64encode(
         fs
-          .readFileSync(
-            './tests/integration/application/stubs/configuration/symeo.config.yml',
-          )
+          .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
       );
 
@@ -160,9 +158,7 @@ describe('ConfigurationController', () => {
 
       const mockConfigurationFormat = base64encode(
         fs
-          .readFileSync(
-            './tests/integration/application/stubs/configuration/symeo.config.yml',
-          )
+          .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
       );
 

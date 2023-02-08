@@ -41,7 +41,7 @@ describe('OrganizationController', () => {
       const mockGitHubRepositoriesForUserStub1 = JSON.parse(
         fs
           .readFileSync(
-            './tests/integration/application/stubs/repository/get_repositories_for_user_page_1.json',
+            './tests/utils/stubs/repository/get_repositories_for_user_page_1.json',
           )
           .toString(),
       );
