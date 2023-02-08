@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
-  Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { CreateGitHubConfigurationDTO } from 'src/application/dto/configuration/create-github-configuration.dto';
@@ -19,9 +19,11 @@ import { GetConfigurationsResponseDTO } from 'src/application/dto/configuration/
 import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/dto/configuration/validate-create-github-configuration-parameters.dto';
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/configuration/validate-create-github-configuration-parameters.response.dto';
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/configuration/create-github-configuration.response.dto';
-import { GetConfigurationFormatResponseDTO } from 'src/application/dto/configuration/get-configuration-format.response.dto';
+import { GetConfigurationFormatResponseDTO } from 'src/application/dto/format/get-configuration-format.response.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('configurations')
+@UseGuards(AuthGuard('jwt'))
 export class ConfigurationController {
   constructor(
     @Inject('ConfigurationFacade')

@@ -26,7 +26,7 @@ export default class ApiKeyEntity extends AbstractEntity {
   key: string;
 
   public toDomain(): ApiKey {
-    return new ApiKey(this.id, this.environmentId, this.key);
+    return new ApiKey(this.id, this.environmentId, this.key, this.createdAt);
   }
 
   static fromDomain(apiKey: ApiKey): ApiKeyEntity {
@@ -36,6 +36,7 @@ export default class ApiKeyEntity extends AbstractEntity {
     entity.id = apiKey.id;
     entity.environmentId = apiKey.environmentId;
     entity.key = apiKey.key;
+    entity.createdAt = apiKey.createdAt;
 
     return entity;
   }

@@ -1,4 +1,4 @@
-import ApiKeyDTO from 'src/application/dto/api-key.dto';
+import ApiKeyDTO from 'src/application/dto/api-key/api-key.dto';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
 
 export default class GetApiKeysResponseDTO {

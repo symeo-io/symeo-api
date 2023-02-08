@@ -6,15 +6,18 @@ import {
   Inject,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import { GetEnvironmentValuesResponseDTO } from 'src/application/dto/get-environment-values.response.dto';
+import { GetEnvironmentValuesResponseDTO } from 'src/application/dto/values/get-environment-values.response.dto';
 import { ValuesFacade } from 'src/domain/port/in/values.facade';
-import { SetEnvironmentValuesResponseDTO } from 'src/application/dto/set-environment-values.dto';
+import { SetEnvironmentValuesResponseDTO } from 'src/application/dto/values/set-environment-values.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('configurations')
+@UseGuards(AuthGuard('jwt'))
 export class ValuesController {
   constructor(
     @Inject('ValuesFacade')

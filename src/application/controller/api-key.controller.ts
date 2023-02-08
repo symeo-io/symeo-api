@@ -1,12 +1,22 @@
-import { Controller, Delete, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
-import GetApiKeysResponseDTO from 'src/application/dto/get-api-keys.response.dto';
-import CreateApiKeyResponseDTO from 'src/application/dto/create-api-key.response.dto';
+import GetApiKeysResponseDTO from 'src/application/dto/api-key/get-api-keys.response.dto';
+import CreateApiKeyResponseDTO from 'src/application/dto/api-key/create-api-key.response.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('configurations')
+@UseGuards(AuthGuard('jwt'))
 export class ApiKeyController {
   constructor(
     @Inject('ApiKeyFacade')

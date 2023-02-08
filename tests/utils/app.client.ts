@@ -10,6 +10,7 @@ import User from 'src/domain/model/user.model';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import supertest from 'supertest';
 import { SymeoExceptionHttpFilter } from 'src/application/exception/symeo.exception.http.filter';
+import { AuthGuard } from '@nestjs/passport';
 
 let loggedInUser: User | undefined;
 
@@ -29,12 +30,14 @@ export class AppClient {
   public async init() {
     this.module = await Test.createTestingModule({
       imports: [ApplicationModule],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard('jwt'))
+      .useClass(AuthGuardMock)
+      .compile();
 
     this.app = this.module.createNestApplication();
     this.app.useGlobalFilters(new SymeoExceptionHttpFilter());
     this.app.useGlobalPipes(new ValidationPipe());
-    this.app.useGlobalGuards(new AuthGuardMock());
 
     await this.app.init();
   }

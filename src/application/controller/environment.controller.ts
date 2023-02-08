@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UpdateEnvironmentDTO } from 'src/application/dto/environment/update-environment.dto';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
@@ -15,8 +16,10 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { CreateEnvironmentDTO } from 'src/application/dto/environment/create-environment.dto';
 import { CreateEnvironmentResponseDTO } from 'src/application/dto/configuration/create-environment.response.dto';
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('configurations')
+@UseGuards(AuthGuard('jwt'))
 export class EnvironmentController {
   constructor(
     @Inject('EnvironmentFacade')
