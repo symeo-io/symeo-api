@@ -24,7 +24,7 @@ describe('GithubAdapter', () => {
       const githubOrganizationsDTO = await JSON.parse(
         fs
           .readFileSync(
-            './tests/unit/infrastructure/github-adapter/stubs/get_repositories_for_user_page_1.json',
+            './tests/utils/stubs/repository/get_repositories_for_user_page_1.json',
           )
           .toString(),
       );
@@ -72,7 +72,7 @@ describe('GithubAdapter', () => {
       const githubOrganizationsDTO = await JSON.parse(
         fs
           .readFileSync(
-            './tests/unit/infrastructure/github-adapter/stubs/get_repositories_for_user_page_1.json',
+            './tests/utils/stubs/repository/get_repositories_for_user_page_1.json',
           )
           .toString(),
       );

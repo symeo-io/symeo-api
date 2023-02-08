@@ -6,18 +6,20 @@ export default class ApiKey {
   id: string;
   environmentId: string;
   key: string;
+  createdAt: Date;
 
-  constructor(id: string, environmentId: string, key: string) {
+  constructor(id: string, environmentId: string, key: string, createdAt: Date) {
     this.id = id;
     this.environmentId = environmentId;
     this.key = key;
+    this.createdAt = createdAt;
   }
 
   static buildForEnvironmentId(environmentId: string) {
     const id = uuid();
     const key = ApiKey.generateKey(id, environmentId);
 
-    return new ApiKey(id, environmentId, key);
+    return new ApiKey(id, environmentId, key, new Date());
   }
 
   static generateKey(id: string, environmentId: string) {

@@ -13,6 +13,13 @@ export class ApiKeyService implements ApiKeyFacade {
     private readonly apiKeyStoragePort: ApiKeyStoragePort,
   ) {}
 
+  async findApiKeyById(
+    environmentId: string,
+    id: string,
+  ): Promise<ApiKey | undefined> {
+    return await this.apiKeyStoragePort.findById(environmentId, id);
+  }
+
   async listApiKeysForUserAndEnvironment(
     user: User,
     vcsType: VCSProvider,

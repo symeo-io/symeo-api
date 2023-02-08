@@ -5,13 +5,13 @@ import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/s
 
 export default class SecretManagerAdapter implements SecretValuesStoragePort {
   constructor(private secretManagerClient: SecretManagerClient) {}
-  async getValuesForEnvironment(
-    environment: Environment,
+  async getValuesForEnvironmentId(
+    environmentId: string,
   ): Promise<ConfigurationValues> {
     try {
       const { SecretString } = await this.secretManagerClient.client
         .getSecretValue({
-          SecretId: environment.id,
+          SecretId: environmentId,
         })
         .promise();
 
@@ -28,6 +28,13 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
       throw e;
     }
   }
+
+  async getValuesForEnvironment(
+    environment: Environment,
+  ): Promise<ConfigurationValues> {
+    return this.getValuesForEnvironmentId(environment.id);
+  }
+
   async setValuesForEnvironment(
     environment: Environment,
     values: ConfigurationValues,
