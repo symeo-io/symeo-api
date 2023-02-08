@@ -50,6 +50,7 @@ function build_and_push_docker_image() {
   local tag=$6
   local dd_service=$7
   local dd_env=$9
+  local symeo_api_key=$10
 
   local docker_file_path="${docker_base_path}/${docker_file_name}"
 
@@ -64,6 +65,7 @@ function build_and_push_docker_image() {
     --tag "${repository}:latest" \
     --build-arg dd_service="$dd_service" \
     --build-arg dd_env="$dd_env" \
+    --build-arg symeo_api_key="$symeo_api_key" \
     -f $docker_file_path $docker_base_path
   docker push "${repository}" --all-tags
 }

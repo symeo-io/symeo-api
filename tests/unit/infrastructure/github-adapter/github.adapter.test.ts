@@ -3,7 +3,7 @@ import { instance, mock, when } from 'ts-mockito';
 import User from 'src/domain/model/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import { config } from 'symeo/config';
+import { config } from '@symeo-io/config';
 import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
 import GithubAdapter from 'src/infrastructure/github-adapter/adapter/github.adapter';
 import * as fs from 'fs';

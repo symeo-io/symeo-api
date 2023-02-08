@@ -1,5 +1,7 @@
 FROM node:18-alpine
 
+ARG symeo_api_key
+
 RUN mkdir -p /var/app
 # Copy NodeJS App to container
 COPY . /var/app
@@ -12,5 +14,7 @@ RUN npm run build
 
 ENV TZ=UTC
 
+ENV SYMEO_API_KEY=$symeo_api_key
+
 EXPOSE 3000
-CMD node_modules/.bin/symeo -e symeo.staging.yml -- node /var/app/dist/main.js
+CMD node_modules/.bin/symeo --api-key $SYMEO_API_KEY --api-url https://config-staging.symeo.io/api/v1/values -- node /var/app/dist/main.js
