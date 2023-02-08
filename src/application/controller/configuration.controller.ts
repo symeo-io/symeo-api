@@ -6,19 +6,20 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
-import { CreateGitHubConfigurationDTO } from 'src/application/dto/create-github-configuration.dto';
+import { CreateGitHubConfigurationDTO } from 'src/application/dto/configuration/create-github-configuration.dto';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
-import { GetConfigurationResponseDTO } from 'src/application/dto/get-configuration.response.dto';
+import { GetConfigurationResponseDTO } from 'src/application/dto/configuration/get-configuration.response.dto';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import { GetConfigurationsResponseDTO } from 'src/application/dto/get-configurations.response.dto';
-import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/dto/validate-create-github-configuration-parameters.dto';
-import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/validate-create-github-configuration-parameters.response.dto';
-import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/create-github-configuration.response.dto';
-import { GetConfigurationFormatResponseDTO } from 'src/application/dto/get-configuration-format.response.dto';
+import { GetConfigurationsResponseDTO } from 'src/application/dto/configuration/get-configurations.response.dto';
+import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/dto/configuration/validate-create-github-configuration-parameters.dto';
+import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/dto/configuration/validate-create-github-configuration-parameters.response.dto';
+import { CreateGitHubConfigurationResponseDTO } from 'src/application/dto/configuration/create-github-configuration.response.dto';
+import { GetConfigurationFormatResponseDTO } from 'src/application/dto/configuration/get-configuration-format.response.dto';
 
 @Controller('configurations')
 export class ConfigurationController {

@@ -1,6 +1,6 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import EnvironmentDTO from 'src/application/dto/environment.dto';
+import EnvironmentDTO from 'src/application/dto/environment/environment.dto';
 
 export default class ConfigurationDTO {
   id: string;

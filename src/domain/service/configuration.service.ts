@@ -5,12 +5,13 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { v4 as uuid } from 'uuid';
-import Environment from 'src/domain/model/configuration/environment.model';
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import Environment from 'src/domain/model/environment/environment.model';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { NotFoundException } from '@nestjs/common';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -212,7 +213,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     if (!configuration) {
       throw new SymeoException(
         `Configuration not found for id ${id}`,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
 

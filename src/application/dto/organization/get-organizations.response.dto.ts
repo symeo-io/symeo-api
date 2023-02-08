@@ -1,4 +1,4 @@
-import { OrganizationDTO } from 'src/application/dto/organization.dto';
+import { OrganizationDTO } from 'src/application/dto/organization/organization.dto';
 import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
 
 export class GetOrganizationsResponseDTO {

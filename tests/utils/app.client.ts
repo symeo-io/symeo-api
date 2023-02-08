@@ -9,7 +9,6 @@ import {
 import User from 'src/domain/model/user.model';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import supertest from 'supertest';
-import { DomainModule } from '../../src/bootstrap/domain.module';
 import { SymeoExceptionHttpFilter } from 'src/application/exception/symeo.exception.http.filter';
 
 let loggedInUser: User | undefined;

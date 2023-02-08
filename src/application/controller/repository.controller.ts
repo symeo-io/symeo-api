@@ -1,7 +1,7 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import User from 'src/domain/model/user.model';
 import { CurrentUser } from 'src/application/decorator/current-user.decorator';
-import { GetRepositoriesResponseDTO } from 'src/application/dto/get-repositories.response.dto';
+import { GetRepositoriesResponseDTO } from 'src/application/dto/repository/get-repositories.response.dto';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 
 @Controller('repositories')

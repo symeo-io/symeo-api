@@ -1,4 +1,4 @@
-import { EnvironmentColor } from 'src/domain/model/configuration/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 
 export default class Environment {
   id: string;

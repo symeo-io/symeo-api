@@ -1,5 +1,5 @@
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
-import Environment from 'src/domain/model/configuration/environment.model';
+import Environment from 'src/domain/model/environment/environment.model';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
 

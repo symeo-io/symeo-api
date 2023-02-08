@@ -45,7 +45,7 @@ describe('RepositoryController', () => {
       const mockGitHubRepositoriesStub1 = JSON.parse(
         fs
           .readFileSync(
-            './tests/integration/application/stubs/organization/get_repositories_for_orga_name_page_1.json',
+            './tests/integration/application/stubs/repository/get_repositories_for_orga_name_page_1.json',
           )
           .toString(),
       );

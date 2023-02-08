@@ -35,13 +35,13 @@ describe('OrganizationController', () => {
   });
 
   describe('(GET) /organizations', () => {
-    it('should respond 200 with github organization', async () => {
+    it('should respond 200 with github repository', async () => {
       // Given
       const mockGitHubToken = uuid();
       const mockGitHubRepositoriesForUserStub1 = JSON.parse(
         fs
           .readFileSync(
-            './tests/integration/application/stubs/organization/get_repositories_for_user_page_1.json',
+            './tests/integration/application/stubs/repository/get_repositories_for_user_page_1.json',
           )
           .toString(),
       );
