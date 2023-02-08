@@ -3,6 +3,8 @@ import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 
 export interface ValuesFacade {
+  findByEnvironmentId(environmentId: string): Promise<ConfigurationValues>;
+
   findByIdForUser(
     user: User,
     vcsType: VCSProvider,

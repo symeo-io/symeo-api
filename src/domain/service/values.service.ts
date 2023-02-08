@@ -13,6 +13,14 @@ export class ValuesService implements ValuesFacade {
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
   ) {}
 
+  async findByEnvironmentId(
+    environmentId: string,
+  ): Promise<ConfigurationValues> {
+    return await this.secretValuesStoragePort.getValuesForEnvironmentId(
+      environmentId,
+    );
+  }
+
   async findByIdForUser(
     user: User,
     vcsType: VCSProvider,

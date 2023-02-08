@@ -10,7 +10,7 @@ import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/conf
 import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import Environment from 'src/domain/model/environment/environment.model';
-import { UpdateEnvironmentDTO } from 'src/application/dto/environment/update-environment.dto';
+import { UpdateEnvironmentDTO } from 'src/application/webapp/dto/environment/update-environment.dto';
 import SpyInstance = jest.SpyInstance;
 
 describe('EnvironmentController', () => {
