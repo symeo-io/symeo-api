@@ -1,0 +1,17 @@
+aws:
+  region: "eu-west-3"
+database:
+  configuration:
+    tableName: "symeo-api-configurations-staging"
+  apiKey:
+    tableName: "symeo-api-api-keys-staging"
+auth0:
+  clientId: "ya4wgNrcaU88SAhvgR0dz0LagajToRpf"
+  clientSecret: "xzrL9_OP8dRQ3b0Z9qg8Uid0uBZ8pASNIEViU6zG7t1_VP4hBgBHsHDGICmHujqL"
+  audience: "https://api-staging.symeo.io"
+  issuer: "https://symeo-staging.eu.auth0.com/"
+  domain: "symeo-staging.eu.auth0.com"
+cors:
+  origin: "https://app-config-staging.symeo.io"
+vcsProvider:
+  paginationLength: 100
