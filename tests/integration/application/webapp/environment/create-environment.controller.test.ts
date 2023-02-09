@@ -64,7 +64,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
+          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
         )
         .send({})
         // Then
@@ -87,7 +87,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
+          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments`,
         )
         .send(data)
         // Then
@@ -144,7 +144,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments`,
         )
         .send(data)
         // Then

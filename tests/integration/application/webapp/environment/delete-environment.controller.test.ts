@@ -71,7 +71,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         // Then
         .expect(404);
@@ -131,7 +131,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}`,
         )
@@ -194,7 +194,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
         )
         // Then
         .expect(200);

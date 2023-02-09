@@ -7,7 +7,6 @@ import { ApplicationModule } from 'src/bootstrap/application.module';
 async function bootstrap() {
   const app = await NestFactory.create(ApplicationModule);
   app.useGlobalFilters(new SymeoExceptionHttpFilter());
-  app.setGlobalPrefix('api/v1');
   app.enableCors({
     credentials: true,
     origin: config.cors.origin,

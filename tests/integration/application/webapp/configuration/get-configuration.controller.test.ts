@@ -77,7 +77,9 @@ describe('ConfigurationController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/configurations/github/${repositoryVcsId}/${configurationId}`)
+        .get(
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}`,
+        )
         // Then
         .expect(404);
     });
@@ -103,7 +105,9 @@ describe('ConfigurationController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
+        .get(
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
+        )
         // Then
         .expect(404);
     });
@@ -138,7 +142,9 @@ describe('ConfigurationController', () => {
 
       const response = await appClient
         .request(currentUser)
-        .get(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
+        .get(
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
+        )
         .expect(200);
 
       expect(response.body.configuration).toBeDefined();

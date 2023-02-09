@@ -77,7 +77,9 @@ describe('ConfigurationController', () => {
       appClient
         .request(currentUser)
         // When
-        .delete(`/configurations/github/${repositoryVcsId}/${configurationId}`)
+        .delete(
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}`,
+        )
         // Then
         .expect(404);
     });
@@ -103,7 +105,9 @@ describe('ConfigurationController', () => {
       appClient
         .request(currentUser)
         // When
-        .delete(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
+        .delete(
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
+        )
         // Then
         .expect(404);
     });
@@ -149,7 +153,9 @@ describe('ConfigurationController', () => {
 
       await appClient
         .request(currentUser)
-        .delete(`/configurations/github/${repositoryVcsId}/${configuration.id}`)
+        .delete(
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
+        )
         .expect(200);
 
       const deletedConfiguration: ConfigurationEntity =

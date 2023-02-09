@@ -74,7 +74,7 @@ describe('OrganizationController', () => {
 
       return appClient
         .request(currentUser)
-        .get(`/organizations`)
+        .get(`/api/v1/organizations`)
         .expect(200)
         .expect({
           organizations: [
@@ -128,7 +128,7 @@ describe('OrganizationController', () => {
 
       return appClient
         .request(currentUser)
-        .get(`/organizations`)
+        .get(`/api/v1/organizations`)
         .expect(200)
         .expect({
           organizations: [

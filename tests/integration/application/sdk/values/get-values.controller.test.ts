@@ -75,7 +75,7 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/values`)
+        .get(`/api/v1/values`)
         // Then
         .expect(403);
     });
@@ -85,7 +85,7 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/values`)
+        .get(`/api/v1/values`)
         .set('X-API-KEY', 'abc123')
         // Then
         .expect(403);
@@ -101,7 +101,7 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/values`)
+        .get(`/api/v1/values`)
         .set('X-API-KEY', apiKey)
         // Then
         .expect(403);
@@ -122,7 +122,7 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/values`)
+        .get(`/api/v1/values`)
         .set('X-API-KEY', apiKey)
         // Then
         .expect(403);
@@ -152,7 +152,7 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/values`)
+        .get(`/api/v1/values`)
         .set('X-API-KEY', sentApiKey)
         // Then
         .expect(403);
@@ -180,7 +180,7 @@ describe('ValuesController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/values`)
+        .get(`/api/v1/values`)
         .set('X-API-KEY', apiKey.key)
         // Then
         .expect(200)

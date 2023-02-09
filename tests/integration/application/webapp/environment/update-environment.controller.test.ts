@@ -68,7 +68,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         .send({})
         // Then
@@ -92,7 +92,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
         )
         .send(data)
         // Then
@@ -159,7 +159,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}`,
         )
@@ -227,7 +227,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
         )
         .send(updatedEnvironmentData)
         // Then

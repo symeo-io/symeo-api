@@ -94,7 +94,7 @@ describe('RepositoryController', () => {
 
       return appClient
         .request(currentUser)
-        .get(`/repositories`)
+        .get(`/api/v1/repositories`)
         .expect(200)
         .expect({
           repositories: [

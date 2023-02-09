@@ -82,7 +82,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/api-keys`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/api-keys`,
         )
         // Then
         .expect(404);
@@ -115,7 +115,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys`,
         )
         // Then
         .expect(404);
@@ -154,7 +154,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}/api-keys`,
         )
@@ -198,7 +198,7 @@ describe('ApiKeyController', () => {
       const response = await appClient
         .request(currentUser)
         .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys`,
         )
         .expect(201);
 

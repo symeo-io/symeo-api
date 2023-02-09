@@ -80,7 +80,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github/validate`)
+        .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId,
           configFormatFilePath: 'symeo.config.yml',
@@ -126,7 +126,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github/validate`)
+        .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId,
           configFormatFilePath: 'symeo.config.yml',
@@ -172,7 +172,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github/validate`)
+        .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId,
           configFormatFilePath: 'symeo.config.yml',

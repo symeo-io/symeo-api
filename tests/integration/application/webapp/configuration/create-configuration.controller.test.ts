@@ -64,7 +64,7 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github`)
+        .post(`/api/v1/configurations/github`)
         .send({})
         // Then
         .expect(400);
@@ -80,7 +80,7 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github`)
+        .post(`/api/v1/configurations/github`)
         .send({
           name: faker.name.jobTitle(),
           branch: 'staging',
@@ -117,7 +117,7 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github`)
+        .post(`/api/v1/configurations/github`)
         .send({
           name: faker.name.jobTitle(),
           branch: 'staging',
@@ -161,7 +161,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/configurations/github`)
+        .post(`/api/v1/configurations/github`)
         .send(sendData)
         // Then
         .expect(201);

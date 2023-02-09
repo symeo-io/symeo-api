@@ -104,7 +104,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
         )
         .send({ values: { aws: { region: 'eu-west-3' } } })
         // Then
@@ -138,7 +138,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
         .send({ values: { aws: { region: 'eu-west-3' } } })
         // Then
@@ -178,7 +178,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .post(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}/values`,
         )
@@ -236,7 +236,7 @@ describe('ValuesController', () => {
       await appClient
         .request(currentUser)
         .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
         .send({ values: sentValues })
         .expect(200);
@@ -299,7 +299,7 @@ describe('ValuesController', () => {
       await appClient
         .request(currentUser)
         .post(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
         .send({ values: sentValues })
         .expect(200);

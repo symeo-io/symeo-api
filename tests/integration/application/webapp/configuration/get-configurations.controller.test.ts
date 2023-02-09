@@ -89,7 +89,7 @@ describe('ConfigurationController', () => {
       appClient
         .request(currentUser)
         // When
-        .get(`/configurations/github/${repositoryVcsId}`)
+        .get(`/api/v1/configurations/github/${repositoryVcsId}`)
         // Then
         .expect(404);
     });
@@ -136,7 +136,7 @@ describe('ConfigurationController', () => {
 
       const response = await appClient
         .request(currentUser)
-        .get(`/configurations/github/${repositoryVcsId}`)
+        .get(`/api/v1/configurations/github/${repositoryVcsId}`)
         .expect(200);
 
       expect(response.body.configurations).toBeDefined();

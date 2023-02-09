@@ -92,7 +92,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .get(
-          `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
         )
         // Then
         .expect(404);
@@ -125,7 +125,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .get(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
         // Then
         .expect(404);
@@ -164,7 +164,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .get(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}/values`,
         )
@@ -216,7 +216,7 @@ describe('ValuesController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
         )
         .expect(200);
 

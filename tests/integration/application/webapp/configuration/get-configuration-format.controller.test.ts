@@ -88,7 +88,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .get(
-          `/configurations/github/${repositoryVcsId}/${configurationId}/format`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/format`,
         )
         // Then
         .expect(404);
@@ -126,7 +126,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .get(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/format`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/format`,
         )
         // Then
         .expect(404);
@@ -178,7 +178,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/format`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/format`,
         )
         .expect(200);
 

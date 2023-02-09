@@ -83,7 +83,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/api-keys/${uuid()}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/api-keys/${uuid()}`,
         )
         // Then
         .expect(404);
@@ -116,7 +116,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${
             configuration.environments[0].id
@@ -159,7 +159,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${uuid()}/api-keys/${uuid()}`,
         )
@@ -204,7 +204,7 @@ describe('ApiKeyController', () => {
         .request(currentUser)
         // When
         .delete(
-          `/configurations/github/${repositoryVcsId}/${
+          `/api/v1/configurations/github/${repositoryVcsId}/${
             configuration.id
           }/environments/${
             configuration.environments[0].id
@@ -257,7 +257,7 @@ describe('ApiKeyController', () => {
       await appClient
         .request(currentUser)
         .delete(
-          `/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys/${apiKey.id}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/api-keys/${apiKey.id}`,
         )
         .expect(200);
 
