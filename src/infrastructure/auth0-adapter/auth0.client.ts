@@ -1,5 +1,5 @@
 import { ManagementClient } from 'auth0';
-import { config } from '@symeo-io/config';
+import { config } from '@symeo-io/symeo/config';
 
 export class Auth0Client {
   public client: ManagementClient;

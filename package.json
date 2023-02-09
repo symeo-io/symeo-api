@@ -28,7 +28,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/terminus": "^9.2.0",
     "@octokit/rest": "^19.0.7",
-    "@symeo-io/symeo": "0.0.6",
+    "@symeo-io/symeo": "0.0.8",
     "auth0": "^3.1.2",
     "aws-sdk": "^2.1303.0",
     "class-transformer": "^0.5.1",

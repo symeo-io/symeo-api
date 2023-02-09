@@ -1,6 +1,6 @@
 import { DataMapper } from '@aws/dynamodb-data-mapper';
 import * as AWS from 'aws-sdk';
-import { config } from '@symeo-io/config';
+import { config } from '@symeo-io/symeo/config';
 
 export class DynamoDBClient {
   public dataMapper: DataMapper;

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { passportJwtSecret } from 'jwks-rsa';
-import { config } from '@symeo-io/config';
+import { config } from '@symeo-io/symeo/config';
 import User from 'src/domain/model/user.model';
 import { JwtPayload } from 'src/application/webapp/authentication/jwt-payload.type';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';

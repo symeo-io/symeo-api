@@ -979,10 +979,10 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@symeo-io/symeo@0.0.6":
-  version "0.0.6"
-  resolved "https://npm.pkg.github.com/download/@symeo-io/symeo/0.0.6/32fe76f40e9a7ccec2c1d9b8d95ac419955de8a9#32fe76f40e9a7ccec2c1d9b8d95ac419955de8a9"
-  integrity sha512-3fweyOTI0eKOQd10y0TCz++nWo5SWd/HjFPYQxKl0OfBa1sYaPwL04RQBQoLjn0tRpjyLfQuz1PqNQZYOf+FQA==
+"@symeo-io/symeo@0.0.8":
+  version "0.0.8"
+  resolved "https://npm.pkg.github.com/download/@symeo-io/symeo/0.0.8/21e215d31eac2f43fa7155d083e80d5bb19e2fee#21e215d31eac2f43fa7155d083e80d5bb19e2fee"
+  integrity sha512-lY2Cx46trBtJ61NNFhDAKUu45YsyJukk53rFtiDDtgseDPmnAstSg2VEyk6o9i5s05PKpAqRzRotg+M0pSPVsA==
   dependencies:
     chalk "^4.1.2"
     checksum "^1.0.0"
