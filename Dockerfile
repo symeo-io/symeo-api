@@ -16,5 +16,5 @@ ENV TZ=UTC
 
 ENV SYMEO_API_KEY=$symeo_api_key
 
-EXPOSE 3000
+EXPOSE 9999
 CMD node_modules/.bin/symeo -f symeo.staging.yml -- node /var/app/dist/main.js
