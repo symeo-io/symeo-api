@@ -49,8 +49,8 @@ function build_and_push_docker_image() {
   local region=$5
   local tag=$6
   local dd_service=$7
-  local dd_env=$9
-  local symeo_api_key=$10
+  local dd_env=$8
+  local symeo_api_key=$9
 
   local docker_file_path="${docker_base_path}/${docker_file_name}"
 

@@ -7,7 +7,6 @@ RUN mkdir -p /var/app
 COPY . /var/app
 WORKDIR /var/app
 RUN npm i -g @nestjs/cli
-RUN npm i -g @nestjs/cli
 RUN npm install
 RUN npm run config:build
 RUN npm run build
