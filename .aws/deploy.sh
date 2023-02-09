@@ -70,12 +70,6 @@ api_container="
     \"com.datadoghq.ad.check_names\": \"[\\\"symeo-api-${ENV}\\\"]\",
     \"com.datadoghq.ad.init_configs\": \"[{}]\"
   },
-  \"healthCheck\": {
-    \"command\": [\"CMD-SHELL\", \"curl -f http://localhost/health || exit 1\"],
-    \"interval\": 5,
-    \"retries\": 2,
-    \"timeout\": 3
-  },
   \"logConfiguration\":{
     \"logDriver\":\"awslogs\",
     \"options\":{
