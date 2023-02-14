@@ -9,14 +9,14 @@
     "build": "nest build",
     "config:build": "symeo",
     "format": "prettier --write \\\"src/**/*.ts\\\" \\\"tests/**/*.ts\\\"",
-    "start": "symeo -- nest start",
-    "start:dev": "symeo -- nest start --watch",
-    "start:debug": "symeo -- nest start --debug --watch",
-    "start:prod": "symeo -- node dist/main",
+    "start": "symeo-js -- nest start",
+    "start:dev": "symeo-js -- nest start --watch",
+    "start:debug": "symeo-js -- nest start --debug --watch",
+    "start:prod": "symeo-js -- node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "symeo -f symeo.test.yml -- jest --maxWorkers=1",
-    "test:watch": "symeo -f symeo.test.yml -- jest --watch --maxWorkers=1",
-    "test:cov": "symeo -f symeo.test.yml -- jest --coverage --maxWorkers=1"
+    "test": "symeo-js -f symeo.test.yml -- jest --maxWorkers=1",
+    "test:watch": "symeo-js -f symeo.test.yml -- jest --watch --maxWorkers=1",
+    "test:cov": "symeo-js -f symeo.test.yml -- jest --coverage --maxWorkers=1"
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
@@ -28,7 +28,6 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/terminus": "^9.2.0",
     "@octokit/rest": "^19.0.7",
-    "@symeo-io/symeo": "0.0.8",
     "auth0": "^3.1.2",
     "aws-sdk": "^2.1303.0",
     "class-transformer": "^0.5.1",
@@ -41,6 +40,7 @@
     "reflect-metadata": "^0.1.13",
     "request-context": "^2.0.0",
     "rxjs": "^7.2.0",
+    "symeo-js": "^0.0.3",
     "ts-mockito": "^2.6.1",
     "uuid": "^9.0.0",
     "yaml": "^2.2.1"
