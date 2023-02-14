@@ -12,7 +12,6 @@ import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/enviro
 import ApiKeyEntity from 'src/infrastructure/dynamodb-adapter/entity/api-key.entity';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
 import Environment from 'src/domain/model/environment/environment.model';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
@@ -102,7 +101,7 @@ describe('ApiKeyController', () => {
       configuration.name = faker.name.jobTitle();
       configuration.environments = [
         EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), EnvironmentColor.red),
+          new Environment(uuid(), faker.name.firstName(), 'red'),
         ),
       ];
 
@@ -176,7 +175,7 @@ describe('ApiKeyController', () => {
       configuration.name = faker.name.jobTitle();
       configuration.environments = [
         EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), EnvironmentColor.red),
+          new Environment(uuid(), faker.name.firstName(), 'red'),
         ),
       ];
       const apiKey = new ApiKeyEntity();

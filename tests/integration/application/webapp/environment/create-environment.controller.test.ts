@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.model';
 import SpyInstance = jest.SpyInstance;
 
 describe('EnvironmentController', () => {
@@ -80,7 +80,7 @@ describe('EnvironmentController', () => {
 
       const data = {
         name: faker.name.firstName(),
-        color: EnvironmentColor.blue,
+        color: 'blue',
       };
 
       await appClient
@@ -137,7 +137,7 @@ describe('EnvironmentController', () => {
 
       const data = {
         name: faker.name.firstName(),
-        color: EnvironmentColor.blue,
+        color: 'blue',
       };
 
       await appClient

@@ -6,12 +6,11 @@ import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/environment/environment.model';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.model';
 import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import { NotFoundException } from '@nestjs/common';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -189,8 +188,8 @@ export default class ConfigurationService implements ConfigurationFacade {
       configFormatFilePath,
       branch,
       [
-        new Environment(uuid(), 'Staging', EnvironmentColor.blue),
-        new Environment(uuid(), 'Production', EnvironmentColor.red),
+        new Environment(uuid(), 'Staging', 'blue'),
+        new Environment(uuid(), 'Production', 'red'),
       ],
     );
 

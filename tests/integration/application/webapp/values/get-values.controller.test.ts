@@ -7,7 +7,6 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import SpyInstance = jest.SpyInstance;
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import Environment from 'src/domain/model/environment/environment.model';
@@ -111,7 +110,7 @@ describe('ValuesController', () => {
       configuration.name = faker.name.jobTitle();
       configuration.environments = [
         EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), EnvironmentColor.red),
+          new Environment(uuid(), faker.name.firstName(), 'red'),
         ),
       ];
 
@@ -185,7 +184,7 @@ describe('ValuesController', () => {
       configuration.name = faker.name.jobTitle();
       configuration.environments = [
         EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), EnvironmentColor.red),
+          new Environment(uuid(), faker.name.firstName(), 'red'),
         ),
       ];
 

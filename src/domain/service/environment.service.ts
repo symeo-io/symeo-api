@@ -1,7 +1,7 @@
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
+import { EnvironmentColor } from 'src/domain/model/environment/environment-color.model';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';

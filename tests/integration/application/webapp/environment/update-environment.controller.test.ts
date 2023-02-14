@@ -7,7 +7,6 @@ import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import Environment from 'src/domain/model/environment/environment.model';
 import { UpdateEnvironmentDTO } from 'src/application/webapp/dto/environment/update-environment.dto';
@@ -85,7 +84,7 @@ describe('EnvironmentController', () => {
 
       const data = {
         name: faker.name.firstName(),
-        color: EnvironmentColor.blue,
+        color: 'blue',
       };
 
       await appClient
@@ -121,7 +120,7 @@ describe('EnvironmentController', () => {
 
       const environmentId = uuid();
       const environmentName = faker.name.firstName();
-      const environmentColor = EnvironmentColor.blue;
+      const environmentColor = 'blue';
 
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
@@ -152,7 +151,7 @@ describe('EnvironmentController', () => {
 
       const updatedEnvironmentData: UpdateEnvironmentDTO = {
         name: faker.name.firstName(),
-        color: EnvironmentColor.blueGrey,
+        color: 'blueGrey',
       };
 
       await appClient
@@ -190,7 +189,7 @@ describe('EnvironmentController', () => {
 
       const environmentId = uuid();
       const environmentName = faker.name.firstName();
-      const environmentColor = EnvironmentColor.blue;
+      const environmentColor = 'blue';
 
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
@@ -221,7 +220,7 @@ describe('EnvironmentController', () => {
 
       const updatedEnvironmentData: UpdateEnvironmentDTO = {
         name: faker.name.firstName(),
-        color: EnvironmentColor.blueGrey,
+        color: 'blueGrey',
       };
       await appClient
         .request(currentUser)

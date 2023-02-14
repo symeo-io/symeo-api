@@ -1,5 +1,8 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.enum';
+import {
+  EnvironmentColor,
+  EnvironmentColors,
+} from 'src/domain/model/environment/environment-color.model';
 
 export class UpdateEnvironmentDTO {
   @IsNotEmpty()
@@ -7,6 +10,6 @@ export class UpdateEnvironmentDTO {
   name: string;
 
   @IsNotEmpty()
-  @IsEnum(EnvironmentColor)
+  @IsEnum(EnvironmentColors)
   color: EnvironmentColor;
 }
