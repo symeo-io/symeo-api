@@ -4,16 +4,6 @@ import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-class RepositoryEntity {
-  name: string;
-  vcsId: number;
-}
-
-class OwnerEntity {
-  name: string;
-  vcsId: number;
-}
-
 @Entity('configurations')
 export default class ConfigurationEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -29,15 +19,17 @@ export default class ConfigurationEntity extends AbstractEntity {
   })
   vcsType: VCSProvider;
 
-  @Column({
-    type: 'jsonb',
-  })
-  repository: RepositoryEntity;
+  @Column()
+  repositoryVcsId: number;
 
-  @Column({
-    type: 'jsonb',
-  })
-  owner: OwnerEntity;
+  @Column()
+  repositoryVcsName: string;
+
+  @Column()
+  ownerVcsId: number;
+
+  @Column()
+  ownerVcsName: string;
 
   @Column()
   configFormatFilePath: string;
@@ -48,6 +40,7 @@ export default class ConfigurationEntity extends AbstractEntity {
   @OneToMany(
     () => EnvironmentEntity,
     (environment) => environment.configuration,
+    { eager: true, cascade: true, onDelete: 'CASCADE' },
   )
   environments: EnvironmentEntity[];
 
@@ -56,8 +49,8 @@ export default class ConfigurationEntity extends AbstractEntity {
       this.id,
       this.name,
       this.vcsType,
-      this.repository,
-      this.owner,
+      { name: this.repositoryVcsName, vcsId: this.repositoryVcsId },
+      { name: this.ownerVcsName, vcsId: this.ownerVcsId },
       this.configFormatFilePath,
       this.branch,
       this.environments?.map((environment) => environment.toDomain()) ?? [],
@@ -69,8 +62,10 @@ export default class ConfigurationEntity extends AbstractEntity {
     entity.id = configuration.id;
     entity.name = configuration.name;
     entity.vcsType = configuration.vcsType;
-    entity.repository = configuration.repository;
-    entity.owner = configuration.owner;
+    entity.repositoryVcsId = configuration.repository.vcsId;
+    entity.repositoryVcsName = configuration.repository.name;
+    entity.ownerVcsId = configuration.owner.vcsId;
+    entity.ownerVcsName = configuration.owner.name;
     entity.configFormatFilePath = configuration.configFormatFilePath;
     entity.branch = configuration.branch;
     entity.environments = configuration.environments

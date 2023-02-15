@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import ConfigurationService from 'src/domain/service/configuration.service';
-import { DynamodbAdapterModule } from 'src/bootstrap/dynamodb-adapter.module';
 import GithubAdapterPort from '../domain/port/out/github.adapter.port';
 import { GithubAdapterModule } from './github-adapter.module';
 import { OrganizationService } from '../domain/service/organization.service';
@@ -22,7 +21,7 @@ const ConfigurationFacadeProvider = {
     configurationStoragePort: ConfigurationStoragePort,
     repositoryFacade: RepositoryFacade,
   ) => new ConfigurationService(configurationStoragePort, repositoryFacade),
-  inject: ['DynamodbConfigurationAdapter', 'RepositoryFacade'],
+  inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
 };
 
 const EnvironmentFacadeProvider = {
@@ -31,7 +30,7 @@ const EnvironmentFacadeProvider = {
     configurationStoragePort: ConfigurationStoragePort,
     repositoryFacade: RepositoryFacade,
   ) => new EnvironmentService(configurationStoragePort, repositoryFacade),
-  inject: ['DynamodbConfigurationAdapter', 'RepositoryFacade'],
+  inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
 };
 
 const OrganizationFacadeProvider = {
@@ -47,7 +46,7 @@ const RepositoryFacadeProvider = {
     githubAdapterPort: GithubAdapterPort,
     configurationStoragePort: ConfigurationStoragePort,
   ) => new RepositoryService(githubAdapterPort, configurationStoragePort),
-  inject: ['GithubAdapter', 'DynamodbConfigurationAdapter'],
+  inject: ['GithubAdapter', 'PostgresConfigurationAdapter'],
 };
 
 const ValuesFacadeProvider = {
@@ -65,13 +64,12 @@ const ApiKeyFacadeProvider = {
     configurationFacade: ConfigurationFacade,
     apiKeyStoragePort: ApiKeyStoragePort,
   ) => new ApiKeyService(configurationFacade, apiKeyStoragePort),
-  inject: ['ConfigurationFacade', 'DynamodbApiKeyAdapter'],
+  inject: ['ConfigurationFacade', 'PostgresApiKeyAdapter'],
 };
 
 @Module({
   imports: [
     PostgresAdapterModule,
-    DynamodbAdapterModule,
     GithubAdapterModule,
     SecretManagerAdapterModule,
   ],

@@ -8,7 +8,6 @@ export const ormConfig: DataSourceOptions = {
   username: config.database.typeorm.username,
   password: config.database.typeorm.password,
   database: config.database.typeorm.database,
-  entities: ['dist/infrastructure/postgres-adapter/**/*.entity.js'],
   migrations: ['migrations/*.ts'],
   synchronize: config.database.typeorm.synchronize,
 };
