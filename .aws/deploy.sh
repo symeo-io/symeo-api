@@ -107,12 +107,12 @@ datadog_container="
 }
 "
 
-# if [ "$ENV" = "production" ]
-# then
+if [ "$ENV" = "production" ]
+then
   container_definition="[${api_container},${datadog_container}]"
-# else
-#  container_definition="[${api_container}]"
-# fi
+else
+  container_definition="[${api_container}]"
+fi
 
 
 aws ecs register-task-definition \
