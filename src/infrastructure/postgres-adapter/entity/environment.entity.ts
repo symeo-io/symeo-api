@@ -4,7 +4,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 
-@Entity()
+@Entity('environments')
 export default class EnvironmentEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

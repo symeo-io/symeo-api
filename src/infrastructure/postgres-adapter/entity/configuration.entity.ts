@@ -14,7 +14,7 @@ class OwnerEntity {
   vcsId: number;
 }
 
-@Entity()
+@Entity('configurations')
 export default class ConfigurationEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
