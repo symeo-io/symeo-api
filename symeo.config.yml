@@ -20,21 +20,8 @@ database:
       secret: true
     database:
       type: string
-    entities:
-      type: string
-    migrations:
-      type: string
     synchronize:
       type: boolean
-  dynamodbUrl:
-    type: string
-    optional: true
-  configuration:
-    tableName:
-      type: string
-  apiKey:
-    tableName:
-      type: string
 auth0:
   clientId:
     type: string

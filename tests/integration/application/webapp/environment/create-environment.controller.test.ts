@@ -1,17 +1,18 @@
 import { AppClient } from 'tests/utils/app.client';
-import { DynamoDbTestUtils } from 'tests/utils/dynamo-db-test.utils';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
 import User from 'src/domain/model/user.model';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
+import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import SpyInstance = jest.SpyInstance;
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('EnvironmentController', () => {
   let appClient: AppClient;
-  let dynamoDBTestUtils: DynamoDbTestUtils;
+  let configurationRepository: Repository<ConfigurationEntity>;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
   let getGitHubAccessTokenMock: SpyInstance;
@@ -25,7 +26,6 @@ describe('EnvironmentController', () => {
   );
 
   beforeAll(async () => {
-    dynamoDBTestUtils = new DynamoDbTestUtils();
     appClient = new AppClient();
 
     await appClient.init();
@@ -34,6 +34,9 @@ describe('EnvironmentController', () => {
       'VCSAccessTokenAdapter',
     );
     githubClient = appClient.module.get<Octokit>('Octokit');
+    configurationRepository = appClient.module.get<
+      Repository<ConfigurationEntity>
+    >(getRepositoryToken(ConfigurationEntity));
   });
 
   afterAll(async () => {
@@ -41,7 +44,7 @@ describe('EnvironmentController', () => {
   });
 
   beforeEach(async () => {
-    await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
+    await configurationRepository.delete({});
     githubClientRequestMock = jest.spyOn(githubClient, 'request');
     getGitHubAccessTokenMock = jest.spyOn(
       vcsAccessTokenStorage,
@@ -114,25 +117,16 @@ describe('EnvironmentController', () => {
 
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.hashKey = ConfigurationEntity.buildHashKey(
-        VCSProvider.GitHub,
-        repositoryVcsId,
-      );
-      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
       configuration.vcsType = VCSProvider.GitHub;
-      configuration.repository = {
-        vcsId: repositoryVcsId,
-        name: repositoryVcsName,
-      };
-      configuration.owner = {
-        vcsId: ownerVcsId,
-        name: ownerVcsName,
-      };
+      configuration.repositoryVcsId = repositoryVcsId;
+      configuration.repositoryVcsName = repositoryVcsName;
+      configuration.ownerVcsId = ownerVcsId;
+      configuration.ownerVcsName = ownerVcsName;
       configuration.configFormatFilePath = './symeo.config.yml';
       configuration.branch = 'staging';
 
-      await dynamoDBTestUtils.put(configuration);
+      await configurationRepository.save(configuration);
 
       const data = {
         name: faker.name.firstName(),
@@ -149,14 +143,13 @@ describe('EnvironmentController', () => {
         // Then
         .expect(201);
 
-      const configurationEntity: ConfigurationEntity =
-        await dynamoDBTestUtils.get(ConfigurationEntity, {
-          hashKey: configuration.hashKey,
-          rangeKey: configuration.rangeKey,
+      const configurationEntity: ConfigurationEntity | null =
+        await configurationRepository.findOneBy({
+          id: configuration.id,
         });
-      expect(configurationEntity).toBeTruthy();
-      expect(configurationEntity.environments.length).toEqual(1);
-      expect(configurationEntity.environments[0].name).toEqual(data.name);
+      expect(configurationEntity).toBeDefined();
+      expect(configurationEntity?.environments.length).toEqual(1);
+      expect(configurationEntity?.environments[0].name).toEqual(data.name);
     });
   });
 });

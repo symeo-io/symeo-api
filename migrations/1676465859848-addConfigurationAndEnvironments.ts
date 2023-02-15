@@ -45,7 +45,7 @@ export class addConfigurationAndEnvironments1676465859848
     );
     await queryRunner.query(
       `ALTER TABLE "environments" 
-                ADD CONSTRAINT "FK_environment_configuration_id" FOREIGN KEY ("configurationId") REFERENCES "configurations"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+                ADD CONSTRAINT "FK_environment_configuration_id" FOREIGN KEY ("configurationId") REFERENCES "configurations"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
     );
   }
 

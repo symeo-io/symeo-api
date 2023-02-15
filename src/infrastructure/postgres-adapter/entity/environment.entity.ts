@@ -18,6 +18,7 @@ export default class EnvironmentEntity extends AbstractEntity {
   @ManyToOne(
     () => ConfigurationEntity,
     (configuration) => configuration.environments,
+    { onDelete: 'CASCADE' },
   )
   configuration: ConfigurationEntity;
 

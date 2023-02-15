@@ -1,6 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { DynamoDbTestUtils } from 'tests/utils/dynamo-db-test.utils';
-import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
+import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user.model';
 import { faker } from '@faker-js/faker';
@@ -8,10 +7,12 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
-  let dynamoDBTestUtils: DynamoDbTestUtils;
+  let configurationRepository: Repository<ConfigurationEntity>;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
   let getGitHubAccessTokenMock: SpyInstance;
@@ -26,7 +27,6 @@ describe('ConfigurationController', () => {
   );
 
   beforeAll(async () => {
-    dynamoDBTestUtils = new DynamoDbTestUtils();
     appClient = new AppClient();
 
     await appClient.init();
@@ -35,6 +35,9 @@ describe('ConfigurationController', () => {
       'VCSAccessTokenAdapter',
     );
     githubClient = appClient.module.get<Octokit>('Octokit');
+    configurationRepository = appClient.module.get<
+      Repository<ConfigurationEntity>
+    >(getRepositoryToken(ConfigurationEntity));
   });
 
   afterAll(async () => {
@@ -42,7 +45,7 @@ describe('ConfigurationController', () => {
   });
 
   beforeEach(async () => {
-    await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
+    await configurationRepository.delete({});
     githubClientRequestMock = jest.spyOn(githubClient, 'request');
     checkFileExistsOnBranchMock = jest.spyOn(githubClient.repos, 'getContent');
     getGitHubAccessTokenMock = jest.spyOn(
@@ -64,14 +67,16 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.hashKey = ConfigurationEntity.buildHashKey(
-        VCSProvider.GitHub,
-        repositoryVcsId,
-      );
-      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
+      configuration.repositoryVcsId = repositoryVcsId;
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repositoryVcsName = 'symeo-api';
+      configuration.ownerVcsId = faker.datatype.number();
+      configuration.ownerVcsName = 'symeo-io';
+      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.branch = faker.datatype.string();
 
-      await dynamoDBTestUtils.put(configuration);
+      await configurationRepository.save(configuration);
 
       githubClientRequestMock.mockImplementation(() => {
         throw { status: 404 };
@@ -97,14 +102,16 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.hashKey = ConfigurationEntity.buildHashKey(
-        VCSProvider.GitHub,
-        repositoryVcsId,
-      );
-      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
+      configuration.repositoryVcsId = repositoryVcsId;
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repositoryVcsName = 'symeo-api';
+      configuration.ownerVcsId = faker.datatype.number();
+      configuration.ownerVcsName = 'symeo-io';
+      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.branch = faker.datatype.string();
 
-      await dynamoDBTestUtils.put(configuration);
+      await configurationRepository.save(configuration);
 
       const mockGitHubRepositoryResponse = {
         status: 200 as const,
@@ -143,14 +150,16 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.hashKey = ConfigurationEntity.buildHashKey(
-        VCSProvider.GitHub,
-        repositoryVcsId,
-      );
-      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
+      configuration.repositoryVcsId = repositoryVcsId;
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repositoryVcsName = 'symeo-api';
+      configuration.ownerVcsId = faker.datatype.number();
+      configuration.ownerVcsName = 'symeo-io';
+      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.branch = faker.datatype.string();
 
-      await dynamoDBTestUtils.put(configuration);
+      await configurationRepository.save(configuration);
 
       const mockGitHubRepositoryResponse = {
         status: 200 as const,

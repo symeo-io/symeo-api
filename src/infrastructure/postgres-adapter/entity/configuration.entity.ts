@@ -40,7 +40,7 @@ export default class ConfigurationEntity extends AbstractEntity {
   @OneToMany(
     () => EnvironmentEntity,
     (environment) => environment.configuration,
-    { eager: true, cascade: true, onDelete: 'CASCADE' },
+    { eager: true, cascade: true },
   )
   environments: EnvironmentEntity[];
 
