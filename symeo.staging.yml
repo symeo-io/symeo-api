@@ -15,3 +15,5 @@ cors:
   origin: "https://app-config-staging.symeo.io"
 vcsProvider:
   paginationLength: 100
+logger:
+  local: false
