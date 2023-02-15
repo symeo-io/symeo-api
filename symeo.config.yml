@@ -36,3 +36,8 @@ cors:
 vcsProvider:
   paginationLength:
     type: integer
+datadog:
+  apm:
+    active:
+      type: boolean
+      optional: true
