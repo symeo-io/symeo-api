@@ -14,6 +14,7 @@ import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.stora
 import { EnvironmentService } from 'src/domain/service/environment.service';
 import { ApiKeyService } from 'src/domain/service/api-key.service';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
+import { PostgresAdapterModule } from 'src/bootstrap/postgres-adapter.module';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -69,6 +70,7 @@ const ApiKeyFacadeProvider = {
 
 @Module({
   imports: [
+    PostgresAdapterModule,
     DynamodbAdapterModule,
     GithubAdapterModule,
     SecretManagerAdapterModule,

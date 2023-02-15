@@ -8,6 +8,24 @@ aws:
   region:
     type: string
 database:
+  typeorm:
+    host:
+      type: string
+    port:
+      type: number
+    username:
+      type: string
+    password:
+      type: string
+      secret: true
+    database:
+      type: string
+    entities:
+      type: string
+    migrations:
+      type: string
+    synchronize:
+      type: boolean
   dynamodbUrl:
     type: string
     optional: true
