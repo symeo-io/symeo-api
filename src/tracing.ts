@@ -1,7 +1,8 @@
+import { config } from 'symeo-js/config';
 import tracer from 'dd-trace';
 
-tracer.init({
-  logInjection: true,
-});
+if (config.datadog.apm.active) {
+  tracer.init();
+}
 
 export default tracer;
