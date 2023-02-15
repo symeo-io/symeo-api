@@ -34,33 +34,21 @@ jobs:
         template: basic_success_1
   test:
     working_directory: ~/symeo-api
-    machine: true
+    docker:
+      - image: cimg/node:18.12.1
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: P@ssw0rd
+          POSTGRES_DB: symeo-api-test
     steps:
     - checkout
     - restore_cache:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
     - run:
-        name: Change NodeJS version
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install v18.12.1
-          nvm alias default v18.12.1
-    - run:
-        name: Install Yarn
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          npm i -g yarn
-    - run:
-        name: Start database
-        command: docker-compose up -d
-    - run:
         name: Test
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          yarn test
+        command: yarn test
     - store_artifacts:
         path: ~/symeo-api/coverage
     - slack/notify:

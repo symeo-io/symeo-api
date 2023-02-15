@@ -1,15 +1,15 @@
 version: '3.2'
 
 services:
-  database:
+  database-test:
     platform: linux/arm64/v8
     image: "postgres:13"
-    container_name: "database"
+    container_name: "database-test"
     hostname: postgres_exposition_host
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=P@ssw0rd
-      - POSTGRES_DB=symeo-api
+      - POSTGRES_DB=symeo-api-test
     ports:
       - "5432:5432"
     networks:

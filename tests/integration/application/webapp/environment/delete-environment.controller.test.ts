@@ -63,7 +63,7 @@ describe('EnvironmentController', () => {
   describe('(DELETE) /configurations/github/:vcsRepositoryId/:configurationId/environments/:id', () => {
     it('Should return 400 for non existing repository', async () => {
       // When
-      const vcsRepositoryId: string = uuid();
+      const vcsRepositoryId: number = faker.datatype.number();
       const configurationId: string = uuid();
       const environmentId: string = uuid();
       githubClientRequestMock.mockImplementation(() => {

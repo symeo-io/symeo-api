@@ -5,7 +5,7 @@ aws:
 database:
   typeorm:
     host: "localhost"
-    port: 5431
+    port: 5432
     username: "postgres"
     password: "P@ssw0rd"
     database: "symeo-api-test"
