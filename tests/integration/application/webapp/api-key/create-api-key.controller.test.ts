@@ -11,7 +11,6 @@ import SpyInstance = jest.SpyInstance;
 import EnvironmentEntity from 'src/infrastructure/dynamodb-adapter/entity/environment.entity';
 import ApiKeyEntity from 'src/infrastructure/dynamodb-adapter/entity/api-key.entity';
 import Environment from 'src/domain/model/environment/environment.model';
-import { EnvironmentColor } from 'src/domain/model/environment/environment-color.model';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
