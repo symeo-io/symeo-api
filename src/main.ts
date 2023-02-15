@@ -4,9 +4,18 @@ import { ValidationPipe } from '@nestjs/common';
 import { config } from 'symeo-js/config';
 import { SymeoExceptionHttpFilter } from 'src/application/common/exception/symeo.exception.http.filter';
 import { ApplicationModule } from 'src/bootstrap/application.module';
+import { createLogger, format, transports } from 'winston';
+import { WinstonModule } from 'nest-winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApplicationModule);
+  const instance = createLogger({
+    level: 'info',
+    format: format.json(),
+    transports: [new transports.Console()],
+  });
+  const app = await NestFactory.create(ApplicationModule, {
+    logger: WinstonModule.createLogger({ instance }),
+  });
   app.useGlobalFilters(new SymeoExceptionHttpFilter());
   app.enableCors({
     credentials: true,

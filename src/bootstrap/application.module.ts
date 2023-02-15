@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { WebappApplicationModule } from 'src/bootstrap/webapp-application.module';
 import { SdkApplicationModule } from 'src/bootstrap/sdk-application.module';
 import { HealthApplicationModule } from 'src/bootstrap/health-application.module';
@@ -28,5 +28,6 @@ import { RouterModule } from '@nestjs/core';
       },
     ]),
   ],
+  providers: [Logger],
 })
 export class ApplicationModule {}
