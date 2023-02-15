@@ -14,8 +14,10 @@ import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
 import GetApiKeysResponseDTO from 'src/application/webapp/dto/api-key/get-api-keys.response.dto';
 import CreateApiKeyResponseDTO from 'src/application/webapp/dto/api-key/create-api-key.response.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
+@ApiTags('configurations')
 @UseGuards(AuthGuard('jwt'))
 export class ApiKeyController {
   constructor(

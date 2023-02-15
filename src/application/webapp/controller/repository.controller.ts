@@ -4,8 +4,10 @@ import { CurrentUser } from 'src/application/webapp/decorator/current-user.decor
 import { GetRepositoriesResponseDTO } from 'src/application/webapp/dto/repository/get-repositories.response.dto';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('repositories')
+@ApiTags('repositories')
 @UseGuards(AuthGuard('jwt'))
 export class RepositoryController {
   constructor(

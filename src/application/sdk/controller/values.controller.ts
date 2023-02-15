@@ -5,8 +5,10 @@ import {
   RequestWithEnvironmentId,
 } from 'src/application/sdk/authentication/api-key.guard';
 import { GetValuesResponseDTO } from 'src/application/sdk/dto/get-values.response.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('values')
+@ApiTags('values')
 @UseGuards(ApiKeyGuard)
 export class ValuesController {
   constructor(

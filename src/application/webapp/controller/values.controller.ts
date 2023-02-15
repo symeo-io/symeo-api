@@ -15,8 +15,10 @@ import { GetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/valu
 import { ValuesFacade } from 'src/domain/port/in/values.facade';
 import { SetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/values/set-environment-values.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
+@ApiTags('configurations')
 @UseGuards(AuthGuard('jwt'))
 export class ValuesController {
   constructor(

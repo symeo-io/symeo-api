@@ -17,8 +17,10 @@ import { CreateEnvironmentDTO } from 'src/application/webapp/dto/environment/cre
 import { CreateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/create-environment.response.dto';
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
+@ApiTags('configurations')
 @UseGuards(AuthGuard('jwt'))
 export class EnvironmentController {
   constructor(

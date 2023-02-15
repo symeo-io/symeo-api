@@ -21,8 +21,10 @@ import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/appl
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/create-github-configuration.response.dto';
 import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
+@ApiTags('configurations')
 @UseGuards(AuthGuard('jwt'))
 export class ConfigurationController {
   constructor(
