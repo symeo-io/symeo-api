@@ -140,7 +140,7 @@ describe('ValuesController', () => {
       const apiKey = new ApiKeyEntity();
       apiKey.id = uuid();
       apiKey.environmentId = uuid();
-      apiKey.key = ApiKey.generateKey(apiKey.id, apiKey.environmentId);
+      apiKey.key = uuid();
 
       await apiKeyRepository.save(apiKey);
 
@@ -168,7 +168,7 @@ describe('ValuesController', () => {
       const apiKey = new ApiKeyEntity();
       apiKey.id = uuid();
       apiKey.environmentId = uuid();
-      apiKey.key = ApiKey.generateKey(apiKey.id, apiKey.environmentId);
+      apiKey.key = uuid();
 
       await apiKeyRepository.save(apiKey);
 

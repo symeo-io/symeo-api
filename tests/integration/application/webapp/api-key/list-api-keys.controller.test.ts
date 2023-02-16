@@ -196,7 +196,7 @@ describe('ApiKeyController', () => {
       const apiKey = new ApiKeyEntity();
       apiKey.id = uuid();
       apiKey.environmentId = configuration.environments[0].id;
-      apiKey.key = ApiKey.generateKey(apiKey.id, apiKey.environmentId);
+      apiKey.key = uuid();
 
       await configurationRepository.save(configuration);
       await apiKeyRepository.save(apiKey);
