@@ -19,7 +19,7 @@ import { GetConfigurationsResponseDTO } from 'src/application/webapp/dto/configu
 import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.dto';
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.response.dto';
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/create-github-configuration.response.dto';
-import { GetConfigurationFormatResponseDTO } from 'src/application/webapp/dto/format/get-configuration-format.response.dto';
+import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('configurations')
@@ -40,7 +40,7 @@ export class ConfigurationController {
     return await this.configurationFacade.validateCreateForUser(
       user,
       validateCreateGithubConfigurationParametersDTO.repositoryVcsId,
-      validateCreateGithubConfigurationParametersDTO.configFormatFilePath,
+      validateCreateGithubConfigurationParametersDTO.contractFilePath,
       validateCreateGithubConfigurationParametersDTO.branch,
     );
   }
@@ -61,20 +61,20 @@ export class ConfigurationController {
     return GetConfigurationResponseDTO.fromDomain(configuration);
   }
 
-  @Get('github/:vcsRepositoryId/:id/format')
-  async getGitHubConfigurationFormatById(
+  @Get('github/:vcsRepositoryId/:id/contract')
+  async getGitHubConfigurationContractById(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
-  ): Promise<GetConfigurationFormatResponseDTO> {
-    const format = await this.configurationFacade.findFormatByIdForUser(
+  ): Promise<GetConfigurationContractResponseDTO> {
+    const contract = await this.configurationFacade.findContractByIdForUser(
       user,
       VCSProvider.GitHub,
       parseInt(vcsRepositoryId),
       id,
     );
 
-    return new GetConfigurationFormatResponseDTO(format);
+    return new GetConfigurationContractResponseDTO(contract);
   }
 
   @Get('github/:vcsRepositoryId')
@@ -115,7 +115,7 @@ export class ConfigurationController {
       user,
       createConfigurationDTO.name,
       createConfigurationDTO.repositoryVcsId,
-      createConfigurationDTO.configFormatFilePath,
+      createConfigurationDTO.contractFilePath,
       createConfigurationDTO.branch,
     );
 

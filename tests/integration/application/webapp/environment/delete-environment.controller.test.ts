@@ -111,7 +111,7 @@ describe('EnvironmentController', () => {
       configuration.repositoryVcsName = repositoryVcsName;
       configuration.ownerVcsId = ownerVcsId;
       configuration.ownerVcsName = ownerVcsName;
-      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.contractFilePath = './symeo.config.yml';
       configuration.branch = 'staging';
       configuration.environments = [
         EnvironmentEntity.fromDomain(
@@ -164,7 +164,7 @@ describe('EnvironmentController', () => {
       configuration.repositoryVcsName = repositoryVcsName;
       configuration.ownerVcsId = ownerVcsId;
       configuration.ownerVcsName = ownerVcsName;
-      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.contractFilePath = './symeo.config.yml';
       configuration.branch = 'staging';
       configuration.environments = [
         EnvironmentEntity.fromDomain(

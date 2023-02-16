@@ -98,7 +98,7 @@ describe('ConfigurationController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
 
       await configurationRepository.save(configuration);
@@ -128,7 +128,7 @@ describe('ConfigurationController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = 585863519;
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = './symeo.config.yml';
+      configuration.contractFilePath = './symeo.config.yml';
       configuration.branch = 'staging';
 
       await configurationRepository.save(configuration);

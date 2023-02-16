@@ -73,7 +73,7 @@ describe('ConfigurationController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
 
       await configurationRepository.save(configuration);
@@ -88,7 +88,7 @@ describe('ConfigurationController', () => {
         .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId,
-          configFormatFilePath: 'symeo.config.yml',
+          contractFilePath: 'symeo.config.yml',
           branch: 'staging',
         })
         // Then
@@ -108,7 +108,7 @@ describe('ConfigurationController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
 
       await configurationRepository.save(configuration);
@@ -136,7 +136,7 @@ describe('ConfigurationController', () => {
         .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId,
-          configFormatFilePath: 'symeo.config.yml',
+          contractFilePath: 'symeo.config.yml',
           branch: 'staging',
         })
         // Then
@@ -156,7 +156,7 @@ describe('ConfigurationController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
 
       await configurationRepository.save(configuration);
@@ -184,7 +184,7 @@ describe('ConfigurationController', () => {
         .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId,
-          configFormatFilePath: 'symeo.config.yml',
+          contractFilePath: 'symeo.config.yml',
           branch: 'staging',
         })
         // Then

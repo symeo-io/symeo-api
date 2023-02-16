@@ -7,7 +7,7 @@ export default class Configuration {
   vcsType: VCSProvider;
   repository: { name: string; vcsId: number };
   owner: { name: string; vcsId: number };
-  configFormatFilePath: string;
+  contractFilePath: string;
   branch: string;
   environments: Environment[];
 
@@ -17,7 +17,7 @@ export default class Configuration {
     vcsType: VCSProvider,
     repository: { name: string; vcsId: number },
     owner: { name: string; vcsId: number },
-    configFormatFilePath: string,
+    contractFilePath: string,
     branch: string,
     environments: Environment[],
   ) {
@@ -26,7 +26,7 @@ export default class Configuration {
     this.vcsType = vcsType;
     this.repository = repository;
     this.owner = owner;
-    this.configFormatFilePath = configFormatFilePath;
+    this.contractFilePath = contractFilePath;
     this.branch = branch;
     this.environments = environments ?? [];
   }

@@ -87,7 +87,7 @@ describe('ConfigurationController', () => {
         .send({
           name: faker.name.jobTitle(),
           branch: 'staging',
-          configFormatFilePath: './symeo.config.yml',
+          contractFilePath: './symeo.config.yml',
           repositoryVcsId,
         })
         // Then
@@ -124,7 +124,7 @@ describe('ConfigurationController', () => {
         .send({
           name: faker.name.jobTitle(),
           branch: 'staging',
-          configFormatFilePath: './symeo.config.yml',
+          contractFilePath: './symeo.config.yml',
           repositoryVcsId,
         })
         // Then
@@ -157,7 +157,7 @@ describe('ConfigurationController', () => {
       const sendData = {
         name: faker.name.jobTitle(),
         branch: 'staging',
-        configFormatFilePath: './symeo.config.yml',
+        contractFilePath: './symeo.config.yml',
         repositoryVcsId,
       };
 
@@ -182,8 +182,8 @@ describe('ConfigurationController', () => {
       expect(configuration?.ownerVcsId).toEqual(ownerVcsId);
       expect(configuration?.ownerVcsName).toEqual(ownerVcsName);
       expect(configuration?.vcsType).toEqual(VCSProvider.GitHub);
-      expect(configuration?.configFormatFilePath).toEqual(
-        sendData.configFormatFilePath,
+      expect(configuration?.contractFilePath).toEqual(
+        sendData.contractFilePath,
       );
       expect(configuration?.branch).toEqual(sendData.branch);
       expect(configuration?.environments).toBeDefined();
