@@ -41,3 +41,7 @@ datadog:
     active:
       type: boolean
       optional: true
+logger:
+  local:
+    type: boolean
+    optional: true
