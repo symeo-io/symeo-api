@@ -7,6 +7,10 @@ export class addConfigurationAndEnvironments1676465859848
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
+      `CREATE TYPE "public"."configurations_vcstype_enum" AS ENUM('github')`,
+    );
+
+    await queryRunner.query(
       `CREATE TABLE "environments" (
                 "createdAt"       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), 
                 "updatedAt"       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), 
@@ -56,5 +60,6 @@ export class addConfigurationAndEnvironments1676465859848
     await queryRunner.query(`DROP TABLE "api-keys"`);
     await queryRunner.query(`DROP TABLE "configurations"`);
     await queryRunner.query(`DROP TABLE "environments"`);
+    await queryRunner.query(`DROP TYPE "public"."configurations_vcstype_enum"`);
   }
 }
