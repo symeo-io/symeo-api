@@ -106,7 +106,7 @@ describe('ApiKeyController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
       configuration.environments = [
         EnvironmentEntity.fromDomain(
@@ -141,7 +141,7 @@ describe('ApiKeyController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
       configuration.environments = [];
 
@@ -184,7 +184,7 @@ describe('ApiKeyController', () => {
       configuration.repositoryVcsName = 'symeo-api';
       configuration.ownerVcsId = faker.datatype.number();
       configuration.ownerVcsName = 'symeo-io';
-      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.contractFilePath = faker.datatype.string();
       configuration.branch = faker.datatype.string();
       configuration.environments = [
         EnvironmentEntity.fromDomain(
