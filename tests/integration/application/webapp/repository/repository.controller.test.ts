@@ -6,14 +6,15 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
 import * as fs from 'fs';
-import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
-import { DynamoDbTestUtils } from 'tests/utils/dynamo-db-test.utils';
+import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('RepositoryController', () => {
   let appClient: AppClient;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
-  let dynamoDBTestUtils: DynamoDbTestUtils;
+  let configurationRepository: Repository<ConfigurationEntity>;
 
   const currentUser = new User(
     uuid(),
@@ -24,7 +25,6 @@ describe('RepositoryController', () => {
 
   beforeAll(async () => {
     appClient = new AppClient();
-    dynamoDBTestUtils = new DynamoDbTestUtils();
 
     await appClient.init();
 
@@ -32,7 +32,10 @@ describe('RepositoryController', () => {
       'VCSAccessTokenAdapter',
     );
     githubClient = appClient.module.get<Octokit>('Octokit');
-  });
+    configurationRepository = appClient.module.get<
+      Repository<ConfigurationEntity>
+    >(getRepositoryToken(ConfigurationEntity));
+  }, 30000);
 
   afterAll(async () => {
     await appClient.close();
@@ -83,14 +86,16 @@ describe('RepositoryController', () => {
 
       const configuration = new ConfigurationEntity();
       configuration.id = uuid();
-      configuration.hashKey = ConfigurationEntity.buildHashKey(
-        VCSProvider.GitHub,
-        mockVcsId,
-      );
-      configuration.rangeKey = configuration.id;
       configuration.name = faker.name.jobTitle();
+      configuration.repositoryVcsId = mockVcsId;
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repositoryVcsName = 'symeo-api';
+      configuration.ownerVcsId = faker.datatype.number();
+      configuration.ownerVcsName = 'symeo-io';
+      configuration.configFormatFilePath = faker.datatype.string();
+      configuration.branch = faker.datatype.string();
 
-      await dynamoDBTestUtils.put(configuration);
+      await configurationRepository.save(configuration);
 
       return appClient
         .request(currentUser)
@@ -113,6 +118,17 @@ describe('RepositoryController', () => {
                 {
                   id: configuration.id,
                   name: configuration.name,
+                  vcsType: configuration.vcsType,
+                  repository: {
+                    vcsId: configuration.repositoryVcsId,
+                    name: configuration.repositoryVcsName,
+                  },
+                  owner: {
+                    vcsId: configuration.ownerVcsId,
+                    name: configuration.ownerVcsName,
+                  },
+                  configFormatFilePath: configuration.configFormatFilePath,
+                  branch: configuration.branch,
                   environments: [],
                 },
               ],

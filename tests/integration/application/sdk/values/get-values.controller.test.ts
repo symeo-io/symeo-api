@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { DynamoDbTestUtils } from 'tests/utils/dynamo-db-test.utils';
-import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
+import { Repository } from 'typeorm';
+import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user.model';
 import { faker } from '@faker-js/faker';
@@ -10,12 +10,14 @@ import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
 import { base64encode } from 'nodejs-base64';
-import ApiKeyEntity from 'src/infrastructure/dynamodb-adapter/entity/api-key.entity';
+import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
-  let dynamoDBTestUtils: DynamoDbTestUtils;
+  let configurationRepository: Repository<ConfigurationEntity>;
+  let apiKeyRepository: Repository<ApiKeyEntity>;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
   let secretManagerClient: SecretManagerClient;
@@ -31,7 +33,6 @@ describe('ValuesController', () => {
   );
 
   beforeAll(async () => {
-    dynamoDBTestUtils = new DynamoDbTestUtils();
     appClient = new AppClient();
 
     await appClient.init();
@@ -43,14 +44,21 @@ describe('ValuesController', () => {
     secretManagerClient = appClient.module.get<SecretManagerClient>(
       'SecretManagerClient',
     );
-  });
+    configurationRepository = appClient.module.get<
+      Repository<ConfigurationEntity>
+    >(getRepositoryToken(ConfigurationEntity));
+    apiKeyRepository = appClient.module.get<Repository<ApiKeyEntity>>(
+      getRepositoryToken(ApiKeyEntity),
+    );
+  }, 30000);
 
   afterAll(async () => {
     await appClient.close();
   });
 
   beforeEach(async () => {
-    await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
+    await configurationRepository.delete({});
+    await apiKeyRepository.delete({});
     githubClientRequestMock = jest.spyOn(githubClient, 'request');
     getGitHubAccessTokenMock = jest.spyOn(
       vcsAccessTokenStorage,
@@ -132,11 +140,9 @@ describe('ValuesController', () => {
       const apiKey = new ApiKeyEntity();
       apiKey.id = uuid();
       apiKey.environmentId = uuid();
-      apiKey.rangeKey = apiKey.id;
-      apiKey.hashKey = apiKey.environmentId;
       apiKey.key = ApiKey.generateKey(apiKey.id, apiKey.environmentId);
 
-      await dynamoDBTestUtils.put(apiKey);
+      await apiKeyRepository.save(apiKey);
 
       const keyHeader = base64encode(
         JSON.stringify({
@@ -162,11 +168,9 @@ describe('ValuesController', () => {
       const apiKey = new ApiKeyEntity();
       apiKey.id = uuid();
       apiKey.environmentId = uuid();
-      apiKey.rangeKey = apiKey.id;
-      apiKey.hashKey = apiKey.environmentId;
       apiKey.key = ApiKey.generateKey(apiKey.id, apiKey.environmentId);
 
-      await dynamoDBTestUtils.put(apiKey);
+      await apiKeyRepository.save(apiKey);
 
       const mockGetSecretResponse = {
         SecretString: '{ "aws": { "region": "eu-west-3" } }',

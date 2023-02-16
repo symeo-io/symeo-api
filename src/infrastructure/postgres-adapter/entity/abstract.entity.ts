@@ -1,10 +1,10 @@
-import { attribute } from '@aws/dynamodb-data-mapper-annotations';
+import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export default class AbstractEntity {
-  @attribute({ defaultProvider: () => new Date() })
+  @CreateDateColumn({ type: 'timestamptz' })
   public createdAt: Date;
 
-  @attribute({ defaultProvider: () => new Date() })
+  @UpdateDateColumn({ type: 'timestamptz' })
   public updatedAt: Date;
 
   constructor() {

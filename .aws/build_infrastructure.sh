@@ -24,6 +24,10 @@ case $key in
     PROFILE="$2"
     shift # past argument
     ;;
+    -dbp|--db-password)
+    DB_PASSWORD="$2"
+    shift # past argument
+    ;;
     -ddik|--datadog-api-key)
     DATADOG_API_KEY="$2"
     shift # past argument
@@ -120,17 +124,23 @@ aws cloudformation deploy \
 
 export_stack_outputs symeo-api-monitoring-${ENV} ${REGION}
 
-## DynamoDB
-aws cloudformation deploy \
+## Database
+# Only create db stack if it does not already exist
+# TODO: add a way to force the update with script parameter
+if ! stack_exists "symeo-api-rds-${ENV}" $REGION
+then
+  aws cloudformation deploy \
     --no-fail-on-empty-changeset \
     --parameter-overrides \
+        DBPassword=${DB_PASSWORD} \
         Env=${ENV} \
-        DynamoScalingRoleArn=${DynamoScalingRole} \
+        SymeoApiDatabaseSg=${SymeoApiDatabaseSg} \
     --region ${REGION} \
-    --stack-name symeo-api-dynamo-${ENV} \
-    --template-file cloudformation/dynamo.yml
+    --stack-name symeo-api-rds-${ENV} \
+    --template-file cloudformation/rds.yml
+fi
 
-export_stack_outputs symeo-api-dynamo-${ENV} ${REGION}
+export_stack_outputs symeo-api-rds-${ENV} ${REGION}
 
 ./build_infrastructure_api.sh \
   --region "$REGION" \

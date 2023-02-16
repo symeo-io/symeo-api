@@ -1,6 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { DynamoDbTestUtils } from 'tests/utils/dynamo-db-test.utils';
-import ConfigurationEntity from 'src/infrastructure/dynamodb-adapter/entity/configuration.entity';
+import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user.model';
 import { faker } from '@faker-js/faker';
@@ -8,10 +7,12 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
-  let dynamoDBTestUtils: DynamoDbTestUtils;
+  let configurationRepository: Repository<ConfigurationEntity>;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
   let getGitHubAccessTokenMock: SpyInstance;
@@ -26,7 +27,6 @@ describe('ConfigurationController', () => {
   );
 
   beforeAll(async () => {
-    dynamoDBTestUtils = new DynamoDbTestUtils();
     appClient = new AppClient();
 
     await appClient.init();
@@ -35,14 +35,17 @@ describe('ConfigurationController', () => {
       'VCSAccessTokenAdapter',
     );
     githubClient = appClient.module.get<Octokit>('Octokit');
-  });
+    configurationRepository = appClient.module.get<
+      Repository<ConfigurationEntity>
+    >(getRepositoryToken(ConfigurationEntity));
+  }, 30000);
 
   afterAll(async () => {
     await appClient.close();
   });
 
   beforeEach(async () => {
-    await dynamoDBTestUtils.emptyTable(ConfigurationEntity);
+    await configurationRepository.delete({});
     githubClientRequestMock = jest.spyOn(githubClient, 'request');
     checkFileExistsOnBranchMock = jest.spyOn(githubClient.repos, 'getContent');
     getGitHubAccessTokenMock = jest.spyOn(
@@ -167,30 +170,24 @@ describe('ConfigurationController', () => {
         .expect(201);
 
       expect(response.body.configuration.id).toBeDefined();
-      const configuration: ConfigurationEntity = await dynamoDBTestUtils.get(
-        ConfigurationEntity,
-        {
-          hashKey: ConfigurationEntity.buildHashKey(
-            VCSProvider.GitHub,
-            repositoryVcsId,
-          ),
-          rangeKey: response.body.configuration.id,
-        },
-      );
+      const configuration: ConfigurationEntity | null =
+        await configurationRepository.findOneBy({
+          id: response.body.configuration.id,
+        });
 
       expect(configuration).toBeDefined();
-      expect(configuration.name).toEqual(sendData.name);
-      expect(configuration.repository.vcsId).toEqual(repositoryVcsId);
-      expect(configuration.repository.name).toEqual(repositoryVcsName);
-      expect(configuration.owner.vcsId).toEqual(ownerVcsId);
-      expect(configuration.owner.name).toEqual(ownerVcsName);
-      expect(configuration.vcsType).toEqual(VCSProvider.GitHub);
-      expect(configuration.configFormatFilePath).toEqual(
+      expect(configuration?.name).toEqual(sendData.name);
+      expect(configuration?.repositoryVcsId).toEqual(repositoryVcsId);
+      expect(configuration?.repositoryVcsName).toEqual(repositoryVcsName);
+      expect(configuration?.ownerVcsId).toEqual(ownerVcsId);
+      expect(configuration?.ownerVcsName).toEqual(ownerVcsName);
+      expect(configuration?.vcsType).toEqual(VCSProvider.GitHub);
+      expect(configuration?.configFormatFilePath).toEqual(
         sendData.configFormatFilePath,
       );
-      expect(configuration.branch).toEqual(sendData.branch);
-      expect(configuration.environments).toBeDefined();
-      expect(configuration.environments.length).toEqual(2);
+      expect(configuration?.branch).toEqual(sendData.branch);
+      expect(configuration?.environments).toBeDefined();
+      expect(configuration?.environments.length).toEqual(2);
     });
   });
 });

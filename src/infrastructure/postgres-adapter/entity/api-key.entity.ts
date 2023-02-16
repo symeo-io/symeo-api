@@ -1,28 +1,16 @@
-import {
-  attribute,
-  hashKey,
-  table,
-  rangeKey,
-} from '@aws/dynamodb-data-mapper-annotations';
-import { config } from 'symeo-js/config';
-import AbstractEntity from 'src/infrastructure/dynamodb-adapter/entity/abstract.entity';
+import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@table(config.database.apiKey.tableName)
+@Entity('api-keys')
 export default class ApiKeyEntity extends AbstractEntity {
-  @hashKey()
-  hashKey: string;
-
-  @rangeKey()
-  rangeKey: string;
-
-  @attribute()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @attribute()
+  @Column()
   environmentId: string;
 
-  @attribute()
+  @Column()
   key: string;
 
   public toDomain(): ApiKey {
@@ -31,8 +19,6 @@ export default class ApiKeyEntity extends AbstractEntity {
 
   static fromDomain(apiKey: ApiKey): ApiKeyEntity {
     const entity = new ApiKeyEntity();
-    entity.hashKey = apiKey.environmentId;
-    entity.rangeKey = apiKey.id;
     entity.id = apiKey.id;
     entity.environmentId = apiKey.environmentId;
     entity.key = apiKey.key;

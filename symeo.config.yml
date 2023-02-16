@@ -8,15 +8,22 @@ aws:
   region:
     type: string
 database:
-  dynamodbUrl:
-    type: string
-    optional: true
-  configuration:
-    tableName:
+  typeorm:
+    host:
       type: string
-  apiKey:
-    tableName:
+    port:
+      type: integer
+    username:
       type: string
+    password:
+      type: string
+      secret: true
+    database:
+      type: string
+    synchronize:
+      type: boolean
+    migrationsRun:
+      type: boolean
 auth0:
   clientId:
     type: string

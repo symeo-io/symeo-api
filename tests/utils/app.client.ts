@@ -7,10 +7,15 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import User from 'src/domain/model/user.model';
-import { ApplicationModule } from 'src/bootstrap/application.module';
+// import { ApplicationModule } from 'src/bootstrap/application.module';
 import supertest from 'supertest';
 import { SymeoExceptionHttpFilter } from 'src/application/common/exception/symeo.exception.http.filter';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from 'testcontainers';
+import { config } from 'symeo-js/config';
 
 let loggedInUser: User | undefined;
 
@@ -26,8 +31,25 @@ class AuthGuardMock implements CanActivate {
 export class AppClient {
   public app: INestApplication;
   public module: TestingModule;
+  public container: StartedPostgreSqlContainer;
 
   public async init() {
+    this.container = await new PostgreSqlContainer()
+      .withExposedPorts(5432)
+      .withDatabase(config.database.typeorm.database)
+      .withUsername(config.database.typeorm.username)
+      .withPassword(config.database.typeorm.password)
+      .withReuse()
+      .start();
+
+    config.database.typeorm.port = this.container.getPort();
+    config.database.typeorm.host = this.container.getHost();
+
+    // Import application files AFTER having override config object
+    const { ApplicationModule } = await import(
+      'src/bootstrap/application.module'
+    );
+
     this.module = await Test.createTestingModule({
       imports: [ApplicationModule],
     })
