@@ -1,15 +1,23 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import EnvironmentDTO from 'src/application/webapp/dto/environment/environment.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export default class ConfigurationDTO {
+  @ApiProperty()
   id: string;
+  @ApiProperty()
   name: string;
+  @ApiProperty()
   vcsType: VCSProvider;
+  @ApiProperty()
   repository: { name: string; vcsId: number };
+  @ApiProperty()
   owner: { name: string; vcsId: number };
+  @ApiProperty()
   contractFilePath: string;
   branch: string;
+  @ApiProperty()
   environments: EnvironmentDTO[];
 
   constructor(

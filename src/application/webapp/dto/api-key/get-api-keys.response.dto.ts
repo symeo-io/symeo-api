@@ -1,7 +1,9 @@
 import ApiKeyDTO from 'src/application/webapp/dto/api-key/api-key.dto';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export default class GetApiKeysResponseDTO {
+  @ApiProperty()
   apiKeys: ApiKeyDTO[];
 
   static fromDomains(apiKeys: ApiKey[]) {
