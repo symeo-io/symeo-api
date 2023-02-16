@@ -44,7 +44,7 @@ describe('ApiKeyController', () => {
     apiKeyRepository = appClient.module.get<Repository<ApiKeyEntity>>(
       getRepositoryToken(ApiKeyEntity),
     );
-  });
+  }, 30000);
 
   afterAll(async () => {
     await appClient.close();

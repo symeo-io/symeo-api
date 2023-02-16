@@ -45,7 +45,7 @@ describe('ValuesController', () => {
     configurationRepository = appClient.module.get<
       Repository<ConfigurationEntity>
     >(getRepositoryToken(ConfigurationEntity));
-  });
+  }, 30000);
 
   afterAll(async () => {
     await appClient.close();

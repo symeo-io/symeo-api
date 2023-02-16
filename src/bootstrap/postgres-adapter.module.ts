@@ -29,7 +29,6 @@ const entities = [ConfigurationEntity, EnvironmentEntity, ApiKeyEntity];
     TypeOrmModule.forRoot({
       ...ormConfig,
       entities: entities,
-      migrations: [],
     }),
     TypeOrmModule.forFeature(entities),
   ],
