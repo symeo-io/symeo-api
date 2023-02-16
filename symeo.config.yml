@@ -41,6 +41,10 @@ datadog:
     active:
       type: boolean
       optional: true
+  service:
+    type: string
+  env:
+    type: string
 logger:
   local:
     type: boolean

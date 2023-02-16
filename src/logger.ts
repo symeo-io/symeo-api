@@ -10,6 +10,7 @@ export class WinstonLogger {
       logFormat = format.printf((info) =>
         JSON.stringify({
           timestamp: new Date().toDateString(),
+          service: config.datadog.service,
           level: info.level,
           message: info.message,
         }),
