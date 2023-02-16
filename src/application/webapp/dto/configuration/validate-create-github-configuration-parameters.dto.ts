@@ -7,7 +7,7 @@ export class ValidateCreateGithubConfigurationParametersDTO {
 
   @IsNotEmpty()
   @IsString()
-  configFormatFilePath: string;
+  contractFilePath: string;
 
   @IsNotEmpty()
   @IsString()

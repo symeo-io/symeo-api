@@ -32,7 +32,7 @@ export default class ConfigurationEntity extends AbstractEntity {
   ownerVcsName: string;
 
   @Column()
-  configFormatFilePath: string;
+  contractFilePath: string;
 
   @Column()
   branch: string;
@@ -51,7 +51,7 @@ export default class ConfigurationEntity extends AbstractEntity {
       this.vcsType,
       { name: this.repositoryVcsName, vcsId: this.repositoryVcsId },
       { name: this.ownerVcsName, vcsId: this.ownerVcsId },
-      this.configFormatFilePath,
+      this.contractFilePath,
       this.branch,
       this.environments?.map((environment) => environment.toDomain()) ?? [],
     );
@@ -66,7 +66,7 @@ export default class ConfigurationEntity extends AbstractEntity {
     entity.repositoryVcsName = configuration.repository.name;
     entity.ownerVcsId = configuration.owner.vcsId;
     entity.ownerVcsName = configuration.owner.name;
-    entity.configFormatFilePath = configuration.configFormatFilePath;
+    entity.contractFilePath = configuration.contractFilePath;
     entity.branch = configuration.branch;
     entity.environments = configuration.environments
       ? configuration.environments.map(EnvironmentEntity.fromDomain)

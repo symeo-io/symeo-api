@@ -5,11 +5,16 @@ import { Repository } from 'typeorm';
 
 export default class PostgresApiKeyAdapter implements ApiKeyStoragePort {
   constructor(private apiKeyRepository: Repository<ApiKeyEntity>) {}
-  async findById(
-    environmentId: string,
-    id: string,
-  ): Promise<ApiKey | undefined> {
-    const entity = await this.apiKeyRepository.findOneBy({ environmentId, id });
+  async findById(id: string): Promise<ApiKey | undefined> {
+    const entity = await this.apiKeyRepository.findOneBy({ id });
+
+    if (!entity) return undefined;
+
+    return entity.toDomain();
+  }
+
+  async findByKey(key: string): Promise<ApiKey | undefined> {
+    const entity = await this.apiKeyRepository.findOneBy({ key });
 
     if (!entity) return undefined;
 

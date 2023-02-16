@@ -11,7 +11,7 @@ export class CreateGitHubConfigurationDTO {
 
   @IsNotEmpty()
   @IsString()
-  configFormatFilePath: string;
+  contractFilePath: string;
 
   @IsNotEmpty()
   @IsString()

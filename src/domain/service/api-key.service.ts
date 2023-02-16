@@ -13,11 +13,8 @@ export class ApiKeyService implements ApiKeyFacade {
     private readonly apiKeyStoragePort: ApiKeyStoragePort,
   ) {}
 
-  async findApiKeyById(
-    environmentId: string,
-    id: string,
-  ): Promise<ApiKey | undefined> {
-    return await this.apiKeyStoragePort.findById(environmentId, id);
+  async findApiKeyByKeyValue(key: string): Promise<ApiKey | undefined> {
+    return await this.apiKeyStoragePort.findByKey(key);
   }
 
   async listApiKeysForUserAndEnvironment(
@@ -105,10 +102,7 @@ export class ApiKeyService implements ApiKeyFacade {
       );
     }
 
-    const apiKey = await this.apiKeyStoragePort.findById(
-      environmentId,
-      apiKeyId,
-    );
+    const apiKey = await this.apiKeyStoragePort.findById(apiKeyId);
 
     if (!apiKey) {
       throw new SymeoException(

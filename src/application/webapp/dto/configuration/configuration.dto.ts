@@ -8,7 +8,7 @@ export default class ConfigurationDTO {
   vcsType: VCSProvider;
   repository: { name: string; vcsId: number };
   owner: { name: string; vcsId: number };
-  configFormatFilePath: string;
+  contractFilePath: string;
   branch: string;
   environments: EnvironmentDTO[];
 
@@ -18,7 +18,7 @@ export default class ConfigurationDTO {
     vcsType: VCSProvider,
     repository: { name: string; vcsId: number },
     owner: { name: string; vcsId: number },
-    configFormatFilePath: string,
+    contractFilePath: string,
     branch: string,
     environments: EnvironmentDTO[],
   ) {
@@ -27,7 +27,7 @@ export default class ConfigurationDTO {
     this.vcsType = vcsType;
     this.repository = repository;
     this.owner = owner;
-    this.configFormatFilePath = configFormatFilePath;
+    this.contractFilePath = contractFilePath;
     this.branch = branch;
     this.environments = environments;
   }
@@ -39,7 +39,7 @@ export default class ConfigurationDTO {
       configuration.vcsType,
       configuration.repository,
       configuration.owner,
-      configuration.configFormatFilePath,
+      configuration.contractFilePath,
       configuration.branch,
       configuration.environments.map(EnvironmentDTO.fromDomain),
     );

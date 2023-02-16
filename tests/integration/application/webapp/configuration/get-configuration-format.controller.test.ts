@@ -63,12 +63,12 @@ describe('ConfigurationController', () => {
     githubClientGetContentMock.mockRestore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:id/format', () => {
+  describe('(GET) /configurations/github/:repositoryVcsId/:id/contract', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();
       const repositoryVcsId = 105865802;
-      const mockConfigurationFormat = base64encode(
+      const mockConfigurationContract = base64encode(
         fs
           .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
@@ -79,7 +79,7 @@ describe('ConfigurationController', () => {
         headers: {},
         url: '',
         data: {
-          content: mockConfigurationFormat,
+          content: mockConfigurationContract,
           encoding: 'base64',
         },
       };
@@ -91,7 +91,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/format`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/contract`,
         )
         // Then
         .expect(404);
@@ -107,7 +107,7 @@ describe('ConfigurationController', () => {
       configuration.ownerVcsId = faker.datatype.number();
       configuration.repositoryVcsName = 'symeo-api';
       configuration.repositoryVcsId = repositoryVcsId;
-      configuration.configFormatFilePath = 'symeo.config.yml';
+      configuration.contractFilePath = 'symeo.config.yml';
       configuration.branch = 'staging';
 
       await configurationRepository.save(configuration);
@@ -120,7 +120,7 @@ describe('ConfigurationController', () => {
         .request(currentUser)
         // When
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/format`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/contract`,
         )
         // Then
         .expect(404);
@@ -136,12 +136,12 @@ describe('ConfigurationController', () => {
       configuration.ownerVcsId = faker.datatype.number();
       configuration.repositoryVcsName = 'symeo-api';
       configuration.repositoryVcsId = repositoryVcsId;
-      configuration.configFormatFilePath = 'symeo.config.yml';
+      configuration.contractFilePath = 'symeo.config.yml';
       configuration.branch = 'staging';
 
       await configurationRepository.save(configuration);
 
-      const mockConfigurationFormat = base64encode(
+      const mockConfigurationContract = base64encode(
         fs
           .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
@@ -152,7 +152,7 @@ describe('ConfigurationController', () => {
         headers: {},
         url: '',
         data: {
-          content: mockConfigurationFormat,
+          content: mockConfigurationContract,
           encoding: 'base64',
         },
       };
@@ -163,7 +163,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/format`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/contract`,
         )
         .expect(200);
 
@@ -171,17 +171,17 @@ describe('ConfigurationController', () => {
       expect(githubClientGetContentMock).toHaveBeenCalledWith({
         owner: configuration.ownerVcsName,
         repo: configuration.repositoryVcsName,
-        path: configuration.configFormatFilePath,
+        path: configuration.contractFilePath,
         ref: configuration.branch,
         headers: { Authorization: `token ${mockAccessToken}` },
       });
-      expect(response.body.format).toBeDefined();
-      expect(response.body.format.database).toBeDefined();
-      expect(response.body.format.database.host).toBeDefined();
-      expect(response.body.format.database.host.type).toEqual('string');
-      expect(response.body.format.database.password).toBeDefined();
-      expect(response.body.format.database.password.type).toEqual('string');
-      expect(response.body.format.database.password.secret).toEqual(true);
+      expect(response.body.contract).toBeDefined();
+      expect(response.body.contract.database).toBeDefined();
+      expect(response.body.contract.database.host).toBeDefined();
+      expect(response.body.contract.database.host.type).toEqual('string');
+      expect(response.body.contract.database.password).toBeDefined();
+      expect(response.body.contract.database.password.type).toEqual('string');
+      expect(response.body.contract.database.password.secret).toEqual(true);
     });
   });
 });

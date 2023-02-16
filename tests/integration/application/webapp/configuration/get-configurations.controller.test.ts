@@ -69,7 +69,7 @@ describe('ConfigurationController', () => {
       configuration1.ownerVcsId = faker.datatype.number();
       configuration1.repositoryVcsName = 'symeo-api';
       configuration1.repositoryVcsId = faker.datatype.number();
-      configuration1.configFormatFilePath = 'symeo.config.yml';
+      configuration1.contractFilePath = 'symeo.config.yml';
       configuration1.branch = 'staging';
 
       const configuration2 = new ConfigurationEntity();
@@ -79,7 +79,7 @@ describe('ConfigurationController', () => {
       configuration2.ownerVcsId = faker.datatype.number();
       configuration2.repositoryVcsName = 'symeo-api';
       configuration2.repositoryVcsId = faker.datatype.number();
-      configuration2.configFormatFilePath = 'symeo.config.yml';
+      configuration2.contractFilePath = 'symeo.config.yml';
       configuration2.branch = 'staging';
 
       await Promise.all([
@@ -109,7 +109,7 @@ describe('ConfigurationController', () => {
       configuration1.ownerVcsId = faker.datatype.number();
       configuration1.repositoryVcsName = 'symeo-api';
       configuration1.repositoryVcsId = repositoryVcsId;
-      configuration1.configFormatFilePath = 'symeo.config.yml';
+      configuration1.contractFilePath = 'symeo.config.yml';
       configuration1.branch = 'staging';
 
       const configuration2 = new ConfigurationEntity();
@@ -119,7 +119,7 @@ describe('ConfigurationController', () => {
       configuration2.ownerVcsId = faker.datatype.number();
       configuration2.repositoryVcsName = 'symeo-api';
       configuration2.repositoryVcsId = repositoryVcsId;
-      configuration2.configFormatFilePath = 'symeo.config.yml';
+      configuration2.contractFilePath = 'symeo.config.yml';
       configuration2.branch = 'staging';
 
       await Promise.all([
