@@ -144,7 +144,7 @@ jobs:
               --datadog-api-key ${DATADOG_API_KEY} \
               --datadog-app-key ${DATADOG_APP_KEY} \
               --domain ${DOMAIN} \
-              --prefix-url ${PREFIX_URL_CONFIG} \
+              --prefix-url ${PREFIX_URL} \
               --acm-arn ${ACM_ARN} \
               --acm-arn-alb ${ACM_ARN_ALB} \
               --tag ${CIRCLE_SHA1} \
