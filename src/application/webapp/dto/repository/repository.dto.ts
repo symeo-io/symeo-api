@@ -8,7 +8,20 @@ export class VcsRepositoryDTO {
   vcsId: number;
   @ApiProperty()
   name: string;
-  @ApiProperty()
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      vcsId: {
+        type: 'string',
+      },
+      name: {
+        type: 'string',
+      },
+      avatarUrl: {
+        type: 'string',
+      },
+    },
+  })
   owner: { vcsId: number; name: string; avatarUrl: string };
   @ApiProperty()
   pushedAt?: string;
@@ -16,7 +29,7 @@ export class VcsRepositoryDTO {
   vcsType: VCSProvider;
   @ApiProperty()
   vcsUrl: string;
-  @ApiProperty()
+  @ApiProperty({ type: ConfigurationDTO })
   configurations?: ConfigurationDTO[];
 
   constructor(

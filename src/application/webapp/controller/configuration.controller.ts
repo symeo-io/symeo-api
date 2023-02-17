@@ -72,8 +72,8 @@ export class ConfigurationController {
   }
 
   @ApiOkResponse({
-    description: 'Github configuration format successfully retrieved',
-    type: GetConfigurationFormatResponseDTO,
+    description: 'Github configuration contract successfully retrieved',
+    type: GetConfigurationContractResponseDTO,
   })
   @Get('github/:vcsRepositoryId/:id/contract')
   async getGitHubConfigurationContractById(
@@ -91,12 +91,12 @@ export class ConfigurationController {
     return new GetConfigurationContractResponseDTO(contract);
   }
 
+  @Get('github/:vcsRepositoryId')
   @ApiOkResponse({
     description:
       'Github configurations for repositoryId successfully retrieved',
     type: GetConfigurationsResponseDTO,
   })
-  @Get('github/:vcsRepositoryId')
   async getGitHubConfigurationsForRepositoryId(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @CurrentUser() user: User,

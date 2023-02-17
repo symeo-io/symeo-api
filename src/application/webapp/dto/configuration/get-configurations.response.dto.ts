@@ -3,7 +3,7 @@ import ConfigurationDTO from 'src/application/webapp/dto/configuration/configura
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetConfigurationsResponseDTO {
-  @ApiProperty()
+  @ApiProperty({ type: ConfigurationDTO })
   configurations: ConfigurationDTO[];
 
   static fromDomains(configurations: Configuration[]) {

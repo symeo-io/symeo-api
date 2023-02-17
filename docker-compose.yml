@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   database:
-    platform: linux/arm64/v8
+    platform: linux/amd64
     image: "postgres:13"
     container_name: "database"
     hostname: postgres_exposition_host

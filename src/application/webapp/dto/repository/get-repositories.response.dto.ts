@@ -3,7 +3,7 @@ import { VcsRepositoryDTO } from 'src/application/webapp/dto/repository/reposito
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetRepositoriesResponseDTO {
-  @ApiProperty()
+  @ApiProperty({ type: VcsRepositoryDTO })
   repositories: VcsRepositoryDTO[];
 
   static fromDomains(

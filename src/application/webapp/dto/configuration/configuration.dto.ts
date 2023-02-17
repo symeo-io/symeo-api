@@ -10,14 +10,37 @@ export default class ConfigurationDTO {
   name: string;
   @ApiProperty()
   vcsType: VCSProvider;
-  @ApiProperty()
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+      },
+      vcsId: {
+        type: 'number',
+        example: 123456789,
+      },
+    },
+  })
   repository: { name: string; vcsId: number };
-  @ApiProperty()
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+      },
+      vcsId: {
+        type: 'number',
+        example: 123456789,
+      },
+    },
+  })
   owner: { name: string; vcsId: number };
   @ApiProperty()
   contractFilePath: string;
-  branch: string;
   @ApiProperty()
+  branch: string;
+  @ApiProperty({ type: EnvironmentDTO })
   environments: EnvironmentDTO[];
 
   constructor(
