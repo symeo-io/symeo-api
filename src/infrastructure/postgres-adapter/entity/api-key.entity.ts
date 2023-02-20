@@ -11,17 +11,28 @@ export default class ApiKeyEntity extends AbstractEntity {
   environmentId: string;
 
   @Column()
-  key: string;
+  hashedKey: string;
+
+  @Column()
+  hiddenKey: string;
 
   public toDomain(): ApiKey {
-    return new ApiKey(this.id, this.environmentId, this.key, this.createdAt);
+    return new ApiKey(
+      this.id,
+      this.environmentId,
+      undefined,
+      this.hashedKey,
+      this.hiddenKey,
+      this.createdAt,
+    );
   }
 
   static fromDomain(apiKey: ApiKey): ApiKeyEntity {
     const entity = new ApiKeyEntity();
     entity.id = apiKey.id;
     entity.environmentId = apiKey.environmentId;
-    entity.key = apiKey.key;
+    entity.hashedKey = apiKey.hashedKey;
+    entity.hiddenKey = apiKey.hiddenKey;
     entity.createdAt = apiKey.createdAt;
 
     return entity;

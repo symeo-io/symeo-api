@@ -3,7 +3,7 @@ import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
 
 export interface ApiKeyFacade {
-  findApiKeyByKeyValue(key: string): Promise<ApiKey | undefined>;
+  findApiKeyByHash(hash: string): Promise<ApiKey | undefined>;
 
   listApiKeysForUserAndEnvironment(
     user: User,

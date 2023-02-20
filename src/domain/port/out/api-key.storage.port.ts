@@ -3,7 +3,7 @@ import ApiKey from 'src/domain/model/configuration/api-key.model';
 export default interface ApiKeyStoragePort {
   findById(id: string): Promise<ApiKey | undefined>;
 
-  findByKey(key: string): Promise<ApiKey | undefined>;
+  findByHash(hash: string): Promise<ApiKey | undefined>;
 
   findAllForEnvironmentId(environmentId: string): Promise<ApiKey[]>;
 

@@ -6,7 +6,7 @@ export default class GetApiKeysResponseDTO {
 
   static fromDomains(apiKeys: ApiKey[]) {
     const dto = new GetApiKeysResponseDTO();
-    dto.apiKeys = apiKeys.map((apiKey) => ApiKeyDTO.fromDomain(apiKey, true));
+    dto.apiKeys = apiKeys.map((apiKey) => ApiKeyDTO.fromDomain(apiKey));
 
     return dto;
   }

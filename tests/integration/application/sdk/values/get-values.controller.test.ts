@@ -9,10 +9,11 @@ import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage'
 import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
-import { base64encode } from 'nodejs-base64';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import ApiKey from 'src/domain/model/configuration/api-key.model';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { base64encode } from 'nodejs-base64';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
@@ -99,32 +100,11 @@ describe('ValuesController', () => {
         .expect(403);
     });
 
-    it('should respond 403 with empty key header', () => {
-      const keyHeader = base64encode(JSON.stringify({}));
-      const keyBody = 'invalidBody';
-
-      const apiKey = `${keyHeader}.${keyBody}`;
-
-      // Given
-      appClient
-        .request(currentUser)
-        // When
-        .get(`/api/v1/values`)
-        .set('X-API-KEY', apiKey)
-        // Then
-        .expect(403);
-    });
-
-    it('should respond 403 with non existing key', () => {
-      const keyHeader = base64encode(
-        JSON.stringify({
-          id: uuid(),
-          environmentId: uuid(),
-        }),
-      );
+    it('should respond 403 with non existing key', async () => {
+      const keySalt = base64encode(await bcrypt.genSalt(1));
       const keyBody = 'keyBody';
 
-      const apiKey = `${keyHeader}.${keyBody}`;
+      const apiKey = `${keySalt}.${keyBody}`;
 
       // Given
       appClient
@@ -132,45 +112,15 @@ describe('ValuesController', () => {
         // When
         .get(`/api/v1/values`)
         .set('X-API-KEY', apiKey)
-        // Then
-        .expect(403);
-    });
-
-    it('should respond 403 with non matching key', async () => {
-      const apiKey = new ApiKeyEntity();
-      apiKey.id = uuid();
-      apiKey.environmentId = uuid();
-      apiKey.key = uuid();
-
-      await apiKeyRepository.save(apiKey);
-
-      const keyHeader = base64encode(
-        JSON.stringify({
-          id: apiKey.id,
-          environmentId: apiKey.environmentId,
-        }),
-      );
-      const keyBody = 'invalidBody';
-
-      const sentApiKey = `${keyHeader}.${keyBody}`;
-
-      // Given
-      appClient
-        .request(currentUser)
-        // When
-        .get(`/api/v1/values`)
-        .set('X-API-KEY', sentApiKey)
         // Then
         .expect(403);
     });
 
     it('should respond 200 with matching key', async () => {
-      const apiKey = new ApiKeyEntity();
-      apiKey.id = uuid();
-      apiKey.environmentId = uuid();
-      apiKey.key = uuid();
+      const apiKey = await ApiKey.buildForEnvironmentId(uuid());
+      const apiKeyEntity = ApiKeyEntity.fromDomain(apiKey);
 
-      await apiKeyRepository.save(apiKey);
+      await apiKeyRepository.save(apiKeyEntity);
 
       const mockGetSecretResponse = {
         SecretString: '{ "aws": { "region": "eu-west-3" } }',
@@ -185,7 +135,7 @@ describe('ValuesController', () => {
         .request(currentUser)
         // When
         .get(`/api/v1/values`)
-        .set('X-API-KEY', apiKey.key)
+        .set('X-API-KEY', apiKey.key ?? '')
         // Then
         .expect(200)
         .expect({ values: { aws: { region: 'eu-west-3' } } });

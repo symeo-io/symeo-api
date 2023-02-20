@@ -13,8 +13,8 @@ export default class PostgresApiKeyAdapter implements ApiKeyStoragePort {
     return entity.toDomain();
   }
 
-  async findByKey(key: string): Promise<ApiKey | undefined> {
-    const entity = await this.apiKeyRepository.findOneBy({ key });
+  async findByHash(hash: string): Promise<ApiKey | undefined> {
+    const entity = await this.apiKeyRepository.findOneBy({ hashedKey: hash });
 
     if (!entity) return undefined;
 
