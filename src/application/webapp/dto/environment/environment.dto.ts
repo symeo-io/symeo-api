@@ -1,8 +1,12 @@
 import Environment from 'src/domain/model/environment/environment.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export default class EnvironmentDTO {
+  @ApiProperty()
   id: string;
+  @ApiProperty()
   name: string;
+  @ApiProperty()
   color: string;
   constructor(id: string, name: string, color: string) {
     this.id = id;
