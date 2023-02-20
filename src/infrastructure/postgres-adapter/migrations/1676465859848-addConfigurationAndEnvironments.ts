@@ -32,7 +32,7 @@ export class addConfigurationAndEnvironments1676465859848
                 "repositoryVcsName"    character varying                      NOT NULL, 
                 "ownerVcsId"           integer                                NOT NULL, 
                 "ownerVcsName"         character varying                      NOT NULL, 
-                "configFormatFilePath" character varying                      NOT NULL, 
+                "contractFilePath"     character varying                      NOT NULL, 
                 "branch"               character varying                      NOT NULL, 
                 CONSTRAINT "PK_configuration_id" PRIMARY KEY ("id")
               )`,
@@ -43,7 +43,8 @@ export class addConfigurationAndEnvironments1676465859848
                 "updatedAt"     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), 
                 "id"            uuid                     NOT NULL DEFAULT uuid_generate_v4(), 
                 "environmentId" character varying        NOT NULL, 
-                "key"           character varying        NOT NULL, 
+                "hashedKey"     character varying        NOT NULL, 
+                "hiddenKey"     character varying        NOT NULL, 
                 CONSTRAINT "PK_api_key_id" PRIMARY KEY ("id")
               )`,
     );
