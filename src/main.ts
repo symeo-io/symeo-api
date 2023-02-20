@@ -37,7 +37,6 @@ async function bootstrap() {
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/v1/openapi', app, swaggerDocument);
-  app.useGlobalInterceptors(new Interceptor(instance));
   await app.listen(9999);
 }
 
