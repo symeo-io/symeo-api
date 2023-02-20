@@ -13,8 +13,8 @@ export class ApiKeyService implements ApiKeyFacade {
     private readonly apiKeyStoragePort: ApiKeyStoragePort,
   ) {}
 
-  async findApiKeyByKeyValue(key: string): Promise<ApiKey | undefined> {
-    return await this.apiKeyStoragePort.findByKey(key);
+  async findApiKeyByHash(hash: string): Promise<ApiKey | undefined> {
+    return await this.apiKeyStoragePort.findByHash(hash);
   }
 
   async listApiKeysForUserAndEnvironment(
@@ -70,7 +70,7 @@ export class ApiKeyService implements ApiKeyFacade {
       );
     }
 
-    const apiKey = ApiKey.buildForEnvironmentId(environmentId);
+    const apiKey = await ApiKey.buildForEnvironmentId(environmentId);
     await this.apiKeyStoragePort.save(apiKey);
 
     return apiKey;

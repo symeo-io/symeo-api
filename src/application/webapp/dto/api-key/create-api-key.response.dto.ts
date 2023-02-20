@@ -8,7 +8,7 @@ export default class CreateApiKeyResponseDTO {
 
   static fromDomain(apiKey: ApiKey) {
     const dto = new CreateApiKeyResponseDTO();
-    dto.apiKey = ApiKeyDTO.fromDomain(apiKey, false);
+    dto.apiKey = ApiKeyDTO.fromDomain(apiKey);
 
     return dto;
   }

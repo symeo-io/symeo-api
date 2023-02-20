@@ -245,13 +245,13 @@ describe('ApiKeyController', () => {
           new Environment(uuid(), faker.name.firstName(), 'red'),
         ),
       ];
-      const apiKey = new ApiKeyEntity();
-      apiKey.id = uuid();
-      apiKey.environmentId = configuration.environments[0].id;
-      apiKey.key = uuid();
+      const apiKey = await ApiKey.buildForEnvironmentId(
+        configuration.environments[0].id,
+      );
+      const apiKeyEntity = ApiKeyEntity.fromDomain(apiKey);
 
       await configurationRepository.save(configuration);
-      await apiKeyRepository.save(apiKey);
+      await apiKeyRepository.save(apiKeyEntity);
 
       const mockGitHubRepositoryResponse = {
         status: 200 as const,

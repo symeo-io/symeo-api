@@ -5,6 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
+import ApiKey from 'src/domain/model/configuration/api-key.model';
 
 export type RequestWithEnvironmentId = Request & {
   environmentId: string;
@@ -28,7 +29,8 @@ export class ApiKeyGuard implements CanActivate {
         return false;
       }
 
-      const foundApiKey = await this.apiKeyFacade.findApiKeyByKeyValue(apiKey);
+      const hashedKey = await ApiKey.hashKey(apiKey);
+      const foundApiKey = await this.apiKeyFacade.findApiKeyByHash(hashedKey);
 
       if (!foundApiKey) {
         return false;

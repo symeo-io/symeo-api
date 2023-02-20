@@ -12,6 +12,7 @@ import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/enviro
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import Environment from 'src/domain/model/environment/environment.model';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import ApiKey from 'src/domain/model/configuration/api-key.model';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
@@ -219,6 +220,7 @@ describe('ApiKeyController', () => {
       expect(response.body.apiKey.environmentId).toEqual(
         configuration.environments[0].id,
       );
+      expect(response.body.apiKey.key).toBeDefined();
       const apiKeyResponse = response.body.apiKey;
 
       const createdApiKey = await apiKeyRepository.findOneBy({
@@ -226,7 +228,10 @@ describe('ApiKeyController', () => {
       });
 
       expect(createdApiKey).toBeDefined();
-      expect(createdApiKey?.key).toEqual(apiKeyResponse.key);
+      expect(createdApiKey?.hiddenKey).toEqual(apiKeyResponse.hiddenKey);
+      expect(createdApiKey?.hashedKey).toEqual(
+        await ApiKey.hashKey(apiKeyResponse.key),
+      );
     });
   });
 });
