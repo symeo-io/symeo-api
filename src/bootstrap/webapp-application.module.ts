@@ -7,6 +7,7 @@ import { RepositoryController } from 'src/application/webapp/controller/reposito
 import { ValuesController } from 'src/application/webapp/controller/values.controller';
 import { EnvironmentController } from 'src/application/webapp/controller/environment.controller';
 import { ApiKeyController } from 'src/application/webapp/controller/api-key.controller';
+import { RightController } from 'src/application/webapp/controller/right.controller';
 
 @Module({
   imports: [DomainModule, WebappAuthenticationModule],
@@ -17,6 +18,7 @@ import { ApiKeyController } from 'src/application/webapp/controller/api-key.cont
     ValuesController,
     EnvironmentController,
     ApiKeyController,
+    RightController,
   ],
 })
 export class WebappApplicationModule {}

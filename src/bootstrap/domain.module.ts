@@ -14,6 +14,7 @@ import { EnvironmentService } from 'src/domain/service/environment.service';
 import { ApiKeyService } from 'src/domain/service/api-key.service';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 import { PostgresAdapterModule } from 'src/bootstrap/postgres-adapter.module';
+import { RightService } from 'src/domain/service/right.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -31,6 +32,15 @@ const EnvironmentFacadeProvider = {
     repositoryFacade: RepositoryFacade,
   ) => new EnvironmentService(configurationStoragePort, repositoryFacade),
   inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
+};
+
+const RightFacadeProvider = {
+  provide: 'RightFacade',
+  useFactory: (
+    repositoryFacade: RepositoryFacade,
+    githubAdapterPort: GithubAdapterPort,
+  ) => new RightService(repositoryFacade, githubAdapterPort),
+  inject: ['RepositoryFacade', 'GithubAdapter'],
 };
 
 const OrganizationFacadeProvider = {
@@ -80,6 +90,7 @@ const ApiKeyFacadeProvider = {
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
+    RightFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -88,6 +99,7 @@ const ApiKeyFacadeProvider = {
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
+    RightFacadeProvider,
   ],
 })
 export class DomainModule {}

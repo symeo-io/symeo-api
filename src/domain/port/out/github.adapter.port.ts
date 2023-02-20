@@ -1,6 +1,7 @@
 import User from 'src/domain/model/user/user.model';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { Right } from 'src/domain/model/right/right.model';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 
 export default interface GithubAdapterPort {
@@ -32,4 +33,10 @@ export default interface GithubAdapterPort {
     filePath: string,
     branch: string,
   ): Promise<string | undefined>;
+
+  getRights(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<Right[]>;
 }

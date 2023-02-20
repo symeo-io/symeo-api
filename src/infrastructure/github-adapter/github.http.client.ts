@@ -178,4 +178,21 @@ export class GithubHttpClient {
       throw exception;
     }
   }
+
+  async getMemberRights(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<
+    RestEndpointMethodTypes['repos']['listCollaborators']['response']['data']
+  > {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+
+    const response = await this.client.rest.repos.listCollaborators({
+      owner: repositoryOwnerName,
+      repo: repositoryName,
+      headers: { Authorization: `token ${token}` },
+    });
+    return response.data;
+  }
 }
