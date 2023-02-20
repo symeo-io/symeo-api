@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { config } from 'symeo-js/config';
 import { SymeoExceptionHttpFilter } from 'src/application/common/exception/symeo.exception.http.filter';
 import { ApplicationModule } from 'src/bootstrap/application.module';
-import { createLogger, format, level, transports } from 'winston';
+import { createLogger, transports } from 'winston';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import { Interceptor } from 'src/interceptor';
