@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "yarn config:build && nest build",
     "config:build": "symeo-js",
     "format": "prettier --write \\\"src/**/*.ts\\\" \\\"tests/**/*.ts\\\"",
     "start": "symeo-js -- nest start --watch",
