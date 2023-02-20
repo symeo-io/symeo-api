@@ -1,16 +1,14 @@
-import ConfigurationDTO from 'src/application/webapp/dto/configuration/configuration.dto';
-import Configuration from 'src/domain/model/configuration/configuration.model';
 import { ApiProperty } from '@nestjs/swagger';
+import EnvironmentDTO from 'src/application/webapp/dto/environment/environment.dto';
+import Environment from 'src/domain/model/environment/environment.model';
 
 export class CreateEnvironmentResponseDTO {
   @ApiProperty()
-  configuration: ConfigurationDTO;
+  environment: EnvironmentDTO;
 
-  static fromDomain(
-    configuration: Configuration,
-  ): CreateEnvironmentResponseDTO {
+  static fromDomain(environment: Environment): CreateEnvironmentResponseDTO {
     const dto = new CreateEnvironmentResponseDTO();
-    dto.configuration = ConfigurationDTO.fromDomain(configuration);
+    dto.environment = EnvironmentDTO.fromDomain(environment);
     return dto;
   }
 }

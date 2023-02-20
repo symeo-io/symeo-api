@@ -2,7 +2,6 @@ import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { EnvironmentColor } from 'src/domain/model/environment/environment-color.model';
-import Configuration from 'src/domain/model/configuration/configuration.model';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import Environment from 'src/domain/model/environment/environment.model';
@@ -23,7 +22,7 @@ export class EnvironmentService implements EnvironmentFacade {
     configurationId: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
-  ): Promise<Configuration> {
+  ): Promise<Environment> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
       this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
       this.configurationStoragePort.findById(
@@ -46,7 +45,7 @@ export class EnvironmentService implements EnvironmentFacade {
     );
     configuration.environments.push(environment);
     await this.configurationStoragePort.save(configuration);
-    return configuration;
+    return environment;
   }
 
   async deleteEnvironment(
@@ -92,7 +91,7 @@ export class EnvironmentService implements EnvironmentFacade {
     environmentId: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
-  ): Promise<Configuration> {
+  ): Promise<Environment> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
       this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
       this.configurationStoragePort.findById(
@@ -123,6 +122,6 @@ export class EnvironmentService implements EnvironmentFacade {
       environmentColor,
     );
     await this.configurationStoragePort.save(configuration);
-    return configuration;
+    return configuration.environments[indexOfEnvironmentToUpdate];
   }
 }

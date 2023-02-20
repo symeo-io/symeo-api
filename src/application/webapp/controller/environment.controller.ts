@@ -84,15 +84,14 @@ export class EnvironmentController {
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
     @CurrentUser() user: User,
   ): Promise<CreateEnvironmentResponseDTO> {
-    const updatedConfiguration =
-      await this.configurationFacade.createEnvironment(
-        user,
-        VCSProvider.GitHub,
-        parseInt(vcsRepositoryId),
-        configurationId,
-        createEnvironmentDTO.name,
-        createEnvironmentDTO.color,
-      );
-    return CreateEnvironmentResponseDTO.fromDomain(updatedConfiguration);
+    const environment = await this.configurationFacade.createEnvironment(
+      user,
+      VCSProvider.GitHub,
+      parseInt(vcsRepositoryId),
+      configurationId,
+      createEnvironmentDTO.name,
+      createEnvironmentDTO.color,
+    );
+    return CreateEnvironmentResponseDTO.fromDomain(environment);
   }
 }

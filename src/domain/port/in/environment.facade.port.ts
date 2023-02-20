@@ -1,7 +1,7 @@
 import User from 'src/domain/model/user.model';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { EnvironmentColor } from 'src/domain/model/environment/environment-color.model';
-import Configuration from 'src/domain/model/configuration/configuration.model';
+import Environment from 'src/domain/model/environment/environment.model';
 
 export interface EnvironmentFacade {
   createEnvironment(
@@ -11,7 +11,7 @@ export interface EnvironmentFacade {
     id: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
-  ): Promise<Configuration>;
+  ): Promise<Environment>;
 
   deleteEnvironment(
     user: User,
@@ -29,5 +29,5 @@ export interface EnvironmentFacade {
     id: string,
     name: string,
     environmentColor: EnvironmentColor,
-  ): Promise<Configuration>;
+  ): Promise<Environment>;
 }
