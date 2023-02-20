@@ -8,10 +8,13 @@ export default class EnvironmentDTO {
   name: string;
   @ApiProperty()
   color: string;
-  constructor(id: string, name: string, color: string) {
+  @ApiProperty()
+  createdAt: string;
+  constructor(id: string, name: string, color: string, createdAt: string) {
     this.id = id;
     this.name = name;
     this.color = color;
+    this.createdAt = createdAt;
   }
 
   public static fromDomain(environment: Environment): EnvironmentDTO {
@@ -19,6 +22,7 @@ export default class EnvironmentDTO {
       environment.id,
       environment.name,
       environment.color.toString(),
+      environment.createdAt.toISOString(),
     );
   }
 }

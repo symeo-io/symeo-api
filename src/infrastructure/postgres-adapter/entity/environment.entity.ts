@@ -23,7 +23,7 @@ export default class EnvironmentEntity extends AbstractEntity {
   configuration: ConfigurationEntity;
 
   public toDomain(): Environment {
-    return new Environment(this.id, this.name, this.color);
+    return new Environment(this.id, this.name, this.color, this.createdAt);
   }
 
   static fromDomain(environment: Environment): EnvironmentEntity {
@@ -31,6 +31,7 @@ export default class EnvironmentEntity extends AbstractEntity {
     entity.id = environment.id;
     entity.name = environment.name;
     entity.color = environment.color;
+    entity.createdAt = environment.createdAt;
 
     return entity;
   }
