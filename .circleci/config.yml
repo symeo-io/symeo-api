@@ -14,11 +14,6 @@ jobs:
     - restore_cache:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
     - run:
-        name: Authenticate to registry
-        command: |
-          echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
-    - run:
         name: Install dependencies
         command: yarn install
     - checkout # Checking out code in case of a yarn version mismatch modifies the yarn.lock
@@ -163,7 +158,6 @@ workflows:
       - install:
           context:
             - slack-notifications
-            - github-packages
       - test:
           requires:
             - install
@@ -180,7 +174,6 @@ workflows:
             - test
           context:
             - staging
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -192,7 +185,6 @@ workflows:
             - test
           context:
             - demo
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -204,7 +196,6 @@ workflows:
             - test
           context:
             - production
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -215,7 +206,6 @@ workflows:
       - build-aws-infrastructure:
           context:
             - staging
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -225,7 +215,6 @@ workflows:
       - build-aws-infrastructure:
           context:
             - demo
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -235,7 +224,6 @@ workflows:
       - build-aws-infrastructure:
           context:
             - production
-            - github-packages
             - slack-notifications
           filters:
             branches:
