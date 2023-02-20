@@ -1,8 +1,12 @@
 import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class OrganizationDTO {
+  @ApiProperty()
   vcsId: number;
+  @ApiProperty()
   name: string;
+  @ApiProperty()
   avatarUrl: string;
 
   constructor(vcsId: number, name: string, avatarUrl: string) {

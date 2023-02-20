@@ -1,14 +1,35 @@
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { VcsRepository } from 'src/domain/model/vcs.repository.model';
 import ConfigurationDTO from 'src/application/webapp/dto/configuration/configuration.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class VcsRepositoryDTO {
+  @ApiProperty()
   vcsId: number;
+  @ApiProperty()
   name: string;
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      vcsId: {
+        type: 'string',
+      },
+      name: {
+        type: 'string',
+      },
+      avatarUrl: {
+        type: 'string',
+      },
+    },
+  })
   owner: { vcsId: number; name: string; avatarUrl: string };
+  @ApiProperty()
   pushedAt?: string;
+  @ApiProperty()
   vcsType: VCSProvider;
+  @ApiProperty()
   vcsUrl: string;
+  @ApiProperty({ type: ConfigurationDTO })
   configurations?: ConfigurationDTO[];
 
   constructor(

@@ -1,33 +1,20 @@
 version: '3.2'
 
 services:
-  dynamodb:
-    image: amazon/dynamodb-local
+  database:
+    platform: linux/amd64
+    image: "postgres:13"
+    container_name: "database"
+    hostname: postgres_exposition_host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=P@ssw0rd
+      - POSTGRES_DB=symeo-api
     ports:
-      - "8000:8000"
-    volumes:
-      - ./.data/dynamodb:/dynamodb_local_db
+      - "5432:5432"
+    networks:
+      - symeo-api-network
 
-  init-configuration-dynamo:
-    image: amazon/aws-cli
-    command: dynamodb create-table --table-name symeo-api-configurations-test --attribute-definitions AttributeName=hashKey,AttributeType=S AttributeName=rangeKey,AttributeType=S --key-schema AttributeName=hashKey,KeyType=HASH AttributeName=rangeKey,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb:8000
-    links:
-      - dynamodb
-    environment:
-      - AWS_ACCESS_KEY_ID=0
-      - AWS_SECRET_ACCESS_KEY=0
-      - AWS_REGION=eu-west-3
-    depends_on:
-      - dynamodb
-
-  init-api-key-dynamo:
-    image: amazon/aws-cli
-    command: dynamodb create-table --table-name symeo-api-api-keys-test --attribute-definitions AttributeName=hashKey,AttributeType=S AttributeName=rangeKey,AttributeType=S --key-schema AttributeName=hashKey,KeyType=HASH AttributeName=rangeKey,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://dynamodb:8000
-    links:
-      - dynamodb
-    environment:
-      - AWS_ACCESS_KEY_ID=0
-      - AWS_SECRET_ACCESS_KEY=0
-      - AWS_REGION=eu-west-3
-    depends_on:
-      - dynamodb
+networks:
+  symeo-api-network:
+    driver: bridge

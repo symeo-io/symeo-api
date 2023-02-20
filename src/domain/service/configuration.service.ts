@@ -6,7 +6,7 @@ import User from 'src/domain/model/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/environment/environment.model';
-import { ConfigurationFormat } from 'src/domain/model/configuration/configuration-format.model';
+import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
@@ -66,7 +66,7 @@ export default class ConfigurationService implements ConfigurationFacade {
   async validateCreateForUser(
     user: User,
     repositoryVcsId: number,
-    configFormatFilePath: string,
+    contractFilePath: string,
     branch: string,
   ): Promise<{ isValid: boolean; message?: string }> {
     const repository = await this.repositoryFacade.getRepositoryById(
@@ -86,26 +86,26 @@ export default class ConfigurationService implements ConfigurationFacade {
         user,
         repository.owner.name,
         repository.name,
-        configFormatFilePath,
+        contractFilePath,
         branch,
       );
 
     if (!fileExistsOnBranch) {
       return {
         isValid: false,
-        message: `No ${configFormatFilePath} on branch ${branch}`,
+        message: `No ${contractFilePath} on branch ${branch}`,
       };
     }
 
     return { isValid: true };
   }
 
-  async findFormatByIdForUser(
+  async findContractByIdForUser(
     user: User,
     vcsType: VCSProvider,
     vcsRepositoryId: number,
     id: string,
-  ): Promise<ConfigurationFormat> {
+  ): Promise<ConfigurationContract> {
     const configuration = await this.configurationStoragePort.findById(
       VCSProvider.GitHub,
       vcsRepositoryId,
@@ -119,29 +119,29 @@ export default class ConfigurationService implements ConfigurationFacade {
       );
     }
 
-    const configFormatString = await this.repositoryFacade.getFileContent(
+    const contractString = await this.repositoryFacade.getFileContent(
       user,
       configuration.owner.name,
       configuration.repository.name,
-      configuration.configFormatFilePath,
+      configuration.contractFilePath,
       configuration.branch,
     );
 
-    if (!configFormatString) {
+    if (!contractString) {
       throw new SymeoException(
-        `Configuration file not found at ${configuration.configFormatFilePath} on ${configuration.branch}`,
+        `Configuration file not found at ${configuration.contractFilePath} on ${configuration.branch}`,
         SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
 
-    return parse(configFormatString) as ConfigurationFormat;
+    return parse(contractString) as ConfigurationContract;
   }
 
   async createForUser(
     user: User,
     name: string,
     repositoryVcsId: number,
-    configFormatFilePath: string,
+    contractFilePath: string,
     branch: string,
   ): Promise<Configuration> {
     const repository = await this.repositoryFacade.getRepositoryById(
@@ -161,13 +161,13 @@ export default class ConfigurationService implements ConfigurationFacade {
         user,
         repository.owner.name,
         repository.name,
-        configFormatFilePath,
+        contractFilePath,
         branch,
       );
 
     if (!fileExistsOnBranch) {
       throw new SymeoException(
-        `Config file not found at ${configFormatFilePath} on branch ${branch}`,
+        `Config file not found at ${contractFilePath} on branch ${branch}`,
         SymeoExceptionCode.WRONG_CONFIG_FILE_DETAILS,
       );
     }
@@ -184,7 +184,7 @@ export default class ConfigurationService implements ConfigurationFacade {
         name: repository.owner.name,
         vcsId: repository.owner.id,
       },
-      configFormatFilePath,
+      contractFilePath,
       branch,
       [
         new Environment(uuid(), 'Staging', 'blue'),

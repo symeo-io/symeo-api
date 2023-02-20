@@ -1,45 +1,58 @@
 import { v4 as uuid } from 'uuid';
 import { randomBytes } from 'crypto';
-import { base64encode } from 'nodejs-base64';
+import * as bcrypt from 'bcrypt';
+import { base64encode, base64decode } from 'nodejs-base64';
+
+const KEY_HASH_SALT_ROUNDS = 14;
 
 export default class ApiKey {
   id: string;
   environmentId: string;
-  key: string;
+  key?: string;
+  hashedKey: string;
+  hiddenKey: string;
   createdAt: Date;
 
-  constructor(id: string, environmentId: string, key: string, createdAt: Date) {
+  constructor(
+    id: string,
+    environmentId: string,
+    key: string | undefined,
+    hashedKey: string,
+    hiddenKey: string,
+    createdAt: Date,
+  ) {
     this.id = id;
     this.environmentId = environmentId;
     this.key = key;
+    this.hashedKey = hashedKey;
+    this.hiddenKey = hiddenKey;
     this.createdAt = createdAt;
   }
 
-  static buildForEnvironmentId(environmentId: string) {
+  static async buildForEnvironmentId(environmentId: string): Promise<ApiKey> {
     const id = uuid();
-    const key = ApiKey.generateKey(id, environmentId);
+    const key = await ApiKey.generateKey();
+    const hash = await ApiKey.hashKey(key);
+    const hiddenKey = ApiKey.hideKey(key);
 
-    return new ApiKey(id, environmentId, key, new Date());
+    return new ApiKey(id, environmentId, key, hash, hiddenKey, new Date());
   }
 
-  static generateKey(id: string, environmentId: string) {
-    const header = ApiKey.generateKeyHeader(id, environmentId);
-    const body = ApiKey.generateKeyBody();
-
-    return `${header}.${body}`;
+  public static async hashKey(key: string): Promise<string> {
+    const salt = base64decode(key.split('.')[0]);
+    return bcrypt.hash(key, salt);
   }
 
-  private static generateKeyHeader(id: string, environmentId: string) {
-    const objectHeader = { id, environmentId };
-    const stringHeader = JSON.stringify(objectHeader);
+  private static async generateKey() {
+    const salt = await bcrypt.genSalt(KEY_HASH_SALT_ROUNDS);
 
-    return base64encode(stringHeader);
-  }
-
-  private static generateKeyBody() {
     const size = 32;
     const format = 'base64';
     const buffer = randomBytes(size);
-    return buffer.toString(format);
+    return base64encode(salt) + '.' + buffer.toString(format);
+  }
+
+  private static hideKey(key: string): string {
+    return '••••••••••••' + key.slice(-4);
   }
 }

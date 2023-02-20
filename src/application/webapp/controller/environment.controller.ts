@@ -11,14 +11,16 @@ import {
 import { UpdateEnvironmentDTO } from 'src/application/webapp/dto/environment/update-environment.dto';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
 import User from 'src/domain/model/user.model';
-import { UpdateEnvironmentResponseDto } from 'src/application/webapp/dto/configuration/update-environment.response.dto';
+import { UpdateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/update-environment.response.dto';
 import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
 import { CreateEnvironmentDTO } from 'src/application/webapp/dto/environment/create-environment.dto';
 import { CreateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/create-environment.response.dto';
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
+@ApiTags('environments')
 @UseGuards(AuthGuard('jwt'))
 export class EnvironmentController {
   constructor(
@@ -27,13 +29,17 @@ export class EnvironmentController {
   ) {}
 
   @Patch('github/:vcsRepositoryId/:configurationId/environments/:id')
+  @ApiOkResponse({
+    description: 'Environment successfully updated',
+    type: UpdateEnvironmentResponseDTO,
+  })
   async updateEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
     @Param('id') id: string,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
     @CurrentUser() user: User,
-  ): Promise<UpdateEnvironmentResponseDto> {
+  ): Promise<UpdateEnvironmentResponseDTO> {
     const updatedConfiguration =
       await this.configurationFacade.updateEnvironment(
         user,
@@ -44,9 +50,12 @@ export class EnvironmentController {
         updateEnvironmentDTO.name,
         updateEnvironmentDTO.color,
       );
-    return UpdateEnvironmentResponseDto.fromDomain(updatedConfiguration);
+    return UpdateEnvironmentResponseDTO.fromDomain(updatedConfiguration);
   }
 
+  @ApiOkResponse({
+    description: 'Environment successfully deleted',
+  })
   @Delete('github/:vcsRepositoryId/:configurationId/environments/:id')
   async deleteEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
@@ -63,6 +72,11 @@ export class EnvironmentController {
     );
   }
 
+  @ApiResponse({ status: 201 })
+  @ApiOkResponse({
+    description: 'Environment successfully created',
+    type: CreateEnvironmentResponseDTO,
+  })
   @Post('github/:vcsRepositoryId/:configurationId/environments')
   async createEnvironment(
     @Param('vcsRepositoryId') vcsRepositoryId: string,

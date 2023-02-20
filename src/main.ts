@@ -5,6 +5,7 @@ import { config } from 'symeo-js/config';
 import { SymeoExceptionHttpFilter } from 'src/application/common/exception/symeo.exception.http.filter';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import { createLogger, format, level, transports } from 'winston';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import { Interceptor } from 'src/interceptor';
 import { WinstonLogger } from 'src/logger';
@@ -29,6 +30,14 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new Interceptor(loggerInstance));
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Symeo API')
+    .setVersion('1.0')
+    .build();
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/v1/openapi', app, swaggerDocument);
+  app.useGlobalInterceptors(new Interceptor(instance));
   await app.listen(9999);
 }
 

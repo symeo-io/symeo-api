@@ -3,6 +3,7 @@ export type ConfigurationPropertyType =
   | 'integer'
   | 'float'
   | 'boolean';
+
 export type ConfigurationProperty = {
   type: ConfigurationPropertyType;
   secret?: boolean;

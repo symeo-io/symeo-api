@@ -4,8 +4,8 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { base64decode } from 'nodejs-base64';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
+import ApiKey from 'src/domain/model/configuration/api-key.model';
 
 export type RequestWithEnvironmentId = Request & {
   environmentId: string;
@@ -29,27 +29,14 @@ export class ApiKeyGuard implements CanActivate {
         return false;
       }
 
-      const keyHeaderString = apiKey.split('.')[0];
-      const keyHeader = JSON.parse(base64decode(keyHeaderString));
-
-      if (!keyHeader.environmentId || !keyHeader.id) {
-        return false;
-      }
-
-      const foundApiKey = await this.apiKeyFacade.findApiKeyById(
-        keyHeader.environmentId,
-        keyHeader.id,
-      );
+      const hashedKey = await ApiKey.hashKey(apiKey);
+      const foundApiKey = await this.apiKeyFacade.findApiKeyByHash(hashedKey);
 
       if (!foundApiKey) {
         return false;
       }
 
-      if (!foundApiKey.key === apiKey) {
-        false;
-      }
-
-      request.environmentId = keyHeader.environmentId;
+      request.environmentId = foundApiKey.environmentId;
       return true;
     } catch (e) {
       return false;

@@ -14,11 +14,6 @@ jobs:
     - restore_cache:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
     - run:
-        name: Authenticate to registry
-        command: |
-          echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
-    - run:
         name: Install dependencies
         command: yarn install
     - checkout # Checking out code in case of a yarn version mismatch modifies the yarn.lock
@@ -36,39 +31,36 @@ jobs:
     working_directory: ~/symeo-api
     machine: true
     steps:
-    - checkout
-    - restore_cache:
-        key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
-    - run:
-        name: Change NodeJS version
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install v18.12.1
-          nvm alias default v18.12.1
-    - run:
-        name: Install Yarn
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          npm i -g yarn
-    - run:
-        name: Start database
-        command: docker-compose up -d
-    - run:
-        name: Test
-        command: |
-          export NVM_DIR="/opt/circleci/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          yarn test
-    - store_artifacts:
-        path: ~/symeo-api/coverage
-    - slack/notify:
-        event: fail
-        template: basic_fail_1
-    - slack/notify:
-        event: pass
-        template: basic_success_1
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+      - run:
+          name: Change NodeJS version
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v18.12.1
+            nvm alias default v18.12.1
+      - run:
+          name: Install Yarn
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            npm i -g yarn
+      - run:
+          name: Test
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            yarn test
+      - store_artifacts:
+          path: ~/symeo-api/coverage
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
   lint:
     working_directory: ~/symeo-api
     docker:
@@ -80,6 +72,23 @@ jobs:
     - run:
         name: Lint
         command: yarn lint
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
+  build:
+    working_directory: ~/symeo-api
+    docker:
+      - image: cimg/node:18.12.1
+    steps:
+    - checkout
+    - restore_cache:
+        key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+    - run:
+        name: Build
+        command: yarn build
     - slack/notify:
         event: fail
         template: basic_fail_1
@@ -147,7 +156,7 @@ jobs:
               --datadog-api-key ${DATADOG_API_KEY} \
               --datadog-app-key ${DATADOG_APP_KEY} \
               --domain ${DOMAIN} \
-              --prefix-url ${PREFIX_URL_CONFIG} \
+              --prefix-url ${PREFIX_URL} \
               --acm-arn ${ACM_ARN} \
               --acm-arn-alb ${ACM_ARN_ALB} \
               --tag ${CIRCLE_SHA1} \
@@ -166,7 +175,6 @@ workflows:
       - install:
           context:
             - slack-notifications
-            - github-packages
       - test:
           requires:
             - install
@@ -177,13 +185,18 @@ workflows:
             - install
           context:
             - slack-notifications
+      - build:
+          requires:
+            - install
+          context:
+            - slack-notifications
       - deploy:
           requires:
             - lint
             - test
+            - build
           context:
             - staging
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -193,9 +206,9 @@ workflows:
           requires:
             - lint
             - test
+            - build
           context:
             - demo
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -205,9 +218,9 @@ workflows:
           requires:
             - lint
             - test
+            - build
           context:
             - production
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -218,7 +231,6 @@ workflows:
       - build-aws-infrastructure:
           context:
             - staging
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -228,7 +240,6 @@ workflows:
       - build-aws-infrastructure:
           context:
             - demo
-            - github-packages
             - slack-notifications
           filters:
             branches:
@@ -238,7 +249,6 @@ workflows:
       - build-aws-infrastructure:
           context:
             - production
-            - github-packages
             - slack-notifications
           filters:
             branches:

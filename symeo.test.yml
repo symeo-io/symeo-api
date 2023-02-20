@@ -3,11 +3,14 @@ aws:
   accessKeyId: "0"
   region: "eu-west-3"
 database:
-  dynamodbUrl: "http://127.0.0.1:8000"
-  configuration:
-    tableName: "symeo-api-configurations-test"
-  apiKey:
-    tableName: "symeo-api-api-keys-test"
+  typeorm:
+    host: "localhost"
+    port: 5432
+    username: "postgres"
+    password: "P@ssw0rd"
+    database: "symeo-api-test"
+    synchronize: true
+    migrationsRun: false
 auth0:
   clientId: "0"
   clientSecret: "0"
@@ -16,3 +19,5 @@ auth0:
   domain: "symeo-staging.eu.auth0.com"
 vcsProvider:
   paginationLength: 1
+logger:
+  local: false

@@ -28,7 +28,7 @@ describe('OrganizationController', () => {
       'VCSAccessTokenAdapter',
     );
     githubClient = appClient.module.get<Octokit>('Octokit');
-  });
+  }, 30000);
 
   afterAll(async () => {
     await appClient.close();

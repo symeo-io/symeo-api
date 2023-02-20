@@ -19,10 +19,12 @@ import { GetConfigurationsResponseDTO } from 'src/application/webapp/dto/configu
 import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.dto';
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.response.dto';
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/create-github-configuration.response.dto';
-import { GetConfigurationFormatResponseDTO } from 'src/application/webapp/dto/format/get-configuration-format.response.dto';
+import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
+@ApiTags('configurations')
 @UseGuards(AuthGuard('jwt'))
 export class ConfigurationController {
   constructor(
@@ -30,6 +32,10 @@ export class ConfigurationController {
     private readonly configurationFacade: ConfigurationFacade,
   ) {}
 
+  @ApiOkResponse({
+    description: 'Creation of Github configuration parameters validated',
+    type: ValidateCreateGithubConfigurationParametersResponseDTO,
+  })
   @Post('github/validate')
   @HttpCode(200)
   async validateConfigurationCreationParameters(
@@ -40,11 +46,15 @@ export class ConfigurationController {
     return await this.configurationFacade.validateCreateForUser(
       user,
       validateCreateGithubConfigurationParametersDTO.repositoryVcsId,
-      validateCreateGithubConfigurationParametersDTO.configFormatFilePath,
+      validateCreateGithubConfigurationParametersDTO.contractFilePath,
       validateCreateGithubConfigurationParametersDTO.branch,
     );
   }
 
+  @ApiOkResponse({
+    description: 'Github configuration successfully retrieved',
+    type: GetConfigurationResponseDTO,
+  })
   @Get('github/:vcsRepositoryId/:id')
   async getGitHubConfigurationById(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
@@ -61,23 +71,32 @@ export class ConfigurationController {
     return GetConfigurationResponseDTO.fromDomain(configuration);
   }
 
-  @Get('github/:vcsRepositoryId/:id/format')
-  async getGitHubConfigurationFormatById(
+  @ApiOkResponse({
+    description: 'Github configuration contract successfully retrieved',
+    type: GetConfigurationContractResponseDTO,
+  })
+  @Get('github/:vcsRepositoryId/:id/contract')
+  async getGitHubConfigurationContractById(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
-  ): Promise<GetConfigurationFormatResponseDTO> {
-    const format = await this.configurationFacade.findFormatByIdForUser(
+  ): Promise<GetConfigurationContractResponseDTO> {
+    const contract = await this.configurationFacade.findContractByIdForUser(
       user,
       VCSProvider.GitHub,
       parseInt(vcsRepositoryId),
       id,
     );
 
-    return new GetConfigurationFormatResponseDTO(format);
+    return new GetConfigurationContractResponseDTO(contract);
   }
 
   @Get('github/:vcsRepositoryId')
+  @ApiOkResponse({
+    description:
+      'Github configurations for repositoryId successfully retrieved',
+    type: GetConfigurationsResponseDTO,
+  })
   async getGitHubConfigurationsForRepositoryId(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @CurrentUser() user: User,
@@ -92,6 +111,9 @@ export class ConfigurationController {
     return GetConfigurationsResponseDTO.fromDomains(configuration);
   }
 
+  @ApiOkResponse({
+    description: 'Github configuration successfully deleted',
+  })
   @Delete('github/:vcsRepositoryId/:id')
   async deleteGitHubConfigurationById(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
@@ -106,6 +128,10 @@ export class ConfigurationController {
     );
   }
 
+  @ApiOkResponse({
+    description: 'Github configuration successfully created',
+    type: CreateGitHubConfigurationResponseDTO,
+  })
   @Post('github')
   async createForGitHub(
     @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
@@ -115,7 +141,7 @@ export class ConfigurationController {
       user,
       createConfigurationDTO.name,
       createConfigurationDTO.repositoryVcsId,
-      createConfigurationDTO.configFormatFilePath,
+      createConfigurationDTO.contractFilePath,
       createConfigurationDTO.branch,
     );
 
