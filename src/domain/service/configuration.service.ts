@@ -131,8 +131,8 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     if (!contractString) {
       throw new SymeoException(
-        `Configuration file not found at ${configuration.contractFilePath} on ${requestedBranchName}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+        `Configuration contract file not found at ${configuration.contractFilePath} on ${requestedBranchName}`,
+        SymeoExceptionCode.CONFIGURATION_CONTRACT_NOT_FOUND,
       );
     }
 
@@ -153,8 +153,8 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     if (!repository) {
       throw new SymeoException(
-        `Repository not found for repositoryVcsId ${repositoryVcsId}`,
-        SymeoExceptionCode.WRONG_REPOSITORY_DETAILS,
+        `Repository not found for id ${repositoryVcsId}`,
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
 
@@ -170,7 +170,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     if (!fileExistsOnBranch) {
       throw new SymeoException(
         `Config file not found at ${contractFilePath} on branch ${branch}`,
-        SymeoExceptionCode.WRONG_CONFIG_FILE_DETAILS,
+        SymeoExceptionCode.CONFIGURATION_CONTRACT_NOT_FOUND,
       );
     }
 

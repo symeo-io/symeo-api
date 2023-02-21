@@ -22,6 +22,7 @@ export class SymeoExceptionHttpFilter implements ExceptionFilter {
         message: exception.errorMessage,
         timestamp: new Date().toISOString(),
         path: request.url,
+        code: exception.symeoExceptionCode,
       });
     } else if (exception instanceof HttpException) {
       response.status(exception.getStatus()).json({

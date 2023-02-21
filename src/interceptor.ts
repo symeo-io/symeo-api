@@ -18,6 +18,12 @@ export class Interceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     const now = Date.now();
     const methodCalled = context.getHandler().name;
+
+    // Ignoring healthcheck
+    if (methodCalled === 'check') {
+      return next.handle();
+    }
+
     return next
       .handle()
       .pipe(
