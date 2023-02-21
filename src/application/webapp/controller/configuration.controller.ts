@@ -7,6 +7,7 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
@@ -79,6 +80,7 @@ export class ConfigurationController {
   async getGitHubConfigurationContractById(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('id') id: string,
+    @Query('branch') branch: string | undefined,
     @CurrentUser() user: User,
   ): Promise<GetConfigurationContractResponseDTO> {
     const contract = await this.configurationFacade.findContractByIdForUser(
@@ -86,6 +88,7 @@ export class ConfigurationController {
       VCSProvider.GitHub,
       parseInt(vcsRepositoryId),
       id,
+      branch,
     );
 
     return new GetConfigurationContractResponseDTO(contract);
