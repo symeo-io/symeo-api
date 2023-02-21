@@ -9,9 +9,9 @@ import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper
 import { uniqBy } from 'lodash';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { EnvironmentAccess } from 'src/domain/model/environment-access/environment-access.model';
-import { GithubRightMapper } from 'src/infrastructure/github-adapter/mapper/github.right.mapper';
 import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
+import { GithubRightMapper } from 'src/infrastructure/github-adapter/mapper/github.environment-access.mapper';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
