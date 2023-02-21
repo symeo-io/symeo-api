@@ -10,7 +10,7 @@ import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { base64encode } from 'nodejs-base64';

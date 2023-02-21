@@ -4,7 +4,7 @@ import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 
 export class ApiKeyService implements ApiKeyFacade {

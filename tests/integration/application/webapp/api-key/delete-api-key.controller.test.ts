@@ -10,7 +10,7 @@ import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 import Environment from 'src/domain/model/environment/environment.model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 

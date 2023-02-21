@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 
 export type RequestWithEnvironmentId = Request & {
   environmentId: string;

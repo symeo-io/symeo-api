@@ -12,7 +12,7 @@ import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/enviro
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import Environment from 'src/domain/model/environment/environment.model';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;

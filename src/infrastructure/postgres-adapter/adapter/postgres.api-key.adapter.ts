@@ -1,5 +1,5 @@
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import { Repository } from 'typeorm';
 

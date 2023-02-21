@@ -1,5 +1,5 @@
 import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
-import ApiKey from 'src/domain/model/configuration/api-key.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('api-keys')
