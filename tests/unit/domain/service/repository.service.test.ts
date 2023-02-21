@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { RepositoryService } from 'src/domain/service/repository.service';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
-import { VcsRepository } from '../../../../src/domain/model/vcs.repository.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 describe('RepositoryService', () => {
   describe('getRepositories', () => {
