@@ -29,6 +29,7 @@ export default interface ConfigurationFacade {
     vcsType: VCSProvider,
     vcsRepositoryId: number,
     id: string,
+    branchName?: string,
   ): Promise<ConfigurationContract>;
 
   createForUser(

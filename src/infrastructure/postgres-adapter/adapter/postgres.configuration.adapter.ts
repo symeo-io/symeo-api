@@ -2,7 +2,7 @@ import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 export default class PostgresConfigurationAdapter
   implements ConfigurationStoragePort
@@ -37,11 +37,15 @@ export default class PostgresConfigurationAdapter
     return entities.map((entity) => entity.toDomain());
   }
 
-  async countForRepositoryId(
+  async findAllForRepositoryIds(
     vcsType: VCSProvider,
-    repositoryVcsId: number,
-  ): Promise<number> {
-    return this.configurationRepository.countBy({ vcsType, repositoryVcsId });
+    repositoryVcsIds: number[],
+  ): Promise<Configuration[]> {
+    const entities = await this.configurationRepository.findBy({
+      vcsType,
+      repositoryVcsId: In(repositoryVcsIds),
+    });
+    return entities.map((entity) => entity.toDomain());
   }
 
   async save(configuration: Configuration): Promise<void> {

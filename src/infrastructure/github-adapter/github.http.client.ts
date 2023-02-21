@@ -62,6 +62,36 @@ export class GithubHttpClient {
     }
   }
 
+  async getBranchesByRepositoryId(
+    user: User,
+    repositoryVcsId: number,
+    page: number,
+    perPage: number,
+  ): Promise<
+    RestEndpointMethodTypes['repos']['listBranches']['response']['data']
+  > {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+
+    try {
+      const response = await this.client.request(
+        'GET /repositories/{id}/branches',
+        {
+          id: repositoryVcsId,
+          page: page,
+          per_page: perPage,
+          headers: { Authorization: `token ${token}` },
+        },
+      );
+
+      return response.data;
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
+        return [];
+      }
+      throw exception;
+    }
+  }
+
   async hasAccessToRepository(
     user: User,
     repositoryVcsId: number,

@@ -1,5 +1,6 @@
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import User from 'src/domain/model/user/user.model';
+import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 
 export interface RepositoryFacade {
   getRepositories(user: User): Promise<VcsRepository[]>;
@@ -8,6 +9,11 @@ export interface RepositoryFacade {
     user: User,
     repositoryVcsId: number,
   ): Promise<VcsRepository | undefined>;
+
+  getBranchByRepositoryId(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsBranch[]>;
 
   hasAccessToRepository(user: User, repositoryVcsId: number): Promise<boolean>;
 

@@ -105,6 +105,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     vcsType: VCSProvider,
     vcsRepositoryId: number,
     id: string,
+    branchName?: string,
   ): Promise<ConfigurationContract> {
     const configuration = await this.configurationStoragePort.findById(
       VCSProvider.GitHub,
@@ -119,17 +120,18 @@ export default class ConfigurationService implements ConfigurationFacade {
       );
     }
 
+    const requestedBranchName = branchName ?? configuration.branch;
     const contractString = await this.repositoryFacade.getFileContent(
       user,
       configuration.owner.name,
       configuration.repository.name,
       configuration.contractFilePath,
-      configuration.branch,
+      requestedBranchName,
     );
 
     if (!contractString) {
       throw new SymeoException(
-        `Configuration file not found at ${configuration.contractFilePath} on ${configuration.branch}`,
+        `Configuration file not found at ${configuration.contractFilePath} on ${requestedBranchName}`,
         SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }

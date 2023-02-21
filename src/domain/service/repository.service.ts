@@ -4,6 +4,7 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
+import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 
 export class RepositoryService implements RepositoryFacade {
   constructor(
@@ -21,18 +22,17 @@ export class RepositoryService implements RepositoryFacade {
         break;
     }
 
-    const promises = [];
+    const configurations =
+      await this.configurationStoragePort.findAllForRepositoryIds(
+        user.provider,
+        repositories.map((repository) => repository.id),
+      );
+
     for (const repository of repositories) {
-      promises.push(
-        this.configurationStoragePort
-          .findAllForRepositoryId(repository.vcsType, repository.id)
-          .then((configurations) => {
-            repository.configurations = configurations;
-          }),
+      repository.configurations = configurations.filter(
+        (configuration) => configuration.repository.vcsId === repository.id,
       );
     }
-
-    await Promise.all(promises);
 
     return repositories;
   }
@@ -49,6 +49,21 @@ export class RepositoryService implements RepositoryFacade {
         );
       default:
         return undefined;
+    }
+  }
+
+  async getBranchByRepositoryId(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsBranch[]> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.getBranchByRepositoryId(
+          user,
+          repositoryVcsId,
+        );
+      default:
+        return [];
     }
   }
 
