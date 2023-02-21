@@ -3,7 +3,7 @@ import ApiKey from 'src/domain/model/environment/api-key.model';
 import { ApiProperty } from '@nestjs/swagger';
 
 export default class GetApiKeysResponseDTO {
-  @ApiProperty({ type: ApiKeyDTO })
+  @ApiProperty({ type: [ApiKeyDTO] })
   apiKeys: ApiKeyDTO[];
 
   static fromDomains(apiKeys: ApiKey[]) {

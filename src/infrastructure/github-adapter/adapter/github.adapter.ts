@@ -8,8 +8,7 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
 import { uniqBy } from 'lodash';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
-import { Right } from 'src/domain/model/right/right.model';
-import { string } from 'yaml/dist/schema/common/string';
+import { EnvironmentAccess } from 'src/domain/model/environment-access/environment-access.model';
 import { GithubRightMapper } from 'src/infrastructure/github-adapter/mapper/github.right.mapper';
 import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
@@ -157,11 +156,11 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
   }
 
-  async getRights(
+  async getEnvironmentAccesses(
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
-  ): Promise<Right[]> {
+  ): Promise<EnvironmentAccess[]> {
     // TODO : pagination
 
     const memberRights = await this.githubHttpClient.getMemberRights(

@@ -1,18 +1,20 @@
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
-import { Right } from 'src/domain/model/right/right.model';
-import { EnvironmentAccessRole } from 'src/domain/model/right/environment-access-role.enum';
+import { EnvironmentAccess } from 'src/domain/model/environment-access/environment-access.model';
+import { EnvironmentAccessRole } from 'src/domain/model/environment-access/environment-access-role.enum';
+import { v4 as uuid } from 'uuid';
 
 export class GithubRightMapper {
   static dtoToDomains(
     githubRightDTOs: RestEndpointMethodTypes['repos']['listCollaborators']['response']['data'],
-  ): Right[] {
+  ): EnvironmentAccess[] {
     return githubRightDTOs.map(GithubRightMapper.dtoToDomain);
   }
 
   static dtoToDomain(
     githubRightDTO: RestEndpointMethodTypes['repos']['listCollaborators']['response']['data'][0],
-  ): Right {
-    return new Right(
+  ): EnvironmentAccess {
+    return new EnvironmentAccess(
+      uuid(),
       {
         name: githubRightDTO.login,
         vcsId: githubRightDTO.id,

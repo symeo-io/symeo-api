@@ -7,6 +7,7 @@ import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/conf
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import PostgresApiKeyAdapter from 'src/infrastructure/postgres-adapter/adapter/postgres.api-key.adapter';
+import EnvironmentAccessEntity from 'src/infrastructure/postgres-adapter/entity/environment-access.entity';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
@@ -22,7 +23,12 @@ const PostgresApiKeyAdapterProvider = {
   inject: [getRepositoryToken(ApiKeyEntity)],
 };
 
-const entities = [ConfigurationEntity, EnvironmentEntity, ApiKeyEntity];
+const entities = [
+  ConfigurationEntity,
+  EnvironmentEntity,
+  ApiKeyEntity,
+  EnvironmentAccessEntity,
+];
 
 @Module({
   imports: [
