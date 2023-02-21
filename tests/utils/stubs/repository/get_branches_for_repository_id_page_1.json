@@ -1,0 +1,87 @@
+[
+  {
+    "name": "feature/get-organizations-pagination",
+    "commit": {
+      "sha": "fc980822319312e33af52c88f4960fabf53778c6",
+      "url": "https://api.github.com/repos/symeo-io/symeo-api/commits/fc980822319312e33af52c88f4960fabf53778c6"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    },
+    "protection_url": "https://api.github.com/repos/symeo-io/symeo-api/branches/feature/get-organizations-pagination/protection"
+  },
+  {
+    "name": "feature/logs-implementation",
+    "commit": {
+      "sha": "dba46d007057a50bc369c497d32f9823001ca377",
+      "url": "https://api.github.com/repos/symeo-io/symeo-api/commits/dba46d007057a50bc369c497d32f9823001ca377"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    },
+    "protection_url": "https://api.github.com/repos/symeo-io/symeo-api/branches/feature/logs-implementation/protection"
+  },
+  {
+    "name": "feature/some-uts",
+    "commit": {
+      "sha": "0f4dfea13bf7ce53a76991c5e1690e1589bfef23",
+      "url": "https://api.github.com/repos/symeo-io/symeo-api/commits/0f4dfea13bf7ce53a76991c5e1690e1589bfef23"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    },
+    "protection_url": "https://api.github.com/repos/symeo-io/symeo-api/branches/feature/some-uts/protection"
+  },
+  {
+    "name": "main",
+    "commit": {
+      "sha": "f9ca852b9494b0a1e98fcd8255252a88e8d66fa1",
+      "url": "https://api.github.com/repos/symeo-io/symeo-api/commits/f9ca852b9494b0a1e98fcd8255252a88e8d66fa1"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    },
+    "protection_url": "https://api.github.com/repos/symeo-io/symeo-api/branches/main/protection"
+  },
+  {
+    "name": "staging",
+    "commit": {
+      "sha": "f16cba728bfbaf1e7fdb55cc9cb83a2b66dabc36",
+      "url": "https://api.github.com/repos/symeo-io/symeo-api/commits/f16cba728bfbaf1e7fdb55cc9cb83a2b66dabc36"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    },
+    "protection_url": "https://api.github.com/repos/symeo-io/symeo-api/branches/staging/protection"
+  }
+]

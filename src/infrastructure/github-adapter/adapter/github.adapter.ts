@@ -8,6 +8,8 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
 import { uniqBy } from 'lodash';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
+import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
+import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -61,6 +63,36 @@ export default class GithubAdapter implements GithubAdapterPort {
     return GithubRepositoryMapper.dtoToDomain(
       gitHubRepository as RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0],
     );
+  }
+
+  async getBranchByRepositoryId(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsBranch[]> {
+    let page = 1;
+    const perPage: number = config.vcsProvider.paginationLength;
+    let githubBranchesDTO =
+      await this.githubHttpClient.getBranchesByRepositoryId(
+        user,
+        repositoryVcsId,
+        page,
+        perPage,
+      );
+    let alreadyCollectedBranchesDTO = githubBranchesDTO;
+
+    while (githubBranchesDTO.length === perPage) {
+      page += 1;
+      githubBranchesDTO = await this.githubHttpClient.getBranchesByRepositoryId(
+        user,
+        repositoryVcsId,
+        page,
+        perPage,
+      );
+
+      alreadyCollectedBranchesDTO =
+        alreadyCollectedBranchesDTO.concat(githubBranchesDTO);
+    }
+    return GithubBranchMapper.dtoToDomains(alreadyCollectedBranchesDTO);
   }
 
   async hasAccessToRepository(
