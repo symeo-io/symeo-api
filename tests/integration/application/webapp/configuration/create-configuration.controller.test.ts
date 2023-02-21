@@ -91,7 +91,7 @@ describe('ConfigurationController', () => {
           repositoryVcsId,
         })
         // Then
-        .expect(400);
+        .expect(404);
     });
 
     it('should not create configuration for non existing config file', async () => {
@@ -128,7 +128,7 @@ describe('ConfigurationController', () => {
           repositoryVcsId,
         })
         // Then
-        .expect(400);
+        .expect(404);
     });
 
     it('should create a new configuration', async () => {
