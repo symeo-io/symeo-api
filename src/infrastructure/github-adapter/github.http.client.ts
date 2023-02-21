@@ -179,7 +179,7 @@ export class GithubHttpClient {
     }
   }
 
-  async getMemberRights(
+  async getEnvironmentAccesses(
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,

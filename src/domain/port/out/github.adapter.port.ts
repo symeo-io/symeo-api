@@ -34,9 +34,10 @@ export default interface GithubAdapterPort {
     branch: string,
   ): Promise<string | undefined>;
 
-  getEnvironmentAccesses(
+  getGithubEnvironmentAccesses(
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
+    environmentId: string,
   ): Promise<EnvironmentAccess[]>;
 }

@@ -10,7 +10,7 @@ export default class EnvironmentAccessEntity extends AbstractEntity {
   id: string;
 
   @Column()
-  userId: number;
+  userVcsId: number;
 
   @Column()
   userName: string;
@@ -37,7 +37,7 @@ export default class EnvironmentAccessEntity extends AbstractEntity {
       this.id,
       {
         name: this.userName,
-        vcsId: this.userId,
+        vcsId: this.userVcsId,
         avatarUrl: this.userAvatarUrl,
       },
       this.environmentAccessRole,
@@ -49,7 +49,7 @@ export default class EnvironmentAccessEntity extends AbstractEntity {
   ): EnvironmentAccessEntity {
     const entity = new EnvironmentAccessEntity();
     entity.id = environmentAccess.id;
-    entity.userId = environmentAccess.user.vcsId;
+    entity.userVcsId = environmentAccess.user.vcsId;
     entity.userName = environmentAccess.user.name;
     entity.userAvatarUrl = environmentAccess.user.avatarUrl;
     entity.environmentAccessRole = environmentAccess.environmentAccessRole;

@@ -7,11 +7,12 @@ import { EnvironmentAccessFacade } from 'src/domain/port/in/environment-access.f
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('configurations')
-@ApiTags('rights')
+@ApiTags('environment-access')
 @UseGuards(AuthGuard('jwt'))
-export class RightController {
+export class EnvironmentAccessController {
   constructor(
-    @Inject('RightFacade') private rightFacade: EnvironmentAccessFacade,
+    @Inject('EnvironmentAccessFacade')
+    private environmentAccessFacade: EnvironmentAccessFacade,
   ) {}
 
   @Get(
@@ -21,16 +22,17 @@ export class RightController {
     description: 'Members environment access successfully retrieved',
     type: GetEnvironmentAccessesResponseDTO,
   })
-  async getRights(
+  async getEnvironmentAccesses(
     @Param('vcsRepositoryId') vcsRepositoryId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
   ): Promise<GetEnvironmentAccessesResponseDTO> {
     return GetEnvironmentAccessesResponseDTO.fromDomains(
-      await this.rightFacade.getEnvironmentAccesses(
+      await this.environmentAccessFacade.getEnvironmentAccesses(
         user,
         parseInt(vcsRepositoryId),
+        environmentId,
       ),
     );
   }

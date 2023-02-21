@@ -156,19 +156,24 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
   }
 
-  async getEnvironmentAccesses(
+  async getGithubEnvironmentAccesses(
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
+    environmentId: string,
   ): Promise<EnvironmentAccess[]> {
     // TODO : pagination
 
-    const memberRights = await this.githubHttpClient.getMemberRights(
-      user,
-      repositoryOwnerName,
-      repositoryName,
-    );
+    const githubEnvironmentAccesses =
+      await this.githubHttpClient.getEnvironmentAccesses(
+        user,
+        repositoryOwnerName,
+        repositoryName,
+      );
 
-    return GithubRightMapper.dtoToDomains(memberRights);
+    return GithubRightMapper.dtoToDomains(
+      githubEnvironmentAccesses,
+      environmentId,
+    );
   }
 }

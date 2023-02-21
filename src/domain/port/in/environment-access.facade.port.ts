@@ -5,5 +5,6 @@ export interface EnvironmentAccessFacade {
   getEnvironmentAccesses(
     user: User,
     vcsRepositoryId: number,
+    environmentId: string,
   ): Promise<EnvironmentAccess[]>;
 }
