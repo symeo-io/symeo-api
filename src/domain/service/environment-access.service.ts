@@ -39,7 +39,6 @@ export class EnvironmentAccessService implements EnvironmentAccessFacade {
             user,
             vcsRepository.owner.name,
             vcsRepository.name,
-            environmentId,
           );
 
         const environmentAccessesToReturn: EnvironmentAccess[] = [];

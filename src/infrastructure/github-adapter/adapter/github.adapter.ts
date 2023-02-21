@@ -160,10 +160,8 @@ export default class GithubAdapter implements GithubAdapterPort {
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
-    environmentId: string,
   ): Promise<EnvironmentAccess[]> {
-    // TODO : pagination
-
+    // TODO: pagination
     const githubEnvironmentAccesses =
       await this.githubHttpClient.getEnvironmentAccesses(
         user,
@@ -171,9 +169,6 @@ export default class GithubAdapter implements GithubAdapterPort {
         repositoryName,
       );
 
-    return GithubRightMapper.dtoToDomains(
-      githubEnvironmentAccesses,
-      environmentId,
-    );
+    return GithubRightMapper.dtoToDomains(githubEnvironmentAccesses);
   }
 }

@@ -6,11 +6,11 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class GetEnvironmentAccessesResponseDTO {
   @ApiProperty({ type: [EnvironmentAccessDTO] })
-  rights: EnvironmentAccessDTO[];
+  environmentAccesses: EnvironmentAccessDTO[];
 
   static fromDomains(membersRight: EnvironmentAccess[]) {
     const dto = new GetEnvironmentAccessesResponseDTO();
-    dto.rights = membersRight.map(EnvironmentAccessDTO.fromDomain);
+    dto.environmentAccesses = membersRight.map(EnvironmentAccessDTO.fromDomain);
     return dto;
   }
 }

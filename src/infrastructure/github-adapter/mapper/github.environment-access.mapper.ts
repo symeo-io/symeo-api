@@ -6,7 +6,6 @@ import { v4 as uuid } from 'uuid';
 export class GithubRightMapper {
   static dtoToDomains(
     githubRightDTOs: RestEndpointMethodTypes['repos']['listCollaborators']['response']['data'],
-    environmentId: string,
   ): EnvironmentAccess[] {
     return githubRightDTOs.map(GithubRightMapper.dtoToDomain);
   }

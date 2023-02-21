@@ -38,6 +38,5 @@ export default interface GithubAdapterPort {
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
-    environmentId: string,
   ): Promise<EnvironmentAccess[]>;
 }
