@@ -1,10 +1,10 @@
 import { Controller, Get, Inject, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user.model';
 import { GetEnvironmentAccessesResponseDTO } from 'src/application/webapp/dto/environment-access/get-environment-accesses.response.dto';
 import { EnvironmentAccessFacade } from 'src/domain/port/in/environment-access.facade.port';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import User from 'src/domain/model/user/user.model';
 
 @Controller('configurations')
 @ApiTags('environment-access')

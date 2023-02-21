@@ -1,12 +1,12 @@
 import { EnvironmentAccessFacade } from 'src/domain/port/in/environment-access.facade.port';
-import User from 'src/domain/model/user.model';
 import { EnvironmentAccess } from 'src/domain/model/environment-access/environment-access.model';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { EnvironmentAccessStoragePort } from 'src/domain/port/out/environment-access.storage.port';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 export class EnvironmentAccessService implements EnvironmentAccessFacade {
   constructor(
