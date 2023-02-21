@@ -22,18 +22,17 @@ export class RepositoryService implements RepositoryFacade {
         break;
     }
 
-    const promises = [];
+    const configurations =
+      await this.configurationStoragePort.findAllForRepositoryIds(
+        user.provider,
+        repositories.map((repository) => repository.id),
+      );
+
     for (const repository of repositories) {
-      promises.push(
-        this.configurationStoragePort
-          .findAllForRepositoryId(repository.vcsType, repository.id)
-          .then((configurations) => {
-            repository.configurations = configurations;
-          }),
+      repository.configurations = configurations.filter(
+        (configuration) => configuration.repository.vcsId === repository.id,
       );
     }
-
-    await Promise.all(promises);
 
     return repositories;
   }
