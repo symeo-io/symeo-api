@@ -103,36 +103,22 @@ export default class GithubAdapter implements GithubAdapterPort {
   }
 
   async getRepositories(user: User): Promise<VcsRepository[]> {
-    console.log('getRepositories');
-    const start = Date.now();
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     let githubRepositoriesForOrganizationDTO =
       await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
     let alreadyCollectedRepositoriesDTO = githubRepositoriesForOrganizationDTO;
 
-    console.log(
-      'await this.githubHttpClient.getRepositoriesForUser',
-      Date.now() - start,
-    );
-
     while (githubRepositoriesForOrganizationDTO.length === perPage) {
       page += 1;
       githubRepositoriesForOrganizationDTO =
         await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
-
-      console.log(
-        page,
-        'await this.githubHttpClient.getRepositoriesForUser',
-        Date.now() - start,
-      );
 
       alreadyCollectedRepositoriesDTO = alreadyCollectedRepositoriesDTO.concat(
         githubRepositoriesForOrganizationDTO,
       );
     }
 
-    console.log('getRepositories end', Date.now() - start);
     return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
 
