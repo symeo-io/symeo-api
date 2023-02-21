@@ -1,5 +1,5 @@
-import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 
 export class GithubOrganizationMapper {

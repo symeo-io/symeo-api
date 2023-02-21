@@ -1,8 +1,8 @@
 import { v4 as uuid } from 'uuid';
 import { AppClient } from 'tests/utils/app.client';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Octokit } from '@octokit/rest';
 import * as fs from 'fs';

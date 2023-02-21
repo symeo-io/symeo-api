@@ -1,4 +1,4 @@
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 export default class User {
   public id: string;

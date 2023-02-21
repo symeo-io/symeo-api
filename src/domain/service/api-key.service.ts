@@ -1,5 +1,5 @@
-import User from 'src/domain/model/user.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';

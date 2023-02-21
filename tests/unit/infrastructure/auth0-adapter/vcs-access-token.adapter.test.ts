@@ -2,8 +2,8 @@ import { v4 as uuid } from 'uuid';
 import { Auth0Client } from 'src/infrastructure/auth0-adapter/auth0.client';
 import { VCSAccessTokenAdapter } from 'src/infrastructure/auth0-adapter/adapter/vcs-access-token.adapter';
 import { faker } from '@faker-js/faker';
-import User from 'src/domain/model/user.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 describe('VCSAccessTokenAdapter', () => {
   const auth0Client: Auth0Client = new Auth0Client();

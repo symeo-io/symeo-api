@@ -1,5 +1,5 @@
-import User from 'src/domain/model/user.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import ApiKey from 'src/domain/model/environment/api-key.model';
 
 export interface ApiKeyFacade {

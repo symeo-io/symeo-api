@@ -8,8 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
 import GetApiKeysResponseDTO from 'src/application/webapp/dto/api-key/get-api-keys.response.dto';
 import CreateApiKeyResponseDTO from 'src/application/webapp/dto/api-key/create-api-key.response.dto';

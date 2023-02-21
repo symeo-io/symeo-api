@@ -1,5 +1,5 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';

@@ -1,8 +1,8 @@
 import { instance, mock } from 'ts-mockito';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { OrganizationService } from 'src/domain/service/organization.service';
 
 describe('OrganizationService', () => {

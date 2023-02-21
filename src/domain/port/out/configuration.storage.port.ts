@@ -1,5 +1,5 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 export default interface ConfigurationStoragePort {
   findById(

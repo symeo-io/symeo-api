@@ -1,6 +1,6 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import User from 'src/domain/model/user.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 
 export default interface ConfigurationFacade {

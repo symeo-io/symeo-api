@@ -6,7 +6,7 @@ import {
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 // import { ApplicationModule } from 'src/bootstrap/application.module';
 import supertest from 'supertest';
 import { SymeoExceptionHttpFilter } from 'src/application/common/exception/symeo.exception.http.filter';

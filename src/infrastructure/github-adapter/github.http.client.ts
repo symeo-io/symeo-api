@@ -1,4 +1,4 @@
-import User from '../../domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { Octokit } from '@octokit/rest';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';

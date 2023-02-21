@@ -1,4 +1,4 @@
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 
 export class VcsRepository {

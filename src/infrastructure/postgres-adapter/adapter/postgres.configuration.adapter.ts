@@ -1,7 +1,7 @@
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { Repository } from 'typeorm';
 
 export default class PostgresConfigurationAdapter

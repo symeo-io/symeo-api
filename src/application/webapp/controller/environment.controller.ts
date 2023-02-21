@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { UpdateEnvironmentDTO } from 'src/application/webapp/dto/environment/update-environment.dto';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { UpdateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/update-environment.response.dto';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { CreateEnvironmentDTO } from 'src/application/webapp/dto/environment/create-environment.dto';
 import { CreateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/create-environment.response.dto';
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';

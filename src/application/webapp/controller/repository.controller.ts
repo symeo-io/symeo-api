@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
 import { GetRepositoriesResponseDTO } from 'src/application/webapp/dto/repository/get-repositories.response.dto';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';

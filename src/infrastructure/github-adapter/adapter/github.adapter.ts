@@ -1,10 +1,10 @@
-import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
+import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { config } from 'symeo-js/config';
 import { GithubOrganizationMapper } from 'src/infrastructure/github-adapter/mapper/github.organization.mapper';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';
-import User from 'src/domain/model/user.model';
-import { VcsRepository } from 'src/domain/model/vcs.repository.model';
+import User from 'src/domain/model/user/user.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
 import { uniqBy } from 'lodash';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';

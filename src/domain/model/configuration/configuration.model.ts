@@ -1,4 +1,4 @@
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import Environment from 'src/domain/model/environment/environment.model';
 
 export default class Configuration {

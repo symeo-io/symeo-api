@@ -1,10 +1,10 @@
 import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';
 import { instance, mock, when } from 'ts-mockito';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { config } from 'symeo-js/config';
-import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
+import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import GithubAdapter from 'src/infrastructure/github-adapter/adapter/github.adapter';
 import * as fs from 'fs';
 

@@ -1,5 +1,5 @@
 import { OrganizationDTO } from 'src/application/webapp/dto/organization/organization.dto';
-import { VcsOrganization } from 'src/domain/model/vcs.organization.model';
+import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetOrganizationsResponseDTO {

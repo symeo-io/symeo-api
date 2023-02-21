@@ -3,9 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { passportJwtSecret } from 'jwks-rsa';
 import { config } from 'symeo-js/config';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { JwtPayload } from 'src/application/webapp/authentication/jwt-payload.type';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

@@ -1,6 +1,6 @@
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { Auth0Client } from 'src/infrastructure/auth0-adapter/auth0.client';
-import User from 'src/domain/model/user.model';
+import User from 'src/domain/model/user/user.model';
 import { User as Auth0User } from 'auth0';
 
 export class VCSAccessTokenAdapter implements VCSAccessTokenStorage {

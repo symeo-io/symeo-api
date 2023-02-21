@@ -1,6 +1,6 @@
-import User from '../../model/user.model';
-import { VcsOrganization } from '../../model/vcs.organization.model';
-import { VcsRepository } from 'src/domain/model/vcs.repository.model';
+import User from 'src/domain/model/user/user.model';
+import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 export default interface GithubAdapterPort {
   getOrganizations(user: User): Promise<VcsOrganization[]>;

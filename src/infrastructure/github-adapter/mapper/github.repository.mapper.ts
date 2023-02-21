@@ -1,6 +1,6 @@
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
-import { VcsRepository } from 'src/domain/model/vcs.repository.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 export class GithubRepositoryMapper {
   static dtoToDomains(

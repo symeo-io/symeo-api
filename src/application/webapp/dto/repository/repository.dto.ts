@@ -1,5 +1,5 @@
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
-import { VcsRepository } from 'src/domain/model/vcs.repository.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import ConfigurationDTO from 'src/application/webapp/dto/configuration/configuration.dto';
 import { ApiProperty } from '@nestjs/swagger';
 

@@ -1,7 +1,7 @@
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
-import User from 'src/domain/model/user.model';
-import { VcsRepository } from 'src/domain/model/vcs.repository.model';
-import { VCSProvider } from 'src/domain/model/vcs-provider.enum';
+import User from 'src/domain/model/user/user.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 
