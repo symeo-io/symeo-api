@@ -32,7 +32,7 @@ export default class EnvironmentEntity extends AbstractEntity {
   @OneToMany(
     () => EnvironmentAccessEntity,
     (environmentAccess) => environmentAccess.environment,
-    { onDelete: 'CASCADE' },
+    { cascade: true },
   )
   environmentAccesses: EnvironmentAccessEntity[];
 

@@ -179,20 +179,30 @@ export class GithubHttpClient {
     }
   }
 
-  async getEnvironmentAccesses(
+  async getCollaboratorsForRepository(
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
+    page: number,
+    perPage: number,
   ): Promise<
     RestEndpointMethodTypes['repos']['listCollaborators']['response']['data']
   > {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
-    const response = await this.client.rest.repos.listCollaborators({
-      owner: repositoryOwnerName,
-      repo: repositoryName,
-      headers: { Authorization: `token ${token}` },
-    });
-    return response.data;
+    try {
+      const response = await this.client.rest.repos.listCollaborators({
+        owner: repositoryOwnerName,
+        repo: repositoryName,
+        page: page,
+        per_page: perPage,
+        headers: { Authorization: `token ${token}` },
+      });
+      return response.data;
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
+        return [];
+      }
+      throw exception;
+    }
   }
 }

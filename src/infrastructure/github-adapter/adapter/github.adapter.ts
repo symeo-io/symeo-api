@@ -11,7 +11,8 @@ import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/d
 import { EnvironmentAccess } from 'src/domain/model/environment-access/environment-access.model';
 import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
-import { GithubRightMapper } from 'src/infrastructure/github-adapter/mapper/github.environment-access.mapper';
+import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/mapper/github.collaborators.mapper';
+import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -156,19 +157,38 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
   }
 
-  async getGithubEnvironmentAccesses(
+  async getCollaboratorsForRepository(
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
-  ): Promise<EnvironmentAccess[]> {
-    // TODO: pagination
-    const githubEnvironmentAccesses =
-      await this.githubHttpClient.getEnvironmentAccesses(
+  ): Promise<VcsUser[]> {
+    let page = 1;
+    const perPage = config.vcsProvider.paginationLength;
+    let githubCollaboratorsDTO =
+      await this.githubHttpClient.getCollaboratorsForRepository(
         user,
         repositoryOwnerName,
         repositoryName,
+        page,
+        perPage,
       );
+    let alreadyCollectedCollaboratorsDTO = githubCollaboratorsDTO;
+    while (githubCollaboratorsDTO.length === perPage) {
+      page += 1;
+      githubCollaboratorsDTO =
+        await this.githubHttpClient.getCollaboratorsForRepository(
+          user,
+          repositoryOwnerName,
+          repositoryName,
+          page,
+          perPage,
+        );
+      alreadyCollectedCollaboratorsDTO =
+        alreadyCollectedCollaboratorsDTO.concat(githubCollaboratorsDTO);
+    }
 
-    return GithubRightMapper.dtoToDomains(githubEnvironmentAccesses);
+    return GithubCollaboratorsMapper.dtoToDomains(
+      alreadyCollectedCollaboratorsDTO,
+    );
   }
 }

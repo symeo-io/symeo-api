@@ -1,6 +1,6 @@
 import { EnvironmentAccessStoragePort } from 'src/domain/port/out/environment-access.storage.port';
 import { EnvironmentAccess } from 'src/domain/model/environment-access/environment-access.model';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import EnvironmentAccessEntity from 'src/infrastructure/postgres-adapter/entity/environment-access.entity';
 
 export class PostgresEnvironmentAccessAdapter
@@ -9,24 +9,25 @@ export class PostgresEnvironmentAccessAdapter
   constructor(
     private environmentAccessRepository: Repository<EnvironmentAccessEntity>,
   ) {}
-  async findOptionalForUserVcsIdAndEnvironmentId(
-    userVcsId: number,
+
+  async findForEnvironmentIdAndVcsUserIds(
     environmentId: string,
-  ): Promise<EnvironmentAccess | undefined> {
-    const entity = await this.environmentAccessRepository.findOne({
+    vcsUserIds: number[],
+  ): Promise<EnvironmentAccess[]> {
+    const entities = await this.environmentAccessRepository.find({
       relations: {
         environment: true,
       },
       where: {
-        userVcsId: userVcsId,
+        userVcsId: In(vcsUserIds),
         environment: {
           id: environmentId,
         },
       },
     });
 
-    if (!entity) return undefined;
+    if (!entities) return [];
 
-    return entity.toDomain();
+    return entities.map((entity) => entity.toDomain());
   }
 }

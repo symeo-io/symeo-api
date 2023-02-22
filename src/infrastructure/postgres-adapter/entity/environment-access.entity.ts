@@ -12,12 +12,6 @@ export default class EnvironmentAccessEntity extends AbstractEntity {
   @Column()
   userVcsId: number;
 
-  @Column()
-  userName: string;
-
-  @Column()
-  userAvatarUrl: string;
-
   @Column({
     type: 'enum',
     enum: EnvironmentAccessRole,
@@ -28,18 +22,14 @@ export default class EnvironmentAccessEntity extends AbstractEntity {
   @ManyToOne(
     () => EnvironmentEntity,
     (environment) => environment.environmentAccesses,
-    { cascade: true },
+    { onDelete: 'CASCADE' },
   )
   environment: EnvironmentEntity;
 
   public toDomain(): EnvironmentAccess {
     return new EnvironmentAccess(
       this.id,
-      {
-        name: this.userName,
-        vcsId: this.userVcsId,
-        avatarUrl: this.userAvatarUrl,
-      },
+      this.userVcsId,
       this.environmentAccessRole,
     );
   }
@@ -49,9 +39,7 @@ export default class EnvironmentAccessEntity extends AbstractEntity {
   ): EnvironmentAccessEntity {
     const entity = new EnvironmentAccessEntity();
     entity.id = environmentAccess.id;
-    entity.userVcsId = environmentAccess.user.vcsId;
-    entity.userName = environmentAccess.user.name;
-    entity.userAvatarUrl = environmentAccess.user.avatarUrl;
+    entity.userVcsId = environmentAccess.userVcsId;
     entity.environmentAccessRole = environmentAccess.environmentAccessRole;
 
     return entity;

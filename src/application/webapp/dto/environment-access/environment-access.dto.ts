@@ -3,34 +3,26 @@ import { EnvironmentAccess } from 'src/domain/model/environment-access/environme
 import { ApiProperty } from '@nestjs/swagger';
 
 export class EnvironmentAccessDTO {
-  @ApiProperty({
-    type: 'object',
-    properties: {
-      name: {
-        type: 'string',
-      },
-      vcsId: {
-        type: 'number',
-        example: 123456789,
-      },
-      avatarUrl: {
-        type: 'string',
-      },
-    },
-  })
-  user: { vcsId: number; name: string; avatarUrl: string };
+  @ApiProperty()
+  id: string;
+  @ApiProperty()
+  userVcsId: number;
   @ApiProperty({ enum: EnvironmentAccessRole })
   environmentAccessRole: EnvironmentAccessRole;
 
-  constructor(
-    user: { vcsId: number; name: string; avatarUrl: string },
-    right: EnvironmentAccessRole,
-  ) {
-    this.user = user;
+  constructor(id: string, userVcsId: number, right: EnvironmentAccessRole) {
+    this.id = id;
+    this.userVcsId = userVcsId;
     this.environmentAccessRole = right;
   }
 
-  static fromDomain(right: EnvironmentAccess): EnvironmentAccessDTO {
-    return new EnvironmentAccessDTO(right.user, right.environmentAccessRole);
+  static fromDomain(
+    environmentAccess: EnvironmentAccess,
+  ): EnvironmentAccessDTO {
+    return new EnvironmentAccessDTO(
+      environmentAccess.id,
+      environmentAccess.userVcsId,
+      environmentAccess.environmentAccessRole,
+    );
   }
 }

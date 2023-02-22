@@ -8,9 +8,11 @@ export class GetEnvironmentAccessesResponseDTO {
   @ApiProperty({ type: [EnvironmentAccessDTO] })
   environmentAccesses: EnvironmentAccessDTO[];
 
-  static fromDomains(membersRight: EnvironmentAccess[]) {
+  static fromDomains(environmentAccesses: EnvironmentAccess[]) {
     const dto = new GetEnvironmentAccessesResponseDTO();
-    dto.environmentAccesses = membersRight.map(EnvironmentAccessDTO.fromDomain);
+    dto.environmentAccesses = environmentAccesses.map(
+      EnvironmentAccessDTO.fromDomain,
+    );
     return dto;
   }
 }

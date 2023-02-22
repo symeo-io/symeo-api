@@ -2,16 +2,16 @@ import { EnvironmentAccessRole } from 'src/domain/model/environment-access/envir
 
 export class EnvironmentAccess {
   id: string;
-  user: { name: string; vcsId: number; avatarUrl: string };
+  userVcsId: number;
   environmentAccessRole: EnvironmentAccessRole;
 
   constructor(
     id: string,
-    user: { name: string; vcsId: number; avatarUrl: string },
+    userVcsId: number,
     environmentAccessRole: EnvironmentAccessRole,
   ) {
     this.id = id;
-    this.user = user;
+    this.userVcsId = userVcsId;
     this.environmentAccessRole = environmentAccessRole;
   }
 }

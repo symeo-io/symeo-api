@@ -17,6 +17,8 @@ import { PostgresAdapterModule } from 'src/bootstrap/postgres-adapter.module';
 import { EnvironmentAccessService } from 'src/domain/service/environment-access.service';
 import { EnvironmentAccessStoragePort } from 'src/domain/port/out/environment-access.storage.port';
 import { PostgresEnvironmentAccessAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-access.adapter';
+import { EnvironmentAccessUtils } from 'src/domain/utils/environment-access.utils';
+import { Octokit } from '@octokit/rest';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -42,16 +44,19 @@ const EnvironmentAccessFacadeProvider = {
     repositoryFacade: RepositoryFacade,
     githubAdapterPort: GithubAdapterPort,
     environmentAccessStoragePort: EnvironmentAccessStoragePort,
+    environmentAccessUtils: EnvironmentAccessUtils,
   ) =>
     new EnvironmentAccessService(
       repositoryFacade,
       githubAdapterPort,
       environmentAccessStoragePort,
+      environmentAccessUtils,
     ),
   inject: [
     'RepositoryFacade',
     'GithubAdapter',
     'PostgresEnvironmentAccessAdapter',
+    'EnvironmentAccessUtils',
   ],
 };
 
@@ -89,6 +94,11 @@ const ApiKeyFacadeProvider = {
   inject: ['ConfigurationFacade', 'PostgresApiKeyAdapter'],
 };
 
+const EnvironmentAccessUtilsProvider = {
+  provide: 'EnvironmentAccessUtils',
+  useValue: new EnvironmentAccessUtils(),
+};
+
 @Module({
   imports: [
     PostgresAdapterModule,
@@ -103,6 +113,7 @@ const ApiKeyFacadeProvider = {
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
     EnvironmentAccessFacadeProvider,
+    EnvironmentAccessUtilsProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
