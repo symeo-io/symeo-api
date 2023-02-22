@@ -41,33 +41,12 @@ export default class PostgresConfigurationAdapter
     vcsType: VCSProvider,
     repositoryVcsIds: number[],
   ): Promise<Configuration[]> {
-    let start = Date.now();
-    console.log(
-      'PostgresConfigurationAdapter',
-      'findAllForRepositoryIds start',
-      '0s',
-    );
-
     const entities = await this.configurationRepository.findBy({
       vcsType,
       repositoryVcsId: In(repositoryVcsIds),
     });
-    console.log(
-      'PostgresConfigurationAdapter',
-      'await this.configurationRepository.findBy',
-      `${(Date.now() - start) / 1000}s`,
-    );
-    start = Date.now();
 
-    const result = entities.map((entity) => entity.toDomain());
-
-    console.log(
-      'PostgresConfigurationAdapter',
-      'entities.map',
-      `${(Date.now() - start) / 1000}s`,
-    );
-
-    return result;
+    return entities.map((entity) => entity.toDomain());
   }
 
   async save(configuration: Configuration): Promise<void> {
