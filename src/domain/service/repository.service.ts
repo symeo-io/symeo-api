@@ -12,6 +12,8 @@ export class RepositoryService implements RepositoryFacade {
     private readonly configurationStoragePort: ConfigurationStoragePort,
   ) {}
   async getRepositories(user: User): Promise<VcsRepository[]> {
+    let start = Date.now();
+    console.log('RepositoryService', 'getRepositories start', '0s');
     let repositories: VcsRepository[];
     switch (user.provider) {
       case VCSProvider.GitHub:
@@ -21,6 +23,12 @@ export class RepositoryService implements RepositoryFacade {
         repositories = [];
         break;
     }
+    console.log(
+      'RepositoryService',
+      'await this.githubAdapterPort.getRepositories',
+      `${(Date.now() - start) / 1000}s`,
+    );
+    start = Date.now();
 
     const configurations =
       await this.configurationStoragePort.findAllForRepositoryIds(
@@ -28,11 +36,24 @@ export class RepositoryService implements RepositoryFacade {
         repositories.map((repository) => repository.id),
       );
 
+    console.log(
+      'RepositoryService',
+      'await this.configurationStoragePort.findAllForRepositoryIds',
+      `${(Date.now() - start) / 1000}s`,
+    );
+    start = Date.now();
+
     for (const repository of repositories) {
       repository.configurations = configurations.filter(
         (configuration) => configuration.repository.vcsId === repository.id,
       );
     }
+
+    console.log(
+      'RepositoryService',
+      'configuration.repository.vcsId === repository.id',
+      `${(Date.now() - start) / 1000}s`,
+    );
 
     return repositories;
   }
