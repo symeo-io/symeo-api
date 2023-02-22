@@ -140,43 +140,43 @@ then
     --template-file cloudformation/rds.yml
 fi
 
-export_stack_outputs symeo-api-rds-${ENV} ${REGION}
-
-./build_infrastructure_api.sh \
-  --region "$REGION" \
-  --env "$ENV" \
-  --profile "$PROFILE" \
-  --datadog-api-key "$DATADOG_API_KEY" \
-  --domain "$DOMAIN" \
-  --prefix-url "$PREFIX_URL" \
-  --acm-arn "$ACM_ARN" \
-  --acm-arn-alb "$ACM_ARN_ALB" \
-  --tag "$MY_TAG" \
-  --vpc-id "$VPC_ID" \
-  --subnets "$SUBNETS"
-
-## Datadog integration
-aws cloudformation deploy \
---no-fail-on-empty-changeset \
-  --parameter-overrides \
-       APIKey=${DATADOG_API_KEY} \
-       APPKey=${DATADOG_APP_KEY} \
-  --region ${REGION} \
-  --stack-name symeo-datadog-integration \
-  --capabilities CAPABILITY_IAM \
-  --capabilities CAPABILITY_NAMED_IAM \
-  --template-file cloudformation/datadog-aws-integration.yml \
-
-set_datadog_forwarder_arn_to_env symeo-datadog-integration ${REGION}
-
-## Datadog log forwarders
-aws cloudformation deploy \
---no-fail-on-empty-changeset \
-  --parameter-overrides \
-       DatadogForwarderArn=${DatadogForwarderArn} \
-       CloudwatchLogsGroup=${CloudwatchLogsGroup} \
-  --region ${REGION} \
-  --stack-name symeo-datadog-log-forwarder-${ENV} \
-  --template-file cloudformation/datadog-log-forwarder.yml
-
-echo "DONE"
+# export_stack_outputs symeo-api-rds-${ENV} ${REGION}
+#
+# ./build_infrastructure_api.sh \
+#   --region "$REGION" \
+#   --env "$ENV" \
+#   --profile "$PROFILE" \
+#   --datadog-api-key "$DATADOG_API_KEY" \
+#   --domain "$DOMAIN" \
+#   --prefix-url "$PREFIX_URL" \
+#   --acm-arn "$ACM_ARN" \
+#   --acm-arn-alb "$ACM_ARN_ALB" \
+#   --tag "$MY_TAG" \
+#   --vpc-id "$VPC_ID" \
+#   --subnets "$SUBNETS"
+#
+# ## Datadog integration
+# aws cloudformation deploy \
+# --no-fail-on-empty-changeset \
+#   --parameter-overrides \
+#        APIKey=${DATADOG_API_KEY} \
+#        APPKey=${DATADOG_APP_KEY} \
+#   --region ${REGION} \
+#   --stack-name symeo-datadog-integration \
+#   --capabilities CAPABILITY_IAM \
+#   --capabilities CAPABILITY_NAMED_IAM \
+#   --template-file cloudformation/datadog-aws-integration.yml \
+#
+# set_datadog_forwarder_arn_to_env symeo-datadog-integration ${REGION}
+#
+# ## Datadog log forwarders
+# aws cloudformation deploy \
+# --no-fail-on-empty-changeset \
+#   --parameter-overrides \
+#        DatadogForwarderArn=${DatadogForwarderArn} \
+#        CloudwatchLogsGroup=${CloudwatchLogsGroup} \
+#   --region ${REGION} \
+#   --stack-name symeo-datadog-log-forwarder-${ENV} \
+#   --template-file cloudformation/datadog-log-forwarder.yml
+#
+# echo "DONE"
