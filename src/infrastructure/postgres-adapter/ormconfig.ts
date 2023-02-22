@@ -12,4 +12,6 @@ export const ormConfig: PostgresConnectionOptions = {
   migrations: [join(__dirname, 'migrations/*.js')],
   synchronize: config.database.typeorm.synchronize,
   migrationsRun: config.database.typeorm.migrationsRun,
+  logging: 'all',
+  logNotifications: true,
 };
