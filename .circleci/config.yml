@@ -1,0 +1,259 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+  slack: circleci/slack@4.10.1
+
+jobs:
+  install:
+    working_directory: ~/symeo-api
+    docker:
+      - image: cimg/node:18.12.1
+    steps:
+    - checkout
+    - restore_cache:
+        key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+    - run:
+        name: Install dependencies
+        command: yarn install
+    - checkout # Checking out code in case of a yarn version mismatch modifies the yarn.lock
+    - save_cache:
+        key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+        paths:
+        - node_modules
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
+  test:
+    working_directory: ~/symeo-api
+    machine: true
+    environment:
+      NODE_OPTIONS: --max_old_space_size=4096
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+      - run:
+          name: Change NodeJS version
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v18.12.1
+            nvm alias default v18.12.1
+      - run:
+          name: Install Yarn
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            npm i -g yarn
+      - run:
+          name: Test
+          command: |
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            yarn test
+      - store_artifacts:
+          path: ~/symeo-api/coverage
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+  lint:
+    working_directory: ~/symeo-api
+    docker:
+      - image: cimg/node:18.12.1
+    steps:
+    - checkout
+    - restore_cache:
+        key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+    - run:
+        name: Lint
+        command: yarn lint
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
+  build:
+    working_directory: ~/symeo-api
+    docker:
+      - image: cimg/node:18.12.1
+    steps:
+    - checkout
+    - restore_cache:
+        key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
+    - run:
+        name: Build
+        command: yarn build
+    - slack/notify:
+        event: fail
+        template: basic_fail_1
+    - slack/notify:
+        event: pass
+        template: basic_success_1
+  deploy:
+    working_directory: ~/symeo-api
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - aws-cli/setup
+      - restore_cache:
+          key: build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Authenticate to registry
+          command: |
+            echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
+            echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
+      - run:
+          name: Build docker
+          command: |
+            cd .aws && ./build_docker.sh \
+              --region ${AWS_REGION} \
+              --env ${ENVIRONMENT} \
+              --tag ${CIRCLE_SHA1} \
+              --service "symeo-api-${ENVIRONMENT}" \
+              --symeo-api-key ${SYMEO_API_KEY} \
+              --registry "symeo-api-ecs-repository-${ENVIRONMENT}"
+      - run:
+          name: Deploy
+          command: |
+            cd .aws && ./deploy.sh \
+              --region ${AWS_REGION} \
+              --env ${ENVIRONMENT} \
+              --datadog-api-key ${DATADOG_API_KEY} \
+              --tag ${CIRCLE_SHA1}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+  build-aws-infrastructure:
+    working_directory: ~/symeo-api
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - setup_remote_docker
+      - aws-cli/setup
+      - restore_cache:
+          key: build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Authenticate to registry
+          command: |
+            echo "@symeo-io:registry=https://npm.pkg.github.com" > ~/symeo-api/.npmrc
+            echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/symeo-api/.npmrc
+      - run:
+          name: Build infrastructure
+          command: |
+            cd .aws && ./build_infrastructure.sh \
+              --region ${AWS_REGION} \
+              --env ${ENVIRONMENT} \
+              --datadog-api-key ${DATADOG_API_KEY} \
+              --datadog-app-key ${DATADOG_APP_KEY} \
+              --domain ${DOMAIN} \
+              --prefix-url ${PREFIX_URL} \
+              --acm-arn ${ACM_ARN} \
+              --acm-arn-alb ${ACM_ARN_ALB} \
+              --tag ${CIRCLE_SHA1} \
+              --vpc-id ${VPC_ID} \
+              --subnets ${SUBNETS}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+workflows:
+  ci:
+    jobs:
+      - install:
+          context:
+            - slack-notifications
+      - test:
+          requires:
+            - install
+          context:
+            - slack-notifications
+      - lint:
+          requires:
+            - install
+          context:
+            - slack-notifications
+      - build:
+          requires:
+            - install
+          context:
+            - slack-notifications
+      - deploy:
+          requires:
+            - lint
+            - test
+            - build
+          context:
+            - staging
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - staging
+      - deploy:
+          requires:
+            - lint
+            - test
+            - build
+          context:
+            - demo
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - demo
+      - deploy:
+          requires:
+            - lint
+            - test
+            - build
+          context:
+            - production
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - main
+  build-infrastructure:
+    jobs:
+      - build-aws-infrastructure:
+          context:
+            - staging
+            - slack-notifications
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure-staging-.+$/
+      - build-aws-infrastructure:
+          context:
+            - demo
+            - slack-notifications
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure-demo-.+$/
+      - build-aws-infrastructure:
+          context:
+            - production
+            - slack-notifications
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure-production-.+$/

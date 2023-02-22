@@ -1,9 +1,33 @@
-import { Module } from '@nestjs/common';
-import { ConfigurationController } from 'src/application/controller/configuration.controller';
-import { DomainModule } from 'src/bootstrap/domain.module';
+import { Logger, Module } from '@nestjs/common';
+import { WebappApplicationModule } from 'src/bootstrap/webapp-application.module';
+import { SdkApplicationModule } from 'src/bootstrap/sdk-application.module';
+import { HealthApplicationModule } from 'src/bootstrap/health-application.module';
+import { RouterModule } from '@nestjs/core';
 
 @Module({
-  imports: [DomainModule],
-  controllers: [ConfigurationController],
+  imports: [
+    WebappApplicationModule,
+    SdkApplicationModule,
+    HealthApplicationModule,
+    RouterModule.register([
+      {
+        path: 'api/v1',
+        module: WebappApplicationModule,
+      },
+    ]),
+    RouterModule.register([
+      {
+        path: 'api/v1',
+        module: SdkApplicationModule,
+      },
+    ]),
+    RouterModule.register([
+      {
+        path: '',
+        module: HealthApplicationModule,
+      },
+    ]),
+  ],
+  providers: [Logger],
 })
 export class ApplicationModule {}

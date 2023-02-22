@@ -1,0 +1,23 @@
+aws:
+  secretAccessKey: "0"
+  accessKeyId: "0"
+  region: "eu-west-3"
+database:
+  typeorm:
+    host: "localhost"
+    port: 5432
+    username: "postgres"
+    password: "P@ssw0rd"
+    database: "symeo-api-test"
+    synchronize: true
+    migrationsRun: false
+auth0:
+  clientId: "0"
+  clientSecret: "0"
+  audience: "https://api-staging.symeo.io"
+  issuer: "https://symeo-staging.eu.auth0.com/"
+  domain: "symeo-staging.eu.auth0.com"
+vcsProvider:
+  paginationLength: 1
+logger:
+  local: false

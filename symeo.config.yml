@@ -1,0 +1,58 @@
+aws:
+  secretAccessKey:
+    type: string
+    optional: true
+  accessKeyId:
+    type: string
+    optional: true
+  region:
+    type: string
+database:
+  typeorm:
+    host:
+      type: string
+    port:
+      type: integer
+    username:
+      type: string
+    password:
+      type: string
+      secret: true
+    database:
+      type: string
+    synchronize:
+      type: boolean
+    migrationsRun:
+      type: boolean
+auth0:
+  clientId:
+    type: string
+  clientSecret:
+    type: string
+    secret: true
+  audience:
+    type: string
+  issuer:
+    type: string
+  domain:
+    type: string
+cors:
+  origin:
+    type: string
+    optional: true
+vcsProvider:
+  paginationLength:
+    type: integer
+datadog:
+  apm:
+    active:
+      type: boolean
+      optional: true
+  service:
+    type: string
+  env:
+    type: string
+logger:
+  local:
+    type: boolean
+    optional: true
