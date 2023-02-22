@@ -16,28 +16,13 @@ export class GithubHttpClient {
   ): Promise<
     RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data']
   > {
-    let start = Date.now();
-    console.log('GithubHttpClient', 'getRepositoriesForUser start', '0s');
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
-    console.log(
-      'GithubAdapter',
-      'await this.vcsAccessTokenStorage.getGitHubAccessToken',
-      `${(Date.now() - start) / 1000}s`,
-    );
-    start = Date.now();
 
     const response = await this.client.rest.repos.listForAuthenticatedUser({
       page: page,
       per_page: perPage,
       headers: { Authorization: `token ${token}` },
     });
-
-    console.log(
-      'GithubAdapter',
-      'await this.client.rest.repos.listForAuthenticatedUser',
-      `${(Date.now() - start) / 1000}s`,
-    );
 
     return response.data;
   }

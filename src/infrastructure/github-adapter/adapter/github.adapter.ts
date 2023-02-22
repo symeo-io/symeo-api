@@ -103,20 +103,11 @@ export default class GithubAdapter implements GithubAdapterPort {
   }
 
   async getRepositories(user: User): Promise<VcsRepository[]> {
-    let start = Date.now();
-    console.log('GithubAdapter', 'getRepositories start', '0s');
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     let githubRepositoriesForOrganizationDTO =
       await this.githubHttpClient.getRepositoriesForUser(user, page, perPage);
     let alreadyCollectedRepositoriesDTO = githubRepositoriesForOrganizationDTO;
-
-    console.log(
-      'GithubAdapter',
-      'await this.githubHttpClient.getRepositoriesForUser',
-      `${(Date.now() - start) / 1000}s`,
-    );
-    start = Date.now();
 
     while (githubRepositoriesForOrganizationDTO.length === perPage) {
       page += 1;
@@ -127,13 +118,6 @@ export default class GithubAdapter implements GithubAdapterPort {
         githubRepositoriesForOrganizationDTO,
       );
     }
-
-    console.log(
-      'GithubAdapter',
-      'await this.githubHttpClient.getRepositoriesForUser',
-      page,
-      `${(Date.now() - start) / 1000}s`,
-    );
 
     return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
