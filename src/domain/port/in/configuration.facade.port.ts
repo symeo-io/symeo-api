@@ -40,6 +40,16 @@ export default interface ConfigurationFacade {
     branch: string,
   ): Promise<Configuration>;
 
+  updateForUser(
+    user: User,
+    vcsType: VCSProvider,
+    repositoryVcsId: number,
+    id: string,
+    name: string,
+    contractFilePath: string,
+    branch: string,
+  ): Promise<Configuration>;
+
   deleteByIdForUser(
     user: User,
     vcsType: VCSProvider,

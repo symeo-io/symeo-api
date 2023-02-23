@@ -6,6 +6,7 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -23,6 +24,8 @@ import { CreateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto
 import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { UpdateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.dto';
+import { UpdateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.response.dto';
 
 @Controller('configurations')
 @ApiTags('configurations')
@@ -149,5 +152,29 @@ export class ConfigurationController {
     );
 
     return CreateGitHubConfigurationResponseDTO.fromDomain(configuration);
+  }
+
+  @ApiOkResponse({
+    description: 'Github configuration successfully updated',
+    type: UpdateGitHubConfigurationResponseDTO,
+  })
+  @Patch('github/:vcsRepositoryId/:id')
+  async updateForGitHub(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('id') id: string,
+    @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,
+    @CurrentUser() user: User,
+  ): Promise<UpdateGitHubConfigurationResponseDTO> {
+    const configuration = await this.configurationFacade.updateForUser(
+      user,
+      VCSProvider.GitHub,
+      parseInt(vcsRepositoryId),
+      id,
+      updateConfigurationDTO.name,
+      updateConfigurationDTO.contractFilePath,
+      updateConfigurationDTO.branch,
+    );
+
+    return UpdateGitHubConfigurationResponseDTO.fromDomain(configuration);
   }
 }
