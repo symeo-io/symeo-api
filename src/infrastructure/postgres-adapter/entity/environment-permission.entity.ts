@@ -4,7 +4,7 @@ import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/enviro
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 
-@Entity('environment-accesses')
+@Entity('environment-permissions')
 export default class EnvironmentPermissionEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
