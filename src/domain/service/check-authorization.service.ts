@@ -87,7 +87,7 @@ export class CheckAuthorizationService {
 
     if (!vcsRepository) {
       throw new SymeoException(
-        `Repository not found for id ${vcsRepositoryId}`,
+        `Repository not found for vcsRepositoryId ${vcsRepositoryId}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }

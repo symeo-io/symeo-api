@@ -93,7 +93,109 @@ describe('EnvironmentPermissionController', () => {
           ],
         );
         expect(response.body.message).toBe(
-          `Repository not found for id ${repositoryVcsId}`,
+          `Repository not found for vcsRepositoryId ${repositoryVcsId}`,
+        );
+      });
+
+      it('should return 404 for non existing configuration', async () => {
+        // Given
+        const repositoryVcsId = 593240835;
+        const configurationId = uuid();
+        const environmentId = uuid();
+        const repositoryVcsName = 'symeo-api';
+        const ownerVcsId = 105865802;
+        const ownerVcsName = 'symeo-io';
+        githubClientRequestMock.mockImplementation(() => {
+          throw { status: 404 };
+        });
+
+        const mockGitHubRepositoryResponse = {
+          status: 200 as const,
+          headers: {},
+          url: '',
+          data: {
+            name: repositoryVcsName,
+            id: repositoryVcsId,
+            owner: { login: ownerVcsName, id: ownerVcsId },
+          },
+        };
+        githubClientRequestMock.mockImplementation(() =>
+          Promise.resolve(mockGitHubRepositoryResponse),
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .get(
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+          )
+          // Then
+          .expect(404);
+        expect(response.body.statusCode).toBe(
+          SymeoExceptionCodeToHttpStatusMap[
+            SymeoExceptionCode.CONFIGURATION_NOT_FOUND
+          ],
+        );
+        expect(response.body.message).toBe(
+          `Configuration not found for vcsRepositoryId ${repositoryVcsId} and configurationId ${configurationId}`,
+        );
+      });
+
+      it('should return 404 for non existing environment', async () => {
+        // Given
+        const repositoryVcsId = 593240835;
+        const configurationId = uuid();
+        const environmentId = uuid();
+        const repositoryVcsName = 'symeo-api';
+        const ownerVcsId = 105865802;
+        const ownerVcsName = 'symeo-io';
+        githubClientRequestMock.mockImplementation(() => {
+          throw { status: 404 };
+        });
+
+        const mockGitHubRepositoryResponse = {
+          status: 200 as const,
+          headers: {},
+          url: '',
+          data: {
+            name: repositoryVcsName,
+            id: repositoryVcsId,
+            owner: { login: ownerVcsName, id: ownerVcsId },
+          },
+        };
+        githubClientRequestMock.mockImplementation(() =>
+          Promise.resolve(mockGitHubRepositoryResponse),
+        );
+
+        const configurationEntity = new ConfigurationEntity();
+        configurationEntity.id = configurationId;
+        configurationEntity.name = faker.name.jobTitle();
+        configurationEntity.vcsType = VCSProvider.GitHub;
+        configurationEntity.repositoryVcsId = repositoryVcsId;
+        configurationEntity.repositoryVcsName = repositoryVcsName;
+        configurationEntity.ownerVcsId = ownerVcsId;
+        configurationEntity.ownerVcsName = ownerVcsName;
+        configurationEntity.contractFilePath = './symeo.config.yml';
+        configurationEntity.branch = 'staging';
+        configurationEntity.environments = [];
+
+        await configurationRepository.save(configurationEntity);
+
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .get(
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+          )
+          // Then
+          .expect(404);
+        expect(response.body.statusCode).toBe(
+          SymeoExceptionCodeToHttpStatusMap[
+            SymeoExceptionCode.ENVIRONMENT_NOT_FOUND
+          ],
+        );
+        expect(response.body.message).toBe(
+          `Environment not found for vcsRepositoryId ${repositoryVcsId} and configurationId ${configurationId} and environmentId ${environmentId}`,
         );
       });
     });
