@@ -7,8 +7,8 @@ import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/conf
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import PostgresApiKeyAdapter from 'src/infrastructure/postgres-adapter/adapter/postgres.api-key.adapter';
-import EnvironmentAccessEntity from 'src/infrastructure/postgres-adapter/entity/environment-access.entity';
-import { PostgresEnvironmentAccessAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-access.adapter';
+import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
+import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
@@ -24,19 +24,20 @@ const PostgresApiKeyAdapterProvider = {
   inject: [getRepositoryToken(ApiKeyEntity)],
 };
 
-const PostgresEnvironmentAccessAdapterProvider = {
-  provide: 'PostgresEnvironmentAccessAdapter',
+const PostgresEnvironmentPermissionAdapterProvider = {
+  provide: 'PostgresEnvironmentPermissionAdapter',
   useFactory: (
-    environmentAccessRepository: Repository<EnvironmentAccessEntity>,
-  ) => new PostgresEnvironmentAccessAdapter(environmentAccessRepository),
-  inject: [getRepositoryToken(EnvironmentAccessEntity)],
+    environmentPermissionRepository: Repository<EnvironmentPermissionEntity>,
+  ) =>
+    new PostgresEnvironmentPermissionAdapter(environmentPermissionRepository),
+  inject: [getRepositoryToken(EnvironmentPermissionEntity)],
 };
 
 const entities = [
   ConfigurationEntity,
   EnvironmentEntity,
   ApiKeyEntity,
-  EnvironmentAccessEntity,
+  EnvironmentPermissionEntity,
 ];
 
 @Module({
@@ -50,12 +51,12 @@ const entities = [
   providers: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
-    PostgresEnvironmentAccessAdapterProvider,
+    PostgresEnvironmentPermissionAdapterProvider,
   ],
   exports: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
-    PostgresEnvironmentAccessAdapterProvider,
+    PostgresEnvironmentPermissionAdapterProvider,
   ],
 })
 export class PostgresAdapterModule {}

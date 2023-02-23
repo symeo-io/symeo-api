@@ -13,6 +13,8 @@ export class GithubCollaboratorsMapper {
   ): VcsUser {
     return new VcsUser(
       githubCollaboratorDTO.id,
+      githubCollaboratorDTO.login,
+      githubCollaboratorDTO.avatar_url,
       githubCollaboratorDTO.role_name,
     );
   }

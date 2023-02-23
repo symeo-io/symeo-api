@@ -21,4 +21,9 @@ export default interface ConfigurationStoragePort {
   save(configuration: Configuration): Promise<void>;
 
   delete(configuration: Configuration): Promise<void>;
+
+  findByIdAndRepositoryVcsId(
+    configurationId: string,
+    vcsRepositoryId: number,
+  ): Promise<Configuration | undefined>;
 }

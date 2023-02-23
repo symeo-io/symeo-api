@@ -8,18 +8,18 @@ import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { Repository } from 'typeorm';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import EnvironmentAccessEntity from 'src/infrastructure/postgres-adapter/entity/environment-access.entity';
+import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/exception/symeo.exception.code.to.http.status.map';
 import * as fs from 'fs';
-import { EnvironmentAccessDTO } from 'src/application/webapp/dto/environment-access/environment-access.dto';
+import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
-import { EnvironmentAccessRole } from 'src/domain/model/environment-access/environment-access-role.enum';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import SpyInstance = jest.SpyInstance;
 
-describe('EnvironmentAccessController', () => {
+describe('EnvironmentPermissionController', () => {
   let appClient: AppClient;
-  let environmentAccessRepository: Repository<EnvironmentAccessEntity>;
+  let environmentPermissionRepository: Repository<EnvironmentPermissionEntity>;
   let configurationRepository: Repository<ConfigurationEntity>;
   let vcsAccessTokenStorage: VCSAccessTokenStorage;
   let githubClient: Octokit;
@@ -40,9 +40,9 @@ describe('EnvironmentAccessController', () => {
       'VCSAccessTokenAdapter',
     );
     githubClient = appClient.module.get<Octokit>('Octokit');
-    environmentAccessRepository = appClient.module.get<
-      Repository<EnvironmentAccessEntity>
-    >(getRepositoryToken(EnvironmentAccessEntity));
+    environmentPermissionRepository = appClient.module.get<
+      Repository<EnvironmentPermissionEntity>
+    >(getRepositoryToken(EnvironmentPermissionEntity));
     configurationRepository = appClient.module.get<
       Repository<ConfigurationEntity>
     >(getRepositoryToken(ConfigurationEntity));
@@ -53,7 +53,7 @@ describe('EnvironmentAccessController', () => {
   });
 
   beforeEach(async () => {
-    await environmentAccessRepository.delete({});
+    await environmentPermissionRepository.delete({});
     await configurationRepository.delete({});
     githubClientRequestMock = jest.spyOn(githubClient, 'request');
     getGitHubAccessTokenMock = jest.spyOn(
@@ -83,7 +83,7 @@ describe('EnvironmentAccessController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-accesses`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
           )
           // Then
           .expect(404);
@@ -124,21 +124,21 @@ describe('EnvironmentAccessController', () => {
         const mockGithubListCollaboratorsStub1 = JSON.parse(
           fs
             .readFileSync(
-              './tests/utils/stubs/environment-access/get_environment_accesses_for_owner_and_repo_page_1.json',
+              './tests/utils/stubs/environment-permission/get_environment_permissions_for_owner_and_repo_page_1.json',
             )
             .toString(),
         );
         const mockGithubListCollaboratorsStub2 = JSON.parse(
           fs
             .readFileSync(
-              './tests/utils/stubs/environment-access/get_environment_accesses_for_owner_and_repo_page_2.json',
+              './tests/utils/stubs/environment-permission/get_environment_permissions_for_owner_and_repo_page_2.json',
             )
             .toString(),
         );
         const mockGithubListCollaboratorsStub3 = JSON.parse(
           fs
             .readFileSync(
-              './tests/utils/stubs/environment-access/get_environment_accesses_for_owner_and_repo_page_3.json',
+              './tests/utils/stubs/environment-permission/get_environment_permissions_for_owner_and_repo_page_3.json',
             )
             .toString(),
         );
@@ -198,24 +198,49 @@ describe('EnvironmentAccessController', () => {
 
       it('should return 200 with only github environment accesses', async () => {
         // Given
+
+        const environmentEntity = new EnvironmentEntity();
+        environmentEntity.id = environmentId;
+        environmentEntity.name = faker.name.firstName();
+        environmentEntity.color = 'blue';
+        environmentEntity.environmentPermissions = [];
+
+        const configurationEntity = new ConfigurationEntity();
+        configurationEntity.id = configurationId;
+        configurationEntity.name = faker.name.jobTitle();
+        configurationEntity.vcsType = VCSProvider.GitHub;
+        configurationEntity.repositoryVcsId = repositoryVcsId;
+        configurationEntity.repositoryVcsName = repositoryVcsName;
+        configurationEntity.ownerVcsId = ownerVcsId;
+        configurationEntity.ownerVcsName = ownerVcsName;
+        configurationEntity.contractFilePath = './symeo.config.yml';
+        configurationEntity.branch = 'staging';
+        configurationEntity.environments = [environmentEntity];
+
+        await configurationRepository.save(configurationEntity);
+
         const response = await appClient
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-accesses`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
           )
           // Then
           .expect(200);
-        expect(response.body.environmentAccesses).toBeDefined();
-        expect(response.body.environmentAccesses.length).toEqual(3);
-        const environmentAccessesVerification =
-          response.body.environmentAccesses.map(
-            (environmentAccess: EnvironmentAccessDTO) =>
-              `${environmentAccess.userVcsId} - ${environmentAccess.environmentAccessRole}`,
+        expect(response.body.environmentPermissions).toBeDefined();
+        expect(response.body.environmentPermissions.length).toEqual(3);
+        const environmentPermissionsVerification =
+          response.body.environmentPermissions.map(
+            (environmentPermission: EnvironmentPermissionDTO) =>
+              `${environmentPermission.user.userVcsId} - ${environmentPermission.environmentPermissionRole}`,
           );
-        expect(environmentAccessesVerification).toContain('16590657 - admin');
-        expect(environmentAccessesVerification).toContain('22441392 - admin');
-        expect(environmentAccessesVerification).toContain(
+        expect(environmentPermissionsVerification).toContain(
+          '16590657 - admin',
+        );
+        expect(environmentPermissionsVerification).toContain(
+          '22441392 - admin',
+        );
+        expect(environmentPermissionsVerification).toContain(
           '102222086 - readNonSecret',
         );
       });
@@ -223,25 +248,25 @@ describe('EnvironmentAccessController', () => {
       it('should return 200 with mixed github and inBase environment accesses', async () => {
         // Given
 
-        const environmentAccessEntity1 = new EnvironmentAccessEntity();
-        environmentAccessEntity1.id = uuid();
-        environmentAccessEntity1.userVcsId = 16590657;
-        environmentAccessEntity1.environmentAccessRole =
-          EnvironmentAccessRole.READ_SECRET;
+        const environmentPermissionEntity1 = new EnvironmentPermissionEntity();
+        environmentPermissionEntity1.id = uuid();
+        environmentPermissionEntity1.userVcsId = 16590657;
+        environmentPermissionEntity1.environmentPermissionRole =
+          EnvironmentPermissionRole.READ_SECRET;
 
-        const environmentAccessEntity2 = new EnvironmentAccessEntity();
-        environmentAccessEntity2.id = uuid();
-        environmentAccessEntity2.userVcsId = 22441392;
-        environmentAccessEntity2.environmentAccessRole =
-          EnvironmentAccessRole.WRITE;
+        const environmentPermissionEntity2 = new EnvironmentPermissionEntity();
+        environmentPermissionEntity2.id = uuid();
+        environmentPermissionEntity2.userVcsId = 22441392;
+        environmentPermissionEntity2.environmentPermissionRole =
+          EnvironmentPermissionRole.WRITE;
 
         const environmentEntity = new EnvironmentEntity();
         environmentEntity.id = environmentId;
         environmentEntity.name = faker.name.firstName();
         environmentEntity.color = 'blue';
-        environmentEntity.environmentAccesses = [
-          environmentAccessEntity1,
-          environmentAccessEntity2,
+        environmentEntity.environmentPermissions = [
+          environmentPermissionEntity1,
+          environmentPermissionEntity2,
         ];
 
         const configurationEntity = new ConfigurationEntity();
@@ -262,22 +287,24 @@ describe('EnvironmentAccessController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-accesses`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
           )
           // Then
           .expect(200);
-        expect(response.body.environmentAccesses).toBeDefined();
-        expect(response.body.environmentAccesses.length).toEqual(3);
-        const environmentAccessesVerification =
-          response.body.environmentAccesses.map(
-            (environmentAccess: EnvironmentAccessDTO) =>
-              `${environmentAccess.userVcsId} - ${environmentAccess.environmentAccessRole}`,
+        expect(response.body.environmentPermissions).toBeDefined();
+        expect(response.body.environmentPermissions.length).toEqual(3);
+        const environmentPermissionsVerification =
+          response.body.environmentPermissions.map(
+            (environmentPermission: EnvironmentPermissionDTO) =>
+              `${environmentPermission.user.userVcsId} - ${environmentPermission.environmentPermissionRole}`,
           );
-        expect(environmentAccessesVerification).toContain(
+        expect(environmentPermissionsVerification).toContain(
           '16590657 - readSecret',
         );
-        expect(environmentAccessesVerification).toContain('22441392 - write');
-        expect(environmentAccessesVerification).toContain(
+        expect(environmentPermissionsVerification).toContain(
+          '22441392 - write',
+        );
+        expect(environmentPermissionsVerification).toContain(
           '102222086 - readNonSecret',
         );
       });

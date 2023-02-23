@@ -14,11 +14,11 @@ import { EnvironmentService } from 'src/domain/service/environment.service';
 import { ApiKeyService } from 'src/domain/service/api-key.service';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 import { PostgresAdapterModule } from 'src/bootstrap/postgres-adapter.module';
-import { EnvironmentAccessService } from 'src/domain/service/environment-access.service';
-import { EnvironmentAccessStoragePort } from 'src/domain/port/out/environment-access.storage.port';
-import { PostgresEnvironmentAccessAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-access.adapter';
-import { EnvironmentAccessUtils } from 'src/domain/utils/environment-access.utils';
-import { Octokit } from '@octokit/rest';
+import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
+import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
+import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
+import { EnvironmentPermissionService } from 'src/domain/service/environment-permission.service';
+import { CheckAuthorizationService } from 'src/domain/service/check-authorization.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -38,26 +38,36 @@ const EnvironmentFacadeProvider = {
   inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
 };
 
-const EnvironmentAccessFacadeProvider = {
-  provide: 'EnvironmentAccessFacade',
+const EnvironmentPermissionFacadeProvider = {
+  provide: 'EnvironmentPermissionFacade',
   useFactory: (
-    repositoryFacade: RepositoryFacade,
     githubAdapterPort: GithubAdapterPort,
-    environmentAccessStoragePort: EnvironmentAccessStoragePort,
-    environmentAccessUtils: EnvironmentAccessUtils,
+    environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
+    environmentPermissionUtils: EnvironmentPermissionUtils,
+    checkAuthorizationService: CheckAuthorizationService,
   ) =>
-    new EnvironmentAccessService(
-      repositoryFacade,
+    new EnvironmentPermissionService(
       githubAdapterPort,
-      environmentAccessStoragePort,
-      environmentAccessUtils,
+      environmentPermissionStoragePort,
+      environmentPermissionUtils,
+      checkAuthorizationService,
     ),
   inject: [
-    'RepositoryFacade',
     'GithubAdapter',
-    'PostgresEnvironmentAccessAdapter',
-    'EnvironmentAccessUtils',
+    'PostgresEnvironmentPermissionAdapter',
+    'EnvironmentPermissionUtils',
+    'CheckAuthorizationService',
   ],
+};
+
+const CheckAuthorizationServiceProvider = {
+  provide: 'CheckAuthorizationService',
+  useFactory: (
+    githubAdapterPort: GithubAdapterPort,
+    configurationStoragePort: ConfigurationStoragePort,
+  ) =>
+    new CheckAuthorizationService(githubAdapterPort, configurationStoragePort),
+  inject: ['GithubAdapter', 'PostgresConfigurationAdapter'],
 };
 
 const OrganizationFacadeProvider = {
@@ -94,9 +104,9 @@ const ApiKeyFacadeProvider = {
   inject: ['ConfigurationFacade', 'PostgresApiKeyAdapter'],
 };
 
-const EnvironmentAccessUtilsProvider = {
-  provide: 'EnvironmentAccessUtils',
-  useValue: new EnvironmentAccessUtils(),
+const EnvironmentPermissionUtilsProvider = {
+  provide: 'EnvironmentPermissionUtils',
+  useValue: new EnvironmentPermissionUtils(),
 };
 
 @Module({
@@ -112,8 +122,9 @@ const EnvironmentAccessUtilsProvider = {
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
-    EnvironmentAccessFacadeProvider,
-    EnvironmentAccessUtilsProvider,
+    EnvironmentPermissionFacadeProvider,
+    EnvironmentPermissionUtilsProvider,
+    CheckAuthorizationServiceProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -122,7 +133,8 @@ const EnvironmentAccessUtilsProvider = {
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
-    EnvironmentAccessFacadeProvider,
+    EnvironmentPermissionFacadeProvider,
+    CheckAuthorizationServiceProvider,
   ],
 })
 export class DomainModule {}

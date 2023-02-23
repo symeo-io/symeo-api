@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
-import EnvironmentAccessEntity from 'src/infrastructure/postgres-adapter/entity/environment-access.entity';
+import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
 
 @Entity('environments')
 export default class EnvironmentEntity extends AbstractEntity {
@@ -30,11 +30,11 @@ export default class EnvironmentEntity extends AbstractEntity {
   configuration: ConfigurationEntity;
 
   @OneToMany(
-    () => EnvironmentAccessEntity,
-    (environmentAccess) => environmentAccess.environment,
+    () => EnvironmentPermissionEntity,
+    (environmentPermission) => environmentPermission.environment,
     { cascade: true },
   )
-  environmentAccesses: EnvironmentAccessEntity[];
+  environmentPermissions: EnvironmentPermissionEntity[];
 
   public toDomain(): Environment {
     return new Environment(this.id, this.name, this.color, this.createdAt);

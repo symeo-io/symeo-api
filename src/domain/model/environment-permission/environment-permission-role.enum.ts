@@ -1,4 +1,4 @@
-export enum EnvironmentAccessRole {
+export enum EnvironmentPermissionRole {
   ADMIN = 'admin',
   WRITE = 'write',
   READ_SECRET = 'readSecret',
