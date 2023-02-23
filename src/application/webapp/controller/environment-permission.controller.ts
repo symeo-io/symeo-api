@@ -16,7 +16,7 @@ export class EnvironmentPermissionController {
   ) {}
 
   @Get(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/environment-permissions',
+    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/permissions',
   )
   @ApiOkResponse({
     description: 'Members environment permissions successfully retrieved',

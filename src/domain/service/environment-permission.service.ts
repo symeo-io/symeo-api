@@ -69,16 +69,15 @@ export class EnvironmentPermissionService
 
     const environmentPermissionsToReturn = githubRepositoryUsers.map(
       (vcsUser) => {
-        const optionalInBaseEnvironmentPermission =
-          inBaseEnvironmentPermissions.find(
-            (inBaseEnvironmentPermission) =>
-              inBaseEnvironmentPermission.userVcsId === vcsUser.id,
-          );
+        const inBaseEnvironmentPermission = inBaseEnvironmentPermissions.find(
+          (inBaseEnvironmentPermission) =>
+            inBaseEnvironmentPermission.userVcsId === vcsUser.id,
+        );
 
-        if (!!optionalInBaseEnvironmentPermission)
+        if (!!inBaseEnvironmentPermission)
           return this.environmentPermissionUtils.generateEnvironmentPermission(
             vcsUser,
-            optionalInBaseEnvironmentPermission,
+            inBaseEnvironmentPermission,
           );
 
         return this.environmentPermissionUtils.generateDefaultEnvironmentPermissionFromVcsUser(

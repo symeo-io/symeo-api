@@ -83,7 +83,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
           )
           // Then
           .expect(404);
@@ -127,7 +127,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
           )
           // Then
           .expect(404);
@@ -185,7 +185,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
           )
           // Then
           .expect(404);
@@ -325,7 +325,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
           )
           // Then
           .expect(200);
@@ -389,7 +389,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/environment-permissions`,
+            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
           )
           // Then
           .expect(200);
