@@ -59,7 +59,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:id', () => {
+  describe('(PATCH) /configurations/github/:repositoryVcsId/:id', () => {
     it('should respond 404 with unknown configuration id', async () => {
       // Given
       const configurationId = uuid();
@@ -81,9 +81,14 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .delete(
+        .patch(
           `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}`,
         )
+        .send({
+          name: faker.datatype.string(),
+          contractFilePath: faker.datatype.string(),
+          branch: faker.datatype.string(),
+        })
         // Then
         .expect(404);
 
@@ -115,9 +120,14 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .delete(
+        .patch(
           `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
         )
+        .send({
+          name: faker.datatype.string(),
+          contractFilePath: faker.datatype.string(),
+          branch: faker.datatype.string(),
+        })
         // Then
         .expect(404);
 
@@ -156,19 +166,31 @@ describe('ConfigurationController', () => {
         Promise.resolve(mockGitHubRepositoryResponse),
       );
 
+      const newValues = {
+        name: faker.datatype.string(),
+        contractFilePath: faker.datatype.string(),
+        branch: faker.datatype.string(),
+      };
+
       await appClient
         .request(currentUser)
-        .delete(
+        .patch(
           `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
         )
+        .send(newValues)
         .expect(200);
 
-      const deletedConfiguration: ConfigurationEntity | null =
+      const updatedConfiguration: ConfigurationEntity | null =
         await configurationRepository.findOneBy({
           id: configuration.id,
         });
 
-      expect(deletedConfiguration).toBeNull();
+      expect(updatedConfiguration).toBeDefined();
+      expect(updatedConfiguration?.name).toEqual(newValues.name);
+      expect(updatedConfiguration?.contractFilePath).toEqual(
+        newValues.contractFilePath,
+      );
+      expect(updatedConfiguration?.branch).toEqual(newValues.branch);
     });
   });
 });

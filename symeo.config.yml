@@ -50,8 +50,10 @@ datadog:
       optional: true
   service:
     type: string
+    optional: true
   env:
     type: string
+    optional: true
 logger:
   local:
     type: boolean
