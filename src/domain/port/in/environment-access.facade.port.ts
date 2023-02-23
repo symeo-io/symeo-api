@@ -11,6 +11,7 @@ export interface EnvironmentAccessFacade {
   updateEnvironmentAccesses(
     user: User,
     vcsRepositoryId: number,
+    configurationId: string,
     environmentId: string,
     environmentAccesses: EnvironmentAccess[],
   ): Promise<EnvironmentAccess[]>;

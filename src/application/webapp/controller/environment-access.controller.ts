@@ -61,6 +61,7 @@ export class EnvironmentAccessController {
       await this.environmentAccessFacade.updateEnvironmentAccesses(
         user,
         parseInt(vcsRepositoryId),
+        configurationId,
         environmentId,
         updateEnvironmentAccessesDTO.toDomain(),
       ),

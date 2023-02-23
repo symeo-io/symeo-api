@@ -38,6 +38,7 @@ export class EnvironmentAccessService implements EnvironmentAccessFacade {
   async updateEnvironmentAccesses(
     user: User,
     vcsRepositoryId: number,
+    configurationId: string,
     environmentId: string,
     environmentAccesses: EnvironmentAccess[],
   ): Promise<EnvironmentAccess[]> {
@@ -46,6 +47,7 @@ export class EnvironmentAccessService implements EnvironmentAccessFacade {
         return this.updateEnvironmentAccessesWithGithub(
           user,
           vcsRepositoryId,
+          configurationId,
           environmentId,
           environmentAccesses,
         );
@@ -104,6 +106,7 @@ export class EnvironmentAccessService implements EnvironmentAccessFacade {
   private async updateEnvironmentAccessesWithGithub(
     user: User,
     vcsRepositoryId: number,
+    configurationId: string,
     environmentId: string,
     environmentAccesses: EnvironmentAccess[],
   ) {
