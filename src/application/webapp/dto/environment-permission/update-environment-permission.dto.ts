@@ -1,27 +1,17 @@
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import Environment from 'src/domain/model/environment/environment.model';
 
-export class EnvironmentPermission {
+export class UpdateEnvironmentPermissionDTO {
   id: string;
   userVcsId: number;
-  userName?: string;
-  userAvatarUrl?: string;
-  environment?: Environment;
   environmentPermissionRole: EnvironmentPermissionRole;
 
   constructor(
     id: string,
     userVcsId: number,
     environmentPermissionRole: EnvironmentPermissionRole,
-    environment?: Environment,
-    userName?: string,
-    userAvatarUrl?: string,
   ) {
     this.id = id;
     this.userVcsId = userVcsId;
-    this.environment = environment;
     this.environmentPermissionRole = environmentPermissionRole;
-    this.userName = userName;
-    this.userAvatarUrl = userAvatarUrl;
   }
 }

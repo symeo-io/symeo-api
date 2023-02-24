@@ -62,8 +62,12 @@ export class EnvironmentPermissionDTO {
           : '',
       },
       {
-        environmentId: environmentPermission.environment.id,
-        environmentName: environmentPermission.environment.name,
+        environmentId: environmentPermission.environment
+          ? environmentPermission.environment.id
+          : '',
+        environmentName: environmentPermission.environment
+          ? environmentPermission.environment.name
+          : '',
       },
       environmentPermission.environmentPermissionRole,
     );

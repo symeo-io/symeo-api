@@ -1,15 +1,18 @@
-import { Controller, Get, Inject, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
 import { GetEnvironmentPermissionsResponseDTO } from 'src/application/webapp/dto/environment-permission/get-environment-permissions.response.dto';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import User from 'src/domain/model/user/user.model';
-import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
-import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
-import Environment from 'src/domain/model/environment/environment.model';
-import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
-import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 @Controller('configurations')
 @ApiTags('environment-permissions')
@@ -38,6 +41,27 @@ export class EnvironmentPermissionController {
         user,
         repository,
         environment,
+      ),
+    );
+  }
+
+  @Post(
+    'github/:vcsRepository/:configurationId/environments/:environmentId/environment-permissions',
+  )
+  async updateEnvironmentPermissions(
+    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('configurationId') configurationId: string,
+    @Param('environmentId') environmentId: string,
+    @CurrentUser() user: User,
+    @Body() updateEnvironmentPermissionsDTO: UpdateEnvironmentPermissionsDTO,
+  ): Promise<UpdateEnvironmentPermissionsResponseDTO> {
+    return UpdateEnvironmentPermissionsResponseDTO.fromDomains(
+      await this.environmentPermissionFacade.updateEnvironmentPermissions(
+        user,
+        parseInt(vcsRepositoryId),
+        configurationId,
+        environmentId,
+        updateEnvironmentPermissionsDTO.toDomain(),
       ),
     );
   }

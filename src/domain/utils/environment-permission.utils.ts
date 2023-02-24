@@ -12,8 +12,8 @@ export class EnvironmentPermissionUtils {
     return new EnvironmentPermission(
       uuid(),
       vcsUser.id,
-      environment,
       this.mapGithubRightToSymeoRight(vcsUser.roleName),
+      environment,
       vcsUser.name,
       vcsUser.avatarUrl,
     );
@@ -26,8 +26,8 @@ export class EnvironmentPermissionUtils {
     return new EnvironmentPermission(
       inBaseEnvironmentPermission.id,
       inBaseEnvironmentPermission.userVcsId,
-      inBaseEnvironmentPermission.environment,
       inBaseEnvironmentPermission.environmentPermissionRole,
+      inBaseEnvironmentPermission.environment,
       vcsUser.name,
       vcsUser.avatarUrl,
     );
