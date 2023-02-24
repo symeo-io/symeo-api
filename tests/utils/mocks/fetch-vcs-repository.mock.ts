@@ -6,7 +6,7 @@ import { faker } from '@faker-js/faker';
 export type MockedRepository = {
   name: string;
   id: number;
-  owner: { login: string; id: number };
+  owner: { login: string; id: number; avatar_url: string };
 };
 
 export class FetchVcsRepositoryMock {
@@ -22,7 +22,11 @@ export class FetchVcsRepositoryMock {
     const data = {
       name: faker.datatype.string(),
       id: faker.datatype.number(),
-      owner: { login: faker.datatype.string(), id: faker.datatype.number() },
+      owner: {
+        login: faker.datatype.string(),
+        id: faker.datatype.number(),
+        avatar_url: faker.datatype.string(),
+      },
     };
     const mockGitHubRepositoryResponse = {
       status: 200 as const,
