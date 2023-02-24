@@ -46,7 +46,7 @@ describe('ConfigurationController', () => {
     fetchVcsRepositoryMock.restore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:id', () => {
+  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 404 with unknown configuration id', async () => {
       // Given
       const configurationId = uuid();

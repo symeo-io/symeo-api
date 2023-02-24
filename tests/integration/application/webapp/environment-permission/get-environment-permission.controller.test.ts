@@ -68,7 +68,7 @@ describe('EnvironmentPermissionController', () => {
     getGitHubAccessTokenMock.mockRestore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/environment-accesses', () => {
+  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions', () => {
     describe('should return 404', () => {
       it('should return 404 for non existing repository', async () => {
         // Given

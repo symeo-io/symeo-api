@@ -61,7 +61,7 @@ describe('EnvironmentController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(PATCH) /configurations/github/:repositoryVcsId/environments/:environmentId', () => {
+  describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
     it('Should return 400 for missing environment data', async () => {
       const repositoryVcsId: number = faker.datatype.number();
       const repositoryVcsName = faker.name.firstName();
