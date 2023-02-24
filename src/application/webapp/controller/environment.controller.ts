@@ -3,21 +3,23 @@ import {
   Controller,
   Delete,
   Inject,
-  Param,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { UpdateEnvironmentDTO } from 'src/application/webapp/dto/environment/update-environment.dto';
-import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user/user.model';
 import { UpdateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/update-environment.response.dto';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { CreateEnvironmentDTO } from 'src/application/webapp/dto/environment/create-environment.dto';
 import { CreateEnvironmentResponseDTO } from 'src/application/webapp/dto/configuration/create-environment.response.dto';
 import { EnvironmentFacade } from 'src/domain/port/in/environment.facade.port';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
+import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
+import Environment from 'src/domain/model/environment/environment.model';
+import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
+import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
+import Configuration from 'src/domain/model/configuration/configuration.model';
 
 @Controller('configurations')
 @ApiTags('environments')
@@ -25,7 +27,7 @@ import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class EnvironmentController {
   constructor(
     @Inject('EnvironmentFacade')
-    private readonly configurationFacade: EnvironmentFacade,
+    private readonly environmentFacade: EnvironmentFacade,
   ) {}
 
   @Patch('github/:repositoryVcsId/:configurationId/environments/:environmentId')
@@ -33,24 +35,17 @@ export class EnvironmentController {
     description: 'Environment successfully updated',
     type: UpdateEnvironmentResponseDTO,
   })
+  @UseGuards(EnvironmentAuthorizationGuard)
   async updateEnvironment(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
+    @RequestedEnvironment() environment: Environment,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
-    @CurrentUser() user: User,
   ): Promise<UpdateEnvironmentResponseDTO> {
-    const updatedConfiguration =
-      await this.configurationFacade.updateEnvironment(
-        user,
-        VCSProvider.GitHub,
-        parseInt(repositoryVcsId),
-        configurationId,
-        environmentId,
-        updateEnvironmentDTO.name,
-        updateEnvironmentDTO.color,
-      );
-    return UpdateEnvironmentResponseDTO.fromDomain(updatedConfiguration);
+    const updatedEnvironment = await this.environmentFacade.updateEnvironment(
+      environment,
+      updateEnvironmentDTO.name,
+      updateEnvironmentDTO.color,
+    );
+    return UpdateEnvironmentResponseDTO.fromDomain(updatedEnvironment);
   }
 
   @ApiOkResponse({
@@ -59,19 +54,11 @@ export class EnvironmentController {
   @Delete(
     'github/:repositoryVcsId/:configurationId/environments/:environmentId',
   )
+  @UseGuards(EnvironmentAuthorizationGuard)
   async deleteEnvironment(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
-    @CurrentUser() user: User,
+    @RequestedEnvironment() environment: Environment,
   ): Promise<void> {
-    await this.configurationFacade.deleteEnvironment(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
-      environmentId,
-    );
+    await this.environmentFacade.deleteEnvironment(environment);
   }
 
   @ApiResponse({ status: 201 })
@@ -80,17 +67,13 @@ export class EnvironmentController {
     type: CreateEnvironmentResponseDTO,
   })
   @Post('github/:repositoryVcsId/:configurationId/environments')
+  @UseGuards(ConfigurationAuthorizationGuard)
   async createEnvironment(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
+    @RequestedConfiguration() configuration: Configuration,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
-    @CurrentUser() user: User,
   ): Promise<CreateEnvironmentResponseDTO> {
-    const environment = await this.configurationFacade.createEnvironment(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
+    const environment = await this.environmentFacade.createEnvironment(
+      configuration,
       createEnvironmentDTO.name,
       createEnvironmentDTO.color,
     );

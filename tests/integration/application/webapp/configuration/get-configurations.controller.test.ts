@@ -9,6 +9,7 @@ import { Octokit } from '@octokit/rest';
 import SpyInstance = jest.SpyInstance;
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -91,12 +92,16 @@ describe('ConfigurationController', () => {
         throw { status: 404 };
       });
 
-      appClient
+      const response = await appClient
         .request(currentUser)
         // When
         .get(`/api/v1/configurations/github/${repositoryVcsId}`)
         // Then
         .expect(404);
+
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+      );
     });
 
     it('should respond 200 with known repository and id', async () => {

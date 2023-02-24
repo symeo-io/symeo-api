@@ -132,7 +132,7 @@ describe('ConfigurationController', () => {
         .expect(404);
 
       expect(response.body.code).toEqual(
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     });
 

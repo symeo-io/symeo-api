@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateGitHubConfigurationDTO {
@@ -6,11 +6,6 @@ export class CreateGitHubConfigurationDTO {
   @IsNotEmpty()
   @IsString()
   name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  repositoryVcsId: number;
 
   @ApiProperty()
   @IsNotEmpty()

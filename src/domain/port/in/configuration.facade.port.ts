@@ -2,8 +2,11 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import User from 'src/domain/model/user/user.model';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 export default interface ConfigurationFacade {
+  findById(repository: VcsRepository, id: string): Promise<Configuration>;
+
   findByIdForUser(
     user: User,
     vcsType: VCSProvider,
@@ -11,11 +14,7 @@ export default interface ConfigurationFacade {
     id: string,
   ): Promise<Configuration>;
 
-  findAllForRepositoryIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-  ): Promise<Configuration[]>;
+  findAllForRepository(repository: VcsRepository): Promise<Configuration[]>;
 
   validateCreateForUser(
     user: User,
@@ -24,36 +23,26 @@ export default interface ConfigurationFacade {
     branch: string,
   ): Promise<{ isValid: boolean; message?: string }>;
 
-  findContractByIdForUser(
+  findContract(
     user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
+    configuration: Configuration,
     branchName?: string,
   ): Promise<ConfigurationContract>;
 
-  createForUser(
+  createForRepository(
     user: User,
-    name: string,
-    repositoryVcsId: number,
-    contractFilePath: string,
-    branch: string,
-  ): Promise<Configuration>;
-
-  updateForUser(
-    user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
+    repository: VcsRepository,
     name: string,
     contractFilePath: string,
     branch: string,
   ): Promise<Configuration>;
 
-  deleteByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
-  ): Promise<void>;
+  update(
+    configuration: Configuration,
+    name: string,
+    contractFilePath: string,
+    branch: string,
+  ): Promise<Configuration>;
+
+  delete(configuration: Configuration): Promise<void>;
 }

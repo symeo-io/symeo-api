@@ -64,13 +64,48 @@ describe('EnvironmentController', () => {
   describe('(PATCH) /configurations/github/:repositoryVcsId/environments/:environmentId', () => {
     it('Should return 400 for missing environment data', async () => {
       const repositoryVcsId: number = faker.datatype.number();
-      const configurationId: string = uuid();
-      const environmentId: string = uuid();
+      const repositoryVcsName = faker.name.firstName();
+      const ownerVcsId = faker.datatype.number();
+      const ownerVcsName = faker.name.firstName();
+      const mockGithubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: repositoryVcsName,
+          id: repositoryVcsId,
+          owner: { login: ownerVcsName, id: ownerVcsId },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGithubRepositoryResponse),
+      );
+
+      const configuration = new ConfigurationEntity();
+      configuration.id = uuid();
+      configuration.name = faker.name.jobTitle();
+      configuration.vcsType = VCSProvider.GitHub;
+      configuration.repositoryVcsId = repositoryVcsId;
+      configuration.repositoryVcsName = repositoryVcsName;
+      configuration.ownerVcsId = ownerVcsId;
+      configuration.ownerVcsName = ownerVcsName;
+      configuration.contractFilePath = './symeo.config.yml';
+      configuration.branch = 'staging';
+
+      const environment = new EnvironmentEntity();
+      environment.id = uuid();
+      environment.name = faker.datatype.string();
+      environment.color = 'blue';
+
+      configuration.environments = [environment];
+
+      await configurationRepository.save(configuration);
+
       await appClient
         .request(currentUser)
         // When
         .patch(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environment.id}`,
         )
         .send({})
         // Then

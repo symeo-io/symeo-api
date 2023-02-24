@@ -23,7 +23,7 @@ async function bootstrap() {
       ? {}
       : { logger: WinstonModule.createLogger(loggerInstance) },
   );
-  app.useGlobalFilters(new SymeoExceptionHttpFilter());
+  app.useGlobalFilters(new SymeoExceptionHttpFilter(loggerInstance));
   app.enableCors({
     credentials: true,
     origin: config.cors.origin,

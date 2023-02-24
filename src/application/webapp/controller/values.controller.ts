@@ -4,18 +4,17 @@ import {
   Get,
   HttpCode,
   Inject,
-  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user/user.model';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { GetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/values/get-environment-values.response.dto';
 import { ValuesFacade } from 'src/domain/port/in/values.facade';
 import { SetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/values/set-environment-values.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
+import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
+import Environment from 'src/domain/model/environment/environment.model';
 
 @Controller('configurations')
 @ApiTags('values')
@@ -26,50 +25,36 @@ export class ValuesController {
     private readonly valuesFacade: ValuesFacade,
   ) {}
 
-  @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
-  )
   @ApiOkResponse({
     description: 'Environment values successfully retrieved',
     type: GetEnvironmentValuesResponseDTO,
   })
+  @Get(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
+  )
+  @UseGuards(EnvironmentAuthorizationGuard)
   async getEnvironmentValues(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
-    @CurrentUser() user: User,
+    @RequestedEnvironment() environment: Environment,
   ): Promise<GetEnvironmentValuesResponseDTO> {
-    const values = await this.valuesFacade.findByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
-      environmentId,
-    );
+    const values = await this.valuesFacade.findByEnvironmentId(environment.id);
 
     return new GetEnvironmentValuesResponseDTO(values);
   }
 
-  @Post(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
-  )
   @ApiOkResponse({
     description: 'Environment values successfully created',
   })
+  @Post(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
+  )
+  @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
   async setEnvironmentValues(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
+    @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
-    @CurrentUser() user: User,
   ): Promise<void> {
-    await this.valuesFacade.updateByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
-      environmentId,
+    await this.valuesFacade.updateByEnvironment(
+      environment,
       setEnvironmentValuesResponseDTO.values,
     );
   }

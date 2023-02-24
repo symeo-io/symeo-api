@@ -19,6 +19,7 @@ describe('ConfigurationController', () => {
   let githubClient: Octokit;
   let getGitHubAccessTokenMock: SpyInstance;
   let githubClientGetContentMock: SpyInstance;
+  let githubClientRequestMock: SpyInstance;
   const mockAccessToken = uuid();
 
   const currentUser = new User(
@@ -48,6 +49,7 @@ describe('ConfigurationController', () => {
 
   beforeEach(async () => {
     await configurationRepository.delete({});
+    githubClientRequestMock = jest.spyOn(githubClient, 'request');
     githubClientGetContentMock = jest.spyOn(githubClient.repos, 'getContent');
     getGitHubAccessTokenMock = jest.spyOn(
       vcsAccessTokenStorage,
@@ -61,6 +63,7 @@ describe('ConfigurationController', () => {
   afterEach(() => {
     getGitHubAccessTokenMock.mockRestore();
     githubClientGetContentMock.mockRestore();
+    githubClientRequestMock.mockRestore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/contract', () => {
@@ -73,8 +76,21 @@ describe('ConfigurationController', () => {
           .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
       );
-
       const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      const mockGitHubContentResponse = {
         status: 200 as const,
         headers: {},
         url: '',
@@ -84,7 +100,7 @@ describe('ConfigurationController', () => {
         },
       };
       githubClientGetContentMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+        Promise.resolve(mockGitHubContentResponse),
       );
 
       appClient
@@ -111,6 +127,20 @@ describe('ConfigurationController', () => {
       configuration.branch = 'staging';
 
       await configurationRepository.save(configuration);
+
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
 
       githubClientGetContentMock.mockImplementation(() => {
         throw { status: 404 };
@@ -141,13 +171,27 @@ describe('ConfigurationController', () => {
 
       await configurationRepository.save(configuration);
 
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
       const mockConfigurationContract = base64encode(
         fs
           .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
       );
 
-      const mockGitHubRepositoryResponse = {
+      const mockGitHubContentResponse = {
         status: 200 as const,
         headers: {},
         url: '',
@@ -157,7 +201,7 @@ describe('ConfigurationController', () => {
         },
       };
       githubClientGetContentMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+        Promise.resolve(mockGitHubContentResponse),
       );
 
       const response = await appClient
@@ -199,13 +243,27 @@ describe('ConfigurationController', () => {
 
       await configurationRepository.save(configuration);
 
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: 'symeo-api',
+          id: repositoryVcsId,
+          owner: { login: 'symeo-io', id: 585863519 },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
       const mockConfigurationContract = base64encode(
         fs
           .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
           .toString(),
       );
 
-      const mockGitHubRepositoryResponse = {
+      const mockGitHubContentResponse = {
         status: 200 as const,
         headers: {},
         url: '',
@@ -215,7 +273,7 @@ describe('ConfigurationController', () => {
         },
       };
       githubClientGetContentMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+        Promise.resolve(mockGitHubContentResponse),
       );
 
       const requestedBranch = 'branch-123456';
