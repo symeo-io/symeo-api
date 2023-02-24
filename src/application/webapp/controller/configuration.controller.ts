@@ -26,6 +26,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.dto';
 import { UpdateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.response.dto';
+import { RepositoryAuthorizationGuard } from 'src/application/webapp/authorization/RepositoryAuthorizationGuard';
+import { RequestedRepository } from 'src/application/webapp/decorator/current-repository.decorator';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 @Controller('configurations')
 @ApiTags('configurations')
@@ -60,15 +63,13 @@ export class ConfigurationController {
     type: GetConfigurationResponseDTO,
   })
   @Get('github/:repositoryVcsId/:configurationId')
+  @UseGuards(RepositoryAuthorizationGuard)
   async getGitHubConfigurationById(
-    @Param('repositoryVcsId') repositoryVcsId: string,
+    @RequestedRepository() repository: VcsRepository,
     @Param('configurationId') configurationId: string,
-    @CurrentUser() user: User,
   ): Promise<GetConfigurationResponseDTO> {
-    const configuration = await this.configurationFacade.findByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
+    const configuration = await this.configurationFacade.findById(
+      repository,
       configurationId,
     );
 

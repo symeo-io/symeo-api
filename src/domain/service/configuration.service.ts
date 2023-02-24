@@ -10,6 +10,7 @@ import { ConfigurationContract } from 'src/domain/model/configuration/configurat
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -33,6 +34,26 @@ export default class ConfigurationService implements ConfigurationFacade {
     ]);
 
     if (!hasUserAccessToRepository || !configuration) {
+      throw new SymeoException(
+        `Configuration not found for id ${id}`,
+        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
+      );
+    }
+
+    return configuration;
+  }
+
+  async findById(
+    repository: VcsRepository,
+    id: string,
+  ): Promise<Configuration> {
+    const configuration = await this.configurationStoragePort.findById(
+      repository.vcsType,
+      repository.id,
+      id,
+    );
+
+    if (!configuration) {
       throw new SymeoException(
         `Configuration not found for id ${id}`,
         SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
