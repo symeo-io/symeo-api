@@ -90,6 +90,7 @@ describe('Authorizations', () => {
 
   beforeEach(async () => {
     await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
