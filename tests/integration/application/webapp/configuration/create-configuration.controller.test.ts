@@ -50,7 +50,7 @@ describe('ConfigurationController', () => {
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
-    it('should not create configuration for non existing config file', async () => {
+    it('should respond 404 and not create configuration for non existing config file', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       fetchVcsFileMock.mockFileMissing();
@@ -68,7 +68,7 @@ describe('ConfigurationController', () => {
         .expect(404);
     });
 
-    it('should create a new configuration', async () => {
+    it('should respond 200 and create new configuration', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       fetchVcsFileMock.mockFilePresent();

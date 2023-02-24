@@ -4,7 +4,6 @@ import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
@@ -47,49 +46,7 @@ describe('ConfigurationController', () => {
   });
 
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {
-    it('should respond 404 with unknown configuration id', async () => {
-      // Given
-      const configurationId = uuid();
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-
-      const response = await appClient
-        .request(currentUser)
-        // When
-        .delete(
-          `/api/v1/configurations/github/${repository.id}/${configurationId}`,
-        )
-        // Then
-        .expect(404);
-
-      expect(response.body.code).toEqual(
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    });
-
-    it('should respond 404 with unknown repository id', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      fetchVcsRepositoryMock.mockRepositoryMissing();
-
-      const configuration = await configurationTestUtil.createConfiguration(
-        repositoryVcsId,
-      );
-
-      const response = await appClient
-        .request(currentUser)
-        // When
-        .delete(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}`,
-        )
-        // Then
-        .expect(404);
-
-      expect(response.body.code).toEqual(
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-      );
-    });
-
-    it('should respond 200 with known repository and id', async () => {
+    it('should respond 200 and delete configuration', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(

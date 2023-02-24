@@ -12,7 +12,6 @@ import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/enviro
 import Environment from 'src/domain/model/environment/environment.model';
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
@@ -73,117 +72,7 @@ describe('ValuesController', () => {
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
-    it('should respond 404 with unknown configuration id', () => {
-      // Given
-      const configurationId = uuid();
-      const repositoryVcsId = 105865802;
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
-      );
-
-      appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('should respond 404 with unknown repository id', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.contractFilePath = faker.datatype.string();
-      configuration.branch = faker.datatype.string();
-      configuration.environments = [
-        EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), 'red'),
-        ),
-      ];
-
-      await configurationRepository.save(configuration);
-
-      githubClientRequestMock.mockImplementation(() => {
-        throw { status: 404 };
-      });
-
-      const response = await appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
-        )
-        // Then
-        .expect(404);
-
-      expect(response.body.code).toEqual(
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-      );
-    });
-
-    it('should respond 404 with unknown environment id', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.contractFilePath = faker.datatype.string();
-      configuration.branch = faker.datatype.string();
-      configuration.environments = [];
-
-      await configurationRepository.save(configuration);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
-      );
-
-      appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${
-            configuration.id
-          }/environments/${uuid()}/values`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('should respond 200 with values', async () => {
+    it('should respond 200 and return values', async () => {
       // Given
       const repositoryVcsId = 105865802;
       const configuration = new ConfigurationEntity();

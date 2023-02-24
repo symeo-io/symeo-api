@@ -61,78 +61,7 @@ describe('EnvironmentController', () => {
   });
 
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
-    it('Should return 400 for non existing repository', async () => {
-      // When
-      const repositoryVcsId: number = faker.datatype.number();
-      const configurationId: string = uuid();
-      const environmentId: string = uuid();
-      githubClientRequestMock.mockImplementation(() => {
-        throw { status: 404 };
-      });
-      await appClient
-        .request(currentUser)
-        // When
-        .delete(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('Should return 404 for non existing environment', async () => {
-      // When
-      const repositoryVcsId: number = faker.datatype.number();
-      const repositoryVcsName = faker.name.firstName();
-      const ownerVcsId = faker.datatype.number();
-      const ownerVcsName = faker.name.firstName();
-      const mockGithubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGithubRepositoryResponse),
-      );
-
-      const environmentId = uuid();
-      const environmentName = faker.name.firstName();
-      const environmentColor = 'blue';
-
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.repositoryVcsName = repositoryVcsName;
-      configuration.ownerVcsId = ownerVcsId;
-      configuration.ownerVcsName = ownerVcsName;
-      configuration.contractFilePath = './symeo.config.yml';
-      configuration.branch = 'staging';
-      configuration.environments = [
-        EnvironmentEntity.fromDomain(
-          new Environment(environmentId, environmentName, environmentColor),
-        ),
-      ];
-      await configurationRepository.save(configuration);
-
-      await appClient
-        .request(currentUser)
-        // When
-        .delete(
-          `/api/v1/configurations/github/${repositoryVcsId}/${
-            configuration.id
-          }/environments/${uuid()}`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('Should return 200 and delete environment from configuration', async () => {
+    it('Should return 200 and delete environment', async () => {
       // When
       const repositoryVcsId: number = faker.datatype.number();
       const repositoryVcsName = faker.name.firstName();

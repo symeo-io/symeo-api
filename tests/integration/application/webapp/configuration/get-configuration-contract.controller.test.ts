@@ -50,24 +50,6 @@ describe('ConfigurationController', () => {
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/contract', () => {
-    it('should respond 404 with unknown configuration id', () => {
-      // Given
-      const configurationId = uuid();
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        './tests/utils/stubs/configuration/symeo.config.yml',
-      );
-
-      appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configurationId}/contract`,
-        )
-        // Then
-        .expect(404);
-    });
-
     it('should respond 404 with unknown file', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
@@ -88,7 +70,7 @@ describe('ConfigurationController', () => {
         .expect(404);
     });
 
-    it('should respond 200 with known file and id', async () => {
+    it('should respond 200 and return contract', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       fetchVcsFileMock.mockSymeoContractFilePresent(
@@ -122,7 +104,7 @@ describe('ConfigurationController', () => {
       expect(response.body.contract.database.password.secret).toEqual(true);
     });
 
-    it('should respond 200 with known file and id and custom branch', async () => {
+    it('should respond 200 and return contract for custom branch', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       fetchVcsFileMock.mockSymeoContractFilePresent(

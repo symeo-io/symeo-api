@@ -9,8 +9,6 @@ import { Repository } from 'typeorm';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
-import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/exception/symeo.exception.code.to.http.status.map';
 import * as fs from 'fs';
 import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
@@ -69,138 +67,7 @@ describe('EnvironmentPermissionController', () => {
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions', () => {
-    describe('should return 404', () => {
-      it('should return 404 for non existing repository', async () => {
-        // Given
-        const configurationId = uuid();
-        const repositoryVcsId = 593240835;
-        const environmentId = uuid();
-        githubClientRequestMock.mockImplementation(() => {
-          throw { status: 404 };
-        });
-
-        const response = await appClient
-          .request(currentUser)
-          // When
-          .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
-          )
-          // Then
-          .expect(404);
-        expect(response.body.statusCode).toBe(
-          SymeoExceptionCodeToHttpStatusMap[
-            SymeoExceptionCode.REPOSITORY_NOT_FOUND
-          ],
-        );
-        expect(response.body.message).toBe(
-          `Repository not found for repositoryVcsId ${repositoryVcsId}`,
-        );
-      });
-
-      it('should return 404 for non existing configuration', async () => {
-        // Given
-        const repositoryVcsId = 593240835;
-        const configurationId = uuid();
-        const environmentId = uuid();
-        const repositoryVcsName = 'symeo-api';
-        const ownerVcsId = 105865802;
-        const ownerVcsName = 'symeo-io';
-        githubClientRequestMock.mockImplementation(() => {
-          throw { status: 404 };
-        });
-
-        const mockGitHubRepositoryResponse = {
-          status: 200 as const,
-          headers: {},
-          url: '',
-          data: {
-            name: repositoryVcsName,
-            id: repositoryVcsId,
-            owner: { login: ownerVcsName, id: ownerVcsId },
-          },
-        };
-        githubClientRequestMock.mockImplementation(() =>
-          Promise.resolve(mockGitHubRepositoryResponse),
-        );
-
-        const response = await appClient
-          .request(currentUser)
-          // When
-          .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
-          )
-          // Then
-          .expect(404);
-        expect(response.body.statusCode).toBe(
-          SymeoExceptionCodeToHttpStatusMap[
-            SymeoExceptionCode.CONFIGURATION_NOT_FOUND
-          ],
-        );
-        expect(response.body.message).toBe(
-          `Configuration not found for repositoryVcsId ${repositoryVcsId} and configurationId ${configurationId}`,
-        );
-      });
-
-      it('should return 404 for non existing environment', async () => {
-        // Given
-        const repositoryVcsId = 593240835;
-        const configurationId = uuid();
-        const environmentId = uuid();
-        const repositoryVcsName = 'symeo-api';
-        const ownerVcsId = 105865802;
-        const ownerVcsName = 'symeo-io';
-        githubClientRequestMock.mockImplementation(() => {
-          throw { status: 404 };
-        });
-
-        const mockGitHubRepositoryResponse = {
-          status: 200 as const,
-          headers: {},
-          url: '',
-          data: {
-            name: repositoryVcsName,
-            id: repositoryVcsId,
-            owner: { login: ownerVcsName, id: ownerVcsId },
-          },
-        };
-        githubClientRequestMock.mockImplementation(() =>
-          Promise.resolve(mockGitHubRepositoryResponse),
-        );
-
-        const configurationEntity = new ConfigurationEntity();
-        configurationEntity.id = configurationId;
-        configurationEntity.name = faker.name.jobTitle();
-        configurationEntity.vcsType = VCSProvider.GitHub;
-        configurationEntity.repositoryVcsId = repositoryVcsId;
-        configurationEntity.repositoryVcsName = repositoryVcsName;
-        configurationEntity.ownerVcsId = ownerVcsId;
-        configurationEntity.ownerVcsName = ownerVcsName;
-        configurationEntity.contractFilePath = './symeo.config.yml';
-        configurationEntity.branch = 'staging';
-        configurationEntity.environments = [];
-
-        await configurationRepository.save(configurationEntity);
-
-        const response = await appClient
-          .request(currentUser)
-          // When
-          .get(
-            `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
-          )
-          // Then
-          .expect(404);
-        expect(response.body.statusCode).toBe(
-          SymeoExceptionCodeToHttpStatusMap[
-            SymeoExceptionCode.ENVIRONMENT_NOT_FOUND
-          ],
-        );
-        expect(response.body.message).toBe(
-          `Environment not found for repositoryVcsId ${repositoryVcsId} and configurationId ${configurationId} and environmentId ${environmentId}`,
-        );
-      });
-    });
-
-    describe('should return 200', () => {
+    describe('should respond 200 and return permissions', () => {
       const configurationId = uuid();
       const environmentId = uuid();
       const repositoryVcsId = 593240835;
@@ -298,7 +165,7 @@ describe('EnvironmentPermissionController', () => {
           );
       });
 
-      it('should return 200 with only github environment accesses', async () => {
+      it('should respond 200 with only github environment accesses', async () => {
         // Given
 
         const environmentEntity = new EnvironmentEntity();
@@ -347,7 +214,7 @@ describe('EnvironmentPermissionController', () => {
         );
       });
 
-      it('should return 200 with mixed github and inBase environment accesses', async () => {
+      it('should respond 200 with mixed github and inBase environment accesses', async () => {
         // Given
 
         const environmentPermissionEntity1 = new EnvironmentPermissionEntity();

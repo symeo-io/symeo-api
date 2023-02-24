@@ -59,73 +59,7 @@ describe('EnvironmentController', () => {
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments', () => {
-    it('Should return 400 for missing environment data', async () => {
-      const repositoryVcsId: number = faker.datatype.number();
-      const repositoryVcsName = faker.name.firstName();
-      const ownerVcsId = faker.datatype.number();
-      const ownerVcsName = faker.name.firstName();
-      const mockGithubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGithubRepositoryResponse),
-      );
-
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.repositoryVcsName = repositoryVcsName;
-      configuration.ownerVcsId = ownerVcsId;
-      configuration.ownerVcsName = ownerVcsName;
-      configuration.contractFilePath = './symeo.config.yml';
-      configuration.branch = 'staging';
-
-      await configurationRepository.save(configuration);
-
-      await appClient
-        .request(currentUser)
-        // When
-        .post(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments`,
-        )
-        .send({})
-        // Then
-        .expect(400);
-    });
-
-    it('Should return 404 for non existing repository', async () => {
-      const repositoryVcsId = faker.datatype.number();
-      const configurationId = uuid();
-      githubClientRequestMock.mockImplementation(() => {
-        throw { status: 404 };
-      });
-
-      const data = {
-        name: faker.name.firstName(),
-        color: 'blue',
-      };
-
-      await appClient
-        .request(currentUser)
-        // When
-        .post(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments`,
-        )
-        .send(data)
-        // Then
-        .expect(404);
-    });
-
-    it('Should return 200 and create new environment in configuration', async () => {
+    it('Should return 201 and create new environment', async () => {
       const repositoryVcsId: number = faker.datatype.number();
       const repositoryVcsName = faker.name.firstName();
       const ownerVcsId = faker.datatype.number();

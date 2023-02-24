@@ -45,7 +45,7 @@ describe('ConfigurationController', () => {
   });
 
   describe('(GET) /github/validate', () => {
-    it('should respond false with unknown repository id', async () => {
+    it('should respond false for unknown repository id', async () => {
       // Given
       const repositoryVcsId = 105865802;
       fetchVcsRepositoryMock.mockRepositoryMissing();
