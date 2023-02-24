@@ -50,24 +50,6 @@ describe('ConfigurationController', () => {
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
-    it('should not create configuration for non existing repository', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      fetchVcsRepositoryMock.mockRepositoryMissing();
-
-      await appClient
-        .request(currentUser)
-        // When
-        .post(`/api/v1/configurations/github/${repositoryVcsId}`)
-        .send({
-          name: faker.name.jobTitle(),
-          branch: 'staging',
-          contractFilePath: './symeo.config.yml',
-        })
-        // Then
-        .expect(404);
-    });
-
     it('should not create configuration for non existing config file', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();

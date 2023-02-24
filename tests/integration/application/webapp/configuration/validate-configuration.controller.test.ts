@@ -75,7 +75,7 @@ describe('ConfigurationController', () => {
         // When
         .post(`/api/v1/configurations/github/validate`)
         .send({
-          repositoryVcsId: repository,
+          repositoryVcsId: repository.id,
           contractFilePath: faker.datatype.string(),
           branch: faker.datatype.string(),
         })
@@ -95,7 +95,7 @@ describe('ConfigurationController', () => {
         // When
         .post(`/api/v1/configurations/github/validate`)
         .send({
-          repositoryVcsId: repository,
+          repositoryVcsId: repository.id,
           contractFilePath: 'symeo.config.yml',
           branch: 'staging',
         })
