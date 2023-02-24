@@ -1,23 +1,18 @@
 import { v4 as uuid } from 'uuid';
-import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
-import SpyInstance = jest.SpyInstance;
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
-  let configurationRepository: Repository<ConfigurationEntity>;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let getGitHubAccessTokenMock: SpyInstance;
-  let githubClientRequestMock: SpyInstance;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
     uuid(),
@@ -31,13 +26,9 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -45,52 +36,24 @@ describe('ConfigurationController', () => {
   });
 
   beforeEach(async () => {
-    await configurationRepository.delete({});
-    githubClientRequestMock = jest.spyOn(githubClient, 'request');
-    getGitHubAccessTokenMock = jest.spyOn(
-      vcsAccessTokenStorage,
-      'getGitHubAccessToken',
-    );
-    getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
+    await configurationTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
-    getGitHubAccessTokenMock.mockRestore();
-    githubClientRequestMock.mockRestore();
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId', () => {
     it('should respond 404 with unknown repository id', async () => {
       // Given
       const repositoryVcsId = 105865802;
-      const configuration1 = new ConfigurationEntity();
-      configuration1.id = uuid();
-      configuration1.name = faker.name.jobTitle();
-      configuration1.ownerVcsName = 'symeo-io';
-      configuration1.ownerVcsId = faker.datatype.number();
-      configuration1.repositoryVcsName = 'symeo-api';
-      configuration1.repositoryVcsId = faker.datatype.number();
-      configuration1.contractFilePath = 'symeo.config.yml';
-      configuration1.branch = 'staging';
+      fetchVcsRepositoryMock.mockRepositoryMissing();
 
-      const configuration2 = new ConfigurationEntity();
-      configuration2.id = uuid();
-      configuration2.name = faker.name.jobTitle();
-      configuration2.ownerVcsName = 'symeo-io';
-      configuration2.ownerVcsId = faker.datatype.number();
-      configuration2.repositoryVcsName = 'symeo-api';
-      configuration2.repositoryVcsId = faker.datatype.number();
-      configuration2.contractFilePath = 'symeo.config.yml';
-      configuration2.branch = 'staging';
+      await configurationTestUtil.createConfiguration(repositoryVcsId);
 
-      await Promise.all([
-        configurationRepository.save(configuration1),
-        configurationRepository.save(configuration2),
-      ]);
-
-      githubClientRequestMock.mockImplementation(() => {
-        throw { status: 404 };
-      });
+      await configurationTestUtil.createConfiguration(repositoryVcsId);
 
       const response = await appClient
         .request(currentUser)
@@ -106,49 +69,13 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 with known repository and id', async () => {
       // Given
-      const repositoryVcsId = 105865802;
-      const configuration1 = new ConfigurationEntity();
-      configuration1.id = uuid();
-      configuration1.name = faker.name.jobTitle();
-      configuration1.ownerVcsName = 'symeo-io';
-      configuration1.ownerVcsId = faker.datatype.number();
-      configuration1.repositoryVcsName = 'symeo-api';
-      configuration1.repositoryVcsId = repositoryVcsId;
-      configuration1.contractFilePath = 'symeo.config.yml';
-      configuration1.branch = 'staging';
-
-      const configuration2 = new ConfigurationEntity();
-      configuration2.id = uuid();
-      configuration2.name = faker.name.jobTitle();
-      configuration2.ownerVcsName = 'symeo-io';
-      configuration2.ownerVcsId = faker.datatype.number();
-      configuration2.repositoryVcsName = 'symeo-api';
-      configuration2.repositoryVcsId = repositoryVcsId;
-      configuration2.contractFilePath = 'symeo.config.yml';
-      configuration2.branch = 'staging';
-
-      await Promise.all([
-        configurationRepository.save(configuration1),
-        configurationRepository.save(configuration2),
-      ]);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
-      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      await configurationTestUtil.createConfiguration(repository.id);
+      await configurationTestUtil.createConfiguration(repository.id);
 
       const response = await appClient
         .request(currentUser)
-        .get(`/api/v1/configurations/github/${repositoryVcsId}`)
+        .get(`/api/v1/configurations/github/${repository.id}`)
         .expect(200);
 
       expect(response.body.configurations).toBeDefined();
