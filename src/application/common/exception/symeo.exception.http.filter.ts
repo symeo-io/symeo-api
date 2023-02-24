@@ -32,7 +32,6 @@ export class SymeoExceptionHttpFilter implements ExceptionFilter {
         path: request.url,
       });
     } else {
-      console.error(exception);
       response.status(500).json({
         statusCode: 500,
         message: 'Internal server error',

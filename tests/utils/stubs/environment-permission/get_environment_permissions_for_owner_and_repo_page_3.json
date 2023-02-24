@@ -1,0 +1,30 @@
+[
+  {
+    "login": "Dorian-Frances",
+    "id": 102222086,
+    "node_id": "U_kgDOBhfJBg",
+    "avatar_url": "https://avatars.githubusercontent.com/u/102222086?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/Dorian-Frances",
+    "html_url": "https://github.com/Dorian-Frances",
+    "followers_url": "https://api.github.com/users/Dorian-Frances/followers",
+    "following_url": "https://api.github.com/users/Dorian-Frances/following{/other_user}",
+    "gists_url": "https://api.github.com/users/Dorian-Frances/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/Dorian-Frances/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/Dorian-Frances/subscriptions",
+    "organizations_url": "https://api.github.com/users/Dorian-Frances/orgs",
+    "repos_url": "https://api.github.com/users/Dorian-Frances/repos",
+    "events_url": "https://api.github.com/users/Dorian-Frances/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/Dorian-Frances/received_events",
+    "type": "User",
+    "site_admin": false,
+    "permissions": {
+      "admin": false,
+      "maintain": false,
+      "push": true,
+      "triage": true,
+      "pull": true
+    },
+    "role_name": "write"
+  }
+]

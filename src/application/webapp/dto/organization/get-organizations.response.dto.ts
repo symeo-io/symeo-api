@@ -3,7 +3,7 @@ import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetOrganizationsResponseDTO {
-  @ApiProperty({ type: OrganizationDTO })
+  @ApiProperty({ type: [OrganizationDTO] })
   organizations: OrganizationDTO[];
 
   static fromDomains(

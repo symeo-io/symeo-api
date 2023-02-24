@@ -7,6 +7,8 @@ import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/conf
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import PostgresApiKeyAdapter from 'src/infrastructure/postgres-adapter/adapter/postgres.api-key.adapter';
+import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
+import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
@@ -22,7 +24,21 @@ const PostgresApiKeyAdapterProvider = {
   inject: [getRepositoryToken(ApiKeyEntity)],
 };
 
-const entities = [ConfigurationEntity, EnvironmentEntity, ApiKeyEntity];
+const PostgresEnvironmentPermissionAdapterProvider = {
+  provide: 'PostgresEnvironmentPermissionAdapter',
+  useFactory: (
+    environmentPermissionRepository: Repository<EnvironmentPermissionEntity>,
+  ) =>
+    new PostgresEnvironmentPermissionAdapter(environmentPermissionRepository),
+  inject: [getRepositoryToken(EnvironmentPermissionEntity)],
+};
+
+const entities = [
+  ConfigurationEntity,
+  EnvironmentEntity,
+  ApiKeyEntity,
+  EnvironmentPermissionEntity,
+];
 
 @Module({
   imports: [
@@ -35,10 +51,12 @@ const entities = [ConfigurationEntity, EnvironmentEntity, ApiKeyEntity];
   providers: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
+    PostgresEnvironmentPermissionAdapterProvider,
   ],
   exports: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
+    PostgresEnvironmentPermissionAdapterProvider,
   ],
 })
 export class PostgresAdapterModule {}

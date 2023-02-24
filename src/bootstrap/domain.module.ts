@@ -14,6 +14,11 @@ import { EnvironmentService } from 'src/domain/service/environment.service';
 import { ApiKeyService } from 'src/domain/service/api-key.service';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 import { PostgresAdapterModule } from 'src/bootstrap/postgres-adapter.module';
+import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
+import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
+import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
+import { EnvironmentPermissionService } from 'src/domain/service/environment-permission.service';
+import { CheckAuthorizationService } from 'src/domain/service/check-authorization.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -31,6 +36,38 @@ const EnvironmentFacadeProvider = {
     repositoryFacade: RepositoryFacade,
   ) => new EnvironmentService(configurationStoragePort, repositoryFacade),
   inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
+};
+
+const EnvironmentPermissionFacadeProvider = {
+  provide: 'EnvironmentPermissionFacade',
+  useFactory: (
+    githubAdapterPort: GithubAdapterPort,
+    environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
+    environmentPermissionUtils: EnvironmentPermissionUtils,
+    checkAuthorizationService: CheckAuthorizationService,
+  ) =>
+    new EnvironmentPermissionService(
+      githubAdapterPort,
+      environmentPermissionStoragePort,
+      environmentPermissionUtils,
+      checkAuthorizationService,
+    ),
+  inject: [
+    'GithubAdapter',
+    'PostgresEnvironmentPermissionAdapter',
+    'EnvironmentPermissionUtils',
+    'CheckAuthorizationService',
+  ],
+};
+
+const CheckAuthorizationServiceProvider = {
+  provide: 'CheckAuthorizationService',
+  useFactory: (
+    githubAdapterPort: GithubAdapterPort,
+    configurationStoragePort: ConfigurationStoragePort,
+  ) =>
+    new CheckAuthorizationService(githubAdapterPort, configurationStoragePort),
+  inject: ['GithubAdapter', 'PostgresConfigurationAdapter'],
 };
 
 const OrganizationFacadeProvider = {
@@ -67,6 +104,11 @@ const ApiKeyFacadeProvider = {
   inject: ['ConfigurationFacade', 'PostgresApiKeyAdapter'],
 };
 
+const EnvironmentPermissionUtilsProvider = {
+  provide: 'EnvironmentPermissionUtils',
+  useValue: new EnvironmentPermissionUtils(),
+};
+
 @Module({
   imports: [
     PostgresAdapterModule,
@@ -80,6 +122,9 @@ const ApiKeyFacadeProvider = {
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
+    EnvironmentPermissionFacadeProvider,
+    EnvironmentPermissionUtilsProvider,
+    CheckAuthorizationServiceProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -88,6 +133,8 @@ const ApiKeyFacadeProvider = {
     RepositoryFacadeProvider,
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
+    EnvironmentPermissionFacadeProvider,
+    CheckAuthorizationServiceProvider,
   ],
 })
 export class DomainModule {}

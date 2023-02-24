@@ -9,6 +9,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import { Interceptor } from 'src/interceptor';
 import { WinstonLogger } from 'src/logger';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 
 async function bootstrap() {
   const winstonLogger = new WinstonLogger();
@@ -17,8 +21,9 @@ async function bootstrap() {
     format: winstonLogger.getLogFormat(),
     transports: [new transports.Console({ level: 'info' })],
   });
-  const app = await NestFactory.create(
+  const app = await NestFactory.create<NestFastifyApplication>(
     ApplicationModule,
+    new FastifyAdapter(),
     config.logger.local
       ? {}
       : { logger: WinstonModule.createLogger(loggerInstance) },

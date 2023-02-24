@@ -1,0 +1,30 @@
+[
+  {
+    "login": "georgesbiaux",
+    "id": 22441392,
+    "node_id": "MDQ6VXNlcjIyNDQxMzky",
+    "avatar_url": "https://avatars.githubusercontent.com/u/22441392?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/georgesbiaux",
+    "html_url": "https://github.com/georgesbiaux",
+    "followers_url": "https://api.github.com/users/georgesbiaux/followers",
+    "following_url": "https://api.github.com/users/georgesbiaux/following{/other_user}",
+    "gists_url": "https://api.github.com/users/georgesbiaux/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/georgesbiaux/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/georgesbiaux/subscriptions",
+    "organizations_url": "https://api.github.com/users/georgesbiaux/orgs",
+    "repos_url": "https://api.github.com/users/georgesbiaux/repos",
+    "events_url": "https://api.github.com/users/georgesbiaux/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/georgesbiaux/received_events",
+    "type": "User",
+    "site_admin": false,
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "triage": true,
+      "pull": true
+    },
+    "role_name": "admin"
+  }
+]
