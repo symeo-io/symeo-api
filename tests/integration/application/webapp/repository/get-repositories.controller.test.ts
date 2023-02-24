@@ -45,6 +45,7 @@ describe('RepositoryController', () => {
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
+    fetchVcsRepositoriesMock.restore();
   });
 
   describe('(GET) /repositories', () => {
