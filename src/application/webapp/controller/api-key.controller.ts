@@ -3,18 +3,20 @@ import {
   Delete,
   Get,
   Inject,
-  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user/user.model';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
 import GetApiKeysResponseDTO from 'src/application/webapp/dto/api-key/get-api-keys.response.dto';
 import CreateApiKeyResponseDTO from 'src/application/webapp/dto/api-key/create-api-key.response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
+import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
+import Environment from 'src/domain/model/environment/environment.model';
+import { ApiKeyAuthorizationGuard } from 'src/application/webapp/authorization/ApiKeyAuthorizationGuard';
+import { RequestedApiKey } from 'src/application/webapp/decorator/requested-api-key.decorator';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 
 @Controller('configurations')
 @ApiTags('apiKeys')
@@ -25,25 +27,19 @@ export class ApiKeyController {
     private readonly apiKeyFacade: ApiKeyFacade,
   ) {}
 
-  @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
-  )
   @ApiOkResponse({
     description: 'Api keys successfully retrieved',
     type: GetApiKeysResponseDTO,
   })
+  @Get(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
+  )
+  @UseGuards(EnvironmentAuthorizationGuard)
   async listApiKeysForEnvironment(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
-    @CurrentUser() user: User,
+    @RequestedEnvironment() environment: Environment,
   ): Promise<GetApiKeysResponseDTO> {
     const apiKeys = await this.apiKeyFacade.listApiKeysForUserAndEnvironment(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
-      environmentId,
+      environment,
     );
 
     return GetApiKeysResponseDTO.fromDomains(apiKeys);
@@ -56,18 +52,12 @@ export class ApiKeyController {
     description: 'Api keys successfully created',
     type: CreateApiKeyResponseDTO,
   })
+  @UseGuards(EnvironmentAuthorizationGuard)
   async createApiKeyForEnvironment(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
-    @CurrentUser() user: User,
+    @RequestedEnvironment() environment: Environment,
   ): Promise<CreateApiKeyResponseDTO> {
     const apiKey = await this.apiKeyFacade.createApiKeyForEnvironment(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
-      environmentId,
+      environment,
     );
 
     return CreateApiKeyResponseDTO.fromDomain(apiKey);
@@ -79,20 +69,10 @@ export class ApiKeyController {
   @ApiOkResponse({
     description: 'Api keys successfully deleted',
   })
+  @UseGuards(ApiKeyAuthorizationGuard)
   async deleteApiKeyForEnvironment(
-    @Param('repositoryVcsId') repositoryVcsId: string,
-    @Param('configurationId') configurationId: string,
-    @Param('environmentId') environmentId: string,
-    @Param('apiKeyId') apiKeyId: string,
-    @CurrentUser() user: User,
+    @RequestedApiKey() apiKey: ApiKey,
   ): Promise<void> {
-    await this.apiKeyFacade.deleteApiKeyForEnvironment(
-      user,
-      VCSProvider.GitHub,
-      parseInt(repositoryVcsId),
-      configurationId,
-      environmentId,
-      apiKeyId,
-    );
+    await this.apiKeyFacade.deleteApiKey(apiKey);
   }
 }

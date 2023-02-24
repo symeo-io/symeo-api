@@ -15,10 +15,10 @@ import { ApiKeyService } from 'src/domain/service/api-key.service';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 import { PostgresAdapterModule } from 'src/bootstrap/postgres-adapter.module';
 import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
-import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import { EnvironmentPermissionService } from 'src/domain/service/environment-permission.service';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
+import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -33,9 +33,13 @@ const EnvironmentFacadeProvider = {
   provide: 'EnvironmentFacade',
   useFactory: (
     configurationStoragePort: ConfigurationStoragePort,
-    repositoryFacade: RepositoryFacade,
-  ) => new EnvironmentService(configurationStoragePort, repositoryFacade),
-  inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
+    environmentStoragePort: EnvironmentStoragePort,
+  ) => new EnvironmentService(configurationStoragePort, environmentStoragePort),
+  inject: [
+    'PostgresConfigurationAdapter',
+    'PostgresEnvironmentAdapter',
+    'RepositoryFacade',
+  ],
 };
 
 const EnvironmentPermissionFacadeProvider = {
@@ -65,8 +69,18 @@ const AuthorizationServiceProvider = {
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
     configurationStoragePort: ConfigurationStoragePort,
-  ) => new AuthorizationService(githubAdapterPort, configurationStoragePort),
-  inject: ['GithubAdapter', 'PostgresConfigurationAdapter'],
+    apiKeyStoragePort: ApiKeyStoragePort,
+  ) =>
+    new AuthorizationService(
+      githubAdapterPort,
+      configurationStoragePort,
+      apiKeyStoragePort,
+    ),
+  inject: [
+    'GithubAdapter',
+    'PostgresConfigurationAdapter',
+    'PostgresApiKeyAdapter',
+  ],
 };
 
 const OrganizationFacadeProvider = {

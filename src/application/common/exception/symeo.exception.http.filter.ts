@@ -36,6 +36,7 @@ export class SymeoExceptionHttpFilter implements ExceptionFilter {
         path: request.url,
       });
     } else {
+      console.log(exception);
       this.logger.error(exception);
       response.status(500).json({
         statusCode: 500,

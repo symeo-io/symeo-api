@@ -6,11 +6,14 @@ import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import Environment from 'src/domain/model/environment/environment.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
+import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 
 export class AuthorizationService {
   constructor(
     private githubAdapterPort: GithubAdapterPort,
     private configurationStoragePort: ConfigurationStoragePort,
+    private apiKeyStoragePort: ApiKeyStoragePort,
   ) {}
 
   async hasUserAuthorizationToRepository(
@@ -86,5 +89,37 @@ export class AuthorizationService {
     }
 
     return { repository, configuration, environment };
+  }
+
+  async hasUserAuthorizationToApiKey(
+    user: User,
+    repositoryVcsId: number,
+    configurationId: string,
+    environmentId: string,
+    apiKeyId: string,
+  ): Promise<{
+    repository: VcsRepository;
+    configuration: Configuration;
+    environment: Environment;
+    apiKey: ApiKey;
+  }> {
+    const { repository, configuration, environment } =
+      await this.hasUserAuthorizationToEnvironment(
+        user,
+        repositoryVcsId,
+        configurationId,
+        environmentId,
+      );
+
+    const apiKey = await this.apiKeyStoragePort.findById(apiKeyId);
+
+    if (!apiKey || apiKey.environmentId !== environment.id) {
+      throw new SymeoException(
+        `Api key not found for id ${apiKeyId}`,
+        SymeoExceptionCode.API_KEY_NOT_FOUND,
+      );
+    }
+
+    return { repository, configuration, environment, apiKey };
   }
 }
