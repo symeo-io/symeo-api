@@ -105,19 +105,17 @@ export class EnvironmentPermissionService
     vcsRepositoryId: number,
     configurationId: string,
     environmentId: string,
-    environmentPermissions: EnvironmentPermission[],
+    environmentPermissionsToUpdate: EnvironmentPermission[],
   ) {
-    const vcsRepository = await this.githubAdapterPort.getRepositoryById(
-      user,
-      vcsRepositoryId,
-    );
-
-    if (!vcsRepository) {
-      throw new SymeoException(
-        `Repository not found for id ${vcsRepositoryId}`,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+    const authorizations =
+      await this.checkAuthorizationService.hasUserAuthorizationToVcsRepositoryAndConfigurationAndEnvironment(
+        user,
+        vcsRepositoryId,
+        configurationId,
+        environmentId,
       );
-    }
+
+    const vcsRepository = authorizations.vcsRepository;
 
     const githubRepositoryUsersWithRole: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
@@ -126,40 +124,56 @@ export class EnvironmentPermissionService
         vcsRepository.name,
       );
 
-    const userIdsWithoutAccess: number[] = this.getUserIdsWithoutAccess(
-      environmentPermissions.map(
-        (environmentPermission) => environmentPermission.userVcsId,
-      ),
-      githubRepositoryUsersWithRole.map((vcsUser) => vcsUser.id),
+    const {
+      allowedEnvironmentPermissionsToSave,
+      permissionUserIdsNotInGithubUsers,
+    } = this.checkPermissionUsersInGithubUsers(
+      environmentPermissionsToUpdate,
+      githubRepositoryUsersWithRole,
     );
 
-    if (userIdsWithoutAccess.length > 0) {
+    if (permissionUserIdsNotInGithubUsers.length > 0) {
       throw new SymeoException(
-        `User with vcsIds ${userIdsWithoutAccess} do not have access to repository with vcsRepositoryId ${vcsRepositoryId}`,
+        `User with vcsIds ${permissionUserIdsNotInGithubUsers} do not have access to repository with vcsRepositoryId ${vcsRepositoryId}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
 
-    return environmentPermissions;
-  }
-
-  private getUserIdsWithoutAccess(
-    userIdsForEnvironmentPermissionToChange: number[],
-    githubRepositoryUserIds: number[],
-  ): number[] {
-    const userIdsWithoutAccess: number[] = [];
-    userIdsForEnvironmentPermissionToChange.forEach(
-      (userIdForEnvironmentPermissionToChange) => {
-        if (
-          !githubRepositoryUserIds.includes(
-            userIdForEnvironmentPermissionToChange,
-          )
-        ) {
-          userIdsWithoutAccess.push(userIdForEnvironmentPermissionToChange);
-        }
-      },
+    await this.environmentPermissionStoragePort.saveAll(
+      allowedEnvironmentPermissionsToSave,
     );
 
-    return userIdsWithoutAccess;
+    return allowedEnvironmentPermissionsToSave;
+  }
+
+  private checkPermissionUsersInGithubUsers(
+    environmentPermissionsToUpdate: EnvironmentPermission[],
+    githubRepositoryUsersWithRole: VcsUser[],
+  ) {
+    const allowedEnvironmentPermissionsToSave: EnvironmentPermission[] = [];
+    const permissionUserIdsNotInGithubUsers: number[] = [];
+
+    environmentPermissionsToUpdate.forEach((environmentPermissionToUpdate) => {
+      const githubRepositoryUser = githubRepositoryUsersWithRole.find(
+        (vcsUser) => environmentPermissionToUpdate.userVcsId === vcsUser.id,
+      );
+      if (!!githubRepositoryUser) {
+        allowedEnvironmentPermissionsToSave.push(
+          this.environmentPermissionUtils.generateEnvironmentPermission(
+            githubRepositoryUser,
+            environmentPermissionToUpdate,
+          ),
+        );
+      } else {
+        permissionUserIdsNotInGithubUsers.push(
+          environmentPermissionToUpdate.userVcsId,
+        );
+      }
+    });
+
+    return {
+      allowedEnvironmentPermissionsToSave: allowedEnvironmentPermissionsToSave,
+      permissionUserIdsNotInGithubUsers: permissionUserIdsNotInGithubUsers,
+    };
   }
 }

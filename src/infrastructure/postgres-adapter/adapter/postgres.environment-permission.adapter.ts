@@ -9,7 +9,6 @@ export class PostgresEnvironmentPermissionAdapter
   constructor(
     private environmentPermissionRepository: Repository<EnvironmentPermissionEntity>,
   ) {}
-
   async findForEnvironmentIdAndVcsUserIds(
     environmentId: string,
     vcsUserIds: number[],
@@ -29,5 +28,15 @@ export class PostgresEnvironmentPermissionAdapter
     if (!entities) return [];
 
     return entities.map((entity) => entity.toDomain());
+  }
+
+  async saveAll(
+    environmentPermissions: EnvironmentPermission[],
+  ): Promise<void> {
+    await this.environmentPermissionRepository.save(
+      environmentPermissions.map((environmentPermission) =>
+        EnvironmentPermissionEntity.fromDomain(environmentPermission),
+      ),
+    );
   }
 }
