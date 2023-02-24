@@ -13,9 +13,8 @@ export interface EnvironmentPermissionFacade {
 
   updateEnvironmentPermissions(
     user: User,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    environment: Environment,
     environmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]>;
 }

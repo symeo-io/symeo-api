@@ -74,8 +74,51 @@ describe('EnvironmentPermissionController', () => {
     it('should return 400 for missing environment permissions data', async () => {
       // Given
       const configurationId = uuid();
-      const repositoryVcsId = 593240835;
       const environmentId = uuid();
+      const repositoryVcsId = 593240835;
+      const repositoryVcsName = 'symeo-api';
+      const ownerVcsId = 105865802;
+      const ownerVcsName = 'symeo-io';
+
+      const mockGitHubRepositoryResponse = {
+        status: 200 as const,
+        headers: {},
+        url: '',
+        data: {
+          name: repositoryVcsName,
+          id: repositoryVcsId,
+          owner: { login: ownerVcsName, id: ownerVcsId },
+        },
+      };
+      githubClientRequestMock.mockImplementation(() =>
+        Promise.resolve(mockGitHubRepositoryResponse),
+      );
+
+      const environmentPermissionEntity1 = new EnvironmentPermissionEntity();
+      environmentPermissionEntity1.id = uuid();
+      environmentPermissionEntity1.userVcsId = 16590657;
+      environmentPermissionEntity1.environmentPermissionRole =
+        EnvironmentPermissionRole.READ_SECRET;
+
+      const environmentEntity = new EnvironmentEntity();
+      environmentEntity.id = environmentId;
+      environmentEntity.name = faker.name.firstName();
+      environmentEntity.color = 'blue';
+      environmentEntity.environmentPermissions = [environmentPermissionEntity1];
+
+      const configurationEntity = new ConfigurationEntity();
+      configurationEntity.id = configurationId;
+      configurationEntity.name = faker.name.jobTitle();
+      configurationEntity.vcsType = VCSProvider.GitHub;
+      configurationEntity.repositoryVcsId = repositoryVcsId;
+      configurationEntity.repositoryVcsName = repositoryVcsName;
+      configurationEntity.ownerVcsId = ownerVcsId;
+      configurationEntity.ownerVcsName = ownerVcsName;
+      configurationEntity.contractFilePath = './symeo.config.yml';
+      configurationEntity.branch = 'staging';
+      configurationEntity.environments = [environmentEntity];
+
+      await configurationRepository.save(configurationEntity);
 
       await appClient
         .request(currentUser)
@@ -88,7 +131,7 @@ describe('EnvironmentPermissionController', () => {
         .expect(400);
     });
 
-    it('should return 400 for trying to update permissions of user that do not have access to repository', async () => {
+    it('should return 404 for trying to update permissions of user that do not have access to repository', async () => {
       const configurationId = uuid();
       const environmentId = uuid();
       const repositoryVcsId = 593240835;

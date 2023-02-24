@@ -8,7 +8,6 @@ import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import Environment from 'src/domain/model/environment/environment.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import { CheckAuthorizationService } from 'src/domain/service/check-authorization.service';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
@@ -40,18 +39,16 @@ export class EnvironmentPermissionService
 
   async updateEnvironmentPermissions(
     user: User,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    environment: Environment,
     environmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]> {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return this.updateEnvironmentPermissionsWithGithub(
           user,
-          vcsRepositoryId,
-          configurationId,
-          environmentId,
+          repository,
+          environment,
           environmentPermissions,
         );
       default:
@@ -102,26 +99,15 @@ export class EnvironmentPermissionService
 
   private async updateEnvironmentPermissionsWithGithub(
     user: User,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    environment: Environment,
     environmentPermissionsToUpdate: EnvironmentPermission[],
   ) {
-    const authorizations =
-      await this.checkAuthorizationService.hasUserAuthorizationToVcsRepositoryAndConfigurationAndEnvironment(
-        user,
-        vcsRepositoryId,
-        configurationId,
-        environmentId,
-      );
-
-    const vcsRepository = authorizations.vcsRepository;
-
     const githubRepositoryUsersWithRole: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
-        vcsRepository.owner.name,
-        vcsRepository.name,
+        repository.owner.name,
+        repository.name,
       );
 
     const {
@@ -134,7 +120,7 @@ export class EnvironmentPermissionService
 
     if (permissionUserIdsNotInGithubUsers.length > 0) {
       throw new SymeoException(
-        `User with vcsIds ${permissionUserIdsNotInGithubUsers} do not have access to repository with vcsRepositoryId ${vcsRepositoryId}`,
+        `User with vcsIds ${permissionUserIdsNotInGithubUsers} do not have access to repository with vcsRepositoryId ${repository.id}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
