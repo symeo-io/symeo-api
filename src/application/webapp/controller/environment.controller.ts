@@ -28,7 +28,7 @@ export class EnvironmentController {
     private readonly configurationFacade: EnvironmentFacade,
   ) {}
 
-  @Patch('github/:repositoryVcsId/:configurationId/environments/:id')
+  @Patch('github/:repositoryVcsId/:configurationId/environments/:environmentId')
   @ApiOkResponse({
     description: 'Environment successfully updated',
     type: UpdateEnvironmentResponseDTO,
@@ -36,7 +36,7 @@ export class EnvironmentController {
   async updateEnvironment(
     @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
-    @Param('id') id: string,
+    @Param('environmentId') environmentId: string,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
     @CurrentUser() user: User,
   ): Promise<UpdateEnvironmentResponseDTO> {
@@ -46,7 +46,7 @@ export class EnvironmentController {
         VCSProvider.GitHub,
         parseInt(repositoryVcsId),
         configurationId,
-        id,
+        environmentId,
         updateEnvironmentDTO.name,
         updateEnvironmentDTO.color,
       );
@@ -56,11 +56,13 @@ export class EnvironmentController {
   @ApiOkResponse({
     description: 'Environment successfully deleted',
   })
-  @Delete('github/:repositoryVcsId/:configurationId/environments/:id')
+  @Delete(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId',
+  )
   async deleteEnvironment(
     @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
-    @Param('id') id: string,
+    @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
   ): Promise<void> {
     await this.configurationFacade.deleteEnvironment(
@@ -68,7 +70,7 @@ export class EnvironmentController {
       VCSProvider.GitHub,
       parseInt(repositoryVcsId),
       configurationId,
-      id,
+      environmentId,
     );
   }
 

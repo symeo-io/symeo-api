@@ -83,7 +83,7 @@ describe('ValuesController', () => {
     secretManagerClientCreateSecretMock.mockRestore();
   });
 
-  describe('(POST) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/values', () => {
+  describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();

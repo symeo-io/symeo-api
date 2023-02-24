@@ -58,7 +58,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:id', () => {
+  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();

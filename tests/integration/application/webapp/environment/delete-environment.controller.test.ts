@@ -60,7 +60,7 @@ describe('EnvironmentController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:id', () => {
+  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
     it('Should return 400 for non existing repository', async () => {
       // When
       const repositoryVcsId: number = faker.datatype.number();

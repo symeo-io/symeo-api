@@ -67,7 +67,7 @@ describe('ApiKeyController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/api-keys/:apiKeyId', () => {
+  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();

@@ -58,7 +58,7 @@ describe('EnvironmentController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(POST) /configurations/github/:repositoryVcsId/:id/environments', () => {
+  describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments', () => {
     it('Should return 400 for missing environment data', async () => {
       const repositoryVcsId: number = faker.datatype.number();
       const configurationId: string = uuid();
