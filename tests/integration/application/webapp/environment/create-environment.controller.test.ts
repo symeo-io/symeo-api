@@ -9,14 +9,18 @@ import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/conf
 import SpyInstance = jest.SpyInstance;
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import { ApiKeyTestUtil } from 'tests/utils/entities/api-key.test.util';
 
 describe('EnvironmentController', () => {
   let appClient: AppClient;
-  let configurationRepository: Repository<ConfigurationEntity>;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let getGitHubAccessTokenMock: SpyInstance;
-  let githubClientRequestMock: SpyInstance;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let configurationTestUtil: ConfigurationTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
 
   const currentUser = new User(
     uuid(),
@@ -30,13 +34,10 @@ describe('EnvironmentController', () => {
 
     await appClient.init();
 
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -44,52 +45,22 @@ describe('EnvironmentController', () => {
   });
 
   beforeEach(async () => {
-    await configurationRepository.delete({});
-    githubClientRequestMock = jest.spyOn(githubClient, 'request');
-    getGitHubAccessTokenMock = jest.spyOn(
-      vcsAccessTokenStorage,
-      'getGitHubAccessToken',
-    );
-    getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
+    await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
-    getGitHubAccessTokenMock.mockRestore();
-    githubClientRequestMock.mockRestore();
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments', () => {
     it('Should return 201 and create new environment', async () => {
-      const repositoryVcsId: number = faker.datatype.number();
-      const repositoryVcsName = faker.name.firstName();
-      const ownerVcsId = faker.datatype.number();
-      const ownerVcsName = faker.name.firstName();
-      const mockGithubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGithubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
-
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.repositoryVcsName = repositoryVcsName;
-      configuration.ownerVcsId = ownerVcsId;
-      configuration.ownerVcsName = ownerVcsName;
-      configuration.contractFilePath = './symeo.config.yml';
-      configuration.branch = 'staging';
-
-      await configurationRepository.save(configuration);
 
       const data = {
         name: faker.name.firstName(),
@@ -100,14 +71,14 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .post(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments`,
         )
         .send(data)
         // Then
         .expect(201);
 
       const configurationEntity: ConfigurationEntity | null =
-        await configurationRepository.findOneBy({
+        await configurationTestUtil.repository.findOneBy({
           id: configuration.id,
         });
       expect(configurationEntity).toBeDefined();

@@ -1,25 +1,21 @@
 import { AppClient } from 'tests/utils/app.client';
-import { Repository } from 'typeorm';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
 import User from 'src/domain/model/user/user.model';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
-import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
-import Environment from 'src/domain/model/environment/environment.model';
 import { UpdateEnvironmentDTO } from 'src/application/webapp/dto/environment/update-environment.dto';
-import SpyInstance = jest.SpyInstance;
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 
 describe('EnvironmentController', () => {
   let appClient: AppClient;
-  let configurationRepository: Repository<ConfigurationEntity>;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let getGitHubAccessTokenMock: SpyInstance;
-  let githubClientRequestMock: SpyInstance;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let configurationTestUtil: ConfigurationTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
 
   const currentUser = new User(
     uuid(),
@@ -33,13 +29,10 @@ describe('EnvironmentController', () => {
 
     await appClient.init();
 
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -47,63 +40,26 @@ describe('EnvironmentController', () => {
   });
 
   beforeEach(async () => {
-    await configurationRepository.delete({});
-    githubClientRequestMock = jest.spyOn(githubClient, 'request');
-    getGitHubAccessTokenMock = jest.spyOn(
-      vcsAccessTokenStorage,
-      'getGitHubAccessToken',
-    );
-    getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
+    await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
-    getGitHubAccessTokenMock.mockRestore();
-    githubClientRequestMock.mockRestore();
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
   });
 
   describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
     it('Should return 200 and update environment', async () => {
       // When
-      const repositoryVcsId: number = faker.datatype.number();
-      const repositoryVcsName = faker.name.firstName();
-      const ownerVcsId = faker.datatype.number();
-      const ownerVcsName = faker.name.firstName();
-      const mockGithubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGithubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
-
-      const environmentId = uuid();
-      const environmentName = faker.name.firstName();
-      const environmentColor = 'blue';
-
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-
-      configuration.name = faker.name.jobTitle();
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.repositoryVcsName = repositoryVcsName;
-      configuration.ownerVcsId = ownerVcsId;
-      configuration.ownerVcsName = ownerVcsName;
-      configuration.contractFilePath = './symeo.config.yml';
-      configuration.branch = 'staging';
-      configuration.environments = [
-        EnvironmentEntity.fromDomain(
-          new Environment(environmentId, environmentName, environmentColor),
-        ),
-      ];
-
-      await configurationRepository.save(configuration);
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
 
       const updatedEnvironmentData: UpdateEnvironmentDTO = {
         name: faker.name.firstName(),
@@ -113,17 +69,17 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}`,
         )
         .send(updatedEnvironmentData)
         // Then
         .expect(200);
       const configurationEntity: ConfigurationEntity | null =
-        await configurationRepository.findOneBy({
+        await configurationTestUtil.repository.findOneBy({
           id: configuration.id,
         });
       expect(configurationEntity).toBeDefined();
-      expect(configurationEntity?.environments[0].id).toEqual(environmentId);
+      expect(configurationEntity?.environments[0].id).toEqual(environment.id);
       expect(configurationEntity?.environments[0].name).toEqual(
         updatedEnvironmentData.name,
       );
