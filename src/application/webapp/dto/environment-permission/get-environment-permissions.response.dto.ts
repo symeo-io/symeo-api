@@ -1,4 +1,4 @@
-import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
+import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission-response.dto';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { ApiProperty } from '@nestjs/swagger';
 

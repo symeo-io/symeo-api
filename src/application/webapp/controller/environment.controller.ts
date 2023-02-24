@@ -61,7 +61,7 @@ export class EnvironmentController {
     await this.environmentFacade.deleteEnvironment(environment);
   }
 
-  @ApiResponse({ status: 201 })
+  @ApiResponse({ status: 200 })
   @ApiOkResponse({
     description: 'Environment successfully created',
     type: CreateEnvironmentResponseDTO,
