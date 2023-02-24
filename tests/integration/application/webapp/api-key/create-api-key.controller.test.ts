@@ -72,9 +72,7 @@ describe('ApiKeyController', () => {
         .expect(201);
 
       expect(response.body.apiKey).toBeDefined();
-      expect(response.body.apiKey.environmentId).toEqual(
-        configuration.environments[0].id,
-      );
+      expect(response.body.apiKey.environmentId).toEqual(environment.id);
       expect(response.body.apiKey.key).toBeDefined();
       const apiKeyResponse = response.body.apiKey;
 
