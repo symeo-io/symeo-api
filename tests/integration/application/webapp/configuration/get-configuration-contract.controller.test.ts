@@ -1,26 +1,20 @@
 import { v4 as uuid } from 'uuid';
-import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
-import SpyInstance = jest.SpyInstance;
-import * as fs from 'fs';
-import { base64encode } from 'nodejs-base64';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
-  let configurationRepository: Repository<ConfigurationEntity>;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let getGitHubAccessTokenMock: SpyInstance;
-  let githubClientGetContentMock: SpyInstance;
-  let githubClientRequestMock: SpyInstance;
-  const mockAccessToken = uuid();
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchVcsFileMock: FetchVcsFileMock;
+  let configurationTestUtil: ConfigurationTestUtil;
+  let mockAccessToken: string;
 
   const currentUser = new User(
     uuid(),
@@ -34,13 +28,10 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -48,66 +39,30 @@ describe('ConfigurationController', () => {
   });
 
   beforeEach(async () => {
-    await configurationRepository.delete({});
-    githubClientRequestMock = jest.spyOn(githubClient, 'request');
-    githubClientGetContentMock = jest.spyOn(githubClient.repos, 'getContent');
-    getGitHubAccessTokenMock = jest.spyOn(
-      vcsAccessTokenStorage,
-      'getGitHubAccessToken',
-    );
-    getGitHubAccessTokenMock.mockImplementation(() =>
-      Promise.resolve(mockAccessToken),
-    );
+    await configurationTestUtil.empty();
+    mockAccessToken = fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
-    getGitHubAccessTokenMock.mockRestore();
-    githubClientGetContentMock.mockRestore();
-    githubClientRequestMock.mockRestore();
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
+    fetchVcsFileMock.restore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/contract', () => {
     it('should respond 404 with unknown configuration id', () => {
       // Given
       const configurationId = uuid();
-      const repositoryVcsId = 105865802;
-      const mockConfigurationContract = base64encode(
-        fs
-          .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
-          .toString(),
-      );
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
-      );
-
-      const mockGitHubContentResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          content: mockConfigurationContract,
-          encoding: 'base64',
-        },
-      };
-      githubClientGetContentMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubContentResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.yml',
       );
 
       appClient
         .request(currentUser)
         // When
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/contract`,
+          `/api/v1/configurations/github/${repository.id}/${configurationId}/contract`,
         )
         // Then
         .expect(404);
@@ -115,42 +70,19 @@ describe('ConfigurationController', () => {
 
     it('should respond 404 with unknown file', async () => {
       // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.contractFilePath = 'symeo.config.yml';
-      configuration.branch = 'staging';
-
-      await configurationRepository.save(configuration);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      fetchVcsRepositoryMock.mockRepositoryMissing();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
 
-      githubClientGetContentMock.mockImplementation(() => {
-        throw { status: 404 };
-      });
+      fetchVcsFileMock.mockFileMissing();
 
       appClient
         .request(currentUser)
         // When
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/contract`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/contract`,
         )
         // Then
         .expect(404);
@@ -158,61 +90,23 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 with known file and id', async () => {
       // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.contractFilePath = 'symeo.config.yml';
-      configuration.branch = 'staging';
-
-      await configurationRepository.save(configuration);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.yml',
       );
-
-      const mockConfigurationContract = base64encode(
-        fs
-          .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
-          .toString(),
-      );
-
-      const mockGitHubContentResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          content: mockConfigurationContract,
-          encoding: 'base64',
-        },
-      };
-      githubClientGetContentMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubContentResponse),
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
 
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/contract`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/contract`,
         )
         .expect(200);
 
-      expect(githubClientGetContentMock).toHaveBeenCalled();
-      expect(githubClientGetContentMock).toHaveBeenCalledWith({
+      expect(fetchVcsFileMock.spy).toHaveBeenCalled();
+      expect(fetchVcsFileMock.spy).toHaveBeenCalledWith({
         owner: configuration.ownerVcsName,
         repo: configuration.repositoryVcsName,
         path: configuration.contractFilePath,
@@ -230,62 +124,24 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 with known file and id and custom branch', async () => {
       // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.contractFilePath = 'symeo.config.yml';
-      configuration.branch = 'staging';
-
-      await configurationRepository.save(configuration);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
 
-      const mockConfigurationContract = base64encode(
-        fs
-          .readFileSync('./tests/utils/stubs/configuration/symeo.config.yml')
-          .toString(),
-      );
-
-      const mockGitHubContentResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          content: mockConfigurationContract,
-          encoding: 'base64',
-        },
-      };
-      githubClientGetContentMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubContentResponse),
-      );
-
-      const requestedBranch = 'branch-123456';
+      const requestedBranch = faker.datatype.string();
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/contract?branch=${requestedBranch}`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/contract?branch=${requestedBranch}`,
         )
         .expect(200);
 
-      expect(githubClientGetContentMock).toHaveBeenCalled();
-      expect(githubClientGetContentMock).toHaveBeenCalledWith({
+      expect(fetchVcsFileMock.spy).toHaveBeenCalled();
+      expect(fetchVcsFileMock.spy).toHaveBeenCalledWith({
         owner: configuration.ownerVcsName,
         repo: configuration.repositoryVcsName,
         path: configuration.contractFilePath,

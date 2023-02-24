@@ -6,14 +6,14 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
-import { CheckVcsFileExistsMock } from 'tests/utils/mocks/check-vcs-file-exists.mock';
+import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
-  let checkVcsFileExistsMock: CheckVcsFileExistsMock;
+  let fetchVcsFileMock: FetchVcsFileMock;
   let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
@@ -30,7 +30,7 @@ describe('ConfigurationController', () => {
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    checkVcsFileExistsMock = new CheckVcsFileExistsMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -46,7 +46,7 @@ describe('ConfigurationController', () => {
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
-    checkVcsFileExistsMock.restore();
+    fetchVcsFileMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
@@ -71,7 +71,7 @@ describe('ConfigurationController', () => {
     it('should not create configuration for non existing config file', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      checkVcsFileExistsMock.mockFileMissing();
+      fetchVcsFileMock.mockFileMissing();
 
       await appClient
         .request(currentUser)
@@ -89,7 +89,7 @@ describe('ConfigurationController', () => {
     it('should create a new configuration', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      checkVcsFileExistsMock.mockFilePresent();
+      fetchVcsFileMock.mockFilePresent();
 
       const sendData = {
         name: faker.name.jobTitle(),
