@@ -59,16 +59,16 @@ export class ConfigurationController {
     description: 'Github configuration successfully retrieved',
     type: GetConfigurationResponseDTO,
   })
-  @Get('github/:vcsRepositoryId/:id')
+  @Get('github/:repositoryVcsId/:id')
   async getGitHubConfigurationById(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
   ): Promise<GetConfigurationResponseDTO> {
     const configuration = await this.configurationFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       id,
     );
 
@@ -79,9 +79,9 @@ export class ConfigurationController {
     description: 'Github configuration contract successfully retrieved',
     type: GetConfigurationContractResponseDTO,
   })
-  @Get('github/:vcsRepositoryId/:id/contract')
+  @Get('github/:repositoryVcsId/:id/contract')
   async getGitHubConfigurationContractById(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('id') id: string,
     @Query('branch') branch: string | undefined,
     @CurrentUser() user: User,
@@ -89,7 +89,7 @@ export class ConfigurationController {
     const contract = await this.configurationFacade.findContractByIdForUser(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       id,
       branch,
     );
@@ -97,21 +97,21 @@ export class ConfigurationController {
     return new GetConfigurationContractResponseDTO(contract);
   }
 
-  @Get('github/:vcsRepositoryId')
+  @Get('github/:repositoryVcsId')
   @ApiOkResponse({
     description:
       'Github configurations for repositoryId successfully retrieved',
     type: GetConfigurationsResponseDTO,
   })
   async getGitHubConfigurationsForRepositoryId(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @CurrentUser() user: User,
   ): Promise<GetConfigurationsResponseDTO> {
     const configuration =
       await this.configurationFacade.findAllForRepositoryIdForUser(
         user,
         VCSProvider.GitHub,
-        parseInt(vcsRepositoryId),
+        parseInt(repositoryVcsId),
       );
 
     return GetConfigurationsResponseDTO.fromDomains(configuration);
@@ -120,16 +120,16 @@ export class ConfigurationController {
   @ApiOkResponse({
     description: 'Github configuration successfully deleted',
   })
-  @Delete('github/:vcsRepositoryId/:id')
+  @Delete('github/:repositoryVcsId/:id')
   async deleteGitHubConfigurationById(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
   ): Promise<void> {
     await this.configurationFacade.deleteByIdForUser(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       id,
     );
   }
@@ -158,9 +158,9 @@ export class ConfigurationController {
     description: 'Github configuration successfully updated',
     type: UpdateGitHubConfigurationResponseDTO,
   })
-  @Patch('github/:vcsRepositoryId/:id')
+  @Patch('github/:repositoryVcsId/:id')
   async updateForGitHub(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('id') id: string,
     @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,
     @CurrentUser() user: User,
@@ -168,7 +168,7 @@ export class ConfigurationController {
     const configuration = await this.configurationFacade.updateForUser(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       id,
       updateConfigurationDTO.name,
       updateConfigurationDTO.contractFilePath,

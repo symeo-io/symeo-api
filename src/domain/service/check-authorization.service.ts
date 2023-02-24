@@ -15,7 +15,7 @@ export class CheckAuthorizationService {
 
   async hasUserAuthorizationToVcsRepositoryAndConfigurationAndEnvironment(
     user: User,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<{
@@ -26,7 +26,7 @@ export class CheckAuthorizationService {
     const vcsRepositoryAndConfigurationAuthorization =
       await this.hasUserAuthorizationToVcsRepositoryAndConfiguration(
         user,
-        vcsRepositoryId,
+        repositoryVcsId,
         configurationId,
       );
 
@@ -37,7 +37,7 @@ export class CheckAuthorizationService {
 
     if (!environment) {
       throw new SymeoException(
-        `Environment not found for vcsRepositoryId ${vcsRepositoryId} and configurationId ${configurationId} and environmentId ${environmentId}`,
+        `Environment not found for repositoryVcsId ${repositoryVcsId} and configurationId ${configurationId} and environmentId ${environmentId}`,
         SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
       );
     }
@@ -51,21 +51,21 @@ export class CheckAuthorizationService {
 
   async hasUserAuthorizationToVcsRepositoryAndConfiguration(
     user: User,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
   ): Promise<{ vcsRepository: VcsRepository; configuration: Configuration }> {
     const vcsRepositoryAuthorization =
-      await this.hasUserAuthorizationToRepository(user, vcsRepositoryId);
+      await this.hasUserAuthorizationToRepository(user, repositoryVcsId);
 
     const configuration =
       await this.configurationStoragePort.findByIdAndRepositoryVcsId(
         configurationId,
-        vcsRepositoryId,
+        repositoryVcsId,
       );
 
     if (!configuration) {
       throw new SymeoException(
-        `Configuration not found for vcsRepositoryId ${vcsRepositoryId} and configurationId ${configurationId}`,
+        `Configuration not found for repositoryVcsId ${repositoryVcsId} and configurationId ${configurationId}`,
         SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
       );
     }
@@ -78,16 +78,16 @@ export class CheckAuthorizationService {
 
   async hasUserAuthorizationToRepository(
     user: User,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
   ): Promise<{ vcsRepository: VcsRepository }> {
     const vcsRepository = await this.githubAdapterPort.getRepositoryById(
       user,
-      vcsRepositoryId,
+      repositoryVcsId,
     );
 
     if (!vcsRepository) {
       throw new SymeoException(
-        `Repository not found for vcsRepositoryId ${vcsRepositoryId}`,
+        `Repository not found for repositoryVcsId ${repositoryVcsId}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }

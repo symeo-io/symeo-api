@@ -60,11 +60,11 @@ export default class PostgresConfigurationAdapter
 
   async findByIdAndRepositoryVcsId(
     configurationId: string,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
   ): Promise<Configuration | undefined> {
     const entity = await this.configurationRepository.findOneBy({
       id: configurationId,
-      repositoryVcsId: vcsRepositoryId,
+      repositoryVcsId: repositoryVcsId,
     });
 
     if (!entity) return undefined;

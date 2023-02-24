@@ -8,7 +8,7 @@ export interface ValuesFacade {
   findByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<ConfigurationValues>;
@@ -16,7 +16,7 @@ export interface ValuesFacade {
   updateByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
     values: ConfigurationValues,

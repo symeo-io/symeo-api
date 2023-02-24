@@ -29,19 +29,19 @@ export class RepositoryController {
     );
   }
 
-  @Get(':vcsRepositoryId/branches')
+  @Get(':repositoryVcsId/branches')
   @ApiOkResponse({
     description: 'Repository branches successfully retrieved',
     type: GetRepositoryBranchesResponseDTO,
   })
   async getRepositoryBranches(
     @CurrentUser() user: User,
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
   ): Promise<GetRepositoryBranchesResponseDTO> {
     return GetRepositoryBranchesResponseDTO.fromDomains(
       await this.repositoryFacade.getBranchByRepositoryId(
         user,
-        parseInt(vcsRepositoryId),
+        parseInt(repositoryVcsId),
       ),
     );
   }

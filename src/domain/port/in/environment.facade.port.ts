@@ -7,7 +7,7 @@ export interface EnvironmentFacade {
   createEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
@@ -16,7 +16,7 @@ export interface EnvironmentFacade {
   deleteEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
     environmentId: string,
   ): Promise<void>;

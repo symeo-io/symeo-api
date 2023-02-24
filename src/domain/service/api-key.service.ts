@@ -20,14 +20,14 @@ export class ApiKeyService implements ApiKeyFacade {
   async listApiKeysForUserAndEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<ApiKey[]> {
     const configuration = await this.configurationFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      vcsRepositoryId,
+      repositoryVcsId,
       configurationId,
     );
 
@@ -48,14 +48,14 @@ export class ApiKeyService implements ApiKeyFacade {
   async createApiKeyForEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<ApiKey> {
     const configuration = await this.configurationFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      vcsRepositoryId,
+      repositoryVcsId,
       configurationId,
     );
 
@@ -79,7 +79,7 @@ export class ApiKeyService implements ApiKeyFacade {
   async deleteApiKeyForEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
     apiKeyId: string,
@@ -87,7 +87,7 @@ export class ApiKeyService implements ApiKeyFacade {
     const configuration = await this.configurationFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      vcsRepositoryId,
+      repositoryVcsId,
       configurationId,
     );
 

@@ -16,14 +16,14 @@ export class EnvironmentPermissionController {
   ) {}
 
   @Get(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/permissions',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
   )
   @ApiOkResponse({
     description: 'Members environment permissions successfully retrieved',
     type: GetEnvironmentPermissionsResponseDTO,
   })
   async getEnvironmentPermissions(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
@@ -31,7 +31,7 @@ export class EnvironmentPermissionController {
     return GetEnvironmentPermissionsResponseDTO.fromDomains(
       await this.environmentPermissionFacade.getEnvironmentPermissions(
         user,
-        parseInt(vcsRepositoryId),
+        parseInt(repositoryVcsId),
         configurationId,
         environmentId,
       ),

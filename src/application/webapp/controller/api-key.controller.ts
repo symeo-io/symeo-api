@@ -26,14 +26,14 @@ export class ApiKeyController {
   ) {}
 
   @Get(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/api-keys',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
   )
   @ApiOkResponse({
     description: 'Api keys successfully retrieved',
     type: GetApiKeysResponseDTO,
   })
   async listApiKeysForEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
@@ -41,7 +41,7 @@ export class ApiKeyController {
     const apiKeys = await this.apiKeyFacade.listApiKeysForUserAndEnvironment(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       environmentId,
     );
@@ -50,14 +50,14 @@ export class ApiKeyController {
   }
 
   @Post(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/api-keys',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
   )
   @ApiOkResponse({
     description: 'Api keys successfully created',
     type: CreateApiKeyResponseDTO,
   })
   async createApiKeyForEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
@@ -65,7 +65,7 @@ export class ApiKeyController {
     const apiKey = await this.apiKeyFacade.createApiKeyForEnvironment(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       environmentId,
     );
@@ -74,13 +74,13 @@ export class ApiKeyController {
   }
 
   @Delete(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
   )
   @ApiOkResponse({
     description: 'Api keys successfully deleted',
   })
   async deleteApiKeyForEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @Param('apiKeyId') apiKeyId: string,
@@ -89,7 +89,7 @@ export class ApiKeyController {
     await this.apiKeyFacade.deleteApiKeyForEnvironment(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       environmentId,
       apiKeyId,

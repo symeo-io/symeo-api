@@ -68,7 +68,7 @@ describe('EnvironmentPermissionController', () => {
     getGitHubAccessTokenMock.mockRestore();
   });
 
-  describe('(GET) /configurations/github/:vcsRepositoryId/:configurationId/environments/:environmentId/environment-accesses', () => {
+  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/environment-accesses', () => {
     describe('should return 404', () => {
       it('should return 404 for non existing repository', async () => {
         // Given
@@ -93,7 +93,7 @@ describe('EnvironmentPermissionController', () => {
           ],
         );
         expect(response.body.message).toBe(
-          `Repository not found for vcsRepositoryId ${repositoryVcsId}`,
+          `Repository not found for repositoryVcsId ${repositoryVcsId}`,
         );
       });
 
@@ -137,7 +137,7 @@ describe('EnvironmentPermissionController', () => {
           ],
         );
         expect(response.body.message).toBe(
-          `Configuration not found for vcsRepositoryId ${repositoryVcsId} and configurationId ${configurationId}`,
+          `Configuration not found for repositoryVcsId ${repositoryVcsId} and configurationId ${configurationId}`,
         );
       });
 
@@ -195,7 +195,7 @@ describe('EnvironmentPermissionController', () => {
           ],
         );
         expect(response.body.message).toBe(
-          `Environment not found for vcsRepositoryId ${repositoryVcsId} and configurationId ${configurationId} and environmentId ${environmentId}`,
+          `Environment not found for repositoryVcsId ${repositoryVcsId} and configurationId ${configurationId} and environmentId ${environmentId}`,
         );
       });
     });

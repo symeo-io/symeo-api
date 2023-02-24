@@ -28,13 +28,13 @@ export class EnvironmentController {
     private readonly configurationFacade: EnvironmentFacade,
   ) {}
 
-  @Patch('github/:vcsRepositoryId/:configurationId/environments/:id')
+  @Patch('github/:repositoryVcsId/:configurationId/environments/:id')
   @ApiOkResponse({
     description: 'Environment successfully updated',
     type: UpdateEnvironmentResponseDTO,
   })
   async updateEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('id') id: string,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
@@ -44,7 +44,7 @@ export class EnvironmentController {
       await this.configurationFacade.updateEnvironment(
         user,
         VCSProvider.GitHub,
-        parseInt(vcsRepositoryId),
+        parseInt(repositoryVcsId),
         configurationId,
         id,
         updateEnvironmentDTO.name,
@@ -56,9 +56,9 @@ export class EnvironmentController {
   @ApiOkResponse({
     description: 'Environment successfully deleted',
   })
-  @Delete('github/:vcsRepositoryId/:configurationId/environments/:id')
+  @Delete('github/:repositoryVcsId/:configurationId/environments/:id')
   async deleteEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('id') id: string,
     @CurrentUser() user: User,
@@ -66,7 +66,7 @@ export class EnvironmentController {
     await this.configurationFacade.deleteEnvironment(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       id,
     );
@@ -77,9 +77,9 @@ export class EnvironmentController {
     description: 'Environment successfully created',
     type: CreateEnvironmentResponseDTO,
   })
-  @Post('github/:vcsRepositoryId/:configurationId/environments')
+  @Post('github/:repositoryVcsId/:configurationId/environments')
   async createEnvironment(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
     @CurrentUser() user: User,
@@ -87,7 +87,7 @@ export class EnvironmentController {
     const environment = await this.configurationFacade.createEnvironment(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       createEnvironmentDTO.name,
       createEnvironmentDTO.color,

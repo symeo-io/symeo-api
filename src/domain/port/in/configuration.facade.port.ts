@@ -7,14 +7,14 @@ export default interface ConfigurationFacade {
   findByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
   ): Promise<Configuration>;
 
   findAllForRepositoryIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
   ): Promise<Configuration[]>;
 
   validateCreateForUser(
@@ -27,7 +27,7 @@ export default interface ConfigurationFacade {
   findContractByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
     branchName?: string,
   ): Promise<ConfigurationContract>;
@@ -53,7 +53,7 @@ export default interface ConfigurationFacade {
   deleteByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
   ): Promise<void>;
 }

@@ -18,16 +18,16 @@ export class EnvironmentService implements EnvironmentFacade {
   async createEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
   ): Promise<Environment> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
       this.configurationStoragePort.findById(
         VCSProvider.GitHub,
-        vcsRepositoryId,
+        repositoryVcsId,
         configurationId,
       ),
     ]);
@@ -51,15 +51,15 @@ export class EnvironmentService implements EnvironmentFacade {
   async deleteEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<void> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
       this.configurationStoragePort.findById(
         VCSProvider.GitHub,
-        vcsRepositoryId,
+        repositoryVcsId,
         configurationId,
       ),
     ]);
@@ -86,17 +86,17 @@ export class EnvironmentService implements EnvironmentFacade {
   async updateEnvironment(
     user: User,
     vcsProvider: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
     environmentName: string,
     environmentColor: EnvironmentColor,
   ): Promise<Environment> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
       this.configurationStoragePort.findById(
         VCSProvider.GitHub,
-        vcsRepositoryId,
+        repositoryVcsId,
         configurationId,
       ),
     ]);

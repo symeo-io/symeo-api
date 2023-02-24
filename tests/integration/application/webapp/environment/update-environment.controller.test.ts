@@ -61,16 +61,16 @@ describe('EnvironmentController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(PATCH) /configurations/github/:vcsRepositoryId/environments/:id', () => {
+  describe('(PATCH) /configurations/github/:repositoryVcsId/environments/:id', () => {
     it('Should return 400 for missing environment data', async () => {
-      const vcsRepositoryId: number = faker.datatype.number();
+      const repositoryVcsId: number = faker.datatype.number();
       const configurationId: string = uuid();
       const environmentId: string = uuid();
       await appClient
         .request(currentUser)
         // When
         .patch(
-          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}`,
         )
         .send({})
         // Then
@@ -78,7 +78,7 @@ describe('EnvironmentController', () => {
     });
 
     it('Should return 404 for non existing repository', async () => {
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const configurationId = uuid();
       const environmentId: string = uuid();
       githubClientRequestMock.mockImplementation(() => {
@@ -94,7 +94,7 @@ describe('EnvironmentController', () => {
         .request(currentUser)
         // When
         .patch(
-          `/api/v1/configurations/github/${vcsRepositoryId}/${configurationId}/environments/${environmentId}`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}`,
         )
         .send(data)
         // Then

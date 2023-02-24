@@ -5,7 +5,7 @@ import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 export interface EnvironmentPermissionFacade {
   getEnvironmentPermissions(
     user: User,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<EnvironmentPermission[]>;

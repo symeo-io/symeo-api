@@ -8,7 +8,7 @@ export interface ApiKeyFacade {
   listApiKeysForUserAndEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<ApiKey[]>;
@@ -16,7 +16,7 @@ export interface ApiKeyFacade {
   createApiKeyForEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<ApiKey>;
@@ -24,7 +24,7 @@ export interface ApiKeyFacade {
   deleteApiKeyForEnvironment(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
     apiKeyId: string,

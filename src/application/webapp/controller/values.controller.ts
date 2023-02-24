@@ -27,14 +27,14 @@ export class ValuesController {
   ) {}
 
   @Get(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/values',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @ApiOkResponse({
     description: 'Environment values successfully retrieved',
     type: GetEnvironmentValuesResponseDTO,
   })
   async getEnvironmentValues(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @CurrentUser() user: User,
@@ -42,7 +42,7 @@ export class ValuesController {
     const values = await this.valuesFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       environmentId,
     );
@@ -51,14 +51,14 @@ export class ValuesController {
   }
 
   @Post(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/values',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @ApiOkResponse({
     description: 'Environment values successfully created',
   })
   @HttpCode(200)
   async setEnvironmentValues(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
+    @Param('repositoryVcsId') repositoryVcsId: string,
     @Param('configurationId') configurationId: string,
     @Param('environmentId') environmentId: string,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
@@ -67,7 +67,7 @@ export class ValuesController {
     await this.valuesFacade.updateByIdForUser(
       user,
       VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
+      parseInt(repositoryVcsId),
       configurationId,
       environmentId,
       setEnvironmentValuesResponseDTO.values,

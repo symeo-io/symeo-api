@@ -24,14 +24,14 @@ export class ValuesService implements ValuesFacade {
   async findByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<ConfigurationValues> {
     const configuration = await this.configurationFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      vcsRepositoryId,
+      repositoryVcsId,
       configurationId,
     );
 
@@ -54,7 +54,7 @@ export class ValuesService implements ValuesFacade {
   async updateByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
     values: ConfigurationValues,
@@ -62,7 +62,7 @@ export class ValuesService implements ValuesFacade {
     const configuration = await this.configurationFacade.findByIdForUser(
       user,
       VCSProvider.GitHub,
-      vcsRepositoryId,
+      repositoryVcsId,
       configurationId,
     );
 

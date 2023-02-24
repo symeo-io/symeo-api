@@ -41,7 +41,7 @@ describe('RepositoryController', () => {
     await appClient.close();
   });
 
-  describe('(GET) /repository/:vcsRepositoryId/branches', () => {
+  describe('(GET) /repository/:repositoryVcsId/branches', () => {
     it('should respond 200 with github branches', async () => {
       // Given
       const mockGitHubToken = uuid();

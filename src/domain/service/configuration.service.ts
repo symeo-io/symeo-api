@@ -20,14 +20,14 @@ export default class ConfigurationService implements ConfigurationFacade {
   async findByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
   ): Promise<Configuration> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
       this.configurationStoragePort.findById(
         VCSProvider.GitHub,
-        vcsRepositoryId,
+        repositoryVcsId,
         id,
       ),
     ]);
@@ -45,21 +45,21 @@ export default class ConfigurationService implements ConfigurationFacade {
   async findAllForRepositoryIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
   ): Promise<Configuration[]> {
     const hasUserAccessToRepository =
-      await this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId);
+      await this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId);
 
     if (!hasUserAccessToRepository) {
       throw new SymeoException(
-        `Repository not found for id ${vcsRepositoryId}`,
+        `Repository not found for id ${repositoryVcsId}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
 
     return await this.configurationStoragePort.findAllForRepositoryId(
       vcsType,
-      vcsRepositoryId,
+      repositoryVcsId,
     );
   }
 
@@ -103,13 +103,13 @@ export default class ConfigurationService implements ConfigurationFacade {
   async findContractByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
     branchName?: string,
   ): Promise<ConfigurationContract> {
     const configuration = await this.configurationStoragePort.findById(
       VCSProvider.GitHub,
-      vcsRepositoryId,
+      repositoryVcsId,
       id,
     );
 
@@ -235,14 +235,14 @@ export default class ConfigurationService implements ConfigurationFacade {
   async deleteByIdForUser(
     user: User,
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
   ): Promise<void> {
     const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
+      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
       this.configurationStoragePort.findById(
         VCSProvider.GitHub,
-        vcsRepositoryId,
+        repositoryVcsId,
         id,
       ),
     ]);

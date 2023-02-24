@@ -20,7 +20,7 @@ export class EnvironmentPermissionService
 
   async getEnvironmentPermissions(
     user: User,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ): Promise<EnvironmentPermission[]> {
@@ -28,7 +28,7 @@ export class EnvironmentPermissionService
       case VCSProvider.GitHub:
         return this.getEnvironmentPermissionsWithGithub(
           user,
-          vcsRepositoryId,
+          repositoryVcsId,
           configurationId,
           environmentId,
         );
@@ -39,14 +39,14 @@ export class EnvironmentPermissionService
 
   private async getEnvironmentPermissionsWithGithub(
     user: User,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     configurationId: string,
     environmentId: string,
   ) {
     const authorizations =
       await this.checkAuthorizationService.hasUserAuthorizationToVcsRepositoryAndConfigurationAndEnvironment(
         user,
-        vcsRepositoryId,
+        repositoryVcsId,
         configurationId,
         environmentId,
       );
