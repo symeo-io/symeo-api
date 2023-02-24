@@ -6,7 +6,7 @@ import User from 'src/domain/model/user/user.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
-import { CheckAuthorizationService } from 'src/domain/service/check-authorization.service';
+import { AuthorizationService } from 'src/domain/service/authorization.service';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
@@ -15,7 +15,7 @@ export class EnvironmentPermissionService
     private githubAdapterPort: GithubAdapterPort,
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
-    private checkAuthorizationService: CheckAuthorizationService,
+    private authorizationService: AuthorizationService,
   ) {}
 
   async getEnvironmentPermissions(
@@ -43,22 +43,19 @@ export class EnvironmentPermissionService
     configurationId: string,
     environmentId: string,
   ) {
-    const authorizations =
-      await this.checkAuthorizationService.hasUserAuthorizationToVcsRepositoryAndConfigurationAndEnvironment(
+    const { environment, repository } =
+      await this.authorizationService.hasUserAuthorizationToEnvironment(
         user,
         repositoryVcsId,
         configurationId,
         environmentId,
       );
 
-    const vcsRepository = authorizations.vcsRepository;
-    const environment = authorizations.environment;
-
     const githubRepositoryUsers: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
-        vcsRepository.owner.name,
-        vcsRepository.name,
+        repository.owner.name,
+        repository.name,
       );
 
     const inBaseEnvironmentPermissions: EnvironmentPermission[] =

@@ -8,7 +8,7 @@ import User from 'src/domain/model/user/user.model';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
 
 @Injectable()
-export class RepositoryAuthorizationGuard implements CanActivate {
+export class EnvironmentAuthorizationGuard implements CanActivate {
   constructor(
     @Inject('AuthorizationService')
     protected readonly authorizationService: AuthorizationService,
@@ -17,15 +17,21 @@ export class RepositoryAuthorizationGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user: User = request.user;
-    const requestRepositoryVcsId = request.params.repositoryVcsId;
+    const requestedRepositoryVcsId = request.params.repositoryVcsId;
+    const requestedConfigurationId = request.params.configurationId;
+    const requestedEnvironmentId = request.params.environmentId;
 
-    const { repository } =
-      await this.authorizationService.hasUserAuthorizationToRepository(
+    const { repository, configuration, environment } =
+      await this.authorizationService.hasUserAuthorizationToEnvironment(
         user,
-        requestRepositoryVcsId,
+        requestedRepositoryVcsId,
+        requestedConfigurationId,
+        requestedEnvironmentId,
       );
 
     request.repository = repository;
+    request.configuration = configuration;
+    request.environment = environment;
     return true;
   }
 }

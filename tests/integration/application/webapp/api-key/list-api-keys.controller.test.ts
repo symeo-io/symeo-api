@@ -13,6 +13,7 @@ import ApiKey from 'src/domain/model/environment/api-key.model';
 import Environment from 'src/domain/model/environment/environment.model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import SpyInstance = jest.SpyInstance;
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
@@ -121,7 +122,7 @@ describe('ApiKeyController', () => {
         throw { status: 404 };
       });
 
-      appClient
+      const response = await appClient
         .request(currentUser)
         // When
         .get(
@@ -129,6 +130,10 @@ describe('ApiKeyController', () => {
         )
         // Then
         .expect(404);
+
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+      );
     });
 
     it('should respond 404 with unknown environment id', async () => {

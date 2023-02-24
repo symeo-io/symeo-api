@@ -12,6 +12,7 @@ import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/enviro
 import Environment from 'src/domain/model/environment/environment.model';
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
@@ -138,7 +139,7 @@ describe('ValuesController', () => {
         throw { status: 404 };
       });
 
-      appClient
+      const response = await appClient
         .request(currentUser)
         // When
         .post(
@@ -147,6 +148,10 @@ describe('ValuesController', () => {
         .send({ values: { aws: { region: 'eu-west-3' } } })
         // Then
         .expect(404);
+
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+      );
     });
 
     it('should respond 404 with unknown environment id', async () => {

@@ -18,7 +18,7 @@ import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environmen
 import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import { EnvironmentPermissionService } from 'src/domain/service/environment-permission.service';
-import { CheckAuthorizationService } from 'src/domain/service/check-authorization.service';
+import { AuthorizationService } from 'src/domain/service/authorization.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -44,29 +44,28 @@ const EnvironmentPermissionFacadeProvider = {
     githubAdapterPort: GithubAdapterPort,
     environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     environmentPermissionUtils: EnvironmentPermissionUtils,
-    checkAuthorizationService: CheckAuthorizationService,
+    authorizationService: AuthorizationService,
   ) =>
     new EnvironmentPermissionService(
       githubAdapterPort,
       environmentPermissionStoragePort,
       environmentPermissionUtils,
-      checkAuthorizationService,
+      authorizationService,
     ),
   inject: [
     'GithubAdapter',
     'PostgresEnvironmentPermissionAdapter',
     'EnvironmentPermissionUtils',
-    'CheckAuthorizationService',
+    'AuthorizationService',
   ],
 };
 
-const CheckAuthorizationServiceProvider = {
-  provide: 'CheckAuthorizationService',
+const AuthorizationServiceProvider = {
+  provide: 'AuthorizationService',
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
     configurationStoragePort: ConfigurationStoragePort,
-  ) =>
-    new CheckAuthorizationService(githubAdapterPort, configurationStoragePort),
+  ) => new AuthorizationService(githubAdapterPort, configurationStoragePort),
   inject: ['GithubAdapter', 'PostgresConfigurationAdapter'],
 };
 
@@ -124,7 +123,7 @@ const EnvironmentPermissionUtilsProvider = {
     ApiKeyFacadeProvider,
     EnvironmentPermissionFacadeProvider,
     EnvironmentPermissionUtilsProvider,
-    CheckAuthorizationServiceProvider,
+    AuthorizationServiceProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -134,7 +133,7 @@ const EnvironmentPermissionUtilsProvider = {
     ValuesFacadeProvider,
     ApiKeyFacadeProvider,
     EnvironmentPermissionFacadeProvider,
-    CheckAuthorizationServiceProvider,
+    AuthorizationServiceProvider,
   ],
 })
 export class DomainModule {}

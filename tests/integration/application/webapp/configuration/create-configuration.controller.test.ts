@@ -61,18 +61,7 @@ describe('ConfigurationController', () => {
     githubClientRequestMock.mockRestore();
   });
 
-  describe('(POST) /configurations', () => {
-    it('should return 400 for missing repository id', async () => {
-      // Given
-      await appClient
-        .request(currentUser)
-        // When
-        .post(`/api/v1/configurations/github`)
-        .send({})
-        // Then
-        .expect(400);
-    });
-
+  describe('(POST) /configurations/github/:repositoryVcsId', () => {
     it('should not create configuration for non existing repository', async () => {
       // Given
       const repositoryVcsId = 105865802;
@@ -83,12 +72,11 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/api/v1/configurations/github`)
+        .post(`/api/v1/configurations/github/${repositoryVcsId}`)
         .send({
           name: faker.name.jobTitle(),
           branch: 'staging',
           contractFilePath: './symeo.config.yml',
-          repositoryVcsId,
         })
         // Then
         .expect(404);
@@ -120,12 +108,11 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/api/v1/configurations/github`)
+        .post(`/api/v1/configurations/github/${repositoryVcsId}`)
         .send({
           name: faker.name.jobTitle(),
           branch: 'staging',
           contractFilePath: './symeo.config.yml',
-          repositoryVcsId,
         })
         // Then
         .expect(404);
@@ -158,13 +145,12 @@ describe('ConfigurationController', () => {
         name: faker.name.jobTitle(),
         branch: 'staging',
         contractFilePath: './symeo.config.yml',
-        repositoryVcsId,
       };
 
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/api/v1/configurations/github`)
+        .post(`/api/v1/configurations/github/${repositoryVcsId}`)
         .send(sendData)
         // Then
         .expect(201);
