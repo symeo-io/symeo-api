@@ -6,7 +6,8 @@ import User from 'src/domain/model/user/user.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
-import { AuthorizationService } from 'src/domain/service/authorization.service';
+import Environment from 'src/domain/model/environment/environment.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
@@ -15,22 +16,19 @@ export class EnvironmentPermissionService
     private githubAdapterPort: GithubAdapterPort,
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
-    private authorizationService: AuthorizationService,
   ) {}
 
   async getEnvironmentPermissions(
     user: User,
-    repositoryVcsId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    environment: Environment,
   ): Promise<EnvironmentPermission[]> {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return this.getEnvironmentPermissionsWithGithub(
           user,
-          repositoryVcsId,
-          configurationId,
-          environmentId,
+          repository,
+          environment,
         );
       default:
         return [];
@@ -39,18 +37,9 @@ export class EnvironmentPermissionService
 
   private async getEnvironmentPermissionsWithGithub(
     user: User,
-    repositoryVcsId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    environment: Environment,
   ) {
-    const { environment, repository } =
-      await this.authorizationService.hasUserAuthorizationToEnvironment(
-        user,
-        repositoryVcsId,
-        configurationId,
-        environmentId,
-      );
-
     const githubRepositoryUsers: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
@@ -60,7 +49,7 @@ export class EnvironmentPermissionService
 
     const inBaseEnvironmentPermissions: EnvironmentPermission[] =
       await this.environmentPermissionStoragePort.findForEnvironmentIdAndVcsUserIds(
-        environmentId,
+        environment.id,
         githubRepositoryUsers.map((vcsUser) => vcsUser.id),
       );
 
