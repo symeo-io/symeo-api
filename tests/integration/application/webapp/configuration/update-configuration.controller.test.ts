@@ -58,9 +58,9 @@ describe('ConfigurationController', () => {
       );
 
       const newValues = {
-        name: faker.datatype.string(),
-        contractFilePath: faker.datatype.string(),
-        branch: faker.datatype.string(),
+        name: faker.lorem.slug(),
+        contractFilePath: faker.lorem.slug(),
+        branch: faker.lorem.slug(),
       };
 
       await appClient

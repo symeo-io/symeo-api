@@ -19,14 +19,14 @@ export class ConfigurationTestUtil {
   ): Promise<ConfigurationEntity> {
     const configuration = new ConfigurationEntity();
     configuration.id = uuid();
-    configuration.name = faker.datatype.string();
+    configuration.name = faker.lorem.slug();
     configuration.vcsType = VCSProvider.GitHub;
     configuration.repositoryVcsId = repositoryVcsId ?? faker.datatype.number();
-    configuration.repositoryVcsName = faker.datatype.string();
+    configuration.repositoryVcsName = faker.lorem.slug();
     configuration.ownerVcsId = faker.datatype.number();
-    configuration.ownerVcsName = faker.datatype.string();
-    configuration.contractFilePath = faker.datatype.string();
-    configuration.branch = faker.datatype.string();
+    configuration.ownerVcsName = faker.lorem.slug();
+    configuration.contractFilePath = faker.lorem.slug();
+    configuration.branch = faker.lorem.slug();
 
     await this.repository.save(configuration);
 

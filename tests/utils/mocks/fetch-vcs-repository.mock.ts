@@ -20,12 +20,12 @@ export class FetchVcsRepositoryMock {
   public mockRepositoryPresent(): MockedRepository {
     this.spy = jest.spyOn(this.githubClient, 'request');
     const data = {
-      name: faker.datatype.string(),
+      name: faker.lorem.slug(),
       id: faker.datatype.number(),
       owner: {
-        login: faker.datatype.string(),
+        login: faker.lorem.slug(),
         id: faker.datatype.number(),
-        avatar_url: faker.datatype.string(),
+        avatar_url: faker.lorem.slug(),
       },
     };
     const mockGitHubRepositoryResponse = {

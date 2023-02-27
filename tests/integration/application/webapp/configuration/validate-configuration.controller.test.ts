@@ -76,8 +76,8 @@ describe('ConfigurationController', () => {
         .post(`/api/v1/configurations/github/validate`)
         .send({
           repositoryVcsId: repository.id,
-          contractFilePath: faker.datatype.string(),
-          branch: faker.datatype.string(),
+          contractFilePath: faker.lorem.slug(),
+          branch: faker.lorem.slug(),
         })
         // Then
         .expect(200);

@@ -19,7 +19,7 @@ export class EnvironmentTestUtil {
   ): Promise<EnvironmentEntity> {
     const environment = new EnvironmentEntity();
     environment.id = uuid();
-    environment.name = faker.datatype.string();
+    environment.name = faker.lorem.slug();
     environment.color = 'blue';
     environment.configuration = configuration;
 

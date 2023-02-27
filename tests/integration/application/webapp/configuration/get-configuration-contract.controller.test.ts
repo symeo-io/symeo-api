@@ -114,7 +114,7 @@ describe('ConfigurationController', () => {
         repository.id,
       );
 
-      const requestedBranch = faker.datatype.string();
+      const requestedBranch = faker.lorem.slug();
       const response = await appClient
         .request(currentUser)
         .get(
