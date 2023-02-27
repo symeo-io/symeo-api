@@ -5,4 +5,6 @@ export interface EnvironmentPermissionStoragePort {
     environmentId: string,
     vcsUserIds: number[],
   ): Promise<EnvironmentPermission[]>;
+
+  saveAll(environmentPermissions: EnvironmentPermission[]): Promise<void>;
 }

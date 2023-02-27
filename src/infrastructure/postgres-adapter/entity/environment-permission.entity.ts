@@ -30,8 +30,8 @@ export default class EnvironmentPermissionEntity extends AbstractEntity {
     return new EnvironmentPermission(
       this.id,
       this.userVcsId,
-      this.environment.toDomain(),
       this.environmentPermissionRole,
+      this.environment.id,
     );
   }
 
@@ -43,9 +43,6 @@ export default class EnvironmentPermissionEntity extends AbstractEntity {
     entity.userVcsId = environmentPermission.userVcsId;
     entity.environmentPermissionRole =
       environmentPermission.environmentPermissionRole;
-    entity.environment = EnvironmentEntity.fromDomain(
-      environmentPermission.environment,
-    );
     return entity;
   }
 }

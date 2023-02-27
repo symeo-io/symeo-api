@@ -3,7 +3,6 @@ import User from 'src/domain/model/user/user.model';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
@@ -11,6 +10,7 @@ import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.u
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
 import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
+import { EnvironmentPermissionUserDTO } from 'src/application/webapp/dto/environment-permission/environment-permission-user.dto';
 
 describe('EnvironmentPermissionController', () => {
   let appClient: AppClient;
@@ -82,12 +82,12 @@ describe('EnvironmentPermissionController', () => {
           )
           // Then
           .expect(200);
-        expect(response.body.environmentPermissions).toBeDefined();
-        expect(response.body.environmentPermissions.length).toEqual(3);
+        expect(response.body.environmentPermissionUsers).toBeDefined();
+        expect(response.body.environmentPermissionUsers.length).toEqual(3);
         const environmentPermissionsVerification =
-          response.body.environmentPermissions.map(
-            (environmentPermission: EnvironmentPermissionDTO) =>
-              `${environmentPermission.user.userVcsId} - ${environmentPermission.environmentPermissionRole}`,
+          response.body.environmentPermissionUsers.map(
+            (environmentPermission: EnvironmentPermissionUserDTO) =>
+              `${environmentPermission.user.vcsId} - ${environmentPermission.environmentPermission.environmentPermissionRole}`,
           );
         expect(environmentPermissionsVerification).toContain(
           '16590657 - admin',
@@ -130,30 +130,33 @@ describe('EnvironmentPermissionController', () => {
           )
           // Then
           .expect(200);
-        expect(response.body.environmentPermissions).toBeDefined();
-        expect(response.body.environmentPermissions.length).toEqual(3);
+        expect(response.body.environmentPermissionUsers).toBeDefined();
+        expect(response.body.environmentPermissionUsers.length).toEqual(3);
 
         const environmentPermission1InResponse =
-          response.body.environmentPermissions.find(
-            (el: any) => el.user.userVcsId === environmentPermission1.userVcsId,
+          response.body.environmentPermissionUsers.find(
+            (el: any) => el.user.vcsId === environmentPermission1.userVcsId,
           );
         const environmentPermission2InResponse =
-          response.body.environmentPermissions.find(
-            (el: any) => el.user.userVcsId === environmentPermission2.userVcsId,
+          response.body.environmentPermissionUsers.find(
+            (el: any) => el.user.vcsId === environmentPermission2.userVcsId,
           );
         const environmentPermission3InResponse =
-          response.body.environmentPermissions.find(
-            (el: any) => el.user.userVcsId === 102222086,
+          response.body.environmentPermissionUsers.find(
+            (el: any) => el.user.vcsId === 102222086,
           );
 
         expect(
-          environmentPermission1InResponse.environmentPermissionRole,
+          environmentPermission1InResponse.environmentPermission
+            .environmentPermissionRole,
         ).toEqual('readSecret');
         expect(
-          environmentPermission2InResponse.environmentPermissionRole,
+          environmentPermission2InResponse.environmentPermission
+            .environmentPermissionRole,
         ).toEqual('write');
         expect(
-          environmentPermission3InResponse.environmentPermissionRole,
+          environmentPermission3InResponse.environmentPermission
+            .environmentPermissionRole,
         ).toEqual('readNonSecret');
       });
     });

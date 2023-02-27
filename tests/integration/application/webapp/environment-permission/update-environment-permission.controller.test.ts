@@ -1,0 +1,209 @@
+import { AppClient } from 'tests/utils/app.client';
+import { Repository } from 'typeorm';
+import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
+import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
+import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
+import { Octokit } from '@octokit/rest';
+import User from 'src/domain/model/user/user.model';
+import { v4 as uuid } from 'uuid';
+import { faker } from '@faker-js/faker';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
+import { UpdateEnvironmentPermissionsDTO } from 'src/application/webapp/dto/environment-permission/update-environment-permissions.dto';
+import { UpdateEnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/update-environment-permission.dto';
+import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/exception/symeo.exception.code.to.http.status.map';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import SpyInstance = jest.SpyInstance;
+import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
+
+describe('EnvironmentPermissionController', () => {
+  let appClient: AppClient;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
+  let configurationTestUtil: ConfigurationTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
+  let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
+
+  const currentUser = new User(
+    uuid(),
+    faker.internet.email(),
+    VCSProvider.GitHub,
+    faker.datatype.number(),
+  );
+
+  beforeAll(async () => {
+    appClient = new AppClient();
+    await appClient.init();
+
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryCollaboratorsMock =
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
+    environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
+      appClient,
+    );
+  }, 30000);
+
+  afterAll(() => {
+    appClient.close();
+  });
+
+  beforeEach(async () => {
+    await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
+    await environmentPermissionTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
+  });
+
+  afterEach(() => {
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
+    fetchVcsRepositoryCollaboratorsMock.restore();
+  });
+
+  describe('(POST) github/:vcsRepository/:configurationId/environments/:environmentId/permissions', () => {
+    it('should return 400 for missing environment permissions data', async () => {
+      // Given
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      await appClient
+        .request(currentUser)
+        // When
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+        )
+        .send({ data: faker.name.firstName() })
+        // Then
+        .expect(400);
+    });
+
+    it('should return 404 for trying to update permissions of user that do not have access to repository', async () => {
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const updateEnvironmentPermissionsDTO =
+        new UpdateEnvironmentPermissionsDTO();
+      const updateEnvironmentPermissionDTOList = [
+        new UpdateEnvironmentPermissionDTO(
+          faker.datatype.uuid(),
+          faker.datatype.number({ min: 1, max: 100000 }),
+          EnvironmentPermissionRole.READ_SECRET,
+        ),
+      ];
+      updateEnvironmentPermissionsDTO.environmentPermissions =
+        updateEnvironmentPermissionDTOList;
+
+      const response = await appClient
+        .request(currentUser)
+        // When
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+        )
+        .send(updateEnvironmentPermissionsDTO)
+        // Then
+        .expect(404);
+      expect(response.body.statusCode).toBe(
+        SymeoExceptionCodeToHttpStatusMap[
+          SymeoExceptionCode.REPOSITORY_NOT_FOUND
+        ],
+      );
+      expect(response.body.message).toBe(
+        `User with vcsIds ${updateEnvironmentPermissionDTOList[0].userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+      );
+    });
+
+    it('should return 200 with updated environment permissions', async () => {
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const environmentPermission1 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          16590657,
+        );
+
+      const environmentPermission2 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.WRITE,
+          22441392,
+        );
+
+      const environmentPermissionToUpdateId = environmentPermission1.id;
+      const environmentPermissionToUpdateVcsUserId =
+        environmentPermission1.userVcsId;
+      const environmentPermissionToUpdateRole =
+        EnvironmentPermissionRole.READ_SECRET;
+
+      const updateEnvironmentPermissionsDTO =
+        new UpdateEnvironmentPermissionsDTO();
+      const updateEnvironmentPermissionDTOList = [
+        new UpdateEnvironmentPermissionDTO(
+          environmentPermissionToUpdateId,
+          environmentPermissionToUpdateVcsUserId,
+          environmentPermissionToUpdateRole,
+        ),
+      ];
+      updateEnvironmentPermissionsDTO.environmentPermissions =
+        updateEnvironmentPermissionDTOList;
+
+      const response = await appClient
+        .request(currentUser)
+        // When
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+        )
+        .send(updateEnvironmentPermissionsDTO)
+        // Then
+        .expect(200);
+      expect(response.body.environmentPermissions).toBeDefined();
+      expect(response.body.environmentPermissions.length).toEqual(1);
+      const environmentPermissionsVerification =
+        response.body.environmentPermissions.map(
+          (environmentPermissionDTO: EnvironmentPermissionDTO) =>
+            `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
+        );
+      expect(environmentPermissionsVerification).toContain(
+        `${environmentPermissionToUpdateVcsUserId} - ${environmentPermissionToUpdateRole}`,
+      );
+
+      const updatedEnvironmentPermissionEntity =
+        await environmentPermissionTestUtil.repository.findOneBy({
+          id: environmentPermissionToUpdateId,
+        });
+      expect(
+        updatedEnvironmentPermissionEntity?.environmentPermissionRole,
+      ).toBe(EnvironmentPermissionRole.READ_SECRET);
+    });
+  });
+});

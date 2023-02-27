@@ -3,11 +3,19 @@ import User from 'src/domain/model/user/user.model';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import Environment from 'src/domain/model/environment/environment.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { EnvironmentPermissionUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 
 export interface EnvironmentPermissionFacade {
-  getEnvironmentPermissions(
+  getEnvironmentPermissionUsers(
     user: User,
     repository: VcsRepository,
     environment: Environment,
+  ): Promise<EnvironmentPermissionUser[]>;
+
+  updateEnvironmentPermissions(
+    user: User,
+    repository: VcsRepository,
+    environment: Environment,
+    environmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]>;
 }
