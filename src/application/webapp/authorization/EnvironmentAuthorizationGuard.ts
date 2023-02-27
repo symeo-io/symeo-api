@@ -6,12 +6,19 @@ import {
 } from '@nestjs/common';
 import User from 'src/domain/model/user/user.model';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
+import { PermissionRoleService } from 'src/domain/service/permission-role.service';
+import { Reflector } from '@nestjs/core';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { ROLES_KEY } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 
 @Injectable()
 export class EnvironmentAuthorizationGuard implements CanActivate {
   constructor(
     @Inject('AuthorizationService')
     protected readonly authorizationService: AuthorizationService,
+    @Inject('PermissionRoleService')
+    protected readonly permissionRoleService: PermissionRoleService,
+    private reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -32,6 +39,23 @@ export class EnvironmentAuthorizationGuard implements CanActivate {
     request.repository = repository;
     request.configuration = configuration;
     request.environment = environment;
+
+    const minimumEnvironmentPermissionRoleRequired =
+      this.reflector.get<EnvironmentPermissionRole>(
+        ROLES_KEY,
+        context.getHandler(),
+      );
+
+    if (minimumEnvironmentPermissionRoleRequired) {
+      await this.permissionRoleService.isUserEnvironmentPermissionRoleInRequired(
+        minimumEnvironmentPermissionRoleRequired,
+        user,
+        repository,
+        configuration,
+        environment,
+      );
+    }
+
     return true;
   }
 }

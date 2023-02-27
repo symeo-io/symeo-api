@@ -8,20 +8,16 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsFileMock: FetchVcsFileMock;
+  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
   let configurationTestUtil: ConfigurationTestUtil;
-
-  const currentUser = new User(
-    uuid(),
-    faker.internet.email(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -31,6 +27,8 @@ describe('ConfigurationController', () => {
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchVcsFileMock = new FetchVcsFileMock(appClient);
+    fetchVcsRepositoryCollaboratorsMock =
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -41,17 +39,26 @@ describe('ConfigurationController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
     fetchVcsFileMock.restore();
+    fetchVcsRepositoryCollaboratorsMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
     it('should respond 404 and not create configuration for non existing config file', async () => {
       // Given
+      const currentUser = new User(
+        uuid(),
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       fetchVcsFileMock.mockFileMissing();
 
@@ -68,10 +75,45 @@ describe('ConfigurationController', () => {
         .expect(404);
     });
 
+    it('should respond 403 and not create configuration for non admin user', async () => {
+      // Given
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      fetchVcsFileMock.mockFileMissing();
+
+      const currentUser = new User(
+        'github|102222086',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+
+      const response = await appClient
+        .request(currentUser)
+        // When
+        .post(`/api/v1/configurations/github/${repository.id}`)
+        .send({
+          name: faker.name.jobTitle(),
+          branch: 'staging',
+          contractFilePath: './symeo.config.yml',
+        })
+        // Then
+        .expect(403);
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
+      );
+    });
+
     it('should respond 200 and create new configuration', async () => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       fetchVcsFileMock.mockFilePresent();
+
+      const currentUser = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
 
       const sendData = {
         name: faker.name.jobTitle(),

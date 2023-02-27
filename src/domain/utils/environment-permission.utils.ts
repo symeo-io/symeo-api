@@ -31,7 +31,7 @@ export class EnvironmentPermissionUtils {
     );
   }
 
-  private mapGithubRightToSymeoRight(roleName: string) {
+  mapGithubRightToSymeoRight(roleName: string) {
     switch (roleName) {
       case 'admin':
         return EnvironmentPermissionRole.ADMIN;

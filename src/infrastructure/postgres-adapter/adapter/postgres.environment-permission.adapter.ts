@@ -30,6 +30,27 @@ export class PostgresEnvironmentPermissionAdapter
     return entities.map((entity) => entity.toDomain());
   }
 
+  async findForEnvironmentIdAndVcsUserId(
+    environmentId: string,
+    userVcsId: number,
+  ): Promise<EnvironmentPermission | undefined> {
+    const entity = await this.environmentPermissionRepository.findOne({
+      relations: {
+        environment: true,
+      },
+      where: {
+        userVcsId: userVcsId,
+        environment: {
+          id: environmentId,
+        },
+      },
+    });
+
+    if (!entity) return undefined;
+
+    return entity.toDomain();
+  }
+
   async saveAll(
     environmentPermissions: EnvironmentPermission[],
   ): Promise<void> {
