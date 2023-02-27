@@ -29,11 +29,13 @@ export class UpdateEnvironmentPermissionDTO {
 
   static toDomain(
     updateEnvironmentPermissionDTO: UpdateEnvironmentPermissionDTO,
+    environmentId: string,
   ): EnvironmentPermission {
     return new EnvironmentPermission(
       updateEnvironmentPermissionDTO.id,
       updateEnvironmentPermissionDTO.userVcsId,
       updateEnvironmentPermissionDTO.environmentPermissionRole,
+      environmentId,
     );
   }
 }

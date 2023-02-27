@@ -16,8 +16,8 @@ import { UpdateEnvironmentPermissionsDTO } from 'src/application/webapp/dto/envi
 import { UpdateEnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/update-environment-permission.dto';
 import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/exception/symeo.exception.code.to.http.status.map';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission-response.dto';
 import SpyInstance = jest.SpyInstance;
+import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
 
 describe('EnvironmentPermissionController', () => {
   let appClient: AppClient;
@@ -231,7 +231,7 @@ describe('EnvironmentPermissionController', () => {
           EnvironmentPermissionRole.READ_SECRET,
         ),
       ];
-      updateEnvironmentPermissionsDTO.environmentPermissionsDTO =
+      updateEnvironmentPermissionsDTO.environmentPermissions =
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
@@ -344,7 +344,7 @@ describe('EnvironmentPermissionController', () => {
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.environmentPermissionsDTO =
+      updateEnvironmentPermissionsDTO.environmentPermissions =
         updateEnvironmentPermissionDTOList;
 
       const environmentPermissionEntity1 = new EnvironmentPermissionEntity();
@@ -396,8 +396,8 @@ describe('EnvironmentPermissionController', () => {
       expect(response.body.environmentPermissions.length).toEqual(1);
       const environmentPermissionsVerification =
         response.body.environmentPermissions.map(
-          (environmentPermission: EnvironmentPermissionDTO) =>
-            `${environmentPermission.user.userVcsId} - ${environmentPermission.environmentPermissionRole}`,
+          (environmentPermissionDTO: EnvironmentPermissionDTO) =>
+            `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
         );
       expect(environmentPermissionsVerification).toContain(
         `${environmentPermissionToUpdateVcsUserId} - ${environmentPermissionToUpdateRole}`,

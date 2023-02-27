@@ -81,12 +81,12 @@ describe('EnvironmentPermissionController', () => {
           )
           // Then
           .expect(200);
-        expect(response.body.environmentPermissions).toBeDefined();
-        expect(response.body.environmentPermissions.length).toEqual(3);
+        expect(response.body.environmentPermissionUsers).toBeDefined();
+        expect(response.body.environmentPermissionUsers.length).toEqual(3);
         const environmentPermissionsVerification =
-          response.body.environmentPermissions.map(
-            (environmentPermission: EnvironmentPermissionDTO) =>
-              `${environmentPermission.user.userVcsId} - ${environmentPermission.environmentPermissionRole}`,
+          response.body.environmentPermissionUsers.map(
+            (environmentPermission: EnvironmentPermissionUserDTO) =>
+              `${environmentPermission.user.vcsId} - ${environmentPermission.environmentPermission.environmentPermissionRole}`,
           );
         expect(environmentPermissionsVerification).toContain(
           '16590657 - admin',

@@ -31,7 +31,7 @@ export default class EnvironmentPermissionEntity extends AbstractEntity {
       this.id,
       this.userVcsId,
       this.environmentPermissionRole,
-      this.environment.toDomain(),
+      this.environment.id,
     );
   }
 

@@ -9,15 +9,19 @@ export class UpdateEnvironmentPermissionsDTO {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateEnvironmentPermissionDTO)
-  environmentPermissionsDTO: UpdateEnvironmentPermissionDTO[];
+  environmentPermissions: UpdateEnvironmentPermissionDTO[];
 
   static toDomains(
     updateEnvironmentPermissionsDTO: UpdateEnvironmentPermissionDTO[],
+    environmentId: string,
   ): EnvironmentPermission[] {
     const environmentPermissions: EnvironmentPermission[] = [];
     updateEnvironmentPermissionsDTO.map((updateEnvironmentPermissionDTO) =>
       environmentPermissions.push(
-        UpdateEnvironmentPermissionDTO.toDomain(updateEnvironmentPermissionDTO),
+        UpdateEnvironmentPermissionDTO.toDomain(
+          updateEnvironmentPermissionDTO,
+          environmentId,
+        ),
       ),
     );
     return environmentPermissions;

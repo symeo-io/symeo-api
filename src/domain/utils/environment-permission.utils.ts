@@ -3,38 +3,44 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/environment/environment.model';
+import { EnvironmentPermissionUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 
 export class EnvironmentPermissionUtils {
-  generateDefaultEnvironmentPermissionFromVcsUser(
+  generateDefaultEnvironmentPermissionUserFromVcsUser(
     vcsUser: VcsUser,
     environment: Environment,
-  ): EnvironmentPermission {
-    return new EnvironmentPermission(
-      uuid(),
-      vcsUser.id,
-      this.mapGithubRightToSymeoRight(vcsUser.roleName),
-      environment,
-      vcsUser.name,
-      vcsUser.avatarUrl,
+  ): EnvironmentPermissionUser {
+    return new EnvironmentPermissionUser(
+      {
+        vcsId: vcsUser.id,
+        name: vcsUser.name,
+        avatarUrl: vcsUser.avatarUrl,
+      },
+      new EnvironmentPermission(
+        uuid(),
+        vcsUser.id,
+        this.mapGithubRightToSymeoRight(vcsUser.roleName),
+        environment.id,
+      ),
     );
   }
 
-  generateEnvironmentPermission(
+  generateEnvironmentPermissionUser(
     vcsUser: VcsUser,
     inBaseEnvironmentPermission: EnvironmentPermission,
-  ): EnvironmentPermission {
-    return new EnvironmentPermission(
-      inBaseEnvironmentPermission.id,
-      inBaseEnvironmentPermission.userVcsId,
-      inBaseEnvironmentPermission.environmentPermissionRole,
-      inBaseEnvironmentPermission.environment,
-      vcsUser.name,
-      vcsUser.avatarUrl,
+  ): EnvironmentPermissionUser {
+    return new EnvironmentPermissionUser(
+      {
+        vcsId: vcsUser.id,
+        name: vcsUser.name,
+        avatarUrl: vcsUser.avatarUrl,
+      },
+      inBaseEnvironmentPermission,
     );
   }
 
-  private mapGithubRightToSymeoRight(role_name: string) {
-    switch (role_name) {
+  private mapGithubRightToSymeoRight(roleName: string) {
+    switch (roleName) {
       case 'admin':
         return EnvironmentPermissionRole.ADMIN;
       case 'maintain':
