@@ -139,6 +139,11 @@ export class EnvironmentPermissionService
         permissionUserIdsNotInGithubUsers.push(
           environmentPermissionToUpdate.userVcsId,
         );
+      } else if (githubRepositoryUser.roleName === 'admin') {
+        throw new SymeoException(
+          `User with vcsId ${githubRepositoryUser.id} is administrator of the repository, thus you can not modify his environment permissions`,
+          SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION,
+        );
       }
     });
 
