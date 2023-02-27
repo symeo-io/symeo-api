@@ -18,15 +18,21 @@ import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/except
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import SpyInstance = jest.SpyInstance;
 import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
 
 describe('EnvironmentPermissionController', () => {
   let appClient: AppClient;
-  let environmentPermissionRepository: Repository<EnvironmentPermissionEntity>;
-  let configurationRepository: Repository<ConfigurationEntity>;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let getGitHubAccessTokenMock: SpyInstance;
-  let githubClientRequestMock: SpyInstance;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
+  let configurationTestUtil: ConfigurationTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
+  let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
 
   const currentUser = new User(
     uuid(),
@@ -38,16 +44,16 @@ describe('EnvironmentPermissionController', () => {
   beforeAll(async () => {
     appClient = new AppClient();
     await appClient.init();
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
+
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryCollaboratorsMock =
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
+    environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
+      appClient,
     );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    environmentPermissionRepository = appClient.module.get<
-      Repository<EnvironmentPermissionEntity>
-    >(getRepositoryToken(EnvironmentPermissionEntity));
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
   }, 30000);
 
   afterAll(() => {
@@ -55,76 +61,35 @@ describe('EnvironmentPermissionController', () => {
   });
 
   beforeEach(async () => {
-    await environmentPermissionRepository.delete({});
-    await configurationRepository.delete({});
-    githubClientRequestMock = jest.spyOn(githubClient, 'request');
-    getGitHubAccessTokenMock = jest.spyOn(
-      vcsAccessTokenStorage,
-      'getGitHubAccessToken',
-    );
-    getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
+    await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
+    await environmentPermissionTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
   afterEach(() => {
-    githubClientRequestMock.mockRestore();
-    getGitHubAccessTokenMock.mockRestore();
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
+    fetchVcsRepositoryCollaboratorsMock.restore();
   });
 
   describe('(POST) github/:vcsRepository/:configurationId/environments/:environmentId/permissions', () => {
     it('should return 400 for missing environment permissions data', async () => {
       // Given
-      const configurationId = uuid();
-      const environmentId = uuid();
-      const repositoryVcsId = 593240835;
-      const repositoryVcsName = 'symeo-api';
-      const ownerVcsId = 105865802;
-      const ownerVcsName = 'symeo-io';
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
-
-      const environmentPermissionEntity1 = new EnvironmentPermissionEntity();
-      environmentPermissionEntity1.id = uuid();
-      environmentPermissionEntity1.userVcsId = 16590657;
-      environmentPermissionEntity1.environmentPermissionRole =
-        EnvironmentPermissionRole.READ_SECRET;
-
-      const environmentEntity = new EnvironmentEntity();
-      environmentEntity.id = environmentId;
-      environmentEntity.name = faker.name.firstName();
-      environmentEntity.color = 'blue';
-      environmentEntity.environmentPermissions = [environmentPermissionEntity1];
-
-      const configurationEntity = new ConfigurationEntity();
-      configurationEntity.id = configurationId;
-      configurationEntity.name = faker.name.jobTitle();
-      configurationEntity.vcsType = VCSProvider.GitHub;
-      configurationEntity.repositoryVcsId = repositoryVcsId;
-      configurationEntity.repositoryVcsName = repositoryVcsName;
-      configurationEntity.ownerVcsId = ownerVcsId;
-      configurationEntity.ownerVcsName = ownerVcsName;
-      configurationEntity.contractFilePath = './symeo.config.yml';
-      configurationEntity.branch = 'staging';
-      configurationEntity.environments = [environmentEntity];
-
-      await configurationRepository.save(configurationEntity);
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
 
       await appClient
         .request(currentUser)
         // When
         .post(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
         )
         .send({ data: faker.name.firstName() })
         // Then
@@ -132,95 +97,13 @@ describe('EnvironmentPermissionController', () => {
     });
 
     it('should return 404 for trying to update permissions of user that do not have access to repository', async () => {
-      const configurationId = uuid();
-      const environmentId = uuid();
-      const repositoryVcsId = 593240835;
-      const repositoryVcsName = 'symeo-api';
-      const ownerVcsId = 105865802;
-      const ownerVcsName = 'symeo-io';
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
       );
-
-      const mockGithubListCollaboratorsStub1 = JSON.parse(
-        fs
-          .readFileSync(
-            './tests/utils/stubs/environment-permission/get_environment_permissions_for_owner_and_repo_page_1.json',
-          )
-          .toString(),
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
       );
-
-      const mockGithubListCollaboratorsResponse1 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: mockGithubListCollaboratorsStub1,
-      };
-
-      const mockGithubListCollaboratorsResponse2 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: [],
-      };
-
-      jest
-        .spyOn(githubClient.rest.repos, 'listCollaborators')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGithubListCollaboratorsResponse1),
-        );
-
-      jest
-        .spyOn(githubClient.rest.repos, 'listCollaborators')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGithubListCollaboratorsResponse2),
-        );
-
-      const environmentPermissionEntity1 = new EnvironmentPermissionEntity();
-      environmentPermissionEntity1.id = uuid();
-      environmentPermissionEntity1.userVcsId = 16590657;
-      environmentPermissionEntity1.environmentPermissionRole =
-        EnvironmentPermissionRole.READ_SECRET;
-
-      const environmentPermissionEntity2 = new EnvironmentPermissionEntity();
-      environmentPermissionEntity2.id = uuid();
-      environmentPermissionEntity2.userVcsId = 22441392;
-      environmentPermissionEntity2.environmentPermissionRole =
-        EnvironmentPermissionRole.WRITE;
-
-      const environmentEntity = new EnvironmentEntity();
-      environmentEntity.id = environmentId;
-      environmentEntity.name = faker.name.firstName();
-      environmentEntity.color = 'blue';
-      environmentEntity.environmentPermissions = [
-        environmentPermissionEntity1,
-        environmentPermissionEntity2,
-      ];
-
-      const configurationEntity = new ConfigurationEntity();
-      configurationEntity.id = configurationId;
-      configurationEntity.name = faker.name.jobTitle();
-      configurationEntity.vcsType = VCSProvider.GitHub;
-      configurationEntity.repositoryVcsId = repositoryVcsId;
-      configurationEntity.repositoryVcsName = repositoryVcsName;
-      configurationEntity.ownerVcsId = ownerVcsId;
-      configurationEntity.ownerVcsName = ownerVcsName;
-      configurationEntity.contractFilePath = './symeo.config.yml';
-      configurationEntity.branch = 'staging';
-      configurationEntity.environments = [environmentEntity];
-
-      await configurationRepository.save(configurationEntity);
 
       const updateEnvironmentPermissionsDTO =
         new UpdateEnvironmentPermissionsDTO();
@@ -238,7 +121,7 @@ describe('EnvironmentPermissionController', () => {
         .request(currentUser)
         // When
         .post(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
         )
         .send(updateEnvironmentPermissionsDTO)
         // Then
@@ -249,89 +132,36 @@ describe('EnvironmentPermissionController', () => {
         ],
       );
       expect(response.body.message).toBe(
-        `User with vcsIds ${updateEnvironmentPermissionDTOList[0].userVcsId} do not have access to repository with vcsRepositoryId ${repositoryVcsId}`,
+        `User with vcsIds ${updateEnvironmentPermissionDTOList[0].userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
       );
     });
 
     it('should return 200 with updated environment permissions', async () => {
-      const configurationId = uuid();
-      const environmentId = uuid();
-      const repositoryVcsId = 593240835;
-      const repositoryVcsName = 'symeo-api';
-      const ownerVcsId = 105865802;
-      const ownerVcsName = 'symeo-io';
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: repositoryVcsName,
-          id: repositoryVcsId,
-          owner: { login: ownerVcsName, id: ownerVcsId },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
       );
 
-      const mockGithubListCollaboratorsStub1 = JSON.parse(
-        fs
-          .readFileSync(
-            './tests/utils/stubs/environment-permission/get_environment_permissions_for_owner_and_repo_page_1.json',
-          )
-          .toString(),
-      );
-
-      const mockGithubListCollaboratorsStub2 = JSON.parse(
-        fs
-          .readFileSync(
-            './tests/utils/stubs/environment-permission/get_environment_permissions_for_owner_and_repo_page_2.json',
-          )
-          .toString(),
-      );
-
-      const mockGithubListCollaboratorsResponse1 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: mockGithubListCollaboratorsStub1,
-      };
-
-      const mockGithubListCollaboratorsResponse2 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: mockGithubListCollaboratorsStub2,
-      };
-
-      const mockGithubListCollaboratorsResponse3 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: [],
-      };
-
-      jest
-        .spyOn(githubClient.rest.repos, 'listCollaborators')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGithubListCollaboratorsResponse1),
+      const environmentPermission1 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          16590657,
         );
 
-      jest
-        .spyOn(githubClient.rest.repos, 'listCollaborators')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGithubListCollaboratorsResponse2),
+      const environmentPermission2 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.WRITE,
+          22441392,
         );
 
-      jest
-        .spyOn(githubClient.rest.repos, 'listCollaborators')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGithubListCollaboratorsResponse3),
-        );
-
-      const environmentPermissionToUpdateId = faker.datatype.uuid();
-      const environmentPermissionToUpdateVcsUserId = 16590657;
+      const environmentPermissionToUpdateId = environmentPermission1.id;
+      const environmentPermissionToUpdateVcsUserId =
+        environmentPermission1.userVcsId;
       const environmentPermissionToUpdateRole =
         EnvironmentPermissionRole.READ_SECRET;
 
@@ -347,47 +177,11 @@ describe('EnvironmentPermissionController', () => {
       updateEnvironmentPermissionsDTO.environmentPermissions =
         updateEnvironmentPermissionDTOList;
 
-      const environmentPermissionEntity1 = new EnvironmentPermissionEntity();
-      environmentPermissionEntity1.id = environmentPermissionToUpdateId;
-      environmentPermissionEntity1.userVcsId =
-        environmentPermissionToUpdateVcsUserId;
-      environmentPermissionEntity1.environmentPermissionRole =
-        EnvironmentPermissionRole.ADMIN;
-
-      const environmentPermissionEntity2 = new EnvironmentPermissionEntity();
-      environmentPermissionEntity2.id = uuid();
-      environmentPermissionEntity2.userVcsId = 22441392;
-      environmentPermissionEntity2.environmentPermissionRole =
-        EnvironmentPermissionRole.WRITE;
-
-      const environmentEntity = new EnvironmentEntity();
-      environmentEntity.id = environmentId;
-      environmentEntity.name = faker.name.firstName();
-      environmentEntity.color = 'blue';
-      environmentEntity.environmentPermissions = [
-        environmentPermissionEntity1,
-        environmentPermissionEntity2,
-      ];
-
-      const configurationEntity = new ConfigurationEntity();
-      configurationEntity.id = configurationId;
-      configurationEntity.name = faker.name.jobTitle();
-      configurationEntity.vcsType = VCSProvider.GitHub;
-      configurationEntity.repositoryVcsId = repositoryVcsId;
-      configurationEntity.repositoryVcsName = repositoryVcsName;
-      configurationEntity.ownerVcsId = ownerVcsId;
-      configurationEntity.ownerVcsName = ownerVcsName;
-      configurationEntity.contractFilePath = './symeo.config.yml';
-      configurationEntity.branch = 'staging';
-      configurationEntity.environments = [environmentEntity];
-
-      await configurationRepository.save(configurationEntity);
-
       const response = await appClient
         .request(currentUser)
         // When
         .post(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${environmentId}/permissions`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
         )
         .send(updateEnvironmentPermissionsDTO)
         // Then
@@ -404,7 +198,7 @@ describe('EnvironmentPermissionController', () => {
       );
 
       const updatedEnvironmentPermissionEntity =
-        await environmentPermissionRepository.findOneBy({
+        await environmentPermissionTestUtil.repository.findOneBy({
           id: environmentPermissionToUpdateId,
         });
       expect(

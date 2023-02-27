@@ -1,5 +1,3 @@
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { EnvironmentPermissionUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
