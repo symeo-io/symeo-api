@@ -139,6 +139,11 @@ export class EnvironmentPermissionService
         permissionUserIdsNotInGithubUsers.push(
           environmentPermissionToUpdate.userVcsId,
         );
+      } else if (this.isUserRepositoryAdministrator(githubRepositoryUser)) {
+        throw new SymeoException(
+          `User with vcsId ${githubRepositoryUser.id} is administrator of the repository, thus you can not modify his environment permissions`,
+          SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION,
+        );
       }
     });
 
@@ -152,5 +157,9 @@ export class EnvironmentPermissionService
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
+  }
+
+  private isUserRepositoryAdministrator(githubRepositoryUser: VcsUser) {
+    return githubRepositoryUser.roleName === 'admin';
   }
 }

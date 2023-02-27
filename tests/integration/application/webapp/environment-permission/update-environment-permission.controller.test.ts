@@ -136,7 +136,50 @@ describe('EnvironmentPermissionController', () => {
       );
     });
 
-    it('should return 200 with updated environment permissions', async () => {
+    it('should return 400 for trying to update permission of a github repository admin', async () => {
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const environmentPermissionToUpdateId = uuid();
+      const environmentPermissionToUpdateVcsUserId = 16590657;
+      const environmentPermissionToUpdateRole =
+        EnvironmentPermissionRole.READ_SECRET;
+
+      const updateEnvironmentPermissionsDTO =
+        new UpdateEnvironmentPermissionsDTO();
+      const updateEnvironmentPermissionDTOList = [
+        new UpdateEnvironmentPermissionDTO(
+          environmentPermissionToUpdateId,
+          environmentPermissionToUpdateVcsUserId,
+          environmentPermissionToUpdateRole,
+        ),
+      ];
+      updateEnvironmentPermissionsDTO.environmentPermissions =
+        updateEnvironmentPermissionDTOList;
+
+      const response = await appClient
+        .request(currentUser)
+        // When
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+        )
+        .send(updateEnvironmentPermissionsDTO)
+        // Then
+        .expect(400);
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION,
+      );
+      expect(response.body.message).toBe(
+        `User with vcsId ${environmentPermissionToUpdateVcsUserId} is administrator of the repository, thus you can not modify his environment permissions`,
+      );
+    });
+
+    it('should return 200 and create new environment permission for a github collaborator', async () => {
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -155,13 +198,89 @@ describe('EnvironmentPermissionController', () => {
       const environmentPermission2 =
         await environmentPermissionTestUtil.createEnvironmentPermission(
           environment,
-          EnvironmentPermissionRole.WRITE,
+          EnvironmentPermissionRole.ADMIN,
           22441392,
         );
 
-      const environmentPermissionToUpdateId = environmentPermission1.id;
+      const environmentPermissionToUpdateId = uuid();
+      const environmentPermissionToUpdateVcsUserId = 102222086;
+      const environmentPermissionToUpdateRole =
+        EnvironmentPermissionRole.READ_SECRET;
+
+      const updateEnvironmentPermissionsDTO =
+        new UpdateEnvironmentPermissionsDTO();
+      const updateEnvironmentPermissionDTOList = [
+        new UpdateEnvironmentPermissionDTO(
+          environmentPermissionToUpdateId,
+          environmentPermissionToUpdateVcsUserId,
+          environmentPermissionToUpdateRole,
+        ),
+      ];
+      updateEnvironmentPermissionsDTO.environmentPermissions =
+        updateEnvironmentPermissionDTOList;
+
+      const response = await appClient
+        .request(currentUser)
+        // When
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+        )
+        .send(updateEnvironmentPermissionsDTO)
+        // Then
+        .expect(200);
+      expect(response.body.environmentPermissions).toBeDefined();
+      expect(response.body.environmentPermissions.length).toEqual(1);
+      const environmentPermissionsVerification =
+        response.body.environmentPermissions.map(
+          (environmentPermissionDTO: EnvironmentPermissionDTO) =>
+            `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
+        );
+      expect(environmentPermissionsVerification).toContain(
+        `${environmentPermissionToUpdateVcsUserId} - ${environmentPermissionToUpdateRole}`,
+      );
+
+      const updatedEnvironmentPermissionEntity =
+        await environmentPermissionTestUtil.repository.findOneBy({
+          id: environmentPermissionToUpdateId,
+        });
+      expect(
+        updatedEnvironmentPermissionEntity?.environmentPermissionRole,
+      ).toBe(EnvironmentPermissionRole.READ_SECRET);
+    });
+
+    it('should return 200 and update an in-base environment permission for a github collaborator', async () => {
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const environmentPermission1 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          16590657,
+        );
+
+      const environmentPermission2 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          22441392,
+        );
+
+      const environmentPermission3 =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.WRITE,
+          102222086,
+        );
+
+      const environmentPermissionToUpdateId = environmentPermission3.id;
       const environmentPermissionToUpdateVcsUserId =
-        environmentPermission1.userVcsId;
+        environmentPermission3.userVcsId;
       const environmentPermissionToUpdateRole =
         EnvironmentPermissionRole.READ_SECRET;
 
