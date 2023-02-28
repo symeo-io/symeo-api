@@ -3,19 +3,15 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/environment/environment.model';
-import { EnvironmentPermissionUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
+import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 
 export class EnvironmentPermissionUtils {
   generateDefaultEnvironmentPermissionUserFromVcsUser(
     vcsUser: VcsUser,
     environment: Environment,
-  ): EnvironmentPermissionUser {
-    return new EnvironmentPermissionUser(
-      {
-        vcsId: vcsUser.id,
-        name: vcsUser.name,
-        avatarUrl: vcsUser.avatarUrl,
-      },
+  ): EnvironmentPermissionWithUser {
+    return new EnvironmentPermissionWithUser(
+      vcsUser,
       new EnvironmentPermission(
         uuid(),
         vcsUser.id,
@@ -28,13 +24,9 @@ export class EnvironmentPermissionUtils {
   generateEnvironmentPermissionUser(
     vcsUser: VcsUser,
     inBaseEnvironmentPermission: EnvironmentPermission,
-  ): EnvironmentPermissionUser {
-    return new EnvironmentPermissionUser(
-      {
-        vcsId: vcsUser.id,
-        name: vcsUser.name,
-        avatarUrl: vcsUser.avatarUrl,
-      },
+  ): EnvironmentPermissionWithUser {
+    return new EnvironmentPermissionWithUser(
+      vcsUser,
       inBaseEnvironmentPermission,
     );
   }

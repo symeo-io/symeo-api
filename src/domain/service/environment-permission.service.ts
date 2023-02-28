@@ -10,7 +10,7 @@ import Environment from 'src/domain/model/environment/environment.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import { EnvironmentPermissionUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
+import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
@@ -25,7 +25,7 @@ export class EnvironmentPermissionService
     user: User,
     repository: VcsRepository,
     environment: Environment,
-  ): Promise<EnvironmentPermissionUser[]> {
+  ): Promise<EnvironmentPermissionWithUser[]> {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return this.getEnvironmentPermissionsWithGithub(
