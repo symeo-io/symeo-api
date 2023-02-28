@@ -18,7 +18,7 @@ import { ApiKeyAuthorizationGuard } from 'src/application/webapp/authorization/A
 import { RequestedApiKey } from 'src/application/webapp/decorator/requested-api-key.decorator';
 import ApiKey from 'src/domain/model/environment/api-key.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { MinimumPermissionRoleRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 
 @Controller('configurations')
 @ApiTags('apiKeys')
@@ -55,7 +55,7 @@ export class ApiKeyController {
     type: CreateApiKeyResponseDTO,
   })
   @UseGuards(EnvironmentAuthorizationGuard)
-  @MinimumPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
+  @MinimumEnvironmentPermissionRequired(EnvironmentPermissionRole.ADMIN)
   async createApiKeyForEnvironment(
     @RequestedEnvironment() environment: Environment,
   ): Promise<CreateApiKeyResponseDTO> {

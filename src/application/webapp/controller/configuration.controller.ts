@@ -30,8 +30,10 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { RepositoryAuthorizationGuard } from 'src/application/webapp/authorization/RepositoryAuthorizationGuard';
 import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import { MinimumPermissionRoleRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { MinimumVcsRepositoryRoleRequired } from 'src/application/webapp/decorator/repository-role.decorator';
+import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 @Controller('configurations')
 @ApiTags('configurations')
@@ -127,7 +129,7 @@ export class ConfigurationController {
   })
   @Post('github/:repositoryVcsId')
   @UseGuards(RepositoryAuthorizationGuard)
-  @MinimumPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
+  @MinimumVcsRepositoryRoleRequired(VcsRepositoryRoleEnum.ADMIN)
   async createForGitHub(
     @RequestedRepository() repository: VcsRepository,
     @CurrentUser() user: User,

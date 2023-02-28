@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import User from 'src/domain/model/user/user.model';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { ROLES_KEY } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 import { PermissionRoleService } from 'src/domain/service/permission-role.service';
 import { Reflector } from '@nestjs/core';
+import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { REPOSITORY_ROLES_KEY } from 'src/application/webapp/decorator/repository-role.decorator';
 
 @Injectable()
 export class ConfigurationAuthorizationGuard implements CanActivate {
@@ -37,15 +37,15 @@ export class ConfigurationAuthorizationGuard implements CanActivate {
     request.repository = repository;
     request.configuration = configuration;
 
-    const minimumEnvironmentPermissionRoleRequired =
-      this.reflector.get<EnvironmentPermissionRole>(
-        ROLES_KEY,
+    const minimumVcsRepositoryRoleRequired =
+      this.reflector.get<VcsRepositoryRoleEnum>(
+        REPOSITORY_ROLES_KEY,
         context.getHandler(),
       );
 
-    if (minimumEnvironmentPermissionRoleRequired) {
-      await this.permissionRoleService.isUserRepositoryPermissionRoleInRequired(
-        minimumEnvironmentPermissionRoleRequired,
+    if (minimumVcsRepositoryRoleRequired) {
+      await this.permissionRoleService.isUserVcsRepositoryRoleInRequired(
+        minimumVcsRepositoryRoleRequired,
         user,
         repository,
       );

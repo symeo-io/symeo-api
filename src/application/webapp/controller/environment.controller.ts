@@ -21,7 +21,9 @@ import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authoriz
 import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { MinimumPermissionRoleRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { MinimumVcsRepositoryRoleRequired } from 'src/application/webapp/decorator/repository-role.decorator';
 
 @Controller('configurations')
 @ApiTags('environments')
@@ -38,7 +40,7 @@ export class EnvironmentController {
     type: UpdateEnvironmentResponseDTO,
   })
   @UseGuards(EnvironmentAuthorizationGuard)
-  @MinimumPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
+  @MinimumEnvironmentPermissionRequired(EnvironmentPermissionRole.ADMIN)
   async updateEnvironment(
     @RequestedEnvironment() environment: Environment,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
@@ -58,7 +60,7 @@ export class EnvironmentController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  @MinimumPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
+  @MinimumEnvironmentPermissionRequired(EnvironmentPermissionRole.ADMIN)
   async deleteEnvironment(
     @RequestedEnvironment() environment: Environment,
   ): Promise<void> {
@@ -72,7 +74,7 @@ export class EnvironmentController {
   })
   @Post('github/:repositoryVcsId/:configurationId/environments')
   @UseGuards(ConfigurationAuthorizationGuard)
-  @MinimumPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
+  @MinimumVcsRepositoryRoleRequired(VcsRepositoryRoleEnum.ADMIN)
   async createEnvironment(
     @RequestedConfiguration() configuration: Configuration,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,

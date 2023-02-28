@@ -4,6 +4,7 @@ import { EnvironmentPermission } from 'src/domain/model/environment-permission/e
 import { v4 as uuid } from 'uuid';
 import Environment from 'src/domain/model/environment/environment.model';
 import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
+import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class EnvironmentPermissionUtils {
   generateDefaultEnvironmentPermissionUserFromVcsUser(
@@ -15,7 +16,9 @@ export class EnvironmentPermissionUtils {
       new EnvironmentPermission(
         uuid(),
         vcsUser.id,
-        this.mapGithubRightToSymeoRight(vcsUser.roleName),
+        this.mapGithubRoleToDefaultEnvironmentPermission(
+          vcsUser.vcsRepositoryRole,
+        ),
         environment.id,
       ),
     );
@@ -31,14 +34,16 @@ export class EnvironmentPermissionUtils {
     );
   }
 
-  mapGithubRightToSymeoRight(roleName: string) {
-    switch (roleName) {
-      case 'admin':
+  mapGithubRoleToDefaultEnvironmentPermission(
+    vcsRepositoryRoleEnum: VcsRepositoryRoleEnum,
+  ) {
+    switch (vcsRepositoryRoleEnum) {
+      case VcsRepositoryRoleEnum.ADMIN:
         return EnvironmentPermissionRole.ADMIN;
-      case 'maintain':
-      case 'write':
-      case 'triage':
-      case 'read':
+      case VcsRepositoryRoleEnum.MAINTAIN:
+      case VcsRepositoryRoleEnum.WRITE:
+      case VcsRepositoryRoleEnum.TRIAGE:
+      case VcsRepositoryRoleEnum.READ:
         return EnvironmentPermissionRole.READ_NON_SECRET;
       default:
         return EnvironmentPermissionRole.READ_NON_SECRET;

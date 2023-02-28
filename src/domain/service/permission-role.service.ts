@@ -10,6 +10,7 @@ import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class PermissionRoleService {
   constructor(
@@ -60,8 +61,8 @@ export class PermissionRoleService {
     }
 
     const environmentPermissionRole =
-      this.environmentPermissionUtils.mapGithubRightToSymeoRight(
-        githubVcsUser.roleName,
+      this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
+        githubVcsUser.vcsRepositoryRole,
       );
 
     this.checkEnvironmentPermissionRoleInRequired(
@@ -71,8 +72,8 @@ export class PermissionRoleService {
     );
   }
 
-  async isUserRepositoryPermissionRoleInRequired(
-    minimumEnvironmentPermissionRoleRequired: EnvironmentPermissionRole,
+  async isUserVcsRepositoryRoleInRequired(
+    minimumVcsRepositoryRoleRequired: VcsRepositoryRoleEnum,
     user: User,
     repository: VcsRepository,
   ) {
@@ -96,15 +97,9 @@ export class PermissionRoleService {
       );
     }
 
-    const environmentPermissionRole =
-      this.environmentPermissionUtils.mapGithubRightToSymeoRight(
-        githubVcsUser.roleName,
-      );
-
-    this.checkEnvironmentPermissionRoleInRequired(
-      userVcsId,
-      minimumEnvironmentPermissionRoleRequired,
-      environmentPermissionRole,
+    this.checkVcsRepositoryRoleInRequired(
+      githubVcsUser,
+      minimumVcsRepositoryRoleRequired,
     );
   }
 
@@ -148,12 +143,67 @@ export class PermissionRoleService {
     }
   }
 
+  private checkVcsRepositoryRoleInRequired(
+    githubVcsUser: VcsUser,
+    minimumVcsRepositoryRoleRequired: VcsRepositoryRoleEnum,
+  ) {
+    if (
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.ADMIN &&
+      githubVcsUser.vcsRepositoryRole !== VcsRepositoryRoleEnum.ADMIN
+    ) {
+      this.throwResourceAccessDeniedException(
+        githubVcsUser.id,
+        minimumVcsRepositoryRoleRequired,
+      );
+    }
+
+    if (
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.MAINTAIN &&
+      githubVcsUser.vcsRepositoryRole !==
+        (VcsRepositoryRoleEnum.ADMIN || VcsRepositoryRoleEnum.MAINTAIN)
+    ) {
+      this.throwResourceAccessDeniedException(
+        githubVcsUser.id,
+        minimumVcsRepositoryRoleRequired,
+      );
+    }
+
+    if (
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.WRITE &&
+      githubVcsUser.vcsRepositoryRole !==
+        (VcsRepositoryRoleEnum.ADMIN ||
+          VcsRepositoryRoleEnum.MAINTAIN ||
+          VcsRepositoryRoleEnum.WRITE)
+    ) {
+      this.throwResourceAccessDeniedException(
+        githubVcsUser.id,
+        minimumVcsRepositoryRoleRequired,
+      );
+    }
+
+    if (
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.TRIAGE &&
+      githubVcsUser.vcsRepositoryRole !==
+        (VcsRepositoryRoleEnum.ADMIN ||
+          VcsRepositoryRoleEnum.MAINTAIN ||
+          VcsRepositoryRoleEnum.WRITE ||
+          VcsRepositoryRoleEnum.TRIAGE)
+    ) {
+      this.throwResourceAccessDeniedException(
+        githubVcsUser.id,
+        minimumVcsRepositoryRoleRequired,
+      );
+    }
+  }
+
   private throwResourceAccessDeniedException(
     userVcsId: number,
-    minimumEnvironmentPermissionRoleRequired: EnvironmentPermissionRole,
+    minimumPermissionRequired:
+      | EnvironmentPermissionRole
+      | VcsRepositoryRoleEnum,
   ) {
     throw new SymeoException(
-      `User with userVcsId ${userVcsId} is trying to access resources he do not have permission for (minimum ${minimumEnvironmentPermissionRoleRequired} permission required)`,
+      `User with userVcsId ${userVcsId} is trying to access resources he do not have permission for (minimum ${minimumPermissionRequired} permission required)`,
       SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
     );
   }

@@ -9,7 +9,7 @@ import { AuthorizationService } from 'src/domain/service/authorization.service';
 import { PermissionRoleService } from 'src/domain/service/permission-role.service';
 import { Reflector } from '@nestjs/core';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { ROLES_KEY } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { ENVIRONMENT_PERMISSIONS_KEY } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 
 @Injectable()
 export class EnvironmentAuthorizationGuard implements CanActivate {
@@ -42,7 +42,7 @@ export class EnvironmentAuthorizationGuard implements CanActivate {
 
     const minimumEnvironmentPermissionRoleRequired =
       this.reflector.get<EnvironmentPermissionRole>(
-        ROLES_KEY,
+        ENVIRONMENT_PERMISSIONS_KEY,
         context.getHandler(),
       );
 
