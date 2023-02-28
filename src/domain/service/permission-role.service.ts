@@ -1,4 +1,7 @@
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import {
+  ENVIRONMENT_PERMISSION_ROLE_ORDER,
+  EnvironmentPermissionRole,
+} from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
@@ -10,7 +13,10 @@ import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import {
+  VCS_REPOSITORY_ROLE_ORDER,
+  VcsRepositoryRole,
+} from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class PermissionRoleService {
   constructor(
@@ -109,32 +115,10 @@ export class PermissionRoleService {
     environmentPermissionRole: EnvironmentPermissionRole,
   ): void {
     if (
-      minimumEnvironmentPermissionRoleRequired ===
-        EnvironmentPermissionRole.ADMIN &&
-      environmentPermissionRole !== EnvironmentPermissionRole.ADMIN
-    ) {
-      this.throwResourceAccessDeniedException(
-        userVcsId,
+      ENVIRONMENT_PERMISSION_ROLE_ORDER.indexOf(environmentPermissionRole) <
+      ENVIRONMENT_PERMISSION_ROLE_ORDER.indexOf(
         minimumEnvironmentPermissionRoleRequired,
-      );
-    }
-
-    if (
-      minimumEnvironmentPermissionRoleRequired ===
-        EnvironmentPermissionRole.WRITE &&
-      environmentPermissionRole !==
-        (EnvironmentPermissionRole.ADMIN || EnvironmentPermissionRole.WRITE)
-    ) {
-      this.throwResourceAccessDeniedException(
-        userVcsId,
-        minimumEnvironmentPermissionRoleRequired,
-      );
-    }
-
-    if (
-      minimumEnvironmentPermissionRoleRequired ===
-        EnvironmentPermissionRole.READ_SECRET &&
-      environmentPermissionRole === EnvironmentPermissionRole.READ_NON_SECRET
+      )
     ) {
       this.throwResourceAccessDeniedException(
         userVcsId,
@@ -148,46 +132,8 @@ export class PermissionRoleService {
     minimumVcsRepositoryRoleRequired: VcsRepositoryRole,
   ) {
     if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.ADMIN &&
-      githubVcsUser.vcsRepositoryRole !== VcsRepositoryRole.ADMIN
-    ) {
-      this.throwResourceAccessDeniedException(
-        githubVcsUser.id,
-        minimumVcsRepositoryRoleRequired,
-      );
-    }
-
-    if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.MAINTAIN &&
-      githubVcsUser.vcsRepositoryRole !==
-        (VcsRepositoryRole.ADMIN || VcsRepositoryRole.MAINTAIN)
-    ) {
-      this.throwResourceAccessDeniedException(
-        githubVcsUser.id,
-        minimumVcsRepositoryRoleRequired,
-      );
-    }
-
-    if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.WRITE &&
-      githubVcsUser.vcsRepositoryRole !==
-        (VcsRepositoryRole.ADMIN ||
-          VcsRepositoryRole.MAINTAIN ||
-          VcsRepositoryRole.WRITE)
-    ) {
-      this.throwResourceAccessDeniedException(
-        githubVcsUser.id,
-        minimumVcsRepositoryRoleRequired,
-      );
-    }
-
-    if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.TRIAGE &&
-      githubVcsUser.vcsRepositoryRole !==
-        (VcsRepositoryRole.ADMIN ||
-          VcsRepositoryRole.MAINTAIN ||
-          VcsRepositoryRole.WRITE ||
-          VcsRepositoryRole.TRIAGE)
+      VCS_REPOSITORY_ROLE_ORDER.indexOf(githubVcsUser.vcsRepositoryRole) <
+      VCS_REPOSITORY_ROLE_ORDER.indexOf(minimumVcsRepositoryRoleRequired)
     ) {
       this.throwResourceAccessDeniedException(
         githubVcsUser.id,
