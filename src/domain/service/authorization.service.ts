@@ -57,6 +57,9 @@ export class AuthorizationService {
       );
     }
 
+    configuration.isCurrentUserVcsRepositoryAdmin =
+      repository.isCurrentUserVcsRepositoryAdmin;
+
     return { repository, configuration };
   }
 

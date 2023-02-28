@@ -2,6 +2,7 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import EnvironmentDTO from 'src/application/webapp/dto/environment/environment.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 export default class ConfigurationDTO {
   @ApiProperty()
@@ -40,8 +41,10 @@ export default class ConfigurationDTO {
   contractFilePath: string;
   @ApiProperty()
   branch: string;
-  @ApiProperty({ type: EnvironmentDTO })
+  @ApiProperty({ type: [EnvironmentDTO] })
   environments: EnvironmentDTO[];
+  @ApiProperty()
+  isCurrentUserVcsRepositoryAdmin: boolean;
 
   constructor(
     id: string,
@@ -52,6 +55,7 @@ export default class ConfigurationDTO {
     contractFilePath: string,
     branch: string,
     environments: EnvironmentDTO[],
+    isCurrentUserVcsRepositoryAdmin: boolean,
   ) {
     this.id = id;
     this.name = name;
@@ -61,6 +65,7 @@ export default class ConfigurationDTO {
     this.contractFilePath = contractFilePath;
     this.branch = branch;
     this.environments = environments;
+    this.isCurrentUserVcsRepositoryAdmin = isCurrentUserVcsRepositoryAdmin;
   }
 
   public static fromDomain(configuration: Configuration): ConfigurationDTO {
@@ -73,6 +78,9 @@ export default class ConfigurationDTO {
       configuration.contractFilePath,
       configuration.branch,
       configuration.environments.map(EnvironmentDTO.fromDomain),
+      configuration.isCurrentUserVcsRepositoryAdmin
+        ? configuration.isCurrentUserVcsRepositoryAdmin
+        : false,
     );
   }
 }

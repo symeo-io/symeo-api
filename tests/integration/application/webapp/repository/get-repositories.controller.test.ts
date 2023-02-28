@@ -91,6 +91,7 @@ describe('RepositoryController', () => {
                   environments: [],
                 },
               ],
+              isCurrentUserAdmin: false,
             },
           ],
         });

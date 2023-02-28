@@ -62,6 +62,9 @@ describe('ConfigurationController', () => {
       expect(response.body.configuration).toBeDefined();
       expect(response.body.configuration.id).toEqual(configuration.id);
       expect(response.body.configuration.name).toEqual(configuration.name);
+      expect(
+        response.body.configuration.isCurrentUserVcsRepositoryAdmin,
+      ).toEqual(true);
     });
   });
 });
