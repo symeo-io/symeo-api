@@ -1,22 +1,13 @@
 import { AppClient } from 'tests/utils/app.client';
-import { Repository } from 'typeorm';
-import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
-import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
 import User from 'src/domain/model/user/user.model';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import * as fs from 'fs';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import { UpdateEnvironmentPermissionsDTO } from 'src/application/webapp/dto/environment-permission/update-environment-permissions.dto';
 import { UpdateEnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/update-environment-permission.dto';
 import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/exception/symeo.exception.code.to.http.status.map';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import SpyInstance = jest.SpyInstance;
 import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment-permission/environment-permission.dto';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
@@ -29,26 +20,22 @@ describe('EnvironmentPermissionController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchVcsRepositoryCollaboratorsMockForPermission: FetchVcsRepositoryCollaboratorsMock;
   let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
-
-  const currentUser = new User(
-    uuid(),
-    faker.internet.email(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
 
   beforeAll(async () => {
     appClient = new AppClient();
     await appClient.init();
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsRepositoryCollaboratorsMockForPermission =
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
     fetchVcsRepositoryCollaboratorsMock =
       new FetchVcsRepositoryCollaboratorsMock(appClient);
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -65,18 +52,56 @@ describe('EnvironmentPermissionController', () => {
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent();
     fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
+    fetchVcsRepositoryCollaboratorsMockForPermission.restore();
     fetchVcsRepositoryCollaboratorsMock.restore();
   });
 
   describe('(POST) github/:vcsRepository/:configurationId/environments/:environmentId/permissions', () => {
+    it('should return 403 for user without permission', async () => {
+      // Given
+      const currentUserWithoutPermission = new User(
+        'github|102222086',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const response = await appClient
+        .request(currentUserWithoutPermission)
+        // When
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+        )
+        .send({ data: faker.name.firstName() })
+        // Then
+        .expect(403);
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
+      );
+    });
+
     it('should return 400 for missing environment permissions data', async () => {
       // Given
+      const currentUserWithPermission = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -86,7 +111,7 @@ describe('EnvironmentPermissionController', () => {
       );
 
       await appClient
-        .request(currentUser)
+        .request(currentUserWithPermission)
         // When
         .post(
           `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
@@ -97,6 +122,12 @@ describe('EnvironmentPermissionController', () => {
     });
 
     it('should return 404 for trying to update permissions of user that do not have access to repository', async () => {
+      const currentUserWithPermission = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -118,7 +149,7 @@ describe('EnvironmentPermissionController', () => {
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
-        .request(currentUser)
+        .request(currentUserWithPermission)
         // When
         .post(
           `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
@@ -137,6 +168,12 @@ describe('EnvironmentPermissionController', () => {
     });
 
     it('should return 400 for trying to update permission of a github repository admin', async () => {
+      const currentUserWithPermission = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -163,7 +200,7 @@ describe('EnvironmentPermissionController', () => {
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
-        .request(currentUser)
+        .request(currentUserWithPermission)
         // When
         .post(
           `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
@@ -180,6 +217,12 @@ describe('EnvironmentPermissionController', () => {
     });
 
     it('should return 200 and create new environment permission for a github collaborator', async () => {
+      const currentUserWithPermission = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -220,7 +263,7 @@ describe('EnvironmentPermissionController', () => {
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
-        .request(currentUser)
+        .request(currentUserWithPermission)
         // When
         .post(
           `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
@@ -249,6 +292,13 @@ describe('EnvironmentPermissionController', () => {
     });
 
     it('should return 200 and update an in-base environment permission for a github collaborator', async () => {
+      const currentUserWithPermission = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -297,7 +347,7 @@ describe('EnvironmentPermissionController', () => {
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
-        .request(currentUser)
+        .request(currentUserWithPermission)
         // When
         .post(
           `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,

@@ -9,21 +9,17 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { ApiKeyTestUtil } from 'tests/utils/entities/api-key.test.util';
+import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let apiKeyTestUtil: ApiKeyTestUtil;
-
-  const currentUser = new User(
-    uuid(),
-    faker.internet.email(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -32,6 +28,8 @@ describe('ApiKeyController', () => {
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsRepositoryCollaboratorsMock =
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     apiKeyTestUtil = new ApiKeyTestUtil(appClient);
@@ -46,16 +44,24 @@ describe('ApiKeyController', () => {
     await environmentTestUtil.empty();
     await apiKeyTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
+    fetchVcsRepositoryCollaboratorsMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
-    it('should respond 201 and create api key', async () => {
+    it('should respond 403 and not create api key for user without permission', async () => {
       // Given
+      const currentUserWithoutPermission = new User(
+        'github|102222086',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -65,7 +71,34 @@ describe('ApiKeyController', () => {
       );
 
       const response = await appClient
-        .request(currentUser)
+        .request(currentUserWithoutPermission)
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys`,
+        )
+        .expect(403);
+      expect(response.body.code).toEqual(
+        SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
+      );
+    });
+
+    it('should respond 201 and create api key', async () => {
+      // Given
+      const currentUserWithPermission = new User(
+        'github|16590657',
+        faker.internet.email(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const response = await appClient
+        .request(currentUserWithPermission)
         .post(
           `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys`,
         )

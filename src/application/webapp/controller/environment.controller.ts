@@ -20,6 +20,8 @@ import Environment from 'src/domain/model/environment/environment.model';
 import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
 import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
 import Configuration from 'src/domain/model/configuration/configuration.model';
+import { MinimumEnvironmentPermissionRoleRequired } from 'dist/application/webapp/decorator/environment-permission-role.decorator';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 
 @Controller('configurations')
 @ApiTags('environments')
@@ -36,6 +38,7 @@ export class EnvironmentController {
     type: UpdateEnvironmentResponseDTO,
   })
   @UseGuards(EnvironmentAuthorizationGuard)
+  @MinimumEnvironmentPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
   async updateEnvironment(
     @RequestedEnvironment() environment: Environment,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
@@ -55,6 +58,7 @@ export class EnvironmentController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
+  @MinimumEnvironmentPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
   async deleteEnvironment(
     @RequestedEnvironment() environment: Environment,
   ): Promise<void> {
@@ -68,6 +72,7 @@ export class EnvironmentController {
   })
   @Post('github/:repositoryVcsId/:configurationId/environments')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @MinimumEnvironmentPermissionRoleRequired(EnvironmentPermissionRole.ADMIN)
   async createEnvironment(
     @RequestedConfiguration() configuration: Configuration,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
