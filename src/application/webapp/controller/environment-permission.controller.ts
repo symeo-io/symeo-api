@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import { GetEnvironmentPermissionUsersResponseDTO } from 'src/application/webapp/dto/environment-permission/get-environment-permission-users.response.dto';
+import { GetEnvironmentPermissionsResponseDto } from 'src/application/webapp/dto/environment-permission/get-environment-permissions.response.dto';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import User from 'src/domain/model/user/user.model';
@@ -33,7 +33,7 @@ export class EnvironmentPermissionController {
 
   @ApiOkResponse({
     description: 'Members environment permissions successfully retrieved',
-    type: GetEnvironmentPermissionUsersResponseDTO,
+    type: GetEnvironmentPermissionsResponseDto,
   })
   @Get(
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
@@ -43,8 +43,8 @@ export class EnvironmentPermissionController {
     @RequestedRepository() repository: VcsRepository,
     @RequestedEnvironment() environment: Environment,
     @CurrentUser() user: User,
-  ): Promise<GetEnvironmentPermissionUsersResponseDTO> {
-    return GetEnvironmentPermissionUsersResponseDTO.fromDomains(
+  ): Promise<GetEnvironmentPermissionsResponseDto> {
+    return GetEnvironmentPermissionsResponseDto.fromDomains(
       await this.environmentPermissionFacade.getEnvironmentPermissionUsers(
         user,
         repository,

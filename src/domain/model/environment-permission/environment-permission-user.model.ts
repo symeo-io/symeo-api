@@ -1,14 +1,16 @@
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
+import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 
-export class EnvironmentPermissionUser {
-  user: { vcsId: number; name: string; avatarUrl: string };
-  permission: EnvironmentPermission;
+export class EnvironmentPermissionWithUser extends EnvironmentPermission {
+  user: VcsUser;
 
-  constructor(
-    user: { vcsId: number; name: string; avatarUrl: string },
-    permission: EnvironmentPermission,
-  ) {
+  constructor(user: VcsUser, permission: EnvironmentPermission) {
+    super(
+      permission.id,
+      permission.userVcsId,
+      permission.environmentPermissionRole,
+      permission.environmentId,
+    );
     this.user = user;
-    this.permission = permission;
   }
 }
