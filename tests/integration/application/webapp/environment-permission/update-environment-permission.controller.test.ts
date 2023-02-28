@@ -114,7 +114,7 @@ describe('EnvironmentPermissionController', () => {
           EnvironmentPermissionRole.READ_SECRET,
         ),
       ];
-      updateEnvironmentPermissionsDTO.environmentPermissions =
+      updateEnvironmentPermissionsDTO.permissions =
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
@@ -159,7 +159,7 @@ describe('EnvironmentPermissionController', () => {
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.environmentPermissions =
+      updateEnvironmentPermissionsDTO.permissions =
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
@@ -216,7 +216,7 @@ describe('EnvironmentPermissionController', () => {
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.environmentPermissions =
+      updateEnvironmentPermissionsDTO.permissions =
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
@@ -228,13 +228,12 @@ describe('EnvironmentPermissionController', () => {
         .send(updateEnvironmentPermissionsDTO)
         // Then
         .expect(200);
-      expect(response.body.environmentPermissions).toBeDefined();
-      expect(response.body.environmentPermissions.length).toEqual(1);
-      const environmentPermissionsVerification =
-        response.body.environmentPermissions.map(
-          (environmentPermissionDTO: EnvironmentPermissionDTO) =>
-            `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
-        );
+      expect(response.body.permissions).toBeDefined();
+      expect(response.body.permissions.length).toEqual(1);
+      const environmentPermissionsVerification = response.body.permissions.map(
+        (environmentPermissionDTO: EnvironmentPermissionDTO) =>
+          `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
+      );
       expect(environmentPermissionsVerification).toContain(
         `${environmentPermissionToUpdateVcsUserId} - ${environmentPermissionToUpdateRole}`,
       );
@@ -293,7 +292,7 @@ describe('EnvironmentPermissionController', () => {
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.environmentPermissions =
+      updateEnvironmentPermissionsDTO.permissions =
         updateEnvironmentPermissionDTOList;
 
       const response = await appClient
@@ -305,13 +304,12 @@ describe('EnvironmentPermissionController', () => {
         .send(updateEnvironmentPermissionsDTO)
         // Then
         .expect(200);
-      expect(response.body.environmentPermissions).toBeDefined();
-      expect(response.body.environmentPermissions.length).toEqual(1);
-      const environmentPermissionsVerification =
-        response.body.environmentPermissions.map(
-          (environmentPermissionDTO: EnvironmentPermissionDTO) =>
-            `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
-        );
+      expect(response.body.permissions).toBeDefined();
+      expect(response.body.permissions.length).toEqual(1);
+      const environmentPermissionsVerification = response.body.permissions.map(
+        (environmentPermissionDTO: EnvironmentPermissionDTO) =>
+          `${environmentPermissionDTO.userVcsId} - ${environmentPermissionDTO.environmentPermissionRole}`,
+      );
       expect(environmentPermissionsVerification).toContain(
         `${environmentPermissionToUpdateVcsUserId} - ${environmentPermissionToUpdateRole}`,
       );

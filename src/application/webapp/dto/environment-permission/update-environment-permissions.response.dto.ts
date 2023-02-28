@@ -4,11 +4,11 @@ import { EnvironmentPermissionDTO } from 'src/application/webapp/dto/environment
 
 export class UpdateEnvironmentPermissionsResponseDTO {
   @ApiProperty({ type: [EnvironmentPermissionDTO] })
-  environmentPermissions: EnvironmentPermissionDTO[];
+  permissions: EnvironmentPermissionDTO[];
 
   static fromDomains(environmentPermissions: EnvironmentPermission[]) {
     const dto = new UpdateEnvironmentPermissionsResponseDTO();
-    dto.environmentPermissions = environmentPermissions.map(
+    dto.permissions = environmentPermissions.map(
       EnvironmentPermissionDTO.fromDomain,
     );
     return dto;

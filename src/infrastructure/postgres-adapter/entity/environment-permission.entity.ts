@@ -19,6 +19,9 @@ export default class EnvironmentPermissionEntity extends AbstractEntity {
   })
   environmentPermissionRole: EnvironmentPermissionRole;
 
+  @Column()
+  environmentId: string;
+
   @ManyToOne(
     () => EnvironmentEntity,
     (environment) => environment.environmentPermissions,
@@ -43,6 +46,7 @@ export default class EnvironmentPermissionEntity extends AbstractEntity {
     entity.userVcsId = environmentPermission.userVcsId;
     entity.environmentPermissionRole =
       environmentPermission.environmentPermissionRole;
+    entity.environmentId = environmentPermission.environmentId;
     return entity;
   }
 }

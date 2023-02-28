@@ -41,7 +41,6 @@ export class EnvironmentPermissionService
   async updateEnvironmentPermissions(
     user: User,
     repository: VcsRepository,
-    environment: Environment,
     environmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]> {
     switch (user.provider) {
@@ -49,7 +48,6 @@ export class EnvironmentPermissionService
         return this.updateEnvironmentPermissionsWithGithub(
           user,
           repository,
-          environment,
           environmentPermissions,
         );
       default:
@@ -75,33 +73,28 @@ export class EnvironmentPermissionService
         githubRepositoryUsers.map((vcsUser) => vcsUser.id),
       );
 
-    const environmentPermissionUsersToReturn = githubRepositoryUsers.map(
-      (vcsUser) => {
-        const inBaseEnvironmentPermission = inBaseEnvironmentPermissions.find(
-          (inBaseEnvironmentPermission) =>
-            inBaseEnvironmentPermission.userVcsId === vcsUser.id,
-        );
+    return githubRepositoryUsers.map((vcsUser) => {
+      const inBaseEnvironmentPermission = inBaseEnvironmentPermissions.find(
+        (inBaseEnvironmentPermission) =>
+          inBaseEnvironmentPermission.userVcsId === vcsUser.id,
+      );
 
-        if (!!inBaseEnvironmentPermission)
-          return this.environmentPermissionUtils.generateEnvironmentPermissionUser(
-            vcsUser,
-            inBaseEnvironmentPermission,
-          );
-
-        return this.environmentPermissionUtils.generateDefaultEnvironmentPermissionUserFromVcsUser(
+      if (!!inBaseEnvironmentPermission)
+        return this.environmentPermissionUtils.generateEnvironmentPermissionUser(
           vcsUser,
-          environment,
+          inBaseEnvironmentPermission,
         );
-      },
-    );
 
-    return environmentPermissionUsersToReturn;
+      return this.environmentPermissionUtils.generateDefaultEnvironmentPermissionUserFromVcsUser(
+        vcsUser,
+        environment,
+      );
+    });
   }
 
   private async updateEnvironmentPermissionsWithGithub(
     user: User,
     repository: VcsRepository,
-    environment: Environment,
     environmentPermissionsToUpdate: EnvironmentPermission[],
   ) {
     await this.validateEnvironmentPermissions(

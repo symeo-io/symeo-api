@@ -7,7 +7,7 @@ export class addEnvironmentPermission1676909322836
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "public"."environment_permission_role_enum" AS ENUM('readNonSecret')`,
+      `CREATE TYPE "public"."environment_permission_role_enum" AS ENUM('readNonSecret','readSecret','write','admin')`,
     );
 
     await queryRunner.query(

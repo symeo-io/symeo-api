@@ -9,7 +9,7 @@ export class UpdateEnvironmentPermissionsDTO {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateEnvironmentPermissionDTO)
-  environmentPermissions: UpdateEnvironmentPermissionDTO[];
+  permissions: UpdateEnvironmentPermissionDTO[];
 
   static toDomains(
     updateEnvironmentPermissionsDTO: UpdateEnvironmentPermissionDTO[],

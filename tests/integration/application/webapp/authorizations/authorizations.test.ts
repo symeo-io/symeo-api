@@ -52,7 +52,7 @@ describe('Authorizations', () => {
     },
     {
       path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
-      verbs: ['get'],
+      verbs: ['get', 'post'],
     },
     {
       path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values',

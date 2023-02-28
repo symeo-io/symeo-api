@@ -54,7 +54,7 @@ export class EnvironmentPermissionController {
   }
 
   @Post(
-    'github/:vcsRepositoryId/:configurationId/environments/:environmentId/permissions',
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
   )
   @ApiResponse({ status: 200 })
   @HttpCode(200)
@@ -73,9 +73,8 @@ export class EnvironmentPermissionController {
       await this.environmentPermissionFacade.updateEnvironmentPermissions(
         user,
         repository,
-        environment,
         UpdateEnvironmentPermissionsDTO.toDomains(
-          updateEnvironmentPermissionsDTO.environmentPermissions,
+          updateEnvironmentPermissionsDTO.permissions,
           environment.id,
         ),
       );
