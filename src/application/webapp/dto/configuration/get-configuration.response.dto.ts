@@ -12,6 +12,8 @@ export class GetConfigurationResponseDTO {
   static fromDomain(repository: VcsRepository, configuration: Configuration) {
     const dto = new GetConfigurationResponseDTO();
     dto.configuration = ConfigurationDTO.fromDomain(configuration);
+    dto.isCurrentUserVcsRepositoryAdmin =
+      repository.isCurrentUserVcsRepositoryAdmin;
 
     return dto;
   }

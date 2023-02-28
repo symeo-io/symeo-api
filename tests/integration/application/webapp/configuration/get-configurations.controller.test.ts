@@ -58,6 +58,7 @@ describe('ConfigurationController', () => {
 
       expect(response.body.configurations).toBeDefined();
       expect(response.body.configurations.length).toEqual(2);
+      expect(response.body.isCurrentUserVcsRepositoryAdmin).toEqual(true);
     });
   });
 });

@@ -108,7 +108,7 @@ export class ConfigurationController {
       repository,
     );
 
-    return GetConfigurationsResponseDTO.fromDomains(configuration);
+    return GetConfigurationsResponseDTO.fromDomains(repository, configuration);
   }
 
   @ApiOkResponse({
