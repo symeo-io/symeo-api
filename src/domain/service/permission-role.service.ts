@@ -10,7 +10,7 @@ import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
-import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class PermissionRoleService {
   constructor(
@@ -73,7 +73,7 @@ export class PermissionRoleService {
   }
 
   async isUserVcsRepositoryRoleInRequired(
-    minimumVcsRepositoryRoleRequired: VcsRepositoryRoleEnum,
+    minimumVcsRepositoryRoleRequired: VcsRepositoryRole,
     user: User,
     repository: VcsRepository,
   ) {
@@ -145,11 +145,11 @@ export class PermissionRoleService {
 
   private checkVcsRepositoryRoleInRequired(
     githubVcsUser: VcsUser,
-    minimumVcsRepositoryRoleRequired: VcsRepositoryRoleEnum,
+    minimumVcsRepositoryRoleRequired: VcsRepositoryRole,
   ) {
     if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.ADMIN &&
-      githubVcsUser.vcsRepositoryRole !== VcsRepositoryRoleEnum.ADMIN
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.ADMIN &&
+      githubVcsUser.vcsRepositoryRole !== VcsRepositoryRole.ADMIN
     ) {
       this.throwResourceAccessDeniedException(
         githubVcsUser.id,
@@ -158,9 +158,9 @@ export class PermissionRoleService {
     }
 
     if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.MAINTAIN &&
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.MAINTAIN &&
       githubVcsUser.vcsRepositoryRole !==
-        (VcsRepositoryRoleEnum.ADMIN || VcsRepositoryRoleEnum.MAINTAIN)
+        (VcsRepositoryRole.ADMIN || VcsRepositoryRole.MAINTAIN)
     ) {
       this.throwResourceAccessDeniedException(
         githubVcsUser.id,
@@ -169,11 +169,11 @@ export class PermissionRoleService {
     }
 
     if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.WRITE &&
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.WRITE &&
       githubVcsUser.vcsRepositoryRole !==
-        (VcsRepositoryRoleEnum.ADMIN ||
-          VcsRepositoryRoleEnum.MAINTAIN ||
-          VcsRepositoryRoleEnum.WRITE)
+        (VcsRepositoryRole.ADMIN ||
+          VcsRepositoryRole.MAINTAIN ||
+          VcsRepositoryRole.WRITE)
     ) {
       this.throwResourceAccessDeniedException(
         githubVcsUser.id,
@@ -182,12 +182,12 @@ export class PermissionRoleService {
     }
 
     if (
-      minimumVcsRepositoryRoleRequired === VcsRepositoryRoleEnum.TRIAGE &&
+      minimumVcsRepositoryRoleRequired === VcsRepositoryRole.TRIAGE &&
       githubVcsUser.vcsRepositoryRole !==
-        (VcsRepositoryRoleEnum.ADMIN ||
-          VcsRepositoryRoleEnum.MAINTAIN ||
-          VcsRepositoryRoleEnum.WRITE ||
-          VcsRepositoryRoleEnum.TRIAGE)
+        (VcsRepositoryRole.ADMIN ||
+          VcsRepositoryRole.MAINTAIN ||
+          VcsRepositoryRole.WRITE ||
+          VcsRepositoryRole.TRIAGE)
     ) {
       this.throwResourceAccessDeniedException(
         githubVcsUser.id,
@@ -198,9 +198,7 @@ export class PermissionRoleService {
 
   private throwResourceAccessDeniedException(
     userVcsId: number,
-    minimumPermissionRequired:
-      | EnvironmentPermissionRole
-      | VcsRepositoryRoleEnum,
+    minimumPermissionRequired: EnvironmentPermissionRole | VcsRepositoryRole,
   ) {
     throw new SymeoException(
       `User with userVcsId ${userVcsId} is trying to access resources he do not have permission for (minimum ${minimumPermissionRequired} permission required)`,

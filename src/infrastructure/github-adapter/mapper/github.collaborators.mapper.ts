@@ -1,6 +1,6 @@
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
-import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class GithubCollaboratorsMapper {
   static dtoToDomains(
@@ -24,20 +24,20 @@ export class GithubCollaboratorsMapper {
 
   private static mapGithubRoleToDomain(
     githubRoleName: string,
-  ): VcsRepositoryRoleEnum {
+  ): VcsRepositoryRole {
     switch (githubRoleName) {
       case 'admin':
-        return VcsRepositoryRoleEnum.ADMIN;
+        return VcsRepositoryRole.ADMIN;
       case 'maintain':
-        return VcsRepositoryRoleEnum.MAINTAIN;
+        return VcsRepositoryRole.MAINTAIN;
       case 'write':
-        return VcsRepositoryRoleEnum.WRITE;
+        return VcsRepositoryRole.WRITE;
       case 'triage':
-        return VcsRepositoryRoleEnum.TRIAGE;
+        return VcsRepositoryRole.TRIAGE;
       case 'read':
-        return VcsRepositoryRoleEnum.READ;
+        return VcsRepositoryRole.READ;
       default:
-        return VcsRepositoryRoleEnum.READ;
+        return VcsRepositoryRole.READ;
     }
   }
 }

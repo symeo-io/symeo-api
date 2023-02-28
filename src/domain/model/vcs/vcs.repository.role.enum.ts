@@ -1,4 +1,4 @@
-export enum VcsRepositoryRoleEnum {
+export enum VcsRepositoryRole {
   ADMIN = 'admin',
   MAINTAIN = 'maintain',
   WRITE = 'write',

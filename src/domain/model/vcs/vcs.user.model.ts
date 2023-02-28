@@ -1,16 +1,16 @@
-import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class VcsUser {
   id: number;
   name: string;
   avatarUrl: string;
-  vcsRepositoryRole: VcsRepositoryRoleEnum;
+  vcsRepositoryRole: VcsRepositoryRole;
 
   constructor(
     id: number,
     name: string,
     avatarUrl: string,
-    vcsRepositoryRole: VcsRepositoryRoleEnum,
+    vcsRepositoryRole: VcsRepositoryRole,
   ) {
     this.id = id;
     this.name = name;

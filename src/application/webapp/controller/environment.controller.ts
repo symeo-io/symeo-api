@@ -22,7 +22,7 @@ import { RequestedConfiguration } from 'src/application/webapp/decorator/request
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
-import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { MinimumVcsRepositoryRoleRequired } from 'src/application/webapp/decorator/repository-role.decorator';
 
 @Controller('configurations')
@@ -74,7 +74,7 @@ export class EnvironmentController {
   })
   @Post('github/:repositoryVcsId/:configurationId/environments')
   @UseGuards(ConfigurationAuthorizationGuard)
-  @MinimumVcsRepositoryRoleRequired(VcsRepositoryRoleEnum.ADMIN)
+  @MinimumVcsRepositoryRoleRequired(VcsRepositoryRole.ADMIN)
   async createEnvironment(
     @RequestedConfiguration() configuration: Configuration,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,

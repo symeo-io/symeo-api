@@ -8,7 +8,7 @@ import User from 'src/domain/model/user/user.model';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
 import { PermissionRoleService } from 'src/domain/service/permission-role.service';
 import { Reflector } from '@nestjs/core';
-import { VcsRepositoryRoleEnum } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { REPOSITORY_ROLES_KEY } from 'src/application/webapp/decorator/repository-role.decorator';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class ConfigurationAuthorizationGuard implements CanActivate {
     request.configuration = configuration;
 
     const minimumVcsRepositoryRoleRequired =
-      this.reflector.get<VcsRepositoryRoleEnum>(
+      this.reflector.get<VcsRepositoryRole>(
         REPOSITORY_ROLES_KEY,
         context.getHandler(),
       );
