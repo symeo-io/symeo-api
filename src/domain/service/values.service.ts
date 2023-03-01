@@ -9,23 +9,15 @@ import {
   ConfigurationContract,
   ConfigurationContractProperty,
 } from 'src/domain/model/configuration/configuration-contract.model';
-import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
-import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
-import { SymeoException } from 'src/domain/exception/symeo.exception';
-import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
-import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 export class ValuesService implements ValuesFacade {
   constructor(
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
     private configurationFacade: ConfigurationFacade,
-    private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
-    private githubAdapterPort: GithubAdapterPort,
-    private environmentPermissionUtils: EnvironmentPermissionUtils,
+    private environmentPermissionFacade: EnvironmentPermissionFacade,
   ) {}
 
   async findByEnvironmentForSdk(
@@ -43,40 +35,13 @@ export class ValuesService implements ValuesFacade {
     branchName: string | undefined,
     environment: Environment,
   ): Promise<ConfigurationValues> {
-    const userVcsId = parseInt(user.id.split('|')[1]);
-    let currentUserPermissionRole: EnvironmentPermissionRole;
-    const inBaseEnvironmentPermissions: EnvironmentPermission | undefined =
-      await this.environmentPermissionStoragePort.findForEnvironmentIdAndVcsUserId(
-        environment.id,
-        userVcsId,
+    const currentUserPermissionRole: EnvironmentPermissionRole =
+      await this.environmentPermissionFacade.getEnvironmentPermissionRole(
+        user,
+        repository,
+        configuration,
+        environment,
       );
-    if (inBaseEnvironmentPermissions) {
-      currentUserPermissionRole =
-        inBaseEnvironmentPermissions.environmentPermissionRole;
-    } else {
-      const githubRepositoryUsers: VcsUser[] =
-        await this.githubAdapterPort.getCollaboratorsForRepository(
-          user,
-          repository.owner.name,
-          repository.name,
-        );
-
-      const githubVcsUser: VcsUser | undefined = githubRepositoryUsers.find(
-        (vcsUser) => vcsUser.id === userVcsId,
-      );
-
-      if (!githubVcsUser) {
-        throw new SymeoException(
-          `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
-          SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-        );
-      }
-
-      currentUserPermissionRole =
-        this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
-          githubVcsUser.role,
-        );
-    }
 
     const configurationValues: ConfigurationValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(

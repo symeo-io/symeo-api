@@ -57,10 +57,6 @@ describe('ValuesController', () => {
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
-    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
     fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
@@ -68,7 +64,6 @@ describe('ValuesController', () => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
     fetchSecretMock.restore();
-    fetchVcsRepositoryCollaboratorsMock.restore();
     fetchVcsRepositoryCollaboratorsMock.restore();
     fetchVcsFileMock.restore();
     fetchUserVcsRepositoryPermissionMock.restore();
@@ -99,35 +94,6 @@ describe('ValuesController', () => {
           EnvironmentPermissionRole.ADMIN,
           userVcsId,
         );
-
-      const configurationContract: ConfigurationContract = {
-        aws: {
-          region: {
-            type: 'string',
-            secret: true,
-          },
-          user: {
-            type: 'string',
-          },
-        },
-        database: {
-          postgres: {
-            host: {
-              type: 'string',
-            },
-            port: {
-              type: 'integer',
-            },
-            password: {
-              type: 'string',
-              secret: true,
-            },
-            type: {
-              type: 'string',
-            },
-          },
-        },
-      };
 
       const configurationValues: ConfigurationValues = {
         aws: {
@@ -253,6 +219,10 @@ describe('ValuesController', () => {
         configuration,
       );
 
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        VcsRepositoryRole.ADMIN,
+      );
+
       fetchVcsFileMock.mockSymeoContractFilePresent(
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
@@ -305,6 +275,10 @@ describe('ValuesController', () => {
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
+      );
+
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        VcsRepositoryRole.READ,
       );
 
       fetchVcsFileMock.mockSymeoContractFilePresent(

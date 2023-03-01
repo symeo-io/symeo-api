@@ -17,7 +17,7 @@ export class FetchUserVcsRepositoryPermissionMock {
       'getCollaboratorPermissionLevel',
     );
 
-    this.spy.mockImplementationOnce(() =>
+    this.spy.mockImplementation(() =>
       Promise.resolve({
         status: 200 as const,
         headers: {},

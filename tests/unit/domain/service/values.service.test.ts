@@ -8,16 +8,12 @@ import { v4 as uuid } from 'uuid';
 import { mock } from 'ts-mockito';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
-import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
-import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permission.utils';
 import { ValuesService } from 'src/domain/service/values.service';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
-import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
-import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 describe('ValuesService', () => {
   describe('findByEnvironment', () => {
@@ -27,20 +23,13 @@ describe('ValuesService', () => {
     const mockedConfigurationFacade: ConfigurationFacade =
       mock<ConfigurationFacade>();
 
-    const mockedEnvironmentPermissionStoragePort: EnvironmentPermissionStoragePort =
-      mock<EnvironmentPermissionStoragePort>();
-
-    const mockedGithubAdapterPort: GithubAdapterPort =
-      mock<GithubAdapterPort>();
-
-    const environmentPermissionUtils = new EnvironmentPermissionUtils();
+    const mockedEnvironmentPermissionFacade: EnvironmentPermissionFacade =
+      mock<EnvironmentPermissionFacade>();
 
     const valuesService: ValuesService = new ValuesService(
       mockedSecretValuesStoragePort,
       mockedConfigurationFacade,
-      mockedEnvironmentPermissionStoragePort,
-      mockedGithubAdapterPort,
-      environmentPermissionUtils,
+      mockedEnvironmentPermissionFacade,
     );
 
     const mockedConfigurationContract: ConfigurationContract = {
@@ -140,18 +129,11 @@ describe('ValuesService', () => {
         // When
         jest
           .spyOn(
-            mockedEnvironmentPermissionStoragePort,
-            'findForEnvironmentIdAndVcsUserId',
+            mockedEnvironmentPermissionFacade,
+            'getEnvironmentPermissionRole',
           )
           .mockImplementation(() =>
-            Promise.resolve(
-              new EnvironmentPermission(
-                uuid(),
-                vcsUserId,
-                EnvironmentPermissionRole.READ_NON_SECRET,
-                environment.id,
-              ),
-            ),
+            Promise.resolve(EnvironmentPermissionRole.READ_NON_SECRET),
           );
 
         jest
@@ -202,18 +184,11 @@ describe('ValuesService', () => {
         // When
         jest
           .spyOn(
-            mockedEnvironmentPermissionStoragePort,
-            'findForEnvironmentIdAndVcsUserId',
+            mockedEnvironmentPermissionFacade,
+            'getEnvironmentPermissionRole',
           )
           .mockImplementation(() =>
-            Promise.resolve(
-              new EnvironmentPermission(
-                uuid(),
-                vcsUserId,
-                EnvironmentPermissionRole.READ_NON_SECRET,
-                environment.id,
-              ),
-            ),
+            Promise.resolve(EnvironmentPermissionRole.READ_NON_SECRET),
           );
         jest
           .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
@@ -264,18 +239,11 @@ describe('ValuesService', () => {
       // When
       jest
         .spyOn(
-          mockedEnvironmentPermissionStoragePort,
-          'findForEnvironmentIdAndVcsUserId',
+          mockedEnvironmentPermissionFacade,
+          'getEnvironmentPermissionRole',
         )
         .mockImplementation(() =>
-          Promise.resolve(
-            new EnvironmentPermission(
-              uuid(),
-              vcsUserId,
-              EnvironmentPermissionRole.READ_SECRET,
-              environment.id,
-            ),
-          ),
+          Promise.resolve(EnvironmentPermissionRole.ADMIN),
         );
       jest
         .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
@@ -292,111 +260,6 @@ describe('ValuesService', () => {
 
       // Then
       expect(hiddenConfigurationValues).toEqual(mockedConfigurationValues);
-    });
-
-    describe('For github user permission', () => {
-      const mockedConfigurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
-          },
-        },
-      };
-
-      beforeEach(async () => {
-        jest
-          .spyOn(
-            mockedEnvironmentPermissionStoragePort,
-            'findForEnvironmentIdAndVcsUserId',
-          )
-          .mockImplementation(() => Promise.resolve(undefined));
-      });
-
-      it('should return configurations values without hiding them', async () => {
-        // Given
-        jest
-          .spyOn(mockedGithubAdapterPort, 'getCollaboratorsForRepository')
-          .mockImplementation(() =>
-            Promise.resolve([
-              new VcsUser(
-                vcsUserId,
-                faker.name.firstName(),
-                faker.datatype.string(),
-                VcsRepositoryRole.ADMIN,
-              ),
-            ]),
-          );
-
-        // When
-        jest
-          .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
-          .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
-
-        const hiddenConfigurationValues: ConfigurationValues =
-          await valuesService.findByEnvironmentForWebapp(
-            currentUser,
-            vcsRepository,
-            configuration,
-            branchName,
-            environment,
-          );
-
-        // Then
-        expect(hiddenConfigurationValues).toEqual(mockedConfigurationValues);
-      });
-
-      it('should return hidden configuration values', async () => {
-        // Given
-        jest
-          .spyOn(mockedGithubAdapterPort, 'getCollaboratorsForRepository')
-          .mockImplementation(() =>
-            Promise.resolve([
-              new VcsUser(
-                vcsUserId,
-                faker.name.firstName(),
-                faker.datatype.string(),
-                VcsRepositoryRole.READ,
-              ),
-            ]),
-          );
-
-        // When
-        jest
-          .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
-          .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
-
-        const hiddenConfigurationValues: ConfigurationValues =
-          await valuesService.findByEnvironmentForWebapp(
-            currentUser,
-            vcsRepository,
-            configuration,
-            branchName,
-            environment,
-          );
-
-        // Then
-        expect(hiddenConfigurationValues).toEqual({
-          aws: {
-            region: '*********',
-            user: 'fake-user',
-          },
-          database: {
-            postgres: {
-              host: 'fake-host',
-              port: 9999,
-              password: '********',
-              type: 'postgres',
-            },
-          },
-        });
-      });
     });
   });
 });

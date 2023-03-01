@@ -135,23 +135,17 @@ const ValuesFacadeProvider = {
   useFactory: (
     secretValuesStoragePort: SecretValuesStoragePort,
     configurationFacade: ConfigurationFacade,
-    environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
-    githubAdapterPort: GithubAdapterPort,
-    environmentPermissionUtils: EnvironmentPermissionUtils,
+    environmentPermissionFacade: EnvironmentPermissionFacade,
   ) =>
     new ValuesService(
       secretValuesStoragePort,
       configurationFacade,
-      environmentPermissionStoragePort,
-      githubAdapterPort,
-      environmentPermissionUtils,
+      environmentPermissionFacade,
     ),
   inject: [
     'SecretManagerAdapter',
     'ConfigurationFacade',
-    'PostgresEnvironmentPermissionAdapter',
-    'GithubAdapter',
-    'EnvironmentPermissionUtils',
+    'EnvironmentPermissionFacade',
   ],
 };
 
