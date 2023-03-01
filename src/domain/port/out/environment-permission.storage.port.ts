@@ -6,5 +6,10 @@ export interface EnvironmentPermissionStoragePort {
     vcsUserIds: number[],
   ): Promise<EnvironmentPermission[]>;
 
+  findForEnvironmentIdAndVcsUserId(
+    environmentId: string,
+    userVcsId: number,
+  ): Promise<EnvironmentPermission | undefined>;
+
   saveAll(environmentPermissions: EnvironmentPermission[]): Promise<void>;
 }

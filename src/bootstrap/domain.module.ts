@@ -19,6 +19,7 @@ import { EnvironmentPermissionUtils } from 'src/domain/utils/environment-permiss
 import { EnvironmentPermissionService } from 'src/domain/service/environment-permission.service';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
 import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port';
+import { PermissionRoleService } from 'src/domain/service/permission-role.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -80,6 +81,25 @@ const AuthorizationServiceProvider = {
   ],
 };
 
+const PermissionRoleServiceProvider = {
+  provide: 'PermissionRoleService',
+  useFactory: (
+    githubAdapterPort: GithubAdapterPort,
+    environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
+    environmentPermissionUtils: EnvironmentPermissionUtils,
+  ) =>
+    new PermissionRoleService(
+      githubAdapterPort,
+      environmentPermissionStoragePort,
+      environmentPermissionUtils,
+    ),
+  inject: [
+    'GithubAdapter',
+    'PostgresEnvironmentPermissionAdapter',
+    'EnvironmentPermissionUtils',
+  ],
+};
+
 const OrganizationFacadeProvider = {
   provide: 'OrganizationFacade',
   useFactory: (githubAdapterPort: GithubAdapterPort) =>
@@ -135,6 +155,7 @@ const EnvironmentPermissionUtilsProvider = {
     EnvironmentPermissionFacadeProvider,
     EnvironmentPermissionUtilsProvider,
     AuthorizationServiceProvider,
+    PermissionRoleServiceProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -145,6 +166,7 @@ const EnvironmentPermissionUtilsProvider = {
     ApiKeyFacadeProvider,
     EnvironmentPermissionFacadeProvider,
     AuthorizationServiceProvider,
+    PermissionRoleServiceProvider,
   ],
 })
 export class DomainModule {}

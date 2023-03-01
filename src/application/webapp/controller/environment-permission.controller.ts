@@ -21,6 +21,8 @@ import { RequestedRepository } from 'src/application/webapp/decorator/requested-
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
 import Environment from 'src/domain/model/environment/environment.model';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 
 @Controller('configurations')
 @ApiTags('environment-permissions')
@@ -63,6 +65,7 @@ export class EnvironmentPermissionController {
     type: UpdateEnvironmentPermissionsResponseDTO,
   })
   @UseGuards(EnvironmentAuthorizationGuard)
+  @MinimumEnvironmentPermissionRequired(EnvironmentPermissionRole.ADMIN)
   async updateEnvironmentPermissions(
     @RequestedRepository() repository: VcsRepository,
     @RequestedEnvironment() environment: Environment,
