@@ -7,17 +7,29 @@ import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-perm
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class EnvironmentPermissionUtils {
-  generateDefaultEnvironmentPermissionUserFromVcsUser(
+  generateDefaultEnvironmentPermission(
+    vcsUserId: number,
+    userRepositoryRole: VcsRepositoryRole,
+    environment: Environment,
+  ): EnvironmentPermission {
+    return new EnvironmentPermission(
+      uuid(),
+      vcsUserId,
+      this.mapGithubRoleToDefaultEnvironmentPermission(userRepositoryRole),
+      environment.id,
+    );
+  }
+
+  generateDefaultEnvironmentPermissionFromVcsUser(
     vcsUser: VcsUser,
     environment: Environment,
   ): EnvironmentPermissionWithUser {
     return new EnvironmentPermissionWithUser(
       vcsUser,
-      new EnvironmentPermission(
-        uuid(),
+      this.generateDefaultEnvironmentPermission(
         vcsUser.id,
-        this.mapGithubRoleToDefaultEnvironmentPermission(vcsUser.role),
-        environment.id,
+        vcsUser.role,
+        environment,
       ),
     );
   }

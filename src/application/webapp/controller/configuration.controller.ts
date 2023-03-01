@@ -75,6 +75,7 @@ export class ConfigurationController {
     const environmentsPermissions =
       await this.configurationFacade.findUserEnvironmentsPermissions(
         user,
+        repository,
         configuration,
       );
     return GetConfigurationResponseDTO.fromDomain(

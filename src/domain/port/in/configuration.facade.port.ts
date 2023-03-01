@@ -24,6 +24,7 @@ export default interface ConfigurationFacade {
 
   findUserEnvironmentsPermissions(
     user: User,
+    repository: VcsRepository,
     configuration: Configuration,
   ): Promise<EnvironmentPermission[]>;
 

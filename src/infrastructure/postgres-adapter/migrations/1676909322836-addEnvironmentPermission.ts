@@ -19,7 +19,8 @@ export class addEnvironmentPermission1676909322836
                  "userVcsId"                 integer                                     NOT NULL,
                  "environmentPermissionRole" "public"."environment_permission_role_enum" NOT NULL DEFAULT 'readNonSecret',
                  "environmentId"             uuid                                        NOT NULL,
-                 CONSTRAINT "PK_environment_permission_id" PRIMARY KEY ("id")
+                 CONSTRAINT "PK_environment_permission_id" PRIMARY KEY ("id"),
+                 UNIQUE ("userVcsId", "environmentId")
              )`,
     );
   }

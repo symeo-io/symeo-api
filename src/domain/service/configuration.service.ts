@@ -12,13 +12,13 @@ import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
-import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environment-permission.storage.port';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
     private readonly configurationStoragePort: ConfigurationStoragePort,
     private readonly repositoryFacade: RepositoryFacade,
-    private readonly environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
+    private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
   ) {}
 
   async findById(
@@ -113,11 +113,13 @@ export default class ConfigurationService implements ConfigurationFacade {
 
   async findUserEnvironmentsPermissions(
     user: User,
+    repository: VcsRepository,
     configuration: Configuration,
   ): Promise<EnvironmentPermission[]> {
-    return this.environmentPermissionStoragePort.findForEnvironmentIdsAndVcsUserId(
-      configuration.environments.map((environment) => environment.id),
-      user.getVcsUserId(),
+    return this.environmentPermissionFacade.findForConfigurationAndUser(
+      user,
+      repository,
+      configuration,
     );
   }
 
