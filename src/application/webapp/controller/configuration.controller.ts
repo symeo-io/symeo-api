@@ -30,8 +30,6 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { RepositoryAuthorizationGuard } from 'src/application/webapp/authorization/RepositoryAuthorizationGuard';
 import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { MinimumVcsRepositoryRoleRequired } from 'src/application/webapp/decorator/repository-role.decorator';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 

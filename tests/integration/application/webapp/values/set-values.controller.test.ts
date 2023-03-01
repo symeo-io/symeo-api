@@ -83,12 +83,11 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      const environmentPermission =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.READ_SECRET,
-          userVcsId,
-        );
+      await environmentPermissionTestUtil.createEnvironmentPermission(
+        environment,
+        EnvironmentPermissionRole.READ_SECRET,
+        userVcsId,
+      );
 
       fetchSecretMock.mockSecretPresent({ aws: { region: 'eu-west-3' } });
       updateSecretMock.mock();

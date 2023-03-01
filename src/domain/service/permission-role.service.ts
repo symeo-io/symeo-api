@@ -68,7 +68,7 @@ export class PermissionRoleService {
 
     const environmentPermissionRole =
       this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
-        githubVcsUser.vcsRepositoryRole,
+        githubVcsUser.role,
       );
 
     this.checkEnvironmentPermissionRoleInRequired(
@@ -132,7 +132,7 @@ export class PermissionRoleService {
     minimumVcsRepositoryRoleRequired: VcsRepositoryRole,
   ) {
     if (
-      VCS_REPOSITORY_ROLE_ORDER.indexOf(githubVcsUser.vcsRepositoryRole) <
+      VCS_REPOSITORY_ROLE_ORDER.indexOf(githubVcsUser.role) <
       VCS_REPOSITORY_ROLE_ORDER.indexOf(minimumVcsRepositoryRoleRequired)
     ) {
       this.throwResourceAccessDeniedException(

@@ -28,7 +28,7 @@ export class VcsUserDTO {
       vcsUser.id,
       vcsUser.name,
       vcsUser.avatarUrl,
-      vcsUser.roleName,
+      vcsUser.role,
     );
   }
 }

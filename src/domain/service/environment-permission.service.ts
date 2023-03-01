@@ -153,6 +153,6 @@ export class EnvironmentPermissionService
   }
 
   private isUserRepositoryAdministrator(githubRepositoryUser: VcsUser) {
-    return githubRepositoryUser.vcsRepositoryRole === 'admin';
+    return githubRepositoryUser.role === 'admin';
   }
 }

@@ -1,6 +1,5 @@
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
-import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';

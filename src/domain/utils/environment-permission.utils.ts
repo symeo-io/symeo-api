@@ -16,9 +16,7 @@ export class EnvironmentPermissionUtils {
       new EnvironmentPermission(
         uuid(),
         vcsUser.id,
-        this.mapGithubRoleToDefaultEnvironmentPermission(
-          vcsUser.vcsRepositoryRole,
-        ),
+        this.mapGithubRoleToDefaultEnvironmentPermission(vcsUser.role),
         environment.id,
       ),
     );

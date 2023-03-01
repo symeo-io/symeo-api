@@ -4,17 +4,17 @@ export class VcsUser {
   id: number;
   name: string;
   avatarUrl: string;
-  vcsRepositoryRole: VcsRepositoryRole;
+  role: VcsRepositoryRole;
 
   constructor(
     id: number,
     name: string,
     avatarUrl: string,
-    vcsRepositoryRole: VcsRepositoryRole,
+    role: VcsRepositoryRole,
   ) {
     this.id = id;
     this.name = name;
     this.avatarUrl = avatarUrl;
-    this.vcsRepositoryRole = vcsRepositoryRole;
+    this.role = role;
   }
 }

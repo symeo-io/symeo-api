@@ -1,5 +1,4 @@
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
-import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import User from 'src/domain/model/user/user.model';

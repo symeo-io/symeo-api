@@ -189,15 +189,13 @@ describe('EnvironmentPermissionController', () => {
 
       const updateEnvironmentPermissionsDTO =
         new UpdateEnvironmentPermissionsDTO();
-      const updateEnvironmentPermissionDTOList = [
+      updateEnvironmentPermissionsDTO.permissions = [
         new UpdateEnvironmentPermissionDTO(
           environmentPermissionToUpdateId,
           environmentPermissionToUpdateVcsUserId,
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.permissions =
-        updateEnvironmentPermissionDTOList;
 
       const response = await appClient
         .request(currentUserWithPermission)
@@ -231,19 +229,17 @@ describe('EnvironmentPermissionController', () => {
         configuration,
       );
 
-      const environmentPermission1 =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.ADMIN,
-          16590657,
-        );
+      await environmentPermissionTestUtil.createEnvironmentPermission(
+        environment,
+        EnvironmentPermissionRole.ADMIN,
+        16590657,
+      );
 
-      const environmentPermission2 =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.ADMIN,
-          22441392,
-        );
+      await environmentPermissionTestUtil.createEnvironmentPermission(
+        environment,
+        EnvironmentPermissionRole.ADMIN,
+        22441392,
+      );
 
       const environmentPermissionToUpdateId = uuid();
       const environmentPermissionToUpdateVcsUserId = 102222086;
@@ -252,15 +248,13 @@ describe('EnvironmentPermissionController', () => {
 
       const updateEnvironmentPermissionsDTO =
         new UpdateEnvironmentPermissionsDTO();
-      const updateEnvironmentPermissionDTOList = [
+      updateEnvironmentPermissionsDTO.permissions = [
         new UpdateEnvironmentPermissionDTO(
           environmentPermissionToUpdateId,
           environmentPermissionToUpdateVcsUserId,
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.permissions =
-        updateEnvironmentPermissionDTOList;
 
       const response = await appClient
         .request(currentUserWithPermission)
@@ -306,19 +300,17 @@ describe('EnvironmentPermissionController', () => {
         configuration,
       );
 
-      const environmentPermission1 =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.ADMIN,
-          16590657,
-        );
+      await environmentPermissionTestUtil.createEnvironmentPermission(
+        environment,
+        EnvironmentPermissionRole.ADMIN,
+        16590657,
+      );
 
-      const environmentPermission2 =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.ADMIN,
-          22441392,
-        );
+      await environmentPermissionTestUtil.createEnvironmentPermission(
+        environment,
+        EnvironmentPermissionRole.ADMIN,
+        22441392,
+      );
 
       const environmentPermission3 =
         await environmentPermissionTestUtil.createEnvironmentPermission(
@@ -335,15 +327,13 @@ describe('EnvironmentPermissionController', () => {
 
       const updateEnvironmentPermissionsDTO =
         new UpdateEnvironmentPermissionsDTO();
-      const updateEnvironmentPermissionDTOList = [
+      updateEnvironmentPermissionsDTO.permissions = [
         new UpdateEnvironmentPermissionDTO(
           environmentPermissionToUpdateId,
           environmentPermissionToUpdateVcsUserId,
           environmentPermissionToUpdateRole,
         ),
       ];
-      updateEnvironmentPermissionsDTO.permissions =
-        updateEnvironmentPermissionDTOList;
 
       const response = await appClient
         .request(currentUserWithPermission)
