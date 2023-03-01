@@ -28,14 +28,6 @@ describe('ValuesController', () => {
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -90,6 +82,7 @@ describe('ValuesController', () => {
       const currentUser = new User(
         `github|${userVcsId}`,
         faker.internet.email(),
+        faker.name.firstName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -176,6 +169,7 @@ describe('ValuesController', () => {
       const currentUser = new User(
         `github|${userVcsId}`,
         faker.internet.email(),
+        faker.name.firstName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -247,6 +241,7 @@ describe('ValuesController', () => {
       const currentUser = new User(
         `github|${userVcsId}`,
         faker.internet.email(),
+        faker.name.firstName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -300,6 +295,7 @@ describe('ValuesController', () => {
       const currentUser = new User(
         `github|${userVcsId}`,
         faker.internet.email(),
+        faker.name.firstName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );

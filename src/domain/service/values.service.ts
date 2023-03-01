@@ -74,7 +74,7 @@ export class ValuesService implements ValuesFacade {
 
       currentUserPermissionRole =
         this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
-          githubVcsUser.vcsRepositoryRole,
+          githubVcsUser.role,
         );
     }
 
@@ -95,19 +95,17 @@ export class ValuesService implements ValuesFacade {
 
       const emptyConfigurationValues = new ConfigurationValues();
 
-      const hiddenConfigurationValues =
-        this.parseContractAndValuesToHideSecrets(
-          emptyConfigurationValues,
-          configurationContract,
-          configurationValues,
-        );
-      return hiddenConfigurationValues;
+      return this.parseContractAndValuesToHideSecrets(
+        emptyConfigurationValues,
+        configurationContract,
+        configurationValues,
+      );
     }
 
     return configurationValues;
   }
 
-  public parseContractAndValuesToHideSecrets(
+  private parseContractAndValuesToHideSecrets(
     emptyConfigurationValues: ConfigurationValues,
     configurationContract: ConfigurationContract,
     configurationValues: ConfigurationValues,

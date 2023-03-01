@@ -42,9 +42,7 @@ export class ValuesController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  @MinimumEnvironmentPermissionRequired(
-    EnvironmentPermissionRole.READ_NON_SECRET,
-  )
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_NON_SECRET)
   async getEnvironmentValuesForWebapp(
     @CurrentUser() user: User,
     @RequestedRepository() repository: VcsRepository,

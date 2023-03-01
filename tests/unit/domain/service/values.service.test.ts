@@ -76,6 +76,7 @@ describe('ValuesService', () => {
     const currentUser: User = {
       id: `github|${vcsUserId}`,
       email: faker.internet.email(),
+      username: faker.name.firstName(),
       provider: VCSProvider.GitHub,
       accessTokenExpiration: faker.datatype.number(),
     };
@@ -90,6 +91,7 @@ describe('ValuesService', () => {
       },
       vcsType: VCSProvider.GitHub,
       vcsUrl: faker.datatype.string(),
+      isCurrentUserAdmin: false,
     };
 
     const branchName = 'staging';
