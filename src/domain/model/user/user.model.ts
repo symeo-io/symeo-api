@@ -20,4 +20,8 @@ export default class User {
     this.provider = provider;
     this.accessTokenExpiration = accessTokenExpiration;
   }
+
+  public getVcsUserId(): number {
+    return parseInt(this.id.split('|')[1]);
+  }
 }

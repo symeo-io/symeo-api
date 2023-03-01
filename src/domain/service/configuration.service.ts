@@ -11,37 +11,15 @@ import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
     private readonly configurationStoragePort: ConfigurationStoragePort,
     private readonly repositoryFacade: RepositoryFacade,
+    private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
   ) {}
-
-  async findByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
-  ): Promise<Configuration> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        repositoryVcsId,
-        id,
-      ),
-    ]);
-
-    if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${id}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
-    return configuration;
-  }
 
   async findById(
     repository: VcsRepository,
@@ -131,6 +109,18 @@ export default class ConfigurationService implements ConfigurationFacade {
     }
 
     return parse(contractString) as ConfigurationContract;
+  }
+
+  async findUserEnvironmentsPermissions(
+    user: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ): Promise<EnvironmentPermission[]> {
+    return this.environmentPermissionFacade.findForConfigurationAndUser(
+      user,
+      repository,
+      configuration,
+    );
   }
 
   async createForRepository(

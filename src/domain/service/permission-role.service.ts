@@ -28,7 +28,7 @@ export class PermissionRoleService {
     repository: VcsRepository,
     environment: Environment,
   ): Promise<void> {
-    const userVcsId: number = parseInt(user.id.split('|')[1]);
+    const userVcsId = user.getVcsUserId();
 
     const persistedEnvironmentPermission =
       await this.environmentPermissionStoragePort.findForEnvironmentIdAndVcsUserId(
@@ -75,7 +75,7 @@ export class PermissionRoleService {
     user: User,
     repository: VcsRepository,
   ) {
-    const userVcsId: number = parseInt(user.id.split('|')[1]);
+    const userVcsId = user.getVcsUserId();
 
     const userRepositoryRole =
       await this.githubAdapterPort.getUserRepositoryRole(

@@ -20,14 +20,25 @@ import { EnvironmentPermissionService } from 'src/domain/service/environment-per
 import { AuthorizationService } from 'src/domain/service/authorization.service';
 import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port';
 import { PermissionRoleService } from 'src/domain/service/permission-role.service';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
   useFactory: (
     configurationStoragePort: ConfigurationStoragePort,
     repositoryFacade: RepositoryFacade,
-  ) => new ConfigurationService(configurationStoragePort, repositoryFacade),
-  inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
+    environmentPermissionFacade: EnvironmentPermissionFacade,
+  ) =>
+    new ConfigurationService(
+      configurationStoragePort,
+      repositoryFacade,
+      environmentPermissionFacade,
+    ),
+  inject: [
+    'PostgresConfigurationAdapter',
+    'RepositoryFacade',
+    'EnvironmentPermissionFacade',
+  ],
 };
 
 const EnvironmentFacadeProvider = {
