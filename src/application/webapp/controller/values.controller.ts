@@ -5,6 +5,7 @@ import {
   HttpCode,
   Inject,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { GetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/values/get-environment-values.response.dto';
@@ -17,6 +18,12 @@ import { RequestedEnvironment } from 'src/application/webapp/decorator/requested
 import Environment from 'src/domain/model/environment/environment.model';
 import { RequiredEnvironmentPermission } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
+import User from 'src/domain/model/user/user.model';
+import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
+import Configuration from 'src/domain/model/configuration/configuration.model';
+import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 @Controller('configurations')
 @ApiTags('values')
@@ -35,11 +42,23 @@ export class ValuesController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_NON_SECRET)
-  async getEnvironmentValues(
+  @MinimumEnvironmentPermissionRequired(
+    EnvironmentPermissionRole.READ_NON_SECRET,
+  )
+  async getEnvironmentValuesForWebapp(
+    @CurrentUser() user: User,
+    @RequestedRepository() repository: VcsRepository,
+    @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
+    @Query('branch') branch: string | undefined,
   ): Promise<GetEnvironmentValuesResponseDTO> {
-    const values = await this.valuesFacade.findByEnvironmentId(environment.id);
+    const values = await this.valuesFacade.findByEnvironmentForWebapp(
+      user,
+      repository,
+      configuration,
+      branch,
+      environment,
+    );
 
     return new GetEnvironmentValuesResponseDTO(values);
   }

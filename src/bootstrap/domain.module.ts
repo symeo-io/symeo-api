@@ -133,10 +133,26 @@ const RepositoryFacadeProvider = {
 const ValuesFacadeProvider = {
   provide: 'ValuesFacade',
   useFactory: (
-    configurationFacade: ConfigurationFacade,
     secretValuesStoragePort: SecretValuesStoragePort,
-  ) => new ValuesService(configurationFacade, secretValuesStoragePort),
-  inject: ['ConfigurationFacade', 'SecretManagerAdapter'],
+    configurationFacade: ConfigurationFacade,
+    environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
+    githubAdapterPort: GithubAdapterPort,
+    environmentPermissionUtils: EnvironmentPermissionUtils,
+  ) =>
+    new ValuesService(
+      secretValuesStoragePort,
+      configurationFacade,
+      environmentPermissionStoragePort,
+      githubAdapterPort,
+      environmentPermissionUtils,
+    ),
+  inject: [
+    'SecretManagerAdapter',
+    'ConfigurationFacade',
+    'PostgresEnvironmentPermissionAdapter',
+    'GithubAdapter',
+    'EnvironmentPermissionUtils',
+  ],
 };
 
 const ApiKeyFacadeProvider = {
