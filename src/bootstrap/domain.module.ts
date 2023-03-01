@@ -133,10 +133,20 @@ const RepositoryFacadeProvider = {
 const ValuesFacadeProvider = {
   provide: 'ValuesFacade',
   useFactory: (
-    configurationFacade: ConfigurationFacade,
     secretValuesStoragePort: SecretValuesStoragePort,
-  ) => new ValuesService(configurationFacade, secretValuesStoragePort),
-  inject: ['ConfigurationFacade', 'SecretManagerAdapter'],
+    configurationFacade: ConfigurationFacade,
+    environmentPermissionFacade: EnvironmentPermissionFacade,
+  ) =>
+    new ValuesService(
+      secretValuesStoragePort,
+      configurationFacade,
+      environmentPermissionFacade,
+    ),
+  inject: [
+    'SecretManagerAdapter',
+    'ConfigurationFacade',
+    'EnvironmentPermissionFacade',
+  ],
 };
 
 const ApiKeyFacadeProvider = {

@@ -12,6 +12,8 @@ import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 import Configuration from 'src/domain/model/configuration/configuration.model';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
@@ -21,6 +23,40 @@ export class EnvironmentPermissionService
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
   ) {}
+
+  async getEnvironmentPermissionRole(
+    user: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+    environment: Environment,
+  ): Promise<EnvironmentPermissionRole> {
+    const userVcsId = user.getVcsUserId();
+    const inBaseEnvironmentPermissions: EnvironmentPermission | undefined =
+      await this.environmentPermissionStoragePort.findForEnvironmentIdAndVcsUserId(
+        environment.id,
+        userVcsId,
+      );
+    if (inBaseEnvironmentPermissions) {
+      return inBaseEnvironmentPermissions.environmentPermissionRole;
+    } else {
+      const githubUserRepositoryRole: VcsRepositoryRole | undefined =
+        await this.githubAdapterPort.getUserRepositoryRole(
+          user,
+          repository.owner.name,
+          repository.name,
+        );
+      if (!githubUserRepositoryRole) {
+        throw new SymeoException(
+          `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+          SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+        );
+      }
+
+      return this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
+        githubUserRepositoryRole,
+      );
+    }
+  }
 
   async getEnvironmentPermissionUsers(
     user: User,
