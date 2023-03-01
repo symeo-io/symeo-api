@@ -17,7 +17,7 @@ export class ValuesController {
   ) {}
 
   @Get()
-  async getEnvironmentValues(
+  async getEnvironmentValuesForSdk(
     @Req() { environmentId }: RequestWithEnvironmentId,
   ): Promise<GetValuesResponseDTO> {
     const values = await this.valuesFacade.findByEnvironmentForSdk(

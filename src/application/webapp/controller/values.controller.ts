@@ -70,11 +70,11 @@ export class ValuesController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
-  async setEnvironmentValues(
+  async setEnvironmentValuesForWebapp(
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
   ): Promise<void> {
-    await this.valuesFacade.updateByEnvironment(
+    await this.valuesFacade.updateByEnvironmentForWebapp(
       environment,
       setEnvironmentValuesResponseDTO.values,
     );

@@ -153,7 +153,7 @@ export class ValuesService implements ValuesFacade {
     return contractProperty.type && typeof contractProperty.type === 'string';
   }
 
-  async updateByEnvironment(
+  async updateByEnvironmentForWebapp(
     environment: Environment,
     values: ConfigurationValues,
   ): Promise<void> {
