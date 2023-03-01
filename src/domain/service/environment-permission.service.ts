@@ -30,7 +30,7 @@ export class EnvironmentPermissionService
     configuration: Configuration,
     environment: Environment,
   ): Promise<EnvironmentPermissionRole> {
-    const userVcsId = parseInt(user.id.split('|')[1]);
+    const userVcsId = user.getVcsUserId();
     const inBaseEnvironmentPermissions: EnvironmentPermission | undefined =
       await this.environmentPermissionStoragePort.findForEnvironmentIdAndVcsUserId(
         environment.id,
