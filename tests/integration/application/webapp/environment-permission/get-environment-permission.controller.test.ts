@@ -1,6 +1,5 @@
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
-import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
@@ -21,8 +20,9 @@ describe('EnvironmentPermissionController', () => {
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );

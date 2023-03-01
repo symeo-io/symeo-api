@@ -12,9 +12,10 @@ describe('GithubAdapter', () => {
   describe('getOrganizations', () => {
     const mockedGithubHttpClient: GithubHttpClient = mock(GithubHttpClient);
 
-    const user: User = new User(
-      faker.datatype.uuid(),
+    const user = new User(
+      `github|${faker.datatype.number()}`,
       faker.internet.email(),
+      faker.internet.userName(),
       VCSProvider.GitHub,
       faker.datatype.number(),
     );

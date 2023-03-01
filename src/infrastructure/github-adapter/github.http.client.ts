@@ -205,4 +205,30 @@ export class GithubHttpClient {
       throw exception;
     }
   }
+
+  async getUserRepositoryPermission(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<
+    | RestEndpointMethodTypes['repos']['getCollaboratorPermissionLevel']['response']['data']
+    | undefined
+  > {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    try {
+      const response =
+        await this.client.rest.repos.getCollaboratorPermissionLevel({
+          owner: repositoryOwnerName,
+          repo: repositoryName,
+          username: user.username,
+          headers: { Authorization: `token ${token}` },
+        });
+      return response.data;
+    } catch (exception) {
+      if ((exception as any).status && (exception as any).status === 404) {
+        return undefined;
+      }
+      throw exception;
+    }
+  }
 }

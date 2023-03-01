@@ -9,9 +9,10 @@ describe('OrganizationService', () => {
   describe('getOrganizations', () => {
     it('should get organizations for github as vcs provider', async () => {
       // Given
-      const user: User = new User(
-        faker.datatype.uuid(),
+      const user = new User(
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );

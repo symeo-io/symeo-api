@@ -11,9 +11,10 @@ describe('RepositoryService', () => {
   describe('getRepositories', () => {
     it('should get repositories for github as vcs provider', async () => {
       // Given
-      const user: User = new User(
-        faker.datatype.uuid(),
+      const user = new User(
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -46,9 +47,10 @@ describe('RepositoryService', () => {
   describe('getRepositoryById', () => {
     it('should get a repository given a vcsId', async () => {
       // Given
-      const user: User = new User(
-        faker.datatype.uuid(),
+      const user = new User(
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );

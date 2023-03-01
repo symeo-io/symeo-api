@@ -68,16 +68,19 @@ const AuthorizationServiceProvider = {
     githubAdapterPort: GithubAdapterPort,
     configurationStoragePort: ConfigurationStoragePort,
     apiKeyStoragePort: ApiKeyStoragePort,
+    permissionRoleService: PermissionRoleService,
   ) =>
     new AuthorizationService(
       githubAdapterPort,
       configurationStoragePort,
       apiKeyStoragePort,
+      permissionRoleService,
     ),
   inject: [
     'GithubAdapter',
     'PostgresConfigurationAdapter',
     'PostgresApiKeyAdapter',
+    'PermissionRoleService',
   ],
 };
 

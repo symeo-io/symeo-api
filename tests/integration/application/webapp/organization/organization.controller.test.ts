@@ -13,8 +13,9 @@ describe('OrganizationController', () => {
   let githubClient: Octokit;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );

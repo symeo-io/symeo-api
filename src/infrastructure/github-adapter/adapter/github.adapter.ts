@@ -12,6 +12,7 @@ import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/git
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/mapper/github.collaborators.mapper';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -189,5 +190,24 @@ export default class GithubAdapter implements GithubAdapterPort {
     return GithubCollaboratorsMapper.dtoToDomains(
       alreadyCollectedCollaboratorsDTO,
     );
+  }
+
+  async getUserRepositoryRole(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<VcsRepositoryRole | undefined> {
+    const repositoryPermission =
+      await this.githubHttpClient.getUserRepositoryPermission(
+        user,
+        repositoryOwnerName,
+        repositoryName,
+      );
+
+    if (!repositoryPermission) {
+      return undefined;
+    }
+
+    return repositoryPermission.role_name as VcsRepositoryRole;
   }
 }

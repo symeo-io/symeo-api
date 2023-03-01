@@ -13,8 +13,9 @@ describe('VCSAccessTokenAdapter', () => {
   describe('getGitHubAccessToken', () => {
     it('should return github access token', async () => {
       const user = new User(
-        uuid(),
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -57,8 +58,9 @@ describe('VCSAccessTokenAdapter', () => {
 
     it('should return undefined when no identities for user', async () => {
       const user = new User(
-        uuid(),
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -85,8 +87,9 @@ describe('VCSAccessTokenAdapter', () => {
 
     it('should return undefined when no github identity', async () => {
       const user = new User(
-        uuid(),
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
@@ -122,8 +125,9 @@ describe('VCSAccessTokenAdapter', () => {
 
     it('should return github access token from cache', async () => {
       const user = new User(
-        uuid(),
+        `github|${faker.datatype.number()}`,
         faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
         faker.datatype.number(),
       );

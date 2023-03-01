@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
@@ -17,8 +16,9 @@ describe('ConfigurationController', () => {
   let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );
