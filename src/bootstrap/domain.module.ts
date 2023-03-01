@@ -26,8 +26,18 @@ const ConfigurationFacadeProvider = {
   useFactory: (
     configurationStoragePort: ConfigurationStoragePort,
     repositoryFacade: RepositoryFacade,
-  ) => new ConfigurationService(configurationStoragePort, repositoryFacade),
-  inject: ['PostgresConfigurationAdapter', 'RepositoryFacade'],
+    environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
+  ) =>
+    new ConfigurationService(
+      configurationStoragePort,
+      repositoryFacade,
+      environmentPermissionStoragePort,
+    ),
+  inject: [
+    'PostgresConfigurationAdapter',
+    'RepositoryFacade',
+    'PostgresEnvironmentPermissionAdapter',
+  ],
 };
 
 const EnvironmentFacadeProvider = {

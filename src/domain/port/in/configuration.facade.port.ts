@@ -1,18 +1,11 @@
 import Configuration from 'src/domain/model/configuration/configuration.model';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import User from 'src/domain/model/user/user.model';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 
 export default interface ConfigurationFacade {
   findById(repository: VcsRepository, id: string): Promise<Configuration>;
-
-  findByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
-  ): Promise<Configuration>;
 
   findAllForRepository(repository: VcsRepository): Promise<Configuration[]>;
 
@@ -28,6 +21,11 @@ export default interface ConfigurationFacade {
     configuration: Configuration,
     branchName?: string,
   ): Promise<ConfigurationContract>;
+
+  findUserEnvironmentsPermissions(
+    user: User,
+    configuration: Configuration,
+  ): Promise<EnvironmentPermission[]>;
 
   createForRepository(
     user: User,

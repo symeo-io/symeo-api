@@ -70,8 +70,18 @@ export class ConfigurationController {
   async getGitHubConfigurationById(
     @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
+    @CurrentUser() user: User,
   ): Promise<GetConfigurationResponseDTO> {
-    return GetConfigurationResponseDTO.fromDomain(repository, configuration);
+    const environmentsPermissions =
+      await this.configurationFacade.findUserEnvironmentsPermissions(
+        user,
+        configuration,
+      );
+    return GetConfigurationResponseDTO.fromDomain(
+      repository,
+      configuration,
+      environmentsPermissions,
+    );
   }
 
   @ApiOkResponse({
