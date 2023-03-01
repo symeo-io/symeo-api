@@ -41,6 +41,7 @@ export class EnvironmentPermissionController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async getEnvironmentPermissions(
     @RequestedRepository() repository: VcsRepository,
     @RequestedEnvironment() environment: Environment,

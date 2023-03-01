@@ -116,6 +116,7 @@ export class ConfigurationController {
   })
   @Delete('github/:repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async deleteGitHubConfigurationById(
     @RequestedConfiguration() configuration: Configuration,
   ): Promise<void> {
@@ -151,6 +152,7 @@ export class ConfigurationController {
   })
   @Patch('github/:repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async updateForGitHub(
     @RequestedConfiguration() configuration: Configuration,
     @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,

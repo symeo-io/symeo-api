@@ -37,6 +37,7 @@ export class ApiKeyController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async listApiKeysForEnvironment(
     @RequestedEnvironment() environment: Environment,
   ): Promise<GetApiKeysResponseDTO> {
@@ -73,6 +74,7 @@ export class ApiKeyController {
     description: 'Api keys successfully deleted',
   })
   @UseGuards(ApiKeyAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async deleteApiKeyForEnvironment(
     @RequestedApiKey() apiKey: ApiKey,
   ): Promise<void> {
