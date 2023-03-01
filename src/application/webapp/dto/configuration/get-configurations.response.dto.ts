@@ -7,7 +7,7 @@ export class GetConfigurationsResponseDTO {
   @ApiProperty({ type: [ConfigurationDTO] })
   configurations: ConfigurationDTO[];
   @ApiProperty()
-  isCurrentUserVcsRepositoryAdmin: boolean;
+  isCurrentUserRepositoryAdmin: boolean;
 
   static fromDomains(
     repository: VcsRepository,
@@ -15,8 +15,7 @@ export class GetConfigurationsResponseDTO {
   ) {
     const dto = new GetConfigurationsResponseDTO();
     dto.configurations = configurations.map(ConfigurationDTO.fromDomain);
-    dto.isCurrentUserVcsRepositoryAdmin =
-      repository.isCurrentUserVcsRepositoryAdmin;
+    dto.isCurrentUserRepositoryAdmin = repository.isCurrentUserAdmin;
 
     return dto;
   }

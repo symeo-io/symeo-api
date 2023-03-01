@@ -9,7 +9,7 @@ export class VcsRepository {
   vcsType: VCSProvider;
   vcsUrl: string;
   configurations?: Configuration[];
-  isCurrentUserVcsRepositoryAdmin: boolean;
+  isCurrentUserAdmin: boolean;
 
   constructor(
     id: number,
@@ -18,7 +18,7 @@ export class VcsRepository {
     pushedAt: Date | undefined,
     vcsType: VCSProvider,
     vcsUrl: string,
-    isCurrentUserVcsRepositoryAdmin: boolean,
+    isCurrentUserRepositoryAdmin: boolean,
   ) {
     this.id = id;
     this.name = name;
@@ -26,6 +26,6 @@ export class VcsRepository {
     this.pushedAt = pushedAt;
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
-    this.isCurrentUserVcsRepositoryAdmin = isCurrentUserVcsRepositoryAdmin;
+    this.isCurrentUserAdmin = isCurrentUserRepositoryAdmin;
   }
 }
