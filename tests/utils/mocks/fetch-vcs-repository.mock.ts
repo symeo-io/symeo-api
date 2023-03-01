@@ -27,6 +27,13 @@ export class FetchVcsRepositoryMock {
         id: faker.datatype.number(),
         avatar_url: faker.lorem.slug(),
       },
+      permissions: {
+        admin: true,
+        maintain: true,
+        push: true,
+        triage: true,
+        pull: true,
+      },
     };
     const mockGitHubRepositoryResponse = {
       status: 200 as const,

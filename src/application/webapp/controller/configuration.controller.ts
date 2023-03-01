@@ -68,9 +68,10 @@ export class ConfigurationController {
   @Get('github/:repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
   async getGitHubConfigurationById(
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
   ): Promise<GetConfigurationResponseDTO> {
-    return GetConfigurationResponseDTO.fromDomain(configuration);
+    return GetConfigurationResponseDTO.fromDomain(repository, configuration);
   }
 
   @ApiOkResponse({
@@ -107,7 +108,7 @@ export class ConfigurationController {
       repository,
     );
 
-    return GetConfigurationsResponseDTO.fromDomains(configuration);
+    return GetConfigurationsResponseDTO.fromDomains(repository, configuration);
   }
 
   @ApiOkResponse({

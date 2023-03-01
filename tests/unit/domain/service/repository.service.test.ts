@@ -71,6 +71,7 @@ describe('RepositoryService', () => {
         new Date(),
         VCSProvider.GitHub,
         faker.internet.url(),
+        true,
       );
 
       // When
