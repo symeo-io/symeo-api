@@ -7,13 +7,12 @@ export class GetConfigurationResponseDTO {
   @ApiProperty()
   configuration: ConfigurationDTO;
   @ApiProperty()
-  isCurrentUserVcsRepositoryAdmin: boolean;
+  isCurrentUserRepositoryAdmin: boolean;
 
   static fromDomain(repository: VcsRepository, configuration: Configuration) {
     const dto = new GetConfigurationResponseDTO();
     dto.configuration = ConfigurationDTO.fromDomain(configuration);
-    dto.isCurrentUserVcsRepositoryAdmin =
-      repository.isCurrentUserVcsRepositoryAdmin;
+    dto.isCurrentUserRepositoryAdmin = repository.isCurrentUserAdmin;
 
     return dto;
   }

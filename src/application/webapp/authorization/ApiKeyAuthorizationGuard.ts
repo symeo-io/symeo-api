@@ -6,12 +6,16 @@ import {
 } from '@nestjs/common';
 import User from 'src/domain/model/user/user.model';
 import { AuthorizationService } from 'src/domain/service/authorization.service';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { ENVIRONMENT_PERMISSIONS_KEY } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class ApiKeyAuthorizationGuard implements CanActivate {
   constructor(
     @Inject('AuthorizationService')
     protected readonly authorizationService: AuthorizationService,
+    private reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -21,6 +25,11 @@ export class ApiKeyAuthorizationGuard implements CanActivate {
     const requestedConfigurationId = request.params.configurationId;
     const requestedEnvironmentId = request.params.environmentId;
     const requestedApiKeyId = request.params.apiKeyId;
+    const requiredEnvironmentRole =
+      this.reflector.get<EnvironmentPermissionRole>(
+        ENVIRONMENT_PERMISSIONS_KEY,
+        context.getHandler(),
+      );
 
     const { repository, configuration, environment, apiKey } =
       await this.authorizationService.hasUserAuthorizationToApiKey(
@@ -29,6 +38,7 @@ export class ApiKeyAuthorizationGuard implements CanActivate {
         requestedConfigurationId,
         requestedEnvironmentId,
         requestedApiKeyId,
+        requiredEnvironmentRole,
       );
 
     request.repository = repository;

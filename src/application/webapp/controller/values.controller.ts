@@ -15,7 +15,7 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
 import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
 import Environment from 'src/domain/model/environment/environment.model';
-import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { RequiredEnvironmentPermission } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 
 @Controller('configurations')
@@ -35,9 +35,7 @@ export class ValuesController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  @MinimumEnvironmentPermissionRequired(
-    EnvironmentPermissionRole.READ_NON_SECRET,
-  )
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_NON_SECRET)
   async getEnvironmentValues(
     @RequestedEnvironment() environment: Environment,
   ): Promise<GetEnvironmentValuesResponseDTO> {
@@ -54,7 +52,7 @@ export class ValuesController {
   )
   @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
-  @MinimumEnvironmentPermissionRequired(EnvironmentPermissionRole.WRITE)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
   async setEnvironmentValues(
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,

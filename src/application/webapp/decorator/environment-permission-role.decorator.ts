@@ -2,7 +2,7 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { SetMetadata } from '@nestjs/common';
 
 export const ENVIRONMENT_PERMISSIONS_KEY = 'environmentPermissionRoles';
-export const MinimumEnvironmentPermissionRequired = (
+export const RequiredEnvironmentPermission = (
   minimumEnvironmentPermissionRequired: EnvironmentPermissionRole,
 ) =>
   SetMetadata(

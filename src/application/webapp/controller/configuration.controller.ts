@@ -30,7 +30,7 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { RepositoryAuthorizationGuard } from 'src/application/webapp/authorization/RepositoryAuthorizationGuard';
 import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import { MinimumVcsRepositoryRoleRequired } from 'src/application/webapp/decorator/repository-role.decorator';
+import { RequiredRepositoryRole } from 'src/application/webapp/decorator/repository-role.decorator';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 @Controller('configurations')
@@ -116,6 +116,7 @@ export class ConfigurationController {
   })
   @Delete('github/:repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async deleteGitHubConfigurationById(
     @RequestedConfiguration() configuration: Configuration,
   ): Promise<void> {
@@ -128,7 +129,7 @@ export class ConfigurationController {
   })
   @Post('github/:repositoryVcsId')
   @UseGuards(RepositoryAuthorizationGuard)
-  @MinimumVcsRepositoryRoleRequired(VcsRepositoryRole.ADMIN)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async createForGitHub(
     @RequestedRepository() repository: VcsRepository,
     @CurrentUser() user: User,
@@ -151,6 +152,7 @@ export class ConfigurationController {
   })
   @Patch('github/:repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async updateForGitHub(
     @RequestedConfiguration() configuration: Configuration,
     @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,

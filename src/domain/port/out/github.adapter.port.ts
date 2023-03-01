@@ -3,6 +3,7 @@ import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import User from 'src/domain/model/user/user.model';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export default interface GithubAdapterPort {
   getOrganizations(user: User): Promise<VcsOrganization[]>;
@@ -39,4 +40,10 @@ export default interface GithubAdapterPort {
     repositoryOwnerName: string,
     repositoryName: string,
   ): Promise<VcsUser[]>;
+
+  getUserRepositoryRole(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<VcsRepositoryRole | undefined>;
 }

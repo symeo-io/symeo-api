@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
@@ -14,8 +13,9 @@ describe('ConfigurationController', () => {
   let fetchVcsFileMock: FetchVcsFileMock;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );

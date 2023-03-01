@@ -9,10 +9,11 @@ import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.u
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { UpdateSecretMock } from 'tests/utils/mocks/update-secret.mock';
 import { CreateSecretMock } from 'tests/utils/mocks/create-secret.mock';
-import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
 import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
@@ -21,10 +22,19 @@ describe('ValuesController', () => {
   let fetchSecretMock: FetchSecretMock;
   let updateSecretMock: UpdateSecretMock;
   let createSecretMock: CreateSecretMock;
-  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
+
+  const userVcsId = faker.datatype.number();
+  const currentUser = new User(
+    `github|${userVcsId}`,
+    faker.internet.email(),
+    faker.internet.userName(),
+    VCSProvider.GitHub,
+    faker.datatype.number(),
+  );
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -36,8 +46,8 @@ describe('ValuesController', () => {
     fetchSecretMock = new FetchSecretMock(appClient);
     updateSecretMock = new UpdateSecretMock(appClient);
     createSecretMock = new CreateSecretMock(appClient);
-    fetchVcsRepositoryCollaboratorsMock =
-      new FetchVcsRepositoryCollaboratorsMock(appClient);
+    fetchUserVcsRepositoryPermissionMock =
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -54,7 +64,9 @@ describe('ValuesController', () => {
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
+    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      VcsRepositoryRole.ADMIN,
+    );
   });
 
   afterEach(() => {
@@ -63,19 +75,12 @@ describe('ValuesController', () => {
     fetchSecretMock.restore();
     updateSecretMock.restore();
     createSecretMock.restore();
-    fetchVcsRepositoryCollaboratorsMock.restore();
+    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
     it('should return 403 for current user without write permission', async () => {
       // Given
-      const userVcsId = 16590657;
-      const currentUser = new User(
-        `github|${userVcsId}`,
-        faker.internet.email(),
-        VCSProvider.GitHub,
-        faker.datatype.number(),
-      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -111,12 +116,6 @@ describe('ValuesController', () => {
 
     it('should update secret if it exists', async () => {
       // Given
-      const currentUser = new User(
-        'github|16590657',
-        faker.internet.email(),
-        VCSProvider.GitHub,
-        faker.datatype.number(),
-      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
@@ -149,12 +148,6 @@ describe('ValuesController', () => {
 
     it('should create secret if it does not exists', async () => {
       // Given
-      const currentUser = new User(
-        'github|16590657',
-        faker.internet.email(),
-        VCSProvider.GitHub,
-        faker.datatype.number(),
-      );
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,

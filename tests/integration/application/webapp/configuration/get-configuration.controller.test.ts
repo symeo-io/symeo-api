@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
@@ -14,8 +13,9 @@ describe('ConfigurationController', () => {
   let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );
@@ -62,7 +62,7 @@ describe('ConfigurationController', () => {
       expect(response.body.configuration).toBeDefined();
       expect(response.body.configuration.id).toEqual(configuration.id);
       expect(response.body.configuration.name).toEqual(configuration.name);
-      expect(response.body.isCurrentUserVcsRepositoryAdmin).toEqual(true);
+      expect(response.body.isCurrentUserRepositoryAdmin).toEqual(true);
     });
   });
 });

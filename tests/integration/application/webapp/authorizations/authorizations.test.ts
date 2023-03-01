@@ -8,6 +8,8 @@ import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-toke
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 type HttpVerb = 'get' | 'post' | 'put' | 'delete' | 'patch';
 type Routes = {
@@ -63,12 +65,14 @@ describe('Authorizations', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );
@@ -80,6 +84,8 @@ describe('Authorizations', () => {
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchUserVcsRepositoryPermissionMock =
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
@@ -92,11 +98,15 @@ describe('Authorizations', () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      VcsRepositoryRole.ADMIN,
+    );
   });
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
+    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
   const routesWithRepository: Route[] = routes
@@ -106,7 +116,7 @@ describe('Authorizations', () => {
     );
 
   test.each(routesWithRepository)(
-    '$path should respond 404 with unknown repository id',
+    '$verb $path should respond 404 with unknown repository id',
     async (route) => {
       // Given
       const repositoryVcsId = faker.datatype.number();
@@ -141,7 +151,7 @@ describe('Authorizations', () => {
     );
 
   test.each(routesWithConfiguration)(
-    '$path should respond 404 with unknown configuration id',
+    '$verb $path should respond 404 with unknown configuration id',
     async (route) => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
@@ -177,7 +187,7 @@ describe('Authorizations', () => {
     );
 
   test.each(routesWithEnvironment)(
-    '$path should respond 404 with unknown environment id',
+    '$verb $path should respond 404 with unknown environment id',
     async (route) => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
@@ -215,7 +225,7 @@ describe('Authorizations', () => {
     );
 
   test.each(routesWithApiKey)(
-    '$path should respond 404 with unknown api key id',
+    '$verb $path should respond 404 with unknown api key id',
     async (route) => {
       // Given
       const repository = fetchVcsRepositoryMock.mockRepositoryPresent();

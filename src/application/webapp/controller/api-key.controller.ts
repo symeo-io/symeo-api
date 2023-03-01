@@ -18,7 +18,7 @@ import { ApiKeyAuthorizationGuard } from 'src/application/webapp/authorization/A
 import { RequestedApiKey } from 'src/application/webapp/decorator/requested-api-key.decorator';
 import ApiKey from 'src/domain/model/environment/api-key.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
-import { MinimumEnvironmentPermissionRequired } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { RequiredEnvironmentPermission } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 
 @Controller('configurations')
 @ApiTags('apiKeys')
@@ -37,6 +37,7 @@ export class ApiKeyController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async listApiKeysForEnvironment(
     @RequestedEnvironment() environment: Environment,
   ): Promise<GetApiKeysResponseDTO> {
@@ -55,7 +56,7 @@ export class ApiKeyController {
     type: CreateApiKeyResponseDTO,
   })
   @UseGuards(EnvironmentAuthorizationGuard)
-  @MinimumEnvironmentPermissionRequired(EnvironmentPermissionRole.ADMIN)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async createApiKeyForEnvironment(
     @RequestedEnvironment() environment: Environment,
   ): Promise<CreateApiKeyResponseDTO> {
@@ -73,6 +74,7 @@ export class ApiKeyController {
     description: 'Api keys successfully deleted',
   })
   @UseGuards(ApiKeyAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async deleteApiKeyForEnvironment(
     @RequestedApiKey() apiKey: ApiKey,
   ): Promise<void> {

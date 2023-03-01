@@ -29,6 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return new User(
       payload.sub,
       payload['https://symeo.io/email'],
+      payload['https://symeo.io/username'],
       payload.sub.split('|')[0] as VCSProvider,
       payload.exp,
     );

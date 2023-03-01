@@ -27,6 +27,11 @@ export class EnvironmentAuthorizationGuard implements CanActivate {
     const requestedRepositoryVcsId = request.params.repositoryVcsId;
     const requestedConfigurationId = request.params.configurationId;
     const requestedEnvironmentId = request.params.environmentId;
+    const requiredEnvironmentRole =
+      this.reflector.get<EnvironmentPermissionRole>(
+        ENVIRONMENT_PERMISSIONS_KEY,
+        context.getHandler(),
+      );
 
     const { repository, configuration, environment } =
       await this.authorizationService.hasUserAuthorizationToEnvironment(
@@ -34,27 +39,12 @@ export class EnvironmentAuthorizationGuard implements CanActivate {
         requestedRepositoryVcsId,
         requestedConfigurationId,
         requestedEnvironmentId,
+        requiredEnvironmentRole,
       );
 
     request.repository = repository;
     request.configuration = configuration;
     request.environment = environment;
-
-    const minimumEnvironmentPermissionRoleRequired =
-      this.reflector.get<EnvironmentPermissionRole>(
-        ENVIRONMENT_PERMISSIONS_KEY,
-        context.getHandler(),
-      );
-
-    if (minimumEnvironmentPermissionRoleRequired) {
-      await this.permissionRoleService.isUserEnvironmentPermissionRoleInRequired(
-        minimumEnvironmentPermissionRoleRequired,
-        user,
-        repository,
-        configuration,
-        environment,
-      );
-    }
 
     return true;
   }

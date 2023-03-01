@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
@@ -8,17 +7,21 @@ import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-toke
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let fetchVcsFileMock: FetchVcsFileMock;
   let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );
@@ -30,6 +33,8 @@ describe('ConfigurationController', () => {
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchUserVcsRepositoryPermissionMock =
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
@@ -41,6 +46,9 @@ describe('ConfigurationController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      VcsRepositoryRole.ADMIN,
+    );
   });
 
   afterEach(() => {
