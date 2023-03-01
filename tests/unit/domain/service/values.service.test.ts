@@ -8,7 +8,6 @@ import { v4 as uuid } from 'uuid';
 import { mock } from 'ts-mockito';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
-import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { ValuesService } from 'src/domain/service/values.service';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
@@ -16,7 +15,7 @@ import { ConfigurationContract } from 'src/domain/model/configuration/configurat
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 describe('ValuesService', () => {
-  describe('findByEnvironment', () => {
+  describe('findByEnvironmentForWebapp', () => {
     const mockedSecretValuesStoragePort: SecretValuesStoragePort =
       mock<SecretValuesStoragePort>();
 
@@ -62,13 +61,13 @@ describe('ValuesService', () => {
     };
 
     const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
-    const currentUser: User = {
-      id: `github|${vcsUserId}`,
-      email: faker.internet.email(),
-      username: faker.name.firstName(),
-      provider: VCSProvider.GitHub,
-      accessTokenExpiration: faker.datatype.number(),
-    };
+    const currentUser = new User(
+      `github|${vcsUserId}`,
+      faker.internet.email(),
+      faker.name.firstName(),
+      VCSProvider.GitHub,
+      faker.datatype.number(),
+    );
 
     const vcsRepository: VcsRepository = {
       id: faker.datatype.number(),
