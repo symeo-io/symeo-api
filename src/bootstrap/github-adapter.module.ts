@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { GithubHttpClient } from '../infrastructure/github-adapter/github.http.client';
 import GithubAdapter from '../infrastructure/github-adapter/adapter/github.adapter';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
