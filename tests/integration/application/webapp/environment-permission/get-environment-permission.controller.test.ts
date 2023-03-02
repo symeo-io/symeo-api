@@ -167,7 +167,7 @@ describe('EnvironmentPermissionController', () => {
         ).toEqual('readNonSecret');
       });
 
-      it('should respond 200 with in-base environment accesses but updating github role to admin', async () => {
+      it('should respond 200 with in-base environment accesses but updating github role to admin and delete environmentPermission linked to it', async () => {
         // Given
         const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
         const configuration = await configurationTestUtil.createConfiguration(
@@ -177,11 +177,12 @@ describe('EnvironmentPermissionController', () => {
           configuration,
         );
 
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.READ_NON_SECRET,
-          16590657,
-        );
+        const environmentPermissionToBeRemoved =
+          await environmentPermissionTestUtil.createEnvironmentPermission(
+            environment,
+            EnvironmentPermissionRole.READ_NON_SECRET,
+            16590657,
+          );
 
         await environmentPermissionTestUtil.createEnvironmentPermission(
           environment,
@@ -219,6 +220,15 @@ describe('EnvironmentPermissionController', () => {
         expect(
           environmentPermission3InResponse.environmentPermissionRole,
         ).toEqual('readNonSecret');
+
+        const entityToBeRemoved =
+          await environmentPermissionTestUtil.repository.findOneBy({
+            id: environmentPermissionToBeRemoved.id,
+          });
+        expect(entityToBeRemoved).toBeNull();
+        const entities = await environmentPermissionTestUtil.repository.find();
+        expect(entities.length).toEqual(1);
+        expect(entities[0].userVcsId).toEqual(22441392);
       });
 
       it('should respond 200 with in-base environment accesses but removing user from github organization', async () => {
