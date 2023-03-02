@@ -40,7 +40,7 @@ export default class ConfigurationDTO {
   contractFilePath: string;
   @ApiProperty()
   branch: string;
-  @ApiProperty({ type: EnvironmentDTO })
+  @ApiProperty({ type: [EnvironmentDTO] })
   environments: EnvironmentDTO[];
 
   constructor(

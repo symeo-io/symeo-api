@@ -10,6 +10,9 @@ import { uniqBy } from 'lodash';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
+import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/mapper/github.collaborators.mapper';
+import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
@@ -152,5 +155,59 @@ export default class GithubAdapter implements GithubAdapterPort {
       filePath,
       branch,
     );
+  }
+
+  async getCollaboratorsForRepository(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<VcsUser[]> {
+    let page = 1;
+    const perPage = config.vcsProvider.paginationLength;
+    let githubCollaboratorsDTO =
+      await this.githubHttpClient.getCollaboratorsForRepository(
+        user,
+        repositoryOwnerName,
+        repositoryName,
+        page,
+        perPage,
+      );
+    let alreadyCollectedCollaboratorsDTO = githubCollaboratorsDTO;
+    while (githubCollaboratorsDTO.length === perPage) {
+      page += 1;
+      githubCollaboratorsDTO =
+        await this.githubHttpClient.getCollaboratorsForRepository(
+          user,
+          repositoryOwnerName,
+          repositoryName,
+          page,
+          perPage,
+        );
+      alreadyCollectedCollaboratorsDTO =
+        alreadyCollectedCollaboratorsDTO.concat(githubCollaboratorsDTO);
+    }
+
+    return GithubCollaboratorsMapper.dtoToDomains(
+      alreadyCollectedCollaboratorsDTO,
+    );
+  }
+
+  async getUserRepositoryRole(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): Promise<VcsRepositoryRole | undefined> {
+    const repositoryPermission =
+      await this.githubHttpClient.getUserRepositoryPermission(
+        user,
+        repositoryOwnerName,
+        repositoryName,
+      );
+
+    if (!repositoryPermission) {
+      return undefined;
+    }
+
+    return repositoryPermission.role_name as VcsRepositoryRole;
   }
 }

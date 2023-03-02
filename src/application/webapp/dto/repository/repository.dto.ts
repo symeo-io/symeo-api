@@ -31,6 +31,8 @@ export class VcsRepositoryDTO {
   vcsUrl: string;
   @ApiProperty({ type: ConfigurationDTO })
   configurations?: ConfigurationDTO[];
+  @ApiProperty()
+  isCurrentUserAdmin: boolean;
 
   constructor(
     vcsId: number,
@@ -39,6 +41,7 @@ export class VcsRepositoryDTO {
     pushedAt: string | undefined,
     vcsType: VCSProvider,
     vcsUrl: string,
+    isCurrentUserRepositoryAdmin: boolean,
     configurations?: ConfigurationDTO[],
   ) {
     this.vcsId = vcsId;
@@ -47,6 +50,7 @@ export class VcsRepositoryDTO {
     this.pushedAt = pushedAt;
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
+    this.isCurrentUserAdmin = isCurrentUserRepositoryAdmin;
     this.configurations = configurations;
   }
 
@@ -66,7 +70,10 @@ export class VcsRepositoryDTO {
       repository.pushedAt?.toISOString(),
       repository.vcsType,
       repository.vcsUrl,
-      repository.configurations?.map(ConfigurationDTO.fromDomain),
+      repository.isCurrentUserAdmin,
+      repository.configurations?.map((configuration) =>
+        ConfigurationDTO.fromDomain(configuration),
+      ),
     );
   }
 }

@@ -17,10 +17,12 @@ export class ValuesController {
   ) {}
 
   @Get()
-  async getEnvironmentValues(
+  async getEnvironmentValuesForSdk(
     @Req() { environmentId }: RequestWithEnvironmentId,
   ): Promise<GetValuesResponseDTO> {
-    const values = await this.valuesFacade.findByEnvironmentId(environmentId);
+    const values = await this.valuesFacade.findByEnvironmentForSdk(
+      environmentId,
+    );
 
     return new GetValuesResponseDTO(values);
   }

@@ -1,32 +1,12 @@
-import User from 'src/domain/model/user/user.model';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import ApiKey from 'src/domain/model/environment/api-key.model';
+import Environment from 'src/domain/model/environment/environment.model';
 
 export interface ApiKeyFacade {
   findApiKeyByHash(hash: string): Promise<ApiKey | undefined>;
 
-  listApiKeysForUserAndEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
-  ): Promise<ApiKey[]>;
+  listApiKeysForUserAndEnvironment(environment: Environment): Promise<ApiKey[]>;
 
-  createApiKeyForEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
-  ): Promise<ApiKey>;
+  createApiKeyForEnvironment(environment: Environment): Promise<ApiKey>;
 
-  deleteApiKeyForEnvironment(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
-    apiKeyId: string,
-  ): Promise<void>;
+  deleteApiKey(apiKey: ApiKey): Promise<void>;
 }

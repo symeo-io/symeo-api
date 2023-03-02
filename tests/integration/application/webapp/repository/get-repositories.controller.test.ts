@@ -1,24 +1,23 @@
-import { v4 as uuid } from 'uuid';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
-import * as fs from 'fs';
-import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { FetchVcsRepositoriesMock } from 'tests/utils/mocks/fetch-vcs-repositories.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 
 describe('RepositoryController', () => {
   let appClient: AppClient;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let configurationRepository: Repository<ConfigurationEntity>;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
+  let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
-    uuid(),
+    `github|${faker.datatype.number()}`,
     faker.internet.email(),
+    faker.internet.userName(),
     VCSProvider.GitHub,
     faker.datatype.number(),
   );
@@ -28,74 +27,34 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
     await appClient.close();
   });
 
+  beforeEach(async () => {
+    await configurationTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+  });
+
+  afterEach(() => {
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
+    fetchVcsRepositoriesMock.restore();
+  });
+
   describe('(GET) /repositories', () => {
     it('should respond 200 with github repositories', async () => {
       // Given
-      const mockGitHubToken = uuid();
-      const mockGitHubRepositoriesStub1 = JSON.parse(
-        fs
-          .readFileSync(
-            './tests/utils/stubs/repository/get_repositories_for_orga_name_page_1.json',
-          )
-          .toString(),
+      const repositories = fetchVcsRepositoriesMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repositories[0].id,
       );
-      const mockVcsId = mockGitHubRepositoriesStub1[0].id;
-      const mockOrganizationName = mockGitHubRepositoriesStub1[0].owner.login;
-      const mockOrganizationId = mockGitHubRepositoriesStub1[0].owner.id;
-      const mockOrganizationAvatarUrl =
-        mockGitHubRepositoriesStub1[0].owner.avatar_url;
-      const mockGitHubRepositoriesResponse1 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: mockGitHubRepositoriesStub1,
-      };
-      const mockGitHubRepositoriesResponse2 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: [],
-      };
-
-      jest
-        .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
-        .mockImplementation(() => Promise.resolve(mockGitHubToken));
-      jest
-        .spyOn(githubClient.rest.repos, 'listForAuthenticatedUser')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoriesResponse1),
-        );
-      jest
-        .spyOn(githubClient.rest.repos, 'listForAuthenticatedUser')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoriesResponse2),
-        );
-
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.repositoryVcsId = mockVcsId;
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.contractFilePath = faker.datatype.string();
-      configuration.branch = faker.datatype.string();
-
-      await configurationRepository.save(configuration);
 
       return appClient
         .request(currentUser)
@@ -104,16 +63,17 @@ describe('RepositoryController', () => {
         .expect({
           repositories: [
             {
-              vcsId: mockVcsId,
+              vcsId: repositories[0].id,
               name: 'Hello-World',
               owner: {
-                name: mockOrganizationName,
-                vcsId: mockOrganizationId,
-                avatarUrl: mockOrganizationAvatarUrl,
+                name: repositories[0].owner.login,
+                vcsId: repositories[0].owner.id,
+                avatarUrl: repositories[0].owner.avatar_url,
               },
               pushedAt: '2011-01-26T19:06:43.000Z',
               vcsType: VCSProvider.GitHub,
               vcsUrl: 'https://github.com/octocat/Hello-World',
+              isCurrentUserAdmin: false,
               configurations: [
                 {
                   id: configuration.id,

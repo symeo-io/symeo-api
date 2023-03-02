@@ -10,29 +10,28 @@ import { ConfigurationContract } from 'src/domain/model/configuration/configurat
 import { parse } from 'yaml';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
     private readonly configurationStoragePort: ConfigurationStoragePort,
     private readonly repositoryFacade: RepositoryFacade,
+    private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
   ) {}
 
-  async findByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
+  async findById(
+    repository: VcsRepository,
     id: string,
   ): Promise<Configuration> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        vcsRepositoryId,
-        id,
-      ),
-    ]);
+    const configuration = await this.configurationStoragePort.findById(
+      repository.vcsType,
+      repository.id,
+      id,
+    );
 
-    if (!hasUserAccessToRepository || !configuration) {
+    if (!configuration) {
       throw new SymeoException(
         `Configuration not found for id ${id}`,
         SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
@@ -42,24 +41,12 @@ export default class ConfigurationService implements ConfigurationFacade {
     return configuration;
   }
 
-  async findAllForRepositoryIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
+  async findAllForRepository(
+    repository: VcsRepository,
   ): Promise<Configuration[]> {
-    const hasUserAccessToRepository =
-      await this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId);
-
-    if (!hasUserAccessToRepository) {
-      throw new SymeoException(
-        `Repository not found for id ${vcsRepositoryId}`,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-      );
-    }
-
     return await this.configurationStoragePort.findAllForRepositoryId(
-      vcsType,
-      vcsRepositoryId,
+      repository.vcsType,
+      repository.id,
     );
   }
 
@@ -100,26 +87,11 @@ export default class ConfigurationService implements ConfigurationFacade {
     return { isValid: true };
   }
 
-  async findContractByIdForUser(
+  async findContract(
     user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    id: string,
+    configuration: Configuration,
     branchName?: string,
   ): Promise<ConfigurationContract> {
-    const configuration = await this.configurationStoragePort.findById(
-      VCSProvider.GitHub,
-      vcsRepositoryId,
-      id,
-    );
-
-    if (!configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${id}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
     const requestedBranchName = branchName ?? configuration.branch;
     const contractString = await this.repositoryFacade.getFileContent(
       user,
@@ -139,25 +111,25 @@ export default class ConfigurationService implements ConfigurationFacade {
     return parse(contractString) as ConfigurationContract;
   }
 
-  async createForUser(
+  async findUserEnvironmentsPermissions(
     user: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ): Promise<EnvironmentPermission[]> {
+    return this.environmentPermissionFacade.findForConfigurationAndUser(
+      user,
+      repository,
+      configuration,
+    );
+  }
+
+  async createForRepository(
+    user: User,
+    repository: VcsRepository,
     name: string,
-    repositoryVcsId: number,
     contractFilePath: string,
     branch: string,
   ): Promise<Configuration> {
-    const repository = await this.repositoryFacade.getRepositoryById(
-      user,
-      repositoryVcsId,
-    );
-
-    if (!repository) {
-      throw new SymeoException(
-        `Repository not found for id ${repositoryVcsId}`,
-        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
-      );
-    }
-
     const fileExistsOnBranch =
       await this.repositoryFacade.checkFileExistsOnBranch(
         user,
@@ -198,31 +170,12 @@ export default class ConfigurationService implements ConfigurationFacade {
     return configuration;
   }
 
-  async updateForUser(
-    user: User,
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
+  async update(
+    configuration: Configuration,
     name: string,
     contractFilePath: string,
     branch: string,
   ): Promise<Configuration> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, repositoryVcsId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        repositoryVcsId,
-        id,
-      ),
-    ]);
-
-    if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${id}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
     configuration.name = name;
     configuration.contractFilePath = contractFilePath;
     configuration.branch = branch;
@@ -232,28 +185,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     return configuration;
   }
 
-  async deleteByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    id: string,
-  ): Promise<void> {
-    const [hasUserAccessToRepository, configuration] = await Promise.all([
-      this.repositoryFacade.hasAccessToRepository(user, vcsRepositoryId),
-      this.configurationStoragePort.findById(
-        VCSProvider.GitHub,
-        vcsRepositoryId,
-        id,
-      ),
-    ]);
-
-    if (!hasUserAccessToRepository || !configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${id}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
+  async delete(configuration: Configuration): Promise<void> {
     return this.configurationStoragePort.delete(configuration);
   }
 }

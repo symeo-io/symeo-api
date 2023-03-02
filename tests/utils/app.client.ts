@@ -15,6 +15,8 @@ import {
   StartedPostgreSqlContainer,
 } from 'testcontainers';
 import { config } from 'symeo-js/config';
+import { WinstonLogger } from 'src/logger';
+import { createLogger, transports } from 'winston';
 
 let loggedInUser: User | undefined;
 
@@ -56,8 +58,14 @@ export class AppClient {
       .useClass(AuthGuardMock)
       .compile();
 
+    const winstonLogger = new WinstonLogger();
+    const loggerInstance = createLogger({
+      level: 'info',
+      format: winstonLogger.getLogFormat(),
+      transports: [new transports.Console({ level: 'info' })],
+    });
     this.app = this.module.createNestApplication();
-    this.app.useGlobalFilters(new SymeoExceptionHttpFilter());
+    this.app.useGlobalFilters(new SymeoExceptionHttpFilter(loggerInstance));
     this.app.useGlobalPipes(new ValidationPipe());
 
     await this.app.init();

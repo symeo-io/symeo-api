@@ -7,12 +7,22 @@ import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/conf
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import ApiKeyEntity from 'src/infrastructure/postgres-adapter/entity/api-key.entity';
 import PostgresApiKeyAdapter from 'src/infrastructure/postgres-adapter/adapter/postgres.api-key.adapter';
+import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
+import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
+import PostgresEnvironmentAdapter from 'src/infrastructure/postgres-adapter/adapter/postgres.environment.adapter';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
   useFactory: (configurationRepository: Repository<ConfigurationEntity>) =>
     new PostgresConfigurationAdapter(configurationRepository),
   inject: [getRepositoryToken(ConfigurationEntity)],
+};
+
+const PostgresEnvironmentAdapterProvider = {
+  provide: 'PostgresEnvironmentAdapter',
+  useFactory: (environmentRepository: Repository<EnvironmentEntity>) =>
+    new PostgresEnvironmentAdapter(environmentRepository),
+  inject: [getRepositoryToken(EnvironmentEntity)],
 };
 
 const PostgresApiKeyAdapterProvider = {
@@ -22,7 +32,21 @@ const PostgresApiKeyAdapterProvider = {
   inject: [getRepositoryToken(ApiKeyEntity)],
 };
 
-const entities = [ConfigurationEntity, EnvironmentEntity, ApiKeyEntity];
+const PostgresEnvironmentPermissionAdapterProvider = {
+  provide: 'PostgresEnvironmentPermissionAdapter',
+  useFactory: (
+    environmentPermissionRepository: Repository<EnvironmentPermissionEntity>,
+  ) =>
+    new PostgresEnvironmentPermissionAdapter(environmentPermissionRepository),
+  inject: [getRepositoryToken(EnvironmentPermissionEntity)],
+};
+
+const entities = [
+  ConfigurationEntity,
+  EnvironmentEntity,
+  ApiKeyEntity,
+  EnvironmentPermissionEntity,
+];
 
 @Module({
   imports: [
@@ -35,10 +59,14 @@ const entities = [ConfigurationEntity, EnvironmentEntity, ApiKeyEntity];
   providers: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
+    PostgresEnvironmentPermissionAdapterProvider,
+    PostgresEnvironmentAdapterProvider,
   ],
   exports: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
+    PostgresEnvironmentPermissionAdapterProvider,
+    PostgresEnvironmentAdapterProvider,
   ],
 })
 export class PostgresAdapterModule {}

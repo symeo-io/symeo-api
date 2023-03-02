@@ -1,24 +1,22 @@
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 import User from 'src/domain/model/user/user.model';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
+import Environment from 'src/domain/model/environment/environment.model';
+import Configuration from 'src/domain/model/configuration/configuration.model';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 export interface ValuesFacade {
-  findByEnvironmentId(environmentId: string): Promise<ConfigurationValues>;
+  findByEnvironmentForSdk(environmentId: string): Promise<ConfigurationValues>;
 
-  findByIdForUser(
+  findByEnvironmentForWebapp(
     user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    configuration: Configuration,
+    branch: string | undefined,
+    environment: Environment,
   ): Promise<ConfigurationValues>;
 
-  updateByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+  updateByEnvironmentForWebapp(
+    environment: Environment,
     values: ConfigurationValues,
   ): Promise<void>;
 }

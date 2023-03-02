@@ -1,19 +1,26 @@
 import { ValuesFacade } from 'src/domain/port/in/values.facade';
-import User from 'src/domain/model/user/user.model';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { SymeoException } from 'src/domain/exception/symeo.exception';
-import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
+import Environment from 'src/domain/model/environment/environment.model';
+import User from 'src/domain/model/user/user.model';
+import Configuration from 'src/domain/model/configuration/configuration.model';
+import {
+  ConfigurationContract,
+  ConfigurationContractProperty,
+} from 'src/domain/model/configuration/configuration-contract.model';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 
 export class ValuesService implements ValuesFacade {
   constructor(
-    private readonly configurationFacade: ConfigurationFacade,
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
+    private configurationFacade: ConfigurationFacade,
+    private environmentPermissionFacade: EnvironmentPermissionFacade,
   ) {}
 
-  async findByEnvironmentId(
+  async findByEnvironmentForSdk(
     environmentId: string,
   ): Promise<ConfigurationValues> {
     return await this.secretValuesStoragePort.getValuesForEnvironmentId(
@@ -21,62 +28,100 @@ export class ValuesService implements ValuesFacade {
     );
   }
 
-  async findByIdForUser(
+  async findByEnvironmentForWebapp(
     user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+    repository: VcsRepository,
+    configuration: Configuration,
+    branchName: string | undefined,
+    environment: Environment,
   ): Promise<ConfigurationValues> {
-    const configuration = await this.configurationFacade.findByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      vcsRepositoryId,
-      configurationId,
-    );
+    const currentUserPermissionRole: EnvironmentPermissionRole =
+      await this.environmentPermissionFacade.getEnvironmentPermissionRole(
+        user,
+        repository,
+        configuration,
+        environment,
+      );
 
-    const environment = configuration.environments.find(
-      (env) => env.id === environmentId,
-    );
+    const configurationValues: ConfigurationValues =
+      await this.secretValuesStoragePort.getValuesForEnvironmentId(
+        environment.id,
+      );
 
-    if (!environment) {
-      throw new SymeoException(
-        `No environment found with id ${environmentId}`,
-        SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
+    if (
+      currentUserPermissionRole === EnvironmentPermissionRole.READ_NON_SECRET
+    ) {
+      const configurationContract: ConfigurationContract =
+        await this.configurationFacade.findContract(
+          user,
+          configuration,
+          branchName,
+        );
+
+      const emptyConfigurationValues = new ConfigurationValues();
+
+      return this.parseContractAndValuesToHideSecrets(
+        emptyConfigurationValues,
+        configurationContract,
+        configurationValues,
       );
     }
 
-    return await this.secretValuesStoragePort.getValuesForEnvironment(
-      environment,
-    );
+    return configurationValues;
   }
 
-  async updateByIdForUser(
-    user: User,
-    vcsType: VCSProvider,
-    vcsRepositoryId: number,
-    configurationId: string,
-    environmentId: string,
+  private parseContractAndValuesToHideSecrets(
+    emptyConfigurationValues: ConfigurationValues,
+    configurationContract: ConfigurationContract,
+    configurationValues: ConfigurationValues,
+  ): ConfigurationValues {
+    Object.keys(configurationContract).forEach((propertyName) => {
+      const contractProperty = configurationContract[propertyName];
+      const valuesProperty = configurationValues[propertyName];
+
+      if (valuesProperty) {
+        if (!this.isConfigProperty(contractProperty)) {
+          emptyConfigurationValues[propertyName] =
+            this.parseContractAndValuesToHideSecrets(
+              new ConfigurationValues(),
+              contractProperty as ConfigurationContract,
+              valuesProperty as ConfigurationValues,
+            );
+        } else {
+          if (this.isContractPropertySecret(contractProperty)) {
+            emptyConfigurationValues[propertyName] = this.generateHiddenSecret(
+              valuesProperty as string | number | boolean,
+            );
+          } else {
+            emptyConfigurationValues[propertyName] = valuesProperty;
+          }
+        }
+      }
+    });
+
+    return emptyConfigurationValues;
+  }
+
+  private generateHiddenSecret(valuesProperty: string | number | boolean) {
+    return '*'.repeat(valuesProperty.toString().length);
+  }
+
+  private isContractPropertySecret(
+    contractProperty: ConfigurationContract | ConfigurationContractProperty,
+  ) {
+    return contractProperty.secret === true;
+  }
+
+  private isConfigProperty(
+    contractProperty: ConfigurationContract | ConfigurationContractProperty,
+  ) {
+    return contractProperty.type && typeof contractProperty.type === 'string';
+  }
+
+  async updateByEnvironmentForWebapp(
+    environment: Environment,
     values: ConfigurationValues,
   ): Promise<void> {
-    const configuration = await this.configurationFacade.findByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      vcsRepositoryId,
-      configurationId,
-    );
-
-    const environment = configuration.environments.find(
-      (env) => env.id === environmentId,
-    );
-
-    if (!environment) {
-      throw new SymeoException(
-        `No environment found with id ${environmentId}`,
-        SymeoExceptionCode.ENVIRONMENT_NOT_FOUND,
-      );
-    }
-
     return await this.secretValuesStoragePort.setValuesForEnvironment(
       environment,
       values,

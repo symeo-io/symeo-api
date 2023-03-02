@@ -3,12 +3,16 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
+  Inject,
+  Logger,
+  LoggerService,
 } from '@nestjs/common';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCodeToHttpStatusMap } from 'src/application/common/exception/symeo.exception.code.to.http.status.map';
 
 @Catch()
 export class SymeoExceptionHttpFilter implements ExceptionFilter {
+  constructor(@Inject(Logger) private readonly logger: LoggerService) {}
   catch(exception: any, host: ArgumentsHost): any {
     const context = host.switchToHttp();
     const response = context.getResponse();
@@ -32,7 +36,8 @@ export class SymeoExceptionHttpFilter implements ExceptionFilter {
         path: request.url,
       });
     } else {
-      console.error(exception);
+      console.log(exception);
+      this.logger.error(exception);
       response.status(500).json({
         statusCode: 500,
         message: 'Internal server error',

@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   Inject,
-  Param,
   Patch,
   Post,
   Query,
@@ -16,7 +15,6 @@ import { CreateGitHubConfigurationDTO } from 'src/application/webapp/dto/configu
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
 import User from 'src/domain/model/user/user.model';
 import { GetConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/get-configuration.response.dto';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { GetConfigurationsResponseDTO } from 'src/application/webapp/dto/configuration/get-configurations.response.dto';
 import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.dto';
 import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.response.dto';
@@ -26,6 +24,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.dto';
 import { UpdateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.response.dto';
+import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
+import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
+import Configuration from 'src/domain/model/configuration/configuration.model';
+import { RepositoryAuthorizationGuard } from 'src/application/webapp/authorization/RepositoryAuthorizationGuard';
+import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import { RequiredRepositoryRole } from 'src/application/webapp/decorator/repository-role.decorator';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 @Controller('configurations')
 @ApiTags('configurations')
@@ -59,94 +65,91 @@ export class ConfigurationController {
     description: 'Github configuration successfully retrieved',
     type: GetConfigurationResponseDTO,
   })
-  @Get('github/:vcsRepositoryId/:id')
+  @Get('github/:repositoryVcsId/:configurationId')
+  @UseGuards(ConfigurationAuthorizationGuard)
   async getGitHubConfigurationById(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
+    @RequestedRepository() repository: VcsRepository,
+    @RequestedConfiguration() configuration: Configuration,
     @CurrentUser() user: User,
   ): Promise<GetConfigurationResponseDTO> {
-    const configuration = await this.configurationFacade.findByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
-      id,
+    const environmentsPermissions =
+      await this.configurationFacade.findUserEnvironmentsPermissions(
+        user,
+        repository,
+        configuration,
+      );
+    return GetConfigurationResponseDTO.fromDomain(
+      repository,
+      configuration,
+      environmentsPermissions,
     );
-
-    return GetConfigurationResponseDTO.fromDomain(configuration);
   }
 
   @ApiOkResponse({
     description: 'Github configuration contract successfully retrieved',
     type: GetConfigurationContractResponseDTO,
   })
-  @Get('github/:vcsRepositoryId/:id/contract')
+  @Get('github/:repositoryVcsId/:configurationId/contract')
+  @UseGuards(ConfigurationAuthorizationGuard)
   async getGitHubConfigurationContractById(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
+    @RequestedConfiguration() configuration: Configuration,
     @Query('branch') branch: string | undefined,
     @CurrentUser() user: User,
   ): Promise<GetConfigurationContractResponseDTO> {
-    const contract = await this.configurationFacade.findContractByIdForUser(
+    const contract = await this.configurationFacade.findContract(
       user,
-      VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
-      id,
+      configuration,
       branch,
     );
 
     return new GetConfigurationContractResponseDTO(contract);
   }
 
-  @Get('github/:vcsRepositoryId')
   @ApiOkResponse({
     description:
       'Github configurations for repositoryId successfully retrieved',
     type: GetConfigurationsResponseDTO,
   })
+  @Get('github/:repositoryVcsId')
+  @UseGuards(RepositoryAuthorizationGuard)
   async getGitHubConfigurationsForRepositoryId(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @CurrentUser() user: User,
+    @RequestedRepository() repository: VcsRepository,
   ): Promise<GetConfigurationsResponseDTO> {
-    const configuration =
-      await this.configurationFacade.findAllForRepositoryIdForUser(
-        user,
-        VCSProvider.GitHub,
-        parseInt(vcsRepositoryId),
-      );
+    const configuration = await this.configurationFacade.findAllForRepository(
+      repository,
+    );
 
-    return GetConfigurationsResponseDTO.fromDomains(configuration);
+    return GetConfigurationsResponseDTO.fromDomains(repository, configuration);
   }
 
   @ApiOkResponse({
     description: 'Github configuration successfully deleted',
   })
-  @Delete('github/:vcsRepositoryId/:id')
+  @Delete('github/:repositoryVcsId/:configurationId')
+  @UseGuards(ConfigurationAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async deleteGitHubConfigurationById(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
-    @CurrentUser() user: User,
+    @RequestedConfiguration() configuration: Configuration,
   ): Promise<void> {
-    await this.configurationFacade.deleteByIdForUser(
-      user,
-      VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
-      id,
-    );
+    await this.configurationFacade.delete(configuration);
   }
 
   @ApiOkResponse({
     description: 'Github configuration successfully created',
     type: CreateGitHubConfigurationResponseDTO,
   })
-  @Post('github')
+  @Post('github/:repositoryVcsId')
+  @UseGuards(RepositoryAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async createForGitHub(
-    @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
+    @RequestedRepository() repository: VcsRepository,
     @CurrentUser() user: User,
+    @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
   ): Promise<CreateGitHubConfigurationResponseDTO> {
-    const configuration = await this.configurationFacade.createForUser(
+    const configuration = await this.configurationFacade.createForRepository(
       user,
+      repository,
       createConfigurationDTO.name,
-      createConfigurationDTO.repositoryVcsId,
       createConfigurationDTO.contractFilePath,
       createConfigurationDTO.branch,
     );
@@ -158,23 +161,22 @@ export class ConfigurationController {
     description: 'Github configuration successfully updated',
     type: UpdateGitHubConfigurationResponseDTO,
   })
-  @Patch('github/:vcsRepositoryId/:id')
+  @Patch('github/:repositoryVcsId/:configurationId')
+  @UseGuards(ConfigurationAuthorizationGuard)
+  @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async updateForGitHub(
-    @Param('vcsRepositoryId') vcsRepositoryId: string,
-    @Param('id') id: string,
+    @RequestedConfiguration() configuration: Configuration,
     @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,
-    @CurrentUser() user: User,
   ): Promise<UpdateGitHubConfigurationResponseDTO> {
-    const configuration = await this.configurationFacade.updateForUser(
-      user,
-      VCSProvider.GitHub,
-      parseInt(vcsRepositoryId),
-      id,
+    const updatedConfiguration = await this.configurationFacade.update(
+      configuration,
       updateConfigurationDTO.name,
       updateConfigurationDTO.contractFilePath,
       updateConfigurationDTO.branch,
     );
 
-    return UpdateGitHubConfigurationResponseDTO.fromDomain(configuration);
+    return UpdateGitHubConfigurationResponseDTO.fromDomain(
+      updatedConfiguration,
+    );
   }
 }

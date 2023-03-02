@@ -25,6 +25,9 @@ export class GithubRepositoryMapper {
         : undefined,
       VCSProvider.GitHub,
       githubRepositoryDTO.html_url,
+      githubRepositoryDTO.permissions
+        ? githubRepositoryDTO.permissions.admin
+        : false,
     );
   }
 }

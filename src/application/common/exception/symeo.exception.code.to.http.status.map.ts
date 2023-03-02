@@ -6,4 +6,6 @@ export const SymeoExceptionCodeToHttpStatusMap = {
   [SymeoExceptionCode.ENVIRONMENT_NOT_FOUND]: 404,
   [SymeoExceptionCode.API_KEY_NOT_FOUND]: 404,
   [SymeoExceptionCode.CONFIGURATION_CONTRACT_NOT_FOUND]: 404,
+  [SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION]: 400,
+  [SymeoExceptionCode.RESOURCE_ACCESS_DENIED]: 403,
 };

@@ -4,21 +4,26 @@ import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 export default interface ConfigurationStoragePort {
   findById(
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
     id: string,
   ): Promise<Configuration | undefined>;
 
   findAllForRepositoryId(
     vcsType: VCSProvider,
-    vcsRepositoryId: number,
+    repositoryVcsId: number,
   ): Promise<Configuration[]>;
 
   findAllForRepositoryIds(
     vcsType: VCSProvider,
-    vcsRepositoryIds: number[],
+    repositoryVcsIds: number[],
   ): Promise<Configuration[]>;
 
   save(configuration: Configuration): Promise<void>;
 
   delete(configuration: Configuration): Promise<void>;
+
+  findByIdAndRepositoryVcsId(
+    configurationId: string,
+    repositoryVcsId: number,
+  ): Promise<Configuration | undefined>;
 }

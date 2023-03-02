@@ -10,6 +10,7 @@ export default class Configuration {
   contractFilePath: string;
   branch: string;
   environments: Environment[];
+  isCurrentUserRepositoryAdmin?: boolean;
 
   constructor(
     id: string,
@@ -20,6 +21,7 @@ export default class Configuration {
     contractFilePath: string,
     branch: string,
     environments: Environment[],
+    isCurrentUserRepositoryAdmin?: boolean,
   ) {
     this.id = id;
     this.name = name;
@@ -29,5 +31,6 @@ export default class Configuration {
     this.contractFilePath = contractFilePath;
     this.branch = branch;
     this.environments = environments ?? [];
+    this.isCurrentUserRepositoryAdmin = isCurrentUserRepositoryAdmin;
   }
 }

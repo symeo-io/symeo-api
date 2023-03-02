@@ -25,7 +25,6 @@ export default class PostgresConfigurationAdapter
 
     return entity.toDomain();
   }
-
   async findAllForRepositoryId(
     vcsType: VCSProvider,
     repositoryVcsId: number,
@@ -57,5 +56,19 @@ export default class PostgresConfigurationAdapter
 
   async delete(configuration: Configuration): Promise<void> {
     await this.configurationRepository.delete({ id: configuration.id });
+  }
+
+  async findByIdAndRepositoryVcsId(
+    configurationId: string,
+    repositoryVcsId: number,
+  ): Promise<Configuration | undefined> {
+    const entity = await this.configurationRepository.findOneBy({
+      id: configurationId,
+      repositoryVcsId: repositoryVcsId,
+    });
+
+    if (!entity) return undefined;
+
+    return entity.toDomain();
   }
 }

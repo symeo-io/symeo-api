@@ -1,50 +1,51 @@
-import { v4 as uuid } from 'uuid';
-import { Repository } from 'typeorm';
-import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
-import SpyInstance = jest.SpyInstance;
-import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
-import Environment from 'src/domain/model/environment/environment.model';
-import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
+import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
+import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
+import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
+import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
+import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
+import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
-  let configurationRepository: Repository<ConfigurationEntity>;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
-  let secretManagerClient: SecretManagerClient;
-  let getGitHubAccessTokenMock: SpyInstance;
-  let githubClientRequestMock: SpyInstance;
-  let secretManagerClientGetSecretMock: SpyInstance;
-
-  const currentUser = new User(
-    uuid(),
-    faker.internet.email(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchSecretMock: FetchSecretMock;
+  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
+  let fetchVcsFileMock: FetchVcsFileMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
+  let configurationTestUtil: ConfigurationTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
+  let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
 
   beforeAll(async () => {
     appClient = new AppClient();
 
     await appClient.init();
 
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchSecretMock = new FetchSecretMock(appClient);
+    fetchVcsRepositoryCollaboratorsMock =
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+    fetchUserVcsRepositoryPermissionMock =
+      new FetchUserVcsRepositoryPermissionMock(appClient);
+    configurationTestUtil = new ConfigurationTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
+    environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
+      appClient,
     );
-    githubClient = appClient.module.get<Octokit>('Octokit');
-    secretManagerClient = appClient.module.get<SecretManagerClient>(
-      'SecretManagerClient',
-    );
-    configurationRepository = appClient.module.get<
-      Repository<ConfigurationEntity>
-    >(getRepositoryToken(ConfigurationEntity));
   }, 30000);
 
   afterAll(async () => {
@@ -52,189 +53,280 @@ describe('ValuesController', () => {
   });
 
   beforeEach(async () => {
-    await configurationRepository.delete({});
-    githubClientRequestMock = jest.spyOn(githubClient, 'request');
-    getGitHubAccessTokenMock = jest.spyOn(
-      vcsAccessTokenStorage,
-      'getGitHubAccessToken',
-    );
-    secretManagerClientGetSecretMock = jest.spyOn(
-      secretManagerClient.client,
-      'getSecretValue',
-    );
-    getGitHubAccessTokenMock.mockImplementation(() => Promise.resolve(uuid()));
+    await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
+    await environmentPermissionTestUtil.empty();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
   afterEach(() => {
-    getGitHubAccessTokenMock.mockRestore();
-    githubClientRequestMock.mockRestore();
-    secretManagerClientGetSecretMock.mockRestore();
+    fetchVcsAccessTokenMock.restore();
+    fetchVcsRepositoryMock.restore();
+    fetchSecretMock.restore();
+    fetchVcsRepositoryCollaboratorsMock.restore();
+    fetchVcsFileMock.restore();
+    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:id/environments/:environmentId/values', () => {
-    it('should respond 404 with unknown configuration id', () => {
+  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
+    it('should respond 200 and return values for an in-base admin permission', async () => {
       // Given
-      const configurationId = uuid();
-      const repositoryVcsId = 105865802;
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
+      const requestedBranch = 'staging';
+      const userVcsId = 102222086;
+      const currentUser = new User(
+        `github|${userVcsId}`,
+        faker.internet.email(),
+        faker.name.firstName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+      const environmentPermission =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          userVcsId,
+        );
+
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
         },
       };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
-
-      appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configurationId}/environments/${uuid()}/values`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('should respond 404 with unknown repository id', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.contractFilePath = faker.datatype.string();
-      configuration.branch = faker.datatype.string();
-      configuration.environments = [
-        EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), 'red'),
-        ),
-      ];
-
-      await configurationRepository.save(configuration);
-
-      githubClientRequestMock.mockImplementation(() => {
-        throw { status: 404 };
-      });
-
-      appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('should respond 404 with unknown environment id', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.contractFilePath = faker.datatype.string();
-      configuration.branch = faker.datatype.string();
-      configuration.environments = [];
-
-      await configurationRepository.save(configuration);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
-      );
-
-      appClient
-        .request(currentUser)
-        // When
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${
-            configuration.id
-          }/environments/${uuid()}/values`,
-        )
-        // Then
-        .expect(404);
-    });
-
-    it('should respond 200 with values', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      const configuration = new ConfigurationEntity();
-      configuration.id = uuid();
-      configuration.name = faker.name.jobTitle();
-      configuration.repositoryVcsId = repositoryVcsId;
-      configuration.vcsType = VCSProvider.GitHub;
-      configuration.repositoryVcsName = 'symeo-api';
-      configuration.ownerVcsId = faker.datatype.number();
-      configuration.ownerVcsName = 'symeo-io';
-      configuration.contractFilePath = faker.datatype.string();
-      configuration.branch = faker.datatype.string();
-      configuration.environments = [
-        EnvironmentEntity.fromDomain(
-          new Environment(uuid(), faker.name.firstName(), 'red'),
-        ),
-      ];
-
-      await configurationRepository.save(configuration);
-
-      const mockGitHubRepositoryResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          name: 'symeo-api',
-          id: repositoryVcsId,
-          owner: { login: 'symeo-io', id: 585863519 },
-        },
-      };
-      githubClientRequestMock.mockImplementation(() =>
-        Promise.resolve(mockGitHubRepositoryResponse),
-      );
-
-      const mockGetSecretResponse = {
-        SecretString: '{ "aws": { "region": "eu-west-3" } }',
-      };
-
-      secretManagerClientGetSecretMock.mockImplementation(() => ({
-        promise: () => Promise.resolve(mockGetSecretResponse),
-      }));
+      fetchSecretMock.mockSecretPresent(configurationValues);
 
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/environments/${configuration.environments[0].id}/values`,
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
         )
         .expect(200);
 
-      expect(secretManagerClientGetSecretMock).toHaveBeenCalledTimes(1);
-      expect(secretManagerClientGetSecretMock).toHaveBeenCalledWith({
-        SecretId: configuration.environments[0].id,
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
       });
-      expect(response.body.values).toBeDefined();
-      expect(response.body.values.aws).toBeDefined();
-      expect(response.body.values.aws.region).toEqual('eu-west-3');
+      expect(response.body.values).toEqual(configurationValues);
+    });
+
+    it('should respond 200 and return values for an in-base ReadNonSecret permission (hide secrets)', async () => {
+      // Given
+      const requestedBranch = 'staging';
+      const userVcsId = 102222086;
+      const currentUser = new User(
+        `github|${userVcsId}`,
+        faker.internet.email(),
+        faker.name.firstName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+      const environmentPermission =
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.READ_NON_SECRET,
+          userVcsId,
+        );
+
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+      fetchSecretMock.mockSecretPresent(configurationValues);
+
+      const response = await appClient
+        .request(currentUser)
+        .get(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+        )
+        .expect(200);
+
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+      });
+      expect(response.body.values).toEqual({
+        aws: {
+          region: '*********',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: '********',
+            type: 'postgres',
+          },
+        },
+      });
+    });
+
+    it('should respond 200 and return values for a github admin role', async () => {
+      // Given
+      const requestedBranch = 'staging';
+      const userVcsId = 16590657;
+      const currentUser = new User(
+        `github|${userVcsId}`,
+        faker.internet.email(),
+        faker.name.firstName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        VcsRepositoryRole.ADMIN,
+      );
+
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchSecretMock.mockSecretPresent(configurationValues);
+
+      const response = await appClient
+        .request(currentUser)
+        .get(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+        )
+        .expect(200);
+
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+      });
+      expect(response.body.values).toEqual(configurationValues);
+    });
+
+    it('should respond 200 and return values for a github write role (hide secrets)', async () => {
+      // Given
+      const requestedBranch = 'staging';
+      const userVcsId = 102222086;
+      const currentUser = new User(
+        `github|${userVcsId}`,
+        faker.internet.email(),
+        faker.name.firstName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        VcsRepositoryRole.READ,
+      );
+
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchSecretMock.mockSecretPresent(configurationValues);
+
+      const response = await appClient
+        .request(currentUser)
+        .get(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+        )
+        .expect(200);
+
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+      });
+      expect(response.body.values).toEqual({
+        aws: {
+          region: '*********',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: '********',
+            type: 'postgres',
+          },
+        },
+      });
     });
   });
 });
