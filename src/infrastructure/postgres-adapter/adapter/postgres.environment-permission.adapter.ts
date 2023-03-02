@@ -103,4 +103,33 @@ export class PostgresEnvironmentPermissionAdapter
       } s`,
     );
   }
+
+  async findForEnvironmentId(
+    environmentId: string,
+  ): Promise<EnvironmentPermission[]> {
+    const entities = await this.environmentPermissionRepository.find({
+      relations: {
+        environment: true,
+      },
+      where: {
+        environment: {
+          id: environmentId,
+        },
+      },
+    });
+
+    if (!entities) return [];
+
+    return entities.map((entity) => entity.toDomain());
+  }
+
+  async removeForEnvironmentPermissions(
+    environmentPermissions: EnvironmentPermission[],
+  ): Promise<void> {
+    await this.environmentPermissionRepository.remove(
+      environmentPermissions.map((environmentPermission) =>
+        EnvironmentPermissionEntity.fromDomain(environmentPermission),
+      ),
+    );
+  }
 }

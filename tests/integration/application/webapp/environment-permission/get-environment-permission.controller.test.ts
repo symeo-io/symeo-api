@@ -107,7 +107,7 @@ describe('EnvironmentPermissionController', () => {
         ).toEqual('admin');
         expect(
           environmentPermission2InResponse.environmentPermissionRole,
-        ).toEqual('admin');
+        ).toEqual('readNonSecret');
         expect(
           environmentPermission3InResponse.environmentPermissionRole,
         ).toEqual('readNonSecret');
@@ -125,7 +125,7 @@ describe('EnvironmentPermissionController', () => {
         const environmentPermission1 =
           await environmentPermissionTestUtil.createEnvironmentPermission(
             environment,
-            EnvironmentPermissionRole.READ_SECRET,
+            EnvironmentPermissionRole.ADMIN,
             16590657,
           );
         const environmentPermission2 =
@@ -158,7 +158,7 @@ describe('EnvironmentPermissionController', () => {
 
         expect(
           environmentPermission1InResponse.environmentPermissionRole,
-        ).toEqual('readSecret');
+        ).toEqual('admin');
         expect(
           environmentPermission2InResponse.environmentPermissionRole,
         ).toEqual('write');

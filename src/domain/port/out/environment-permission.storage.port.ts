@@ -1,11 +1,6 @@
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 
 export interface EnvironmentPermissionStoragePort {
-  findForEnvironmentIdAndVcsUserIds(
-    environmentId: string,
-    vcsUserIds: number[],
-  ): Promise<EnvironmentPermission[]>;
-
   findForEnvironmentIdAndVcsUserId(
     environmentId: string,
     userVcsId: number,
@@ -17,4 +12,10 @@ export interface EnvironmentPermissionStoragePort {
   ): Promise<EnvironmentPermission[]>;
 
   saveAll(environmentPermissions: EnvironmentPermission[]): Promise<void>;
+
+  removeForEnvironmentPermissions(
+    persistedEnvironmentPermissionsToRemove: EnvironmentPermission[],
+  ): Promise<void>;
+
+  findForEnvironmentId(id: string): Promise<EnvironmentPermission[]>;
 }
