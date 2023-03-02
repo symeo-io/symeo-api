@@ -204,7 +204,6 @@ export class EnvironmentPermissionService
       }
 
       persistedEnvironmentPermissionsToRemoveToKeep.push(environmentPermission);
-      return;
     });
 
     await this.environmentPermissionStoragePort.removeAll(
