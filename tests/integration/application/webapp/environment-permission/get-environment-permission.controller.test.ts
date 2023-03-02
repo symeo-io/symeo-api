@@ -166,6 +166,132 @@ describe('EnvironmentPermissionController', () => {
           environmentPermission3InResponse.environmentPermissionRole,
         ).toEqual('readNonSecret');
       });
+
+      it('should respond 200 with in-base environment accesses but updating github role to admin', async () => {
+        // Given
+        const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+        const configuration = await configurationTestUtil.createConfiguration(
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.READ_NON_SECRET,
+          16590657,
+        );
+
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          22441392,
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .get(
+            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+          )
+          // Then
+          .expect(200);
+        expect(response.body.permissions).toBeDefined();
+        expect(response.body.permissions.length).toEqual(3);
+
+        const environmentPermission1InResponse = response.body.permissions.find(
+          (el: any) => el.user.vcsId === 16590657,
+        );
+        const environmentPermission2InResponse = response.body.permissions.find(
+          (el: any) => el.user.vcsId === 22441392,
+        );
+        const environmentPermission3InResponse = response.body.permissions.find(
+          (el: any) => el.user.vcsId === 102222086,
+        );
+
+        expect(
+          environmentPermission1InResponse.environmentPermissionRole,
+        ).toEqual('admin');
+        expect(
+          environmentPermission2InResponse.environmentPermissionRole,
+        ).toEqual('admin');
+        expect(
+          environmentPermission3InResponse.environmentPermissionRole,
+        ).toEqual('readNonSecret');
+      });
+
+      it('should respond 200 with in-base environment accesses but removing user from github organization', async () => {
+        // Given
+        const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+        const configuration = await configurationTestUtil.createConfiguration(
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          16590657,
+        );
+
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.ADMIN,
+          22441392,
+        );
+
+        const userVcsIdRemovedFromVcsRepository = faker.datatype.number({
+          min: 111111,
+          max: 999999,
+        });
+        const environmentPermissionEntityToBeRemoved =
+          await environmentPermissionTestUtil.createEnvironmentPermission(
+            environment,
+            EnvironmentPermissionRole.WRITE,
+            userVcsIdRemovedFromVcsRepository,
+          );
+
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .get(
+            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+          )
+          // Then
+          .expect(200);
+        expect(response.body.permissions).toBeDefined();
+        expect(response.body.permissions.length).toEqual(3);
+
+        const environmentPermission1InResponse = response.body.permissions.find(
+          (el: any) => el.user.vcsId === 16590657,
+        );
+        const environmentPermission2InResponse = response.body.permissions.find(
+          (el: any) => el.user.vcsId === 22441392,
+        );
+        const environmentPermission3InResponse = response.body.permissions.find(
+          (el: any) => el.user.vcsId === 102222086,
+        );
+
+        expect(
+          environmentPermission1InResponse.environmentPermissionRole,
+        ).toEqual('admin');
+        expect(
+          environmentPermission2InResponse.environmentPermissionRole,
+        ).toEqual('admin');
+        expect(
+          environmentPermission3InResponse.environmentPermissionRole,
+        ).toEqual('readNonSecret');
+
+        const entity = await environmentPermissionTestUtil.repository.findOneBy(
+          {
+            id: environmentPermissionEntityToBeRemoved.id,
+          },
+        );
+        expect(entity).toBeNull();
+      });
     });
   });
 });
