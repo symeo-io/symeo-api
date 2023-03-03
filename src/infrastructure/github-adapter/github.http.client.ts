@@ -17,7 +17,6 @@ export class GithubHttpClient {
     RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data']
   > {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
     const response = await this.client.rest.repos.listForAuthenticatedUser({
       page: page,
       per_page: perPage,
