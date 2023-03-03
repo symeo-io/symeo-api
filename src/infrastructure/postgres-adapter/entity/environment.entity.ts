@@ -22,6 +22,9 @@ export default class EnvironmentEntity extends AbstractEntity {
   @Column()
   color: EnvironmentColor;
 
+  @Column()
+  configurationId: string;
+
   @ManyToOne(
     () => ConfigurationEntity,
     (configuration) => configuration.environments,

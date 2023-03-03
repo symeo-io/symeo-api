@@ -10,6 +10,7 @@ import PostgresApiKeyAdapter from 'src/infrastructure/postgres-adapter/adapter/p
 import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
 import { PostgresEnvironmentPermissionAdapter } from 'src/infrastructure/postgres-adapter/adapter/postgres.environment-permission.adapter';
 import PostgresEnvironmentAdapter from 'src/infrastructure/postgres-adapter/adapter/postgres.environment.adapter';
+import SdkValuesReadAnalyticsEntity from 'src/infrastructure/postgres-adapter/entity/analytics/sdk-values-read.analytics.entity';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
@@ -46,6 +47,7 @@ const entities = [
   EnvironmentEntity,
   ApiKeyEntity,
   EnvironmentPermissionEntity,
+  SdkValuesReadAnalyticsEntity,
 ];
 
 @Module({
@@ -67,6 +69,7 @@ const entities = [
     PostgresApiKeyAdapterProvider,
     PostgresEnvironmentPermissionAdapterProvider,
     PostgresEnvironmentAdapterProvider,
+    TypeOrmModule.forFeature(entities),
   ],
 })
 export class PostgresAdapterModule {}
