@@ -32,7 +32,7 @@ export class Interceptor implements NestInterceptor {
             'info',
             `Method ${methodCalled}() executed in ${
               (Date.now() - now) / 1000
-            } s.`,
+            } s`,
           ),
         ),
       );

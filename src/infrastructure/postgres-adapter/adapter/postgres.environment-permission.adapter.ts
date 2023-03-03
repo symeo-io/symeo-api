@@ -2,6 +2,7 @@ import { EnvironmentPermissionStoragePort } from 'src/domain/port/out/environmen
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { In, Repository } from 'typeorm';
 import EnvironmentPermissionEntity from 'src/infrastructure/postgres-adapter/entity/environment-permission.entity';
+import { Logger } from '@nestjs/common';
 
 export class PostgresEnvironmentPermissionAdapter
   implements EnvironmentPermissionStoragePort
@@ -13,6 +14,12 @@ export class PostgresEnvironmentPermissionAdapter
     environmentId: string,
     vcsUserIds: number[],
   ): Promise<EnvironmentPermission[]> {
+    const clock = Date.now();
+    Logger.log(
+      `Starting to fetch persisted EnvironmentPermissions for environmentId ${environmentId} and vcsUserIds ${vcsUserIds.join(
+        ', ',
+      )}`,
+    );
     const entities = await this.environmentPermissionRepository.find({
       relations: {
         environment: true,
@@ -26,7 +33,11 @@ export class PostgresEnvironmentPermissionAdapter
     });
 
     if (!entities) return [];
-
+    Logger.log(
+      `Persisted EnvironmentPermissions successfully fetched for environmentId ${environmentId} and vcsUserIds ${vcsUserIds.join(
+        ', ',
+      )} - Executed in : ${(Date.now() - clock) / 1000} s`,
+    );
     return entities.map((entity) => entity.toDomain());
   }
 
@@ -75,10 +86,21 @@ export class PostgresEnvironmentPermissionAdapter
   async saveAll(
     environmentPermissions: EnvironmentPermission[],
   ): Promise<void> {
+    const clock = Date.now();
+    Logger.log(
+      `Starting to save ${environmentPermissions.length} EnvironmentPermissions in base`,
+    );
     await this.environmentPermissionRepository.save(
       environmentPermissions.map((environmentPermission) =>
         EnvironmentPermissionEntity.fromDomain(environmentPermission),
       ),
+    );
+    Logger.log(
+      `Successfully saved ${
+        environmentPermissions.length
+      } EnvironmentPermissions in base - Executed in : ${
+        (Date.now() - clock) / 1000
+      } s`,
     );
   }
 }

@@ -3,6 +3,7 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { In, Repository } from 'typeorm';
+import { Logger } from '@nestjs/common';
 
 export default class PostgresConfigurationAdapter
   implements ConfigurationStoragePort
@@ -15,6 +16,10 @@ export default class PostgresConfigurationAdapter
     repositoryVcsId: number,
     id: string,
   ): Promise<Configuration | undefined> {
+    const clock = Date.now();
+    Logger.log(
+      `Starting to fetch Configuration with configurationId ${id}, vcsType ${vcsType} and repositoryVcsId ${repositoryVcsId}`,
+    );
     const entity = await this.configurationRepository.findOneBy({
       id,
       vcsType,
@@ -23,16 +28,31 @@ export default class PostgresConfigurationAdapter
 
     if (!entity) return undefined;
 
+    Logger.log(
+      `Successfully fetched Configuration with configurationId ${id}, vcsType ${vcsType} and repositoryVcsId ${repositoryVcsId} - Executed in : ${
+        (Date.now() - clock) / 1000
+      } s`,
+    );
+
     return entity.toDomain();
   }
   async findAllForRepositoryId(
     vcsType: VCSProvider,
     repositoryVcsId: number,
   ): Promise<Configuration[]> {
+    const clock = Date.now();
+    Logger.log(
+      `Starting to fetch Configurations with vcsType ${vcsType} and repositoryVcsId ${repositoryVcsId}`,
+    );
     const entities = await this.configurationRepository.findBy({
       vcsType,
       repositoryVcsId,
     });
+    Logger.log(
+      `Successfully fetched Configurations with vcsType ${vcsType} and repositoryVcsId ${repositoryVcsId} - Executed in : ${
+        (Date.now() - clock) / 1000
+      } s`,
+    );
     return entities.map((entity) => entity.toDomain());
   }
 
@@ -40,17 +60,36 @@ export default class PostgresConfigurationAdapter
     vcsType: VCSProvider,
     repositoryVcsIds: number[],
   ): Promise<Configuration[]> {
+    const clock = Date.now();
+    Logger.log(
+      `Starting to fetch Configurations with repositoryVcsIds ${repositoryVcsIds.join(
+        ', ',
+      )}`,
+    );
     const entities = await this.configurationRepository.findBy({
       vcsType,
       repositoryVcsId: In(repositoryVcsIds),
     });
 
+    Logger.log(
+      `Successfully fetched Configurations with repositoryVcsIds ${repositoryVcsIds.join(
+        ', ',
+      )} - Executed in : ${(Date.now() - clock) / 1000} s`,
+    );
+
     return entities.map((entity) => entity.toDomain());
   }
 
   async save(configuration: Configuration): Promise<void> {
+    const clock = Date.now();
+    Logger.log(`Starting to save Configuration ${configuration.name} in base`);
     await this.configurationRepository.save(
       ConfigurationEntity.fromDomain(configuration),
+    );
+    Logger.log(
+      `Successfully saved Configuration ${
+        configuration.name
+      } in base - Executed in : ${(Date.now() - clock) / 1000} s`,
     );
   }
 
