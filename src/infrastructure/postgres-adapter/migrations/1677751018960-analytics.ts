@@ -2,9 +2,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class analytics1677751018960 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE SCHEMA IF NOT EXISTS "analytics"`);
     await queryRunner.query(
-      `CREATE TABLE "analytics"."sdk-values-read" (
+      `CREATE TABLE "analytics-sdk-values-read" (
                "createdAt"              TIMESTAMP WITH TIME ZONE               NOT NULL DEFAULT now(),
                "id"                     uuid                                   NOT NULL DEFAULT uuid_generate_v4(),
                "environmentId"          uuid                                   NOT NULL,
@@ -20,7 +19,6 @@ export class analytics1677751018960 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP SCHEMA "analytics"`);
-    await queryRunner.query(`DROP TABLE "analytics.sdk-values-read"`);
+    await queryRunner.query(`DROP TABLE "analytics-sdk-values-read"`);
   }
 }

@@ -9,7 +9,7 @@ import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import EnvironmentEntity from 'src/infrastructure/postgres-adapter/entity/environment.entity';
 import ConfigurationEntity from 'src/infrastructure/postgres-adapter/entity/configuration.entity';
 
-@Entity('sdk-values-read', { schema: 'analytics' })
+@Entity('analytics-sdk-values-read')
 export default class SdkValuesReadAnalyticsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
