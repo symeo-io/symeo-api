@@ -2,6 +2,8 @@ import SpyInstance = jest.SpyInstance;
 import { Octokit } from '@octokit/rest';
 import { AppClient } from 'tests/utils/app.client';
 import { faker } from '@faker-js/faker';
+import axios from 'axios';
+import { config } from 'symeo-js/config';
 
 export type MockedRepository = {
   name: string;
@@ -11,14 +13,9 @@ export type MockedRepository = {
 
 export class FetchVcsRepositoryMock {
   public spy: SpyInstance | undefined;
-  private readonly githubClient: Octokit;
-
-  constructor(appClient: AppClient) {
-    this.githubClient = appClient.module.get<Octokit>('Octokit');
-  }
 
   public mockRepositoryPresent(): MockedRepository {
-    this.spy = jest.spyOn(this.githubClient, 'request');
+    this.spy = jest.spyOn(axios, 'get');
     const data = {
       name: faker.lorem.slug(),
       id: faker.datatype.number(),
@@ -42,9 +39,14 @@ export class FetchVcsRepositoryMock {
       data,
     };
 
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGitHubRepositoryResponse),
-    );
+    this.spy.mockImplementationOnce((path: string) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`
+      ) {
+        Promise.resolve(mockGitHubRepositoryResponse);
+      }
+    });
 
     return data;
   }

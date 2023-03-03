@@ -18,6 +18,8 @@ auth0:
   issuer: "https://symeo-staging.eu.auth0.com/"
   domain: "symeo-staging.eu.auth0.com"
 vcsProvider:
+  github:
+    apiUrl: "https://api.github.com/"
   paginationLength: 1
 logger:
   local: false

@@ -41,6 +41,9 @@ cors:
     type: string
     optional: true
 vcsProvider:
+  github:
+    apiUrl:
+      type: string
   paginationLength:
     type: integer
 datadog:

@@ -1,16 +1,17 @@
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
+import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
 
 export class GithubRepositoryMapper {
   static dtoToDomains(
-    githubRepositoryDTOs: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'],
+    githubRepositoryDTOs: GithubRepositoryDTO[],
   ): VcsRepository[] {
     return githubRepositoryDTOs.map(this.dtoToDomain);
   }
 
   public static dtoToDomain(
-    githubRepositoryDTO: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0],
+    githubRepositoryDTO: GithubRepositoryDTO,
   ): VcsRepository {
     return new VcsRepository(
       githubRepositoryDTO.id,
@@ -18,13 +19,13 @@ export class GithubRepositoryMapper {
       {
         name: githubRepositoryDTO.owner.login,
         id: githubRepositoryDTO.owner.id,
-        avatarUrl: githubRepositoryDTO.owner.avatar_url,
+        avatarUrl: githubRepositoryDTO.owner.avatarUrl,
       },
-      githubRepositoryDTO.pushed_at
-        ? new Date(githubRepositoryDTO.pushed_at)
+      githubRepositoryDTO.pushedAt
+        ? new Date(githubRepositoryDTO.pushedAt)
         : undefined,
       VCSProvider.GitHub,
-      githubRepositoryDTO.html_url,
+      githubRepositoryDTO.htmlUrl,
       githubRepositoryDTO.permissions
         ? githubRepositoryDTO.permissions.admin
         : false,

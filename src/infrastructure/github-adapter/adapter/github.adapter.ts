@@ -14,6 +14,7 @@ import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/map
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
+import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
 
 @Injectable()
 export default class GithubAdapter implements GithubAdapterPort {
@@ -85,7 +86,7 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
 
     return GithubRepositoryMapper.dtoToDomain(
-      gitHubRepository as RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0],
+      gitHubRepository as GithubRepositoryDTO,
     );
   }
 
@@ -254,6 +255,6 @@ export default class GithubAdapter implements GithubAdapterPort {
       return undefined;
     }
 
-    return repositoryPermission.role_name as VcsRepositoryRole;
+    return repositoryPermission.roleName as VcsRepositoryRole;
   }
 }

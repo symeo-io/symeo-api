@@ -29,7 +29,7 @@ describe('RepositoryController', () => {
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
+    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock();
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 

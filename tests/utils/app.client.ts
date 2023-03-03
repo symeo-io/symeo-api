@@ -66,7 +66,7 @@ export class AppClient {
     });
     this.app = this.module.createNestApplication();
     this.app.useGlobalFilters(new SymeoExceptionHttpFilter(loggerInstance));
-    this.app.useGlobalPipes(new ValidationPipe());
+    this.app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     await this.app.init();
   }

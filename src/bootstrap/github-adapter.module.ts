@@ -14,19 +14,14 @@ const GithubAdapterProvider = {
 
 const GithubHttpClientProvider = {
   provide: 'GithubHttpClient',
-  useFactory: (vcsAccessTokenStorage: VCSAccessTokenStorage, client: Octokit) =>
-    new GithubHttpClient(vcsAccessTokenStorage, client),
-  inject: ['VCSAccessTokenAdapter', 'Octokit'],
-};
-
-const OctokitProvider = {
-  provide: 'Octokit',
-  useValue: new Octokit(),
+  useFactory: (vcsAccessTokenStorage: VCSAccessTokenStorage) =>
+    new GithubHttpClient(vcsAccessTokenStorage),
+  inject: ['VCSAccessTokenAdapter'],
 };
 
 @Module({
   imports: [Auth0AdapterModule],
-  providers: [GithubAdapterProvider, GithubHttpClientProvider, OctokitProvider],
+  providers: [GithubAdapterProvider, GithubHttpClientProvider],
   exports: [GithubAdapterProvider],
 })
 export class GithubAdapterModule {}
