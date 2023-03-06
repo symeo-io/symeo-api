@@ -31,11 +31,11 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+      new FetchUserVcsRepositoryPermissionMock();
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock();
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -46,9 +46,6 @@ describe('ConfigurationController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
@@ -60,7 +57,15 @@ describe('ConfigurationController', () => {
   describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and update configuration', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );

@@ -41,13 +41,13 @@ describe('ValuesController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchSecretMock = new FetchSecretMock(appClient);
     updateSecretMock = new UpdateSecretMock(appClient);
     createSecretMock = new CreateSecretMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
+      new FetchUserVcsRepositoryPermissionMock();
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -64,9 +64,6 @@ describe('ValuesController', () => {
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
@@ -81,7 +78,15 @@ describe('ValuesController', () => {
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
     it('should return 403 for current user without write permission', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -116,7 +121,15 @@ describe('ValuesController', () => {
 
     it('should update secret if it exists', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -148,7 +161,15 @@ describe('ValuesController', () => {
 
     it('should create secret if it does not exists', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );

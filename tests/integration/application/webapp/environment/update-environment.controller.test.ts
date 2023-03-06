@@ -33,11 +33,11 @@ describe('EnvironmentController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
+      new FetchUserVcsRepositoryPermissionMock();
     environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
 
@@ -60,7 +60,9 @@ describe('EnvironmentController', () => {
   describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
     it('Should return 403 and not update environment for user without permission', async () => {
       // When
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -68,6 +70,9 @@ describe('EnvironmentController', () => {
         configuration,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.WRITE,
       );
 
@@ -91,7 +96,9 @@ describe('EnvironmentController', () => {
 
     it('Should return 200 and update environment for user with permission', async () => {
       // When
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -99,6 +106,9 @@ describe('EnvironmentController', () => {
         configuration,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.ADMIN,
       );
 

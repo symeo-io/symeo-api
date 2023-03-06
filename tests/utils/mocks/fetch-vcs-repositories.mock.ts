@@ -1,6 +1,4 @@
 import SpyInstance = jest.SpyInstance;
-import { Octokit } from '@octokit/rest';
-import { AppClient } from 'tests/utils/app.client';
 import { MockedRepository } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import * as fs from 'fs';
 import axios from 'axios';
@@ -37,9 +35,10 @@ export class FetchVcsRepositoriesMock {
         return Promise.resolve(mockGitHubRepositoriesResponse1);
     });
 
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGitHubRepositoriesResponse2),
-    );
+    this.spy.mockImplementationOnce((path) => {
+      if (path === config.vcsProvider.github.apiUrl + 'user/repos')
+        return Promise.resolve(mockGitHubRepositoriesResponse2);
+    });
 
     return mockGitHubRepositoriesStub1;
   }
@@ -47,5 +46,20 @@ export class FetchVcsRepositoriesMock {
   public restore(): void {
     this.spy?.mockRestore();
     this.spy = undefined;
+  }
+
+  mockRepositoryNotPresent() {
+    this.spy = jest.spyOn(axios, 'get');
+    const mockGitHubRepositoriesResponse1 = {
+      status: 200 as const,
+      headers: {},
+      url: '',
+      data: [],
+    };
+    this.spy.mockImplementationOnce((path: string) => {
+      if (path === config.vcsProvider.github.apiUrl + 'user/repos')
+        return Promise.resolve(mockGitHubRepositoriesResponse1);
+    });
+    return [];
   }
 }

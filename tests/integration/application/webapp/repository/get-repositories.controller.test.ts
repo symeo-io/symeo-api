@@ -27,7 +27,7 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock();
     configurationTestUtil = new ConfigurationTestUtil(appClient);

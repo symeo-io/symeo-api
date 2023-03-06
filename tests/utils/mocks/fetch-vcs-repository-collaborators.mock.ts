@@ -2,17 +2,17 @@ import SpyInstance = jest.SpyInstance;
 import { Octokit } from '@octokit/rest';
 import { AppClient } from 'tests/utils/app.client';
 import * as fs from 'fs';
+import axios from 'axios';
+import { config } from 'symeo-js/config';
 
 export class FetchVcsRepositoryCollaboratorsMock {
   public spy: SpyInstance | undefined;
-  private readonly githubClient: Octokit;
 
-  constructor(appClient: AppClient) {
-    this.githubClient = appClient.module.get<Octokit>('Octokit');
-  }
-
-  public mockCollaboratorsPresent(): void {
-    this.spy = jest.spyOn(this.githubClient.rest.repos, 'listCollaborators');
+  public mockCollaboratorsPresent(
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): void {
+    this.spy = jest.spyOn(axios, 'get');
 
     const mockGithubListCollaboratorsStub1 = JSON.parse(
       fs
@@ -64,21 +64,45 @@ export class FetchVcsRepositoryCollaboratorsMock {
       data: [],
     };
 
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse1),
-    );
+    this.spy.mockImplementationOnce((path: string) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`
+      ) {
+        return Promise.resolve(mockGithubListCollaboratorsResponse1);
+      }
+    });
 
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse2),
-    );
+    this.spy.mockImplementationOnce((path: string) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`
+      ) {
+        return Promise.resolve(mockGithubListCollaboratorsResponse2);
+      }
+    });
 
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse3),
-    );
+    this.spy.mockImplementationOnce((path: string) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`
+      ) {
+        return Promise.resolve(mockGithubListCollaboratorsResponse3);
+      }
+    });
 
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse4),
-    );
+    this.spy.mockImplementationOnce((path: string) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`
+      ) {
+        return Promise.resolve(mockGithubListCollaboratorsResponse4);
+      }
+    });
   }
 
   public restore(): void {

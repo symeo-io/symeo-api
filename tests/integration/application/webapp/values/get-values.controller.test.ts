@@ -32,14 +32,14 @@ describe('ValuesController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchSecretMock = new FetchSecretMock(appClient);
     fetchVcsRepositoryCollaboratorsMock =
-      new FetchVcsRepositoryCollaboratorsMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+      new FetchVcsRepositoryCollaboratorsMock();
+    fetchVcsFileMock = new FetchVcsFileMock();
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
+      new FetchUserVcsRepositoryPermissionMock();
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -56,7 +56,6 @@ describe('ValuesController', () => {
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
   });
 
   afterEach(() => {
@@ -80,9 +79,16 @@ describe('ValuesController', () => {
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
+      );
+      fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
+        repository.owner.login,
+        repository.name,
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
@@ -108,9 +114,6 @@ describe('ValuesController', () => {
           },
         },
       };
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        './tests/utils/stubs/configuration/symeo.config.secret.yml',
-      );
       fetchSecretMock.mockSecretPresent(configurationValues);
 
       const response = await appClient
@@ -138,7 +141,9 @@ describe('ValuesController', () => {
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -151,6 +156,16 @@ describe('ValuesController', () => {
           EnvironmentPermissionRole.READ_NON_SECRET,
           userVcsId,
         );
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+      fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
+        repository.owner.login,
+        repository.name,
+      );
 
       const configurationValues: ConfigurationValues = {
         aws: {
@@ -167,9 +182,6 @@ describe('ValuesController', () => {
         },
       };
 
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        './tests/utils/stubs/configuration/symeo.config.secret.yml',
-      );
       fetchSecretMock.mockSecretPresent(configurationValues);
 
       const response = await appClient
@@ -210,7 +222,9 @@ describe('ValuesController', () => {
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -219,10 +233,22 @@ describe('ValuesController', () => {
       );
 
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.ADMIN,
       );
 
       fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
 
@@ -268,7 +294,10 @@ describe('ValuesController', () => {
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -277,10 +306,22 @@ describe('ValuesController', () => {
       );
 
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.READ,
+      );
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.READ,
       );
 
       fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
 

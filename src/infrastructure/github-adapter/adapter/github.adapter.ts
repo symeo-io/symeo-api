@@ -15,6 +15,13 @@ import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
+import { plainToClass, plainToInstance } from 'class-transformer';
+import any = jasmine.any;
+import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
+import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
+import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
+import { GithubPermissionsDTO } from 'src/infrastructure/github-adapter/dto/github.permissions.dto';
+import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
 
 @Injectable()
 export default class GithubAdapter implements GithubAdapterPort {
@@ -42,15 +49,18 @@ export default class GithubAdapter implements GithubAdapterPort {
     }
 
     if (alreadyCollectedRepositoriesDTO.length === 0) {
+      const authenticatedUser =
+        await this.githubHttpClient.getAuthenticatedUser(user);
       return [
         GithubOrganizationMapper.githubUserDtoToDomain(
-          await this.githubHttpClient.getAuthenticatedUser(user),
+          plainToInstance(GithubAuthenticatedUserDTO, authenticatedUser),
         ),
       ];
     }
 
     const gitHubOrganizationsDTO = alreadyCollectedRepositoriesDTO.map(
-      (repository) => repository.owner,
+      (repositoryDTO) =>
+        plainToInstance(GithubRepositoryDTO, repositoryDTO).owner,
     );
     Logger.log(
       `Organizations successfully fetched through VcsRepositories from Github for user ${
@@ -86,7 +96,7 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
 
     return GithubRepositoryMapper.dtoToDomain(
-      gitHubRepository as GithubRepositoryDTO,
+      plainToInstance(GithubRepositoryDTO, gitHubRepository),
     );
   }
 
@@ -126,7 +136,11 @@ export default class GithubAdapter implements GithubAdapterPort {
         (Date.now() - clock) / 1000
       } s`,
     );
-    return GithubBranchMapper.dtoToDomains(alreadyCollectedBranchesDTO);
+    return GithubBranchMapper.dtoToDomains(
+      alreadyCollectedBranchesDTO.map((branchDTO) =>
+        plainToInstance(GithubBranchDTO, branchDTO),
+      ),
+    );
   }
 
   async hasAccessToRepository(
@@ -157,7 +171,11 @@ export default class GithubAdapter implements GithubAdapterPort {
         user.id
       } - Executed in : ${(Date.now() - clock) / 1000} s`,
     );
-    return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
+    return GithubRepositoryMapper.dtoToDomains(
+      alreadyCollectedRepositoriesDTO.map((repositoryDTO) =>
+        plainToInstance(GithubRepositoryDTO, repositoryDTO),
+      ),
+    );
   }
 
   async checkFileExistsOnBranch(
@@ -235,7 +253,9 @@ export default class GithubAdapter implements GithubAdapterPort {
     );
 
     return GithubCollaboratorsMapper.dtoToDomains(
-      alreadyCollectedCollaboratorsDTO,
+      alreadyCollectedCollaboratorsDTO.map((collaboratorDTO) =>
+        plainToInstance(GithubCollaboratorDTO, collaboratorDTO),
+      ),
     );
   }
 
@@ -255,6 +275,7 @@ export default class GithubAdapter implements GithubAdapterPort {
       return undefined;
     }
 
-    return repositoryPermission.roleName as VcsRepositoryRole;
+    return plainToInstance(GithubUserPermissionDTO, repositoryPermission)
+      .roleName as VcsRepositoryRole;
   }
 }

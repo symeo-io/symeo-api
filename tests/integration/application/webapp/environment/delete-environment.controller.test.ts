@@ -36,10 +36,10 @@ describe('EnvironmentController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
+      new FetchUserVcsRepositoryPermissionMock();
     deleteSecretMock = new DeleteSecretMock(appClient);
     fetchSecretMock = new FetchSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
@@ -68,7 +68,9 @@ describe('EnvironmentController', () => {
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
     it('Should return 403 and not delete environment for user without permission', async () => {
       // When
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -76,6 +78,9 @@ describe('EnvironmentController', () => {
         configuration,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.WRITE,
       );
 
@@ -94,7 +99,9 @@ describe('EnvironmentController', () => {
 
     it('Should return 200 and delete environment', async () => {
       // When
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -102,6 +109,9 @@ describe('EnvironmentController', () => {
         configuration,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.ADMIN,
       );
 

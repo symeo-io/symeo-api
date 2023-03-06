@@ -25,9 +25,9 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock();
   }, 30000);
 
   afterAll(async () => {
@@ -48,7 +48,7 @@ describe('ConfigurationController', () => {
     it('should respond false for unknown repository id', async () => {
       // Given
       const repositoryVcsId = 105865802;
-      fetchVcsRepositoryMock.mockRepositoryMissing();
+      fetchVcsRepositoryMock.mockRepositoryMissing(repositoryVcsId);
 
       const response = await appClient
         .request(currentUser)
@@ -67,18 +67,25 @@ describe('ConfigurationController', () => {
 
     it('should respond false for non existing file', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockFileMissing();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      const dataToSend = {
+        repositoryVcsId: repository.id,
+        contractFilePath: faker.lorem.slug(),
+        branch: faker.lorem.slug(),
+      };
+      fetchVcsFileMock.mockFileMissing(
+        repository.owner.login,
+        repository.name,
+        dataToSend.contractFilePath,
+      );
 
       const response = await appClient
         .request(currentUser)
         // When
         .post(`/api/v1/configurations/github/validate`)
-        .send({
-          repositoryVcsId: repository.id,
-          contractFilePath: faker.lorem.slug(),
-          branch: faker.lorem.slug(),
-        })
+        .send(dataToSend)
         // Then
         .expect(200);
 
@@ -87,18 +94,25 @@ describe('ConfigurationController', () => {
 
     it('should respond true for existing file', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockFilePresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      const dataToSend = {
+        repositoryVcsId: repository.id,
+        contractFilePath: 'symeo.config.yml',
+        branch: 'staging',
+      };
+      fetchVcsFileMock.mockFilePresent(
+        repository.owner.login,
+        repository.name,
+        dataToSend.contractFilePath,
+      );
 
       const response = await appClient
         .request(currentUser)
         // When
         .post(`/api/v1/configurations/github/validate`)
-        .send({
-          repositoryVcsId: repository.id,
-          contractFilePath: 'symeo.config.yml',
-          branch: 'staging',
-        })
+        .send(dataToSend)
         // Then
         .expect(200);
 

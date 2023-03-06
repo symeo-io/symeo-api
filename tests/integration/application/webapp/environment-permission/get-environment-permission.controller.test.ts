@@ -35,12 +35,12 @@ describe('EnvironmentPermissionController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsRepositoryCollaboratorsMock =
-      new FetchVcsRepositoryCollaboratorsMock(appClient);
+      new FetchVcsRepositoryCollaboratorsMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
+      new FetchUserVcsRepositoryPermissionMock();
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -57,10 +57,6 @@ describe('EnvironmentPermissionController', () => {
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
@@ -73,12 +69,26 @@ describe('EnvironmentPermissionController', () => {
     describe('should respond 200 and return permissions', () => {
       it('should respond 200 with only github environment accesses', async () => {
         // Given
-        const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+        const vcsRepositoryId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+          currentUser,
+          repository.owner.login,
+          repository.name,
+          VcsRepositoryRole.ADMIN,
+        );
+
+        fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
+          repository.owner.login,
+          repository.name,
         );
 
         const response = await appClient
@@ -115,12 +125,25 @@ describe('EnvironmentPermissionController', () => {
 
       it('should respond 200 with mixed github and inBase environment accesses', async () => {
         // Given
-        const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+        const vcsRepositoryId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+          currentUser,
+          repository.owner.login,
+          repository.name,
+          VcsRepositoryRole.ADMIN,
+        );
+        fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
+          repository.owner.login,
+          repository.name,
         );
         const environmentPermission1 =
           await environmentPermissionTestUtil.createEnvironmentPermission(

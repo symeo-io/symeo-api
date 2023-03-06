@@ -37,7 +37,7 @@ export class GithubHttpClient {
   async getAuthenticatedUser(user: User): Promise<GithubAuthenticatedUserDTO> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
 
-    const url = config.vcsProvider.github.apiUrl + 'user/';
+    const url = config.vcsProvider.github.apiUrl + 'user';
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,

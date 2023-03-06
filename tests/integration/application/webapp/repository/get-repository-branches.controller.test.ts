@@ -25,11 +25,9 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsRepositoryBranchesMock = new FetchVcsRepositoryBranchesMock(
-      appClient,
-    );
+    fetchVcsRepositoryBranchesMock = new FetchVcsRepositoryBranchesMock();
   }, 30000);
 
   afterAll(async () => {
@@ -51,7 +49,9 @@ describe('RepositoryController', () => {
       // Given
       const mockRepositoryVcsId = faker.datatype.number();
       const branches =
-        fetchVcsRepositoryBranchesMock.mockRepositoriesBranchPresent();
+        fetchVcsRepositoryBranchesMock.mockRepositoriesBranchPresent(
+          mockRepositoryVcsId,
+        );
 
       return appClient
         .request(currentUser)

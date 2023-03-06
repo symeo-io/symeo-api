@@ -14,11 +14,11 @@ export type MockedRepository = {
 export class FetchVcsRepositoryMock {
   public spy: SpyInstance | undefined;
 
-  public mockRepositoryPresent(): MockedRepository {
+  public mockRepositoryPresent(vcsRepositoryId: number): MockedRepository {
     this.spy = jest.spyOn(axios, 'get');
     const data = {
       name: faker.lorem.slug(),
-      id: faker.datatype.number(),
+      id: vcsRepositoryId,
       owner: {
         login: faker.lorem.slug(),
         id: faker.datatype.number(),
@@ -42,19 +42,24 @@ export class FetchVcsRepositoryMock {
     this.spy.mockImplementationOnce((path: string) => {
       if (
         path ===
-        config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`
+        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`
       ) {
-        Promise.resolve(mockGitHubRepositoryResponse);
+        return Promise.resolve(mockGitHubRepositoryResponse);
       }
     });
 
     return data;
   }
 
-  public mockRepositoryMissing(): void {
-    this.spy = jest.spyOn(this.githubClient, 'request');
-    this.spy.mockImplementationOnce(() => {
-      throw { status: 404 };
+  public mockRepositoryMissing(vcsRepositoryId: number): void {
+    this.spy = jest.spyOn(axios, 'get');
+    this.spy.mockImplementationOnce((path) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`
+      ) {
+        throw { status: 404 };
+      }
     });
   }
 

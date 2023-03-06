@@ -1,32 +1,35 @@
 import SpyInstance = jest.SpyInstance;
-import { Octokit } from '@octokit/rest';
-import { AppClient } from 'tests/utils/app.client';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import axios from 'axios';
+import { config } from 'symeo-js/config';
+import User from 'src/domain/model/user/user.model';
 
 export class FetchUserVcsRepositoryPermissionMock {
   public spy: SpyInstance | undefined;
-  private readonly githubClient: Octokit;
 
-  constructor(appClient: AppClient) {
-    this.githubClient = appClient.module.get<Octokit>('Octokit');
-  }
-
-  public mockUserRepositoryRole(role: VcsRepositoryRole): void {
-    this.spy = jest.spyOn(
-      this.githubClient.rest.repos,
-      'getCollaboratorPermissionLevel',
-    );
-
-    this.spy.mockImplementation(() =>
-      Promise.resolve({
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: {
-          role_name: role,
-        },
-      }),
-    );
+  public mockUserRepositoryRole(
+    user: User,
+    repositoryOwnerName: string,
+    repositoryName: string,
+    role: VcsRepositoryRole,
+  ): void {
+    this.spy = jest.spyOn(axios, 'get');
+    this.spy.mockImplementationOnce((path: string) => {
+      if (
+        path ===
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators/${user.username}/permission`
+      ) {
+        return Promise.resolve({
+          status: 200 as const,
+          headers: {},
+          url: '',
+          data: {
+            role_name: role,
+          },
+        });
+      }
+    });
   }
 
   public restore(): void {
