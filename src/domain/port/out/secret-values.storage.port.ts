@@ -14,4 +14,6 @@ export interface SecretValuesStoragePort {
     environment: Environment,
     values: ConfigurationValues,
   ): Promise<void>;
+
+  deleteValuesForEnvironment(environment: Environment): Promise<void>;
 }

@@ -60,7 +60,21 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
       .promise();
   }
 
-  async secretExistsForEnvironment(environment: Environment): Promise<boolean> {
+  async deleteValuesForEnvironment(environment: Environment): Promise<void> {
+    const secretExists = await this.secretExistsForEnvironment(environment);
+
+    if (secretExists) {
+      await this.secretManagerClient.client
+        .deleteSecret({
+          SecretId: environment.id,
+        })
+        .promise();
+    }
+  }
+
+  private async secretExistsForEnvironment(
+    environment: Environment,
+  ): Promise<boolean> {
     try {
       const { SecretString } = await this.secretManagerClient.client
         .getSecretValue({

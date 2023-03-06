@@ -10,11 +10,15 @@ import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util'
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { DeleteSecretMock } from 'tests/utils/mocks/delete-secret.mock';
+import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
 
 describe('EnvironmentController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let deleteSecretMock: DeleteSecretMock;
+  let fetchSecretMock: FetchSecretMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
@@ -36,6 +40,8 @@ describe('EnvironmentController', () => {
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
+    deleteSecretMock = new DeleteSecretMock(appClient);
+    fetchSecretMock = new FetchSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
@@ -45,6 +51,8 @@ describe('EnvironmentController', () => {
   });
 
   beforeEach(async () => {
+    fetchSecretMock.mockSecretPresent({});
+    deleteSecretMock.mock();
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
@@ -53,6 +61,7 @@ describe('EnvironmentController', () => {
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
+    deleteSecretMock.restore();
     fetchUserVcsRepositoryPermissionMock.restore();
   });
 
@@ -104,6 +113,11 @@ describe('EnvironmentController', () => {
         )
         // Then
         .expect(200);
+
+      expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+      });
+
       const configurationEntity: ConfigurationEntity | null =
         await configurationTestUtil.repository.findOneBy({
           id: configuration.id,
