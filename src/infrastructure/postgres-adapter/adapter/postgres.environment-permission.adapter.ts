@@ -61,7 +61,6 @@ export class PostgresEnvironmentPermissionAdapter
 
     return entity.toDomain();
   }
-
   async findForEnvironmentIdsAndVcsUserId(
     environmentIds: string[],
     userVcsId: number,
@@ -82,7 +81,6 @@ export class PostgresEnvironmentPermissionAdapter
 
     return entities.map((entity) => entity.toDomain());
   }
-
   async saveAll(
     environmentPermissions: EnvironmentPermission[],
   ): Promise<void> {
@@ -101,6 +99,35 @@ export class PostgresEnvironmentPermissionAdapter
       } EnvironmentPermissions in base - Executed in : ${
         (Date.now() - clock) / 1000
       } s`,
+    );
+  }
+
+  async findForEnvironmentId(
+    environmentId: string,
+  ): Promise<EnvironmentPermission[]> {
+    const entities = await this.environmentPermissionRepository.find({
+      relations: {
+        environment: true,
+      },
+      where: {
+        environment: {
+          id: environmentId,
+        },
+      },
+    });
+
+    if (!entities) return [];
+
+    return entities.map((entity) => entity.toDomain());
+  }
+
+  async removeAll(
+    environmentPermissions: EnvironmentPermission[],
+  ): Promise<void> {
+    await this.environmentPermissionRepository.remove(
+      environmentPermissions.map((environmentPermission) =>
+        EnvironmentPermissionEntity.fromDomain(environmentPermission),
+      ),
     );
   }
 }
