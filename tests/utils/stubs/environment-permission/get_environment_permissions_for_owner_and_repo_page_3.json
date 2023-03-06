@@ -25,6 +25,6 @@
       "triage": true,
       "pull": true
     },
-    "role_name": "write"
+    "role_name": "read"
   }
 ]
