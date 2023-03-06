@@ -8,13 +8,19 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { DeleteSecretMock } from 'tests/utils/mocks/delete-secret.mock';
+import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
+  let deleteSecretMock: DeleteSecretMock;
+  let fetchSecretMock: FetchSecretMock;
   let configurationTestUtil: ConfigurationTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -33,7 +39,10 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
+    deleteSecretMock = new DeleteSecretMock(appClient);
+    fetchSecretMock = new FetchSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -42,6 +51,9 @@ describe('ConfigurationController', () => {
 
   beforeEach(async () => {
     await configurationTestUtil.empty();
+    await environmentTestUtil.empty();
+    fetchSecretMock.mockSecretPresent({});
+    deleteSecretMock.mock();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
     fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
       VcsRepositoryRole.ADMIN,
@@ -60,6 +72,12 @@ describe('ConfigurationController', () => {
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
+      const environment1 = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+      const environment2 = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
 
       await appClient
         .request(currentUser)
@@ -67,6 +85,14 @@ describe('ConfigurationController', () => {
           `/api/v1/configurations/github/${repository.id}/${configuration.id}`,
         )
         .expect(200);
+
+      expect(deleteSecretMock.spy).toHaveBeenCalledTimes(2);
+      expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment1.id,
+      });
+      expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment2.id,
+      });
 
       const deletedConfiguration: ConfigurationEntity | null =
         await configurationTestUtil.repository.findOneBy({
