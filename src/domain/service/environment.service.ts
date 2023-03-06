@@ -5,11 +5,13 @@ import { v4 as uuid } from 'uuid';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port';
 import Configuration from 'src/domain/model/configuration/configuration.model';
+import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 
 export class EnvironmentService implements EnvironmentFacade {
   constructor(
-    private configurationStoragePort: ConfigurationStoragePort,
-    private environmentStoragePort: EnvironmentStoragePort,
+    private readonly configurationStoragePort: ConfigurationStoragePort,
+    private readonly environmentStoragePort: EnvironmentStoragePort,
+    private readonly secretValuesStoragePort: SecretValuesStoragePort,
   ) {}
 
   async createEnvironment(
@@ -28,6 +30,7 @@ export class EnvironmentService implements EnvironmentFacade {
   }
 
   async deleteEnvironment(environment: Environment): Promise<void> {
+    await this.secretValuesStoragePort.deleteValuesForEnvironment(environment);
     await this.environmentStoragePort.delete(environment);
   }
 

@@ -12,7 +12,6 @@ import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 

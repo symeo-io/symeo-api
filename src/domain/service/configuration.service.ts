@@ -13,12 +13,14 @@ import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.en
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
+import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
     private readonly configurationStoragePort: ConfigurationStoragePort,
     private readonly repositoryFacade: RepositoryFacade,
     private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
+    private readonly secretValuesStoragePort: SecretValuesStoragePort,
   ) {}
 
   async findById(
@@ -186,6 +188,11 @@ export default class ConfigurationService implements ConfigurationFacade {
   }
 
   async delete(configuration: Configuration): Promise<void> {
+    await Promise.all(
+      configuration.environments.map((environment) =>
+        this.secretValuesStoragePort.deleteValuesForEnvironment(environment),
+      ),
+    );
     return this.configurationStoragePort.delete(configuration);
   }
 }

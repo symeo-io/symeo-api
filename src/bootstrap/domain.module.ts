@@ -28,16 +28,19 @@ const ConfigurationFacadeProvider = {
     configurationStoragePort: ConfigurationStoragePort,
     repositoryFacade: RepositoryFacade,
     environmentPermissionFacade: EnvironmentPermissionFacade,
+    secretValuesStoragePort: SecretValuesStoragePort,
   ) =>
     new ConfigurationService(
       configurationStoragePort,
       repositoryFacade,
       environmentPermissionFacade,
+      secretValuesStoragePort,
     ),
   inject: [
     'PostgresConfigurationAdapter',
     'RepositoryFacade',
     'EnvironmentPermissionFacade',
+    'SecretManagerAdapter',
   ],
 };
 
@@ -46,11 +49,17 @@ const EnvironmentFacadeProvider = {
   useFactory: (
     configurationStoragePort: ConfigurationStoragePort,
     environmentStoragePort: EnvironmentStoragePort,
-  ) => new EnvironmentService(configurationStoragePort, environmentStoragePort),
+    secretValuesStoragePort: SecretValuesStoragePort,
+  ) =>
+    new EnvironmentService(
+      configurationStoragePort,
+      environmentStoragePort,
+      secretValuesStoragePort,
+    ),
   inject: [
     'PostgresConfigurationAdapter',
     'PostgresEnvironmentAdapter',
-    'RepositoryFacade',
+    'SecretManagerAdapter',
   ],
 };
 
