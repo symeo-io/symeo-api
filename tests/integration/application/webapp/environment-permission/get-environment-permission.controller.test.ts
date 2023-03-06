@@ -63,6 +63,7 @@ describe('EnvironmentPermissionController', () => {
     fetchVcsAccessTokenMock.restore();
     fetchVcsRepositoryMock.restore();
     fetchVcsRepositoryCollaboratorsMock.restore();
+    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions', () => {
@@ -79,13 +80,13 @@ describe('EnvironmentPermissionController', () => {
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
         );
+
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
           repository.owner.login,
           repository.name,
           VcsRepositoryRole.ADMIN,
         );
-
         fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
           repository.owner.login,
           repository.name,
@@ -135,6 +136,7 @@ describe('EnvironmentPermissionController', () => {
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
         );
+
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
           repository.owner.login,
@@ -192,14 +194,25 @@ describe('EnvironmentPermissionController', () => {
 
       it('should respond 200 with in-base environment accesses but updating github role to admin and delete environmentPermission linked to it', async () => {
         // Given
-        const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+        const vcsRepositoryId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
         );
-
+        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+          currentUser,
+          repository.owner.login,
+          repository.name,
+          VcsRepositoryRole.ADMIN,
+        );
+        fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
+          repository.owner.login,
+          repository.name,
+        );
         const environmentPermissionToBeRemoved =
           await environmentPermissionTestUtil.createEnvironmentPermission(
             environment,
@@ -256,12 +269,24 @@ describe('EnvironmentPermissionController', () => {
 
       it('should respond 200 with in-base environment accesses but removing user from github organization', async () => {
         // Given
-        const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+        const vcsRepositoryId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+          currentUser,
+          repository.owner.login,
+          repository.name,
+          VcsRepositoryRole.ADMIN,
+        );
+        fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
+          repository.owner.login,
+          repository.name,
         );
 
         await environmentPermissionTestUtil.createEnvironmentPermission(
