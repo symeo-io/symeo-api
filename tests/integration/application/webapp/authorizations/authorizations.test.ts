@@ -82,10 +82,10 @@ describe('Authorizations', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock();
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
   }, 30000);
@@ -102,8 +102,7 @@ describe('Authorizations', () => {
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
+    appClient.mockReset();
   });
 
   const routesWithRepository: Route[] = routes

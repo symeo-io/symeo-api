@@ -8,6 +8,7 @@ import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { anyString } from 'ts-mockito';
 import { config } from 'symeo-js/config';
+import { AxiosRequestConfig } from 'axios';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -30,9 +31,9 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock();
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -46,9 +47,8 @@ describe('ConfigurationController', () => {
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsFileMock.restore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/contract', () => {
@@ -94,15 +94,14 @@ describe('ConfigurationController', () => {
         )
         .expect(200);
 
-      expect(fetchVcsFileMock.spy).toHaveBeenCalled();
-      expect(fetchVcsFileMock.spy).toHaveBeenLastCalledWith(
-        config.vcsProvider.github.apiUrl +
-          `repos/${configuration.ownerVcsName}/${configuration.repositoryVcsName}/contents/${configuration.contractFilePath}`,
-        {
-          headers: { Authorization: `Bearer ${mockAccessToken}` },
-          params: { ref: configuration.branch },
-        },
+      const githubRequest = fetchVcsFileMock.spy.history.get.find(
+        (getRequest) =>
+          getRequest.url ===
+          config.vcsProvider.github.apiUrl +
+            `repos/${configuration.ownerVcsName}/${configuration.repositoryVcsName}/contents/${configuration.contractFilePath}`,
       );
+      expect(githubRequest).toBeDefined();
+      expect(githubRequest?.params.ref).toEqual(configuration.branch);
       expect(response.body.contract).toBeDefined();
       expect(response.body.contract.database).toBeDefined();
       expect(response.body.contract.database.host).toBeDefined();
@@ -134,15 +133,14 @@ describe('ConfigurationController', () => {
         )
         .expect(200);
 
-      expect(fetchVcsFileMock.spy).toHaveBeenCalled();
-      expect(fetchVcsFileMock.spy).toHaveBeenLastCalledWith(
-        config.vcsProvider.github.apiUrl +
-          `repos/${configuration.ownerVcsName}/${configuration.repositoryVcsName}/contents/${configuration.contractFilePath}`,
-        {
-          headers: { Authorization: `Bearer ${mockAccessToken}` },
-          params: { ref: requestedBranch },
-        },
+      const githubRequest = fetchVcsFileMock.spy.history.get.find(
+        (getRequest) =>
+          getRequest.url ===
+          config.vcsProvider.github.apiUrl +
+            `repos/${configuration.ownerVcsName}/${configuration.repositoryVcsName}/contents/${configuration.contractFilePath}`,
       );
+      expect(githubRequest).toBeDefined();
+      expect(githubRequest?.params.ref).toEqual(requestedBranch);
       expect(response.body.contract).toBeDefined();
       expect(response.body.contract.database).toBeDefined();
       expect(response.body.contract.database.host).toBeDefined();

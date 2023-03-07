@@ -1,6 +1,5 @@
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { GithubOwnerDTO } from 'src/infrastructure/github-adapter/dto/github.owner.dto';
 import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
 

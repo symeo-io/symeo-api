@@ -1,4 +1,3 @@
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';

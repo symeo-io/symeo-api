@@ -1,21 +1,30 @@
-import SpyInstance = jest.SpyInstance;
-import { Octokit } from '@octokit/rest';
-import { AppClient } from 'tests/utils/app.client';
 import { faker } from '@faker-js/faker';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { config } from 'symeo-js/config';
+import MockAdapter from 'axios-mock-adapter';
+import { AppClient } from 'tests/utils/app.client';
 
 export type MockedRepository = {
   name: string;
   id: number;
   owner: { login: string; id: number; avatar_url: string };
+  permissions: {
+    admin: boolean;
+    maintain: boolean;
+    push: boolean;
+    triage: boolean;
+    pull: boolean;
+  };
 };
 
 export class FetchVcsRepositoryMock {
-  public spy: SpyInstance | undefined;
+  public spy: MockAdapter;
+
+  constructor(private appClient: AppClient) {
+    this.spy = appClient.axiosMock;
+  }
 
   public mockRepositoryPresent(vcsRepositoryId: number): MockedRepository {
-    this.spy = jest.spyOn(axios, 'get');
     const data = {
       name: faker.lorem.slug(),
       id: vcsRepositoryId,
@@ -32,39 +41,23 @@ export class FetchVcsRepositoryMock {
         pull: true,
       },
     };
-    const mockGitHubRepositoryResponse = {
-      status: 200 as const,
-      headers: {},
-      url: '',
-      data,
-    };
 
-    this.spy.mockImplementationOnce((path: string) => {
-      if (
-        path ===
-        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`
-      ) {
-        return Promise.resolve(mockGitHubRepositoryResponse);
-      }
-    });
+    this.spy
+      .onGet(
+        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`,
+      )
+      .reply(200, data);
 
     return data;
   }
 
   public mockRepositoryMissing(vcsRepositoryId: number): void {
-    this.spy = jest.spyOn(axios, 'get');
-    this.spy.mockImplementationOnce((path) => {
-      if (
-        path ===
-        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`
-      ) {
+    this.spy
+      .onGet(
+        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`,
+      )
+      .replyOnce(() => {
         throw { status: 404 };
-      }
-    });
-  }
-
-  public restore(): void {
-    this.spy?.mockRestore();
-    this.spy = undefined;
+      });
   }
 }

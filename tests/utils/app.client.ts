@@ -17,6 +17,8 @@ import {
 import { config } from 'symeo-js/config';
 import { WinstonLogger } from 'src/logger';
 import { createLogger, transports } from 'winston';
+import { AxiosInstance } from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 
 let loggedInUser: User | undefined;
 
@@ -33,6 +35,7 @@ export class AppClient {
   public app: INestApplication;
   public module: TestingModule;
   public container: StartedPostgreSqlContainer;
+  public axiosMock: MockAdapter;
 
   public async init() {
     this.container = await new PostgreSqlContainer()
@@ -58,6 +61,9 @@ export class AppClient {
       .useClass(AuthGuardMock)
       .compile();
 
+    const axiosInstance = this.module.get<AxiosInstance>('AxiosInstance');
+    this.axiosMock = new MockAdapter(axiosInstance);
+
     const winstonLogger = new WinstonLogger();
     const loggerInstance = createLogger({
       level: 'info',
@@ -73,6 +79,10 @@ export class AppClient {
 
   public async close() {
     await this.app.close();
+  }
+
+  public async mockReset() {
+    await this.axiosMock.reset();
   }
 
   public request(currentUser?: User): supertest.SuperTest<supertest.Test> {

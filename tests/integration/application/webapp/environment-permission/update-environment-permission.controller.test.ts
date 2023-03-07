@@ -40,12 +40,12 @@ describe('EnvironmentPermissionController', () => {
     appClient = new AppClient();
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchVcsRepositoryCollaboratorsMockForPermission =
-      new FetchVcsRepositoryCollaboratorsMock();
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock();
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -66,9 +66,7 @@ describe('EnvironmentPermissionController', () => {
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsRepositoryCollaboratorsMockForPermission.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
+    appClient.mockReset();
   });
 
   describe('(POST) github/:vcsRepository/:configurationId/environments/:environmentId/permissions', () => {

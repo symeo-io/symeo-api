@@ -10,7 +10,6 @@ import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.u
 describe('RepositoryController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
-  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
   let configurationTestUtil: ConfigurationTestUtil;
 
@@ -27,9 +26,8 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock();
+    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -42,10 +40,9 @@ describe('RepositoryController', () => {
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsRepositoriesMock.restore();
   });
 
   describe('(GET) /repositories', () => {

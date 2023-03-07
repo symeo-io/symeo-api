@@ -35,10 +35,10 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock();
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     deleteSecretMock = new DeleteSecretMock(appClient);
     fetchSecretMock = new FetchSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
@@ -58,9 +58,8 @@ describe('ConfigurationController', () => {
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {

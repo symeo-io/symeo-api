@@ -25,9 +25,9 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock();
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -39,9 +39,8 @@ describe('ConfigurationController', () => {
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsFileMock.restore();
   });
 
   describe('(GET) /github/validate', () => {

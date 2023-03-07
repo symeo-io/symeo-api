@@ -32,10 +32,10 @@ describe('ApiKeyController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock();
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     apiKeyTestUtil = new ApiKeyTestUtil(appClient);
@@ -53,8 +53,8 @@ describe('ApiKeyController', () => {
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
   });
 
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId', () => {

@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
@@ -25,8 +24,8 @@ describe('OrganizationController', () => {
     appClient = new AppClient();
     await appClient.init();
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock();
-    fetchAuthenticatedUserMock = new FetchAuthenticatedUserMock();
+    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
+    fetchAuthenticatedUserMock = new FetchAuthenticatedUserMock(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -38,7 +37,7 @@ describe('OrganizationController', () => {
   });
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoriesMock.restore();
+    appClient.mockReset();
   });
 
   describe('(GET) /organizations', () => {

@@ -3,12 +3,17 @@ import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dt
 import axios from 'axios';
 import * as fs from 'fs';
 import { config } from 'symeo-js/config';
+import MockAdapter from 'axios-mock-adapter';
+import { AppClient } from 'tests/utils/app.client';
 
 export class FetchAuthenticatedUserMock {
-  public spy: SpyInstance | undefined;
+  public spy: MockAdapter;
+
+  constructor(private appClient: AppClient) {
+    this.spy = appClient.axiosMock;
+  }
 
   public mockAuthenticatedPresent(): GithubAuthenticatedUserDTO {
-    this.spy = jest.spyOn(axios, 'get');
     const mockGitHubAuthenticatedUserStub = JSON.parse(
       fs
         .readFileSync(
@@ -16,17 +21,10 @@ export class FetchAuthenticatedUserMock {
         )
         .toString(),
     );
-    const mockGitHubRepositoriesResponse1 = {
-      status: 200 as const,
-      headers: {},
-      url: '',
-      data: mockGitHubAuthenticatedUserStub,
-    };
 
-    this.spy.mockImplementationOnce((path: string) => {
-      if (path === config.vcsProvider.github.apiUrl + 'user')
-        return Promise.resolve(mockGitHubRepositoriesResponse1);
-    });
+    this.spy
+      .onGet(config.vcsProvider.github.apiUrl + 'user')
+      .replyOnce(200, mockGitHubAuthenticatedUserStub);
 
     return mockGitHubAuthenticatedUserStub;
   }

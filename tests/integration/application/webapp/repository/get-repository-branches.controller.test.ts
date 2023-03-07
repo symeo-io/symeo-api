@@ -25,9 +25,11 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsRepositoryBranchesMock = new FetchVcsRepositoryBranchesMock();
+    fetchVcsRepositoryBranchesMock = new FetchVcsRepositoryBranchesMock(
+      appClient,
+    );
   }, 30000);
 
   afterAll(async () => {
@@ -40,8 +42,7 @@ describe('RepositoryController', () => {
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsRepositoryBranchesMock.restore();
+    appClient.mockReset();
   });
 
   describe('(GET) /repository/:repositoryVcsId/branches', () => {

@@ -32,14 +32,14 @@ describe('ValuesController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchSecretMock = new FetchSecretMock(appClient);
     fetchVcsRepositoryCollaboratorsMock =
-      new FetchVcsRepositoryCollaboratorsMock();
-    fetchVcsFileMock = new FetchVcsFileMock();
+      new FetchVcsRepositoryCollaboratorsMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock();
+      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -60,11 +60,8 @@ describe('ValuesController', () => {
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
     fetchSecretMock.restore();
-    fetchVcsRepositoryCollaboratorsMock.restore();
-    fetchVcsFileMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
+    appClient.mockReset();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {

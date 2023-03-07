@@ -1,17 +1,18 @@
 import User from 'src/domain/model/user/user.model';
-import { Octokit } from '@octokit/rest';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
-import axios from 'axios';
 import { config } from 'symeo-js/config';
 import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
 import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
 import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
 import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
+import { AxiosInstance } from 'axios';
 
 export class GithubHttpClient {
-  constructor(private vcsAccessTokenStorage: VCSAccessTokenStorage) {}
+  constructor(
+    private vcsAccessTokenStorage: VCSAccessTokenStorage,
+    private client: AxiosInstance,
+  ) {}
 
   async getRepositoriesForUser(
     user: User,
@@ -20,8 +21,7 @@ export class GithubHttpClient {
   ): Promise<GithubRepositoryDTO[]> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const url = config.vcsProvider.github.apiUrl + 'user/repos';
-
-    const response = await axios.get(url, {
+    const response = await this.client.get(url, {
       params: {
         page: page,
         per_page: perPage,
@@ -38,7 +38,7 @@ export class GithubHttpClient {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
 
     const url = config.vcsProvider.github.apiUrl + 'user';
-    const response = await axios.get(url, {
+    const response = await this.client.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -56,7 +56,7 @@ export class GithubHttpClient {
       config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`;
 
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,7 +82,7 @@ export class GithubHttpClient {
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryVcsId}/branches`;
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         params: {
           page: page,
           per_page: perPage,
@@ -109,7 +109,7 @@ export class GithubHttpClient {
     const url =
       config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`;
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -137,7 +137,7 @@ export class GithubHttpClient {
       config.vcsProvider.github.apiUrl +
       `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`;
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         params: {
           ref: branch,
         },
@@ -168,7 +168,7 @@ export class GithubHttpClient {
       config.vcsProvider.github.apiUrl +
       `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`;
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         params: {
           ref: branch,
         },
@@ -209,7 +209,7 @@ export class GithubHttpClient {
       `repos/${repositoryOwnerName}/${repositoryName}/collaborators`;
 
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         params: {
           page: page,
           per_page: perPage,
@@ -237,9 +237,8 @@ export class GithubHttpClient {
     const url =
       config.vcsProvider.github.apiUrl +
       `repos/${repositoryOwnerName}/${repositoryName}/collaborators/${user.username}/permission`;
-
     try {
-      const response = await axios.get(url, {
+      const response = await this.client.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -32,11 +32,11 @@ describe('ConfigurationController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock();
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock();
     fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock();
+      new FetchUserVcsRepositoryPermissionMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -49,11 +49,9 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
-    fetchVcsFileMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
@@ -104,7 +102,7 @@ describe('ConfigurationController', () => {
         repository.name,
         VcsRepositoryRole.WRITE,
       );
-      fetchVcsFileMock.mockFileMissing(
+      fetchVcsFileMock.mockFilePresent(
         repository.owner.login,
         repository.name,
         dataToSend.contractFilePath,
@@ -142,7 +140,6 @@ describe('ConfigurationController', () => {
         repository.name,
         sendData.contractFilePath,
       );
-
       const response = await appClient
         .request(currentUser)
         // When
