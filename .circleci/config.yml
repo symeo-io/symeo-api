@@ -212,9 +212,7 @@ workflows:
       - validate-configuration:
           name: validate-configuration-staging
           requires:
-            - lint
-            - test
-            - build
+            - install
           context:
             - staging
             - slack-notifications
@@ -225,9 +223,7 @@ workflows:
       - validate-configuration:
           name: validate-configuration-demo
           requires:
-            - lint
-            - test
-            - build
+            - install
           context:
             - demo
             - slack-notifications
@@ -238,9 +234,7 @@ workflows:
       - validate-configuration:
           name: validate-configuration-production
           requires:
-            - lint
-            - test
-            - build
+            - install
           context:
             - production
             - slack-notifications
@@ -251,6 +245,9 @@ workflows:
       - deploy:
           name: deploy-staging
           requires:
+            - lint
+            - test
+            - build
             - validate-configuration-staging
           context:
             - staging
@@ -262,6 +259,9 @@ workflows:
       - deploy:
           name: deploy-demo
           requires:
+            - lint
+            - test
+            - build
             - validate-configuration-demo
           context:
             - demo
@@ -273,6 +273,9 @@ workflows:
       - deploy:
           name: deploy-production
           requires:
+            - lint
+            - test
+            - build
             - validate-configuration-production
           context:
             - production
