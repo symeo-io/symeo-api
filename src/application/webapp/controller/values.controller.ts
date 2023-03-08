@@ -92,11 +92,17 @@ export class ValuesController {
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
   async setEnvironmentValuesForWebapp(
+    @CurrentUser() currentUser: User,
+    @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
+    @Query('branch') branchName: string | undefined,
   ): Promise<void> {
-    await this.valuesFacade.updateByEnvironmentForWebapp(
+    await this.valuesFacade.updateValuesByEnvironmentForWebapp(
+      currentUser,
+      configuration,
       environment,
+      branchName,
       setEnvironmentValuesResponseDTO.values,
     );
   }

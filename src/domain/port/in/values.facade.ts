@@ -19,8 +19,11 @@ export interface ValuesFacade {
     environment: Environment,
   ): Promise<ConfigurationValues>;
 
-  updateByEnvironmentForWebapp(
+  updateValuesByEnvironmentForWebapp(
+    currentUser: User,
+    configuration: Configuration,
     environment: Environment,
+    branch: string | undefined,
     values: ConfigurationValues,
   ): Promise<void>;
 }

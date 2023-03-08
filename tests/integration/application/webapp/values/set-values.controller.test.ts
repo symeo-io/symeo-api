@@ -14,15 +14,17 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let fetchSecretMock: FetchSecretMock;
+  let fetchVcsFileMock: FetchVcsFileMock;
   let updateSecretMock: UpdateSecretMock;
   let createSecretMock: CreateSecretMock;
-  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
@@ -41,13 +43,14 @@ describe('ValuesController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchSecretMock = new FetchSecretMock(appClient);
-    updateSecretMock = new UpdateSecretMock(appClient);
-    createSecretMock = new CreateSecretMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
+    fetchSecretMock = new FetchSecretMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+    updateSecretMock = new UpdateSecretMock(appClient);
+    createSecretMock = new CreateSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
@@ -118,7 +121,7 @@ describe('ValuesController', () => {
       );
     });
 
-    it('should update secret if it exists', async () => {
+    it('should update secret if it exists for full values replacement', async () => {
       // Given
       const vcsRepositoryId = faker.datatype.number();
       const repository =
@@ -135,10 +138,21 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchSecretMock.mockSecretPresent({ aws: { region: 'eu-west-3' } });
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
+
+      fetchSecretMock.mockSecretPresent({
+        database: { host: 'localhost', password: 'password' },
+      });
       updateSecretMock.mock();
 
-      const sentValues = { aws: { region: 'eu-west-3' } };
+      const sentValues = {
+        database: { host: 'newHost', password: 'newPassword' },
+      };
       await appClient
         .request(currentUser)
         .post(
@@ -147,7 +161,7 @@ describe('ValuesController', () => {
         .send({ values: sentValues })
         .expect(200);
 
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(2);
       expect(fetchSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
       });
@@ -155,6 +169,59 @@ describe('ValuesController', () => {
       expect(updateSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
         SecretString: JSON.stringify(sentValues),
+      });
+    });
+
+    it('should update secret if it exists for partial values replacement', async () => {
+      // Given
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
+      fetchSecretMock.mockSecretPresent({
+        database: { host: 'localhost', password: 'password' },
+      });
+      updateSecretMock.mock();
+
+      const sentValues = {
+        database: { host: 'newHost' },
+      };
+
+      await appClient
+        .request(currentUser)
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values`,
+        )
+        .send({ values: sentValues })
+        .expect(200);
+
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(2);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+      });
+      expect(updateSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(updateSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+        SecretString: JSON.stringify({
+          database: { host: 'newHost', password: 'password' },
+        }),
       });
     });
 
@@ -175,10 +242,18 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
       fetchSecretMock.mockSecretMissing();
       createSecretMock.mock();
 
-      const sentValues = { aws: { region: 'eu-west-3' } };
+      const sentValues = {
+        database: { host: 'localhost', password: 'password' },
+      };
       await appClient
         .request(currentUser)
         .post(
@@ -187,7 +262,7 @@ describe('ValuesController', () => {
         .send({ values: sentValues })
         .expect(200);
 
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(2);
       expect(fetchSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
       });
