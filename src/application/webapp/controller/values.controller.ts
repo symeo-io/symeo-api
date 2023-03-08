@@ -49,13 +49,35 @@ export class ValuesController {
     @RequestedEnvironment() environment: Environment,
     @Query('branch') branch: string | undefined,
   ): Promise<GetEnvironmentValuesResponseDTO> {
-    const values = await this.valuesFacade.findByEnvironmentForWebapp(
-      user,
-      repository,
-      configuration,
-      branch,
-      environment,
-    );
+    const values =
+      await this.valuesFacade.getHiddenValuesByEnvironmentForWebapp(
+        user,
+        repository,
+        configuration,
+        branch,
+        environment,
+      );
+
+    return new GetEnvironmentValuesResponseDTO(values);
+  }
+
+  @ApiOkResponse({
+    description: 'Environment values successfully retrieved',
+    type: GetEnvironmentValuesResponseDTO,
+  })
+  @Get(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+  )
+  @UseGuards(EnvironmentAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_SECRET)
+  async getEnvironmentValuesSecretsForWebapp(
+    @CurrentUser() user: User,
+    @RequestedEnvironment() environment: Environment,
+  ): Promise<GetEnvironmentValuesResponseDTO> {
+    const values =
+      await this.valuesFacade.getNonHiddenValuesByEnvironmentForWebapp(
+        environment,
+      );
 
     return new GetEnvironmentValuesResponseDTO(values);
   }

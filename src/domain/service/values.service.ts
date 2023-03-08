@@ -27,7 +27,7 @@ export class ValuesService implements ValuesFacade {
     );
   }
 
-  async findByEnvironmentForWebapp(
+  async getHiddenValuesByEnvironmentForWebapp(
     user: User,
     repository: VcsRepository,
     configuration: Configuration,
@@ -84,6 +84,14 @@ export class ValuesService implements ValuesFacade {
     });
 
     return emptyConfigurationValues;
+  }
+
+  async getNonHiddenValuesByEnvironmentForWebapp(
+    environment: Environment,
+  ): Promise<ConfigurationValues> {
+    return await this.secretValuesStoragePort.getValuesForEnvironmentId(
+      environment.id,
+    );
   }
 
   private generateHiddenSecret(valuesProperty: string | number | boolean) {

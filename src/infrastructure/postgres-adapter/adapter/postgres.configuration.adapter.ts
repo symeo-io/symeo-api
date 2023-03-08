@@ -11,31 +11,20 @@ export default class PostgresConfigurationAdapter
   constructor(
     private configurationRepository: Repository<ConfigurationEntity>,
   ) {}
-  async findById(
-    vcsType: VCSProvider,
+  async findByIdAndRepositoryVcsId(
+    configurationId: string,
     repositoryVcsId: number,
-    id: string,
   ): Promise<Configuration | undefined> {
-    const clock = Date.now();
-    Logger.log(
-      `Starting to fetch Configuration with configurationId ${id}, vcsType ${vcsType} and repositoryVcsId ${repositoryVcsId}`,
-    );
     const entity = await this.configurationRepository.findOneBy({
-      id,
-      vcsType,
-      repositoryVcsId,
+      id: configurationId,
+      repositoryVcsId: repositoryVcsId,
     });
 
     if (!entity) return undefined;
 
-    Logger.log(
-      `Successfully fetched Configuration with configurationId ${id}, vcsType ${vcsType} and repositoryVcsId ${repositoryVcsId} - Executed in : ${
-        (Date.now() - clock) / 1000
-      } s`,
-    );
-
     return entity.toDomain();
   }
+
   async findAllForRepositoryId(
     vcsType: VCSProvider,
     repositoryVcsId: number,
@@ -95,19 +84,5 @@ export default class PostgresConfigurationAdapter
 
   async delete(configuration: Configuration): Promise<void> {
     await this.configurationRepository.delete({ id: configuration.id });
-  }
-
-  async findByIdAndRepositoryVcsId(
-    configurationId: string,
-    repositoryVcsId: number,
-  ): Promise<Configuration | undefined> {
-    const entity = await this.configurationRepository.findOneBy({
-      id: configurationId,
-      repositoryVcsId: repositoryVcsId,
-    });
-
-    if (!entity) return undefined;
-
-    return entity.toDomain();
   }
 }

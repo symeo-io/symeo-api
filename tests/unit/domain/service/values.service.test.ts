@@ -140,7 +140,7 @@ describe('ValuesService', () => {
           .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
 
         const hiddenConfigurationValues: ConfigurationValues =
-          await valuesService.findByEnvironmentForWebapp(
+          await valuesService.getHiddenValuesByEnvironmentForWebapp(
             currentUser,
             vcsRepository,
             configuration,
@@ -186,7 +186,7 @@ describe('ValuesService', () => {
           .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
 
         const hiddenConfigurationValues: ConfigurationValues =
-          await valuesService.findByEnvironmentForWebapp(
+          await valuesService.getHiddenValuesByEnvironmentForWebapp(
             currentUser,
             vcsRepository,
             configuration,

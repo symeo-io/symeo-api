@@ -7,11 +7,15 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 export interface ValuesFacade {
   findByEnvironmentForSdk(environmentId: string): Promise<ConfigurationValues>;
 
-  findByEnvironmentForWebapp(
+  getHiddenValuesByEnvironmentForWebapp(
     user: User,
     repository: VcsRepository,
     configuration: Configuration,
     branch: string | undefined,
+    environment: Environment,
+  ): Promise<ConfigurationValues>;
+
+  getNonHiddenValuesByEnvironmentForWebapp(
     environment: Environment,
   ): Promise<ConfigurationValues>;
 
