@@ -6072,10 +6072,10 @@ symbol-observable@4.0.0:
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-4.0.0.tgz#5b425f192279e87f2f9b937ac8540d1984b39205"
   integrity sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==
 
-symeo-js@^0.0.7-rc.2:
-  version "0.0.7-rc.2"
-  resolved "https://registry.yarnpkg.com/symeo-js/-/symeo-js-0.0.7-rc.2.tgz#f53663818529069f162c6491705828e4ac58f5bd"
-  integrity sha512-ceBYJrrJClKsN3x7zOALm0ZHX24MUvEvQLHI8bhebKWwEtvQOBvJ3oTq9Jyyjw+L+/GjhI9jKCdUW11UCbsObg==
+symeo-js@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/symeo-js/-/symeo-js-0.0.7.tgz#139e97228828c366cd0a15c903a388ed043b5dc6"
+  integrity sha512-B9Y3cI2JtNaDjse0mqOvg7yGMP5+HdEAju+tMdo6K1ZNb6coRICSm+ISyrGLxRtqPRac/dd4MTRYrGMOF1WZSg==
   dependencies:
     chalk "^4.1.2"
     checksum "^1.0.0"
