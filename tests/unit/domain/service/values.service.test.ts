@@ -182,14 +182,6 @@ describe('ValuesService', () => {
 
         // When
         jest
-          .spyOn(
-            mockedEnvironmentPermissionFacade,
-            'getEnvironmentPermissionRole',
-          )
-          .mockImplementation(() =>
-            Promise.resolve(EnvironmentPermissionRole.READ_NON_SECRET),
-          );
-        jest
           .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
           .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
 
@@ -216,49 +208,6 @@ describe('ValuesService', () => {
           },
         });
       });
-    });
-
-    it('should return configurations values without hiding them ', async () => {
-      // Given
-      const mockedConfigurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
-          },
-        },
-      };
-
-      // When
-      jest
-        .spyOn(
-          mockedEnvironmentPermissionFacade,
-          'getEnvironmentPermissionRole',
-        )
-        .mockImplementation(() =>
-          Promise.resolve(EnvironmentPermissionRole.ADMIN),
-        );
-      jest
-        .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
-        .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
-
-      const hiddenConfigurationValues: ConfigurationValues =
-        await valuesService.findByEnvironmentForWebapp(
-          currentUser,
-          vcsRepository,
-          configuration,
-          branchName,
-          environment,
-        );
-
-      // Then
-      expect(hiddenConfigurationValues).toEqual(mockedConfigurationValues);
     });
   });
 });

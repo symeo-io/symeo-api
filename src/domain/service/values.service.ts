@@ -35,39 +35,24 @@ export class ValuesService implements ValuesFacade {
     branchName: string | undefined,
     environment: Environment,
   ): Promise<ConfigurationValues> {
-    const currentUserPermissionRole: EnvironmentPermissionRole =
-      await this.environmentPermissionFacade.getEnvironmentPermissionRole(
-        user,
-        repository,
-        configuration,
-        environment,
-      );
-
     const configurationValues: ConfigurationValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
       );
-
-    if (
-      currentUserPermissionRole === EnvironmentPermissionRole.READ_NON_SECRET
-    ) {
-      const configurationContract: ConfigurationContract =
-        await this.configurationFacade.findContract(
-          user,
-          configuration,
-          branchName,
-        );
-
-      const emptyConfigurationValues = new ConfigurationValues();
-
-      return this.parseContractAndValuesToHideSecrets(
-        emptyConfigurationValues,
-        configurationContract,
-        configurationValues,
+    const configurationContract: ConfigurationContract =
+      await this.configurationFacade.findContract(
+        user,
+        configuration,
+        branchName,
       );
-    }
 
-    return configurationValues;
+    const emptyConfigurationValues = new ConfigurationValues();
+
+    return this.parseContractAndValuesToHideSecrets(
+      emptyConfigurationValues,
+      configurationContract,
+      configurationValues,
+    );
   }
 
   private parseContractAndValuesToHideSecrets(

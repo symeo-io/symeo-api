@@ -20,12 +20,9 @@ describe('ValuesController', () => {
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchSecretMock: FetchSecretMock;
-  let fetchVcsRepositoryCollaboratorsMock: FetchVcsRepositoryCollaboratorsMock;
   let fetchVcsFileMock: FetchVcsFileMock;
-  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
-  let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -35,16 +32,9 @@ describe('ValuesController', () => {
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchSecretMock = new FetchSecretMock(appClient);
-    fetchVcsRepositoryCollaboratorsMock =
-      new FetchVcsRepositoryCollaboratorsMock(appClient);
     fetchVcsFileMock = new FetchVcsFileMock(appClient);
-    fetchUserVcsRepositoryPermissionMock =
-      new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
-    environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
-      appClient,
-    );
   }, 30000);
 
   afterAll(async () => {
@@ -54,7 +44,6 @@ describe('ValuesController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
-    await environmentPermissionTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -65,69 +54,7 @@ describe('ValuesController', () => {
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
-    it('should respond 200 and return values for an in-base admin permission', async () => {
-      // Given
-      const requestedBranch = 'staging';
-      const userVcsId = 102222086;
-      const currentUser = new User(
-        `github|${userVcsId}`,
-        faker.internet.email(),
-        faker.name.firstName(),
-        VCSProvider.GitHub,
-        faker.datatype.number(),
-      );
-      const vcsRepositoryId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
-
-      const configuration = await configurationTestUtil.createConfiguration(
-        repository.id,
-      );
-      fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      const environmentPermission =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.ADMIN,
-          userVcsId,
-        );
-
-      const configurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
-          },
-        },
-      };
-      fetchSecretMock.mockSecretPresent(configurationValues);
-
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
-        )
-        .expect(200);
-
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
-      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment.id,
-      });
-      expect(response.body.values).toEqual(configurationValues);
-    });
-
-    it('should respond 200 and return values for an in-base ReadNonSecret permission (hide secrets)', async () => {
+    it('should respond 200 and return hidden values', async () => {
       // Given
       const requestedBranch = 'staging';
       const userVcsId = 102222086;
@@ -147,174 +74,6 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      const environmentPermission =
-        await environmentPermissionTestUtil.createEnvironmentPermission(
-          environment,
-          EnvironmentPermissionRole.READ_NON_SECRET,
-          userVcsId,
-        );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
-        configuration.contractFilePath,
-        './tests/utils/stubs/configuration/symeo.config.secret.yml',
-      );
-      fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
-      );
-
-      const configurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
-          },
-        },
-      };
-
-      fetchSecretMock.mockSecretPresent(configurationValues);
-
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
-        )
-        .expect(200);
-
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
-      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment.id,
-      });
-      expect(response.body.values).toEqual({
-        aws: {
-          region: '*********',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: '********',
-            type: 'postgres',
-          },
-        },
-      });
-    });
-
-    it('should respond 200 and return values for a github admin role', async () => {
-      // Given
-      const requestedBranch = 'staging';
-      const userVcsId = 16590657;
-      const currentUser = new User(
-        `github|${userVcsId}`,
-        faker.internet.email(),
-        faker.name.firstName(),
-        VCSProvider.GitHub,
-        faker.datatype.number(),
-      );
-      const vcsRepositoryId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
-      const configuration = await configurationTestUtil.createConfiguration(
-        repository.id,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        currentUser,
-        repository.owner.login,
-        repository.name,
-        VcsRepositoryRole.ADMIN,
-      );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        currentUser,
-        repository.owner.login,
-        repository.name,
-        VcsRepositoryRole.ADMIN,
-      );
-
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
-        configuration.contractFilePath,
-        './tests/utils/stubs/configuration/symeo.config.secret.yml',
-      );
-
-      const configurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
-          },
-        },
-      };
-
-      fetchSecretMock.mockSecretPresent(configurationValues);
-
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
-        )
-        .expect(200);
-
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
-      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment.id,
-      });
-      expect(response.body.values).toEqual(configurationValues);
-    });
-
-    it('should respond 200 and return values for a github write role (hide secrets)', async () => {
-      // Given
-      const requestedBranch = 'staging';
-      const userVcsId = 102222086;
-      const currentUser = new User(
-        `github|${userVcsId}`,
-        faker.internet.email(),
-        faker.name.firstName(),
-        VCSProvider.GitHub,
-        faker.datatype.number(),
-      );
-      const vcsRepositoryId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
-
-      const configuration = await configurationTestUtil.createConfiguration(
-        repository.id,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        currentUser,
-        repository.owner.login,
-        repository.name,
-        VcsRepositoryRole.READ,
-      );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        currentUser,
-        repository.owner.login,
-        repository.name,
-        VcsRepositoryRole.READ,
-      );
-
       fetchVcsFileMock.mockSymeoContractFilePresent(
         configuration.ownerVcsName,
         configuration.repositoryVcsName,
