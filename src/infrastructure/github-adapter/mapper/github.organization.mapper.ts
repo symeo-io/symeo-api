@@ -1,32 +1,31 @@
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
+import { GithubOwnerDTO } from 'src/infrastructure/github-adapter/dto/github.owner.dto';
+import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
 
 export class GithubOrganizationMapper {
   static dtoToDomains(
-    githubOrganizationDTOs: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0]['owner'][],
+    githubOrganizationDTOs: GithubOwnerDTO[],
   ): VcsOrganization[] {
     return githubOrganizationDTOs.map(this.dtoToDomain);
   }
 
-  static dtoToDomain(
-    githubOrganizationDTO: RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0]['owner'],
-  ): VcsOrganization {
+  static dtoToDomain(githubOrganizationDTO: GithubOwnerDTO): VcsOrganization {
     return new VcsOrganization(
       githubOrganizationDTO.id,
       githubOrganizationDTO.login,
-      githubOrganizationDTO.avatar_url,
+      githubOrganizationDTO.avatarUrl,
       VCSProvider.GitHub,
     );
   }
 
   static githubUserDtoToDomain(
-    githubUserDTO: RestEndpointMethodTypes['users']['getAuthenticated']['response']['data'],
+    githubUserDTO: GithubAuthenticatedUserDTO,
   ): VcsOrganization {
     return new VcsOrganization(
       githubUserDTO.id,
       githubUserDTO.login,
-      githubUserDTO.avatar_url,
+      githubUserDTO.avatarUrl,
       VCSProvider.GitHub,
     );
   }

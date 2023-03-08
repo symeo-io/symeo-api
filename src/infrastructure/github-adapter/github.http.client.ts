@@ -1,39 +1,47 @@
 import User from 'src/domain/model/user/user.model';
-import { Octokit } from '@octokit/rest';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
+import { config } from 'symeo-js/config';
+import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
+import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
+import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
+import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
+import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
+import { AxiosInstance } from 'axios';
 
 export class GithubHttpClient {
   constructor(
     private vcsAccessTokenStorage: VCSAccessTokenStorage,
-    private client: Octokit,
+    private client: AxiosInstance,
   ) {}
 
   async getRepositoriesForUser(
     user: User,
     page: number,
     perPage: number,
-  ): Promise<
-    RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data']
-  > {
+  ): Promise<GithubRepositoryDTO[]> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-    const response = await this.client.rest.repos.listForAuthenticatedUser({
-      page: page,
-      per_page: perPage,
-      headers: { Authorization: `token ${token}` },
+    const url = config.vcsProvider.github.apiUrl + 'user/repos';
+    const response = await this.client.get(url, {
+      params: {
+        page: page,
+        per_page: perPage,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     return response.data;
   }
 
-  async getAuthenticatedUser(
-    user: User,
-  ): Promise<
-    RestEndpointMethodTypes['users']['getAuthenticated']['response']['data']
-  > {
+  async getAuthenticatedUser(user: User): Promise<GithubAuthenticatedUserDTO> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-    const response = await this.client.rest.users.getAuthenticated({
-      headers: { Authorization: `token ${token}` },
+
+    const url = config.vcsProvider.github.apiUrl + 'user';
+    const response = await this.client.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     return response.data;
@@ -42,15 +50,16 @@ export class GithubHttpClient {
   async getRepositoryById(
     user: User,
     repositoryVcsId: number,
-  ): Promise<
-    RestEndpointMethodTypes['repos']['get']['response']['data'] | undefined
-  > {
+  ): Promise<GithubRepositoryDTO | undefined> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`;
 
     try {
-      const response = await this.client.request('GET /repositories/{id}', {
-        id: repositoryVcsId,
-        headers: { Authorization: `token ${token}` },
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       return response.data;
@@ -67,21 +76,21 @@ export class GithubHttpClient {
     repositoryVcsId: number,
     page: number,
     perPage: number,
-  ): Promise<
-    RestEndpointMethodTypes['repos']['listBranches']['response']['data']
-  > {
+  ): Promise<GithubBranchDTO[]> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryVcsId}/branches`;
     try {
-      const response = await this.client.request(
-        'GET /repositories/{id}/branches',
-        {
-          id: repositoryVcsId,
+      const response = await this.client.get(url, {
+        params: {
           page: page,
           per_page: perPage,
-          headers: { Authorization: `token ${token}` },
         },
-      );
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       return response.data;
     } catch (exception) {
@@ -97,10 +106,13 @@ export class GithubHttpClient {
     repositoryVcsId: number,
   ): Promise<boolean> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`;
     try {
-      const response = await this.client.request('GET /repositories/{id}', {
-        id: repositoryVcsId,
-        headers: { Authorization: `token ${token}` },
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       return response.status === 200;
@@ -121,14 +133,17 @@ export class GithubHttpClient {
     branch: string,
   ): Promise<boolean> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`;
     try {
-      const response = await this.client.repos.getContent({
-        owner: repositoryOwnerName,
-        repo: repositoryName,
-        path: filePath,
-        ref: branch,
-        headers: { Authorization: `token ${token}` },
+      const response = await this.client.get(url, {
+        params: {
+          ref: branch,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       return response.status === 200;
@@ -149,14 +164,17 @@ export class GithubHttpClient {
     branch: string,
   ): Promise<string | undefined> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
-
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`;
     try {
-      const response = await this.client.repos.getContent({
-        owner: repositoryOwnerName,
-        repo: repositoryName,
-        path: filePath,
-        ref: branch,
-        headers: { Authorization: `token ${token}` },
+      const response = await this.client.get(url, {
+        params: {
+          ref: branch,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const content = (response.data as { content?: string }).content;
@@ -184,18 +202,23 @@ export class GithubHttpClient {
     repositoryName: string,
     page: number,
     perPage: number,
-  ): Promise<
-    RestEndpointMethodTypes['repos']['listCollaborators']['response']['data']
-  > {
+  ): Promise<GithubCollaboratorDTO[]> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repos/${repositoryOwnerName}/${repositoryName}/collaborators`;
+
     try {
-      const response = await this.client.rest.repos.listCollaborators({
-        owner: repositoryOwnerName,
-        repo: repositoryName,
-        page: page,
-        per_page: perPage,
-        headers: { Authorization: `token ${token}` },
+      const response = await this.client.get(url, {
+        params: {
+          page: page,
+          per_page: perPage,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       return response.data;
     } catch (exception) {
       if ((exception as any).status && (exception as any).status === 404) {
@@ -209,19 +232,17 @@ export class GithubHttpClient {
     user: User,
     repositoryOwnerName: string,
     repositoryName: string,
-  ): Promise<
-    | RestEndpointMethodTypes['repos']['getCollaboratorPermissionLevel']['response']['data']
-    | undefined
-  > {
+  ): Promise<GithubUserPermissionDTO | undefined> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repos/${repositoryOwnerName}/${repositoryName}/collaborators/${user.username}/permission`;
     try {
-      const response =
-        await this.client.rest.repos.getCollaboratorPermissionLevel({
-          owner: repositoryOwnerName,
-          repo: repositoryName,
-          username: user.username,
-          headers: { Authorization: `token ${token}` },
-        });
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (exception) {
       if ((exception as any).status && (exception as any).status === 404) {

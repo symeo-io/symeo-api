@@ -55,15 +55,16 @@ describe('ApiKeyController', () => {
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
     it('should respond 403 and not create api key for user without permission', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -71,6 +72,9 @@ describe('ApiKeyController', () => {
         configuration,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.WRITE,
       );
 
@@ -87,7 +91,9 @@ describe('ApiKeyController', () => {
 
     it('should respond 201 and create api key', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -95,6 +101,9 @@ describe('ApiKeyController', () => {
         configuration,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.ADMIN,
       );
 

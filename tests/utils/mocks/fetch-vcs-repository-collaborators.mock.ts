@@ -1,19 +1,19 @@
-import SpyInstance = jest.SpyInstance;
-import { Octokit } from '@octokit/rest';
-import { AppClient } from 'tests/utils/app.client';
 import * as fs from 'fs';
+import { config } from 'symeo-js/config';
+import MockAdapter from 'axios-mock-adapter';
+import { AppClient } from 'tests/utils/app.client';
 
 export class FetchVcsRepositoryCollaboratorsMock {
-  public spy: SpyInstance | undefined;
-  private readonly githubClient: Octokit;
+  public spy: MockAdapter;
 
-  constructor(appClient: AppClient) {
-    this.githubClient = appClient.module.get<Octokit>('Octokit');
+  constructor(private appClient: AppClient) {
+    this.spy = appClient.axiosMock;
   }
 
-  public mockCollaboratorsPresent(): void {
-    this.spy = jest.spyOn(this.githubClient.rest.repos, 'listCollaborators');
-
+  public mockCollaboratorsPresent(
+    repositoryOwnerName: string,
+    repositoryName: string,
+  ): void {
     const mockGithubListCollaboratorsStub1 = JSON.parse(
       fs
         .readFileSync(
@@ -36,53 +36,26 @@ export class FetchVcsRepositoryCollaboratorsMock {
         .toString(),
     );
 
-    const mockGithubListCollaboratorsResponse1 = {
-      status: 200 as const,
-      headers: {},
-      url: '',
-      data: mockGithubListCollaboratorsStub1,
-    };
-
-    const mockGithubListCollaboratorsResponse2 = {
-      status: 200 as const,
-      headers: {},
-      url: '',
-      data: mockGithubListCollaboratorsStub2,
-    };
-
-    const mockGithubListCollaboratorsResponse3 = {
-      status: 200 as const,
-      headers: {},
-      url: '',
-      data: mockGithubListCollaboratorsStub3,
-    };
-
-    const mockGithubListCollaboratorsResponse4 = {
-      status: 200 as const,
-      headers: {},
-      url: '',
-      data: [],
-    };
-
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse1),
-    );
-
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse2),
-    );
-
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse3),
-    );
-
-    this.spy.mockImplementationOnce(() =>
-      Promise.resolve(mockGithubListCollaboratorsResponse4),
-    );
-  }
-
-  public restore(): void {
-    this.spy?.mockRestore();
-    this.spy = undefined;
+    this.spy
+      .onGet(
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+      )
+      .replyOnce(200, mockGithubListCollaboratorsStub1)
+      .onGet(
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+      )
+      .replyOnce(200, mockGithubListCollaboratorsStub2)
+      .onGet(
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+      )
+      .replyOnce(200, mockGithubListCollaboratorsStub3)
+      .onGet(
+        config.vcsProvider.github.apiUrl +
+          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+      )
+      .replyOnce(200, []);
   }
 }

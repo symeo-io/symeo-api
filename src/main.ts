@@ -28,7 +28,11 @@ async function bootstrap() {
     credentials: true,
     origin: config.cors.origin,
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
   app.useGlobalInterceptors(new Interceptor(loggerInstance));
 
   const swaggerConfig = new DocumentBuilder()

@@ -34,9 +34,9 @@ describe('ConfigurationController', () => {
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 
@@ -49,52 +49,69 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsFileMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
     it('should respond 404 and not create configuration for non existing config file', async () => {
       // Given
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      const dataToSend = {
+        name: faker.name.jobTitle(),
+        branch: 'staging',
+        contractFilePath: './symeo.config.yml',
+      };
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.ADMIN,
       );
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockFileMissing();
+      fetchVcsFileMock.mockFileMissing(
+        repository.owner.login,
+        repository.name,
+        dataToSend.contractFilePath,
+      );
 
       await appClient
         .request(currentUser)
         // When
         .post(`/api/v1/configurations/github/${repository.id}`)
-        .send({
-          name: faker.name.jobTitle(),
-          branch: 'staging',
-          contractFilePath: './symeo.config.yml',
-        })
+        .send(dataToSend)
         // Then
         .expect(404);
     });
 
     it('should respond 403 and not create configuration for non admin user', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockFileMissing();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      const dataToSend = {
+        name: faker.name.jobTitle(),
+        branch: 'staging',
+        contractFilePath: './symeo.config.yml',
+      };
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
         VcsRepositoryRole.WRITE,
       );
-
+      fetchVcsFileMock.mockFilePresent(
+        repository.owner.login,
+        repository.name,
+        dataToSend.contractFilePath,
+      );
       const response = await appClient
         .request(currentUser)
         // When
         .post(`/api/v1/configurations/github/${repository.id}`)
-        .send({
-          name: faker.name.jobTitle(),
-          branch: 'staging',
-          contractFilePath: './symeo.config.yml',
-        })
+        .send(dataToSend)
         // Then
         .expect(403);
       expect(response.body.code).toEqual(
@@ -104,18 +121,25 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 and create new configuration', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockFilePresent();
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        VcsRepositoryRole.ADMIN,
-      );
-
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const sendData = {
         name: faker.name.jobTitle(),
         branch: 'staging',
         contractFilePath: './symeo.config.yml',
       };
-
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
+      fetchVcsFileMock.mockFilePresent(
+        repository.owner.login,
+        repository.name,
+        sendData.contractFilePath,
+      );
       const response = await appClient
         .request(currentUser)
         // When

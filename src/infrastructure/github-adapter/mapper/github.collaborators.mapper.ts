@@ -1,23 +1,21 @@
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 
 export class GithubCollaboratorsMapper {
   static dtoToDomains(
-    githubCollaboratorsDTO: RestEndpointMethodTypes['repos']['listCollaborators']['response']['data'],
+    githubCollaboratorsDTO: GithubCollaboratorDTO[],
   ): VcsUser[] {
     return githubCollaboratorsDTO.map(GithubCollaboratorsMapper.dtoToDomain);
   }
 
-  static dtoToDomain(
-    githubCollaboratorDTO: RestEndpointMethodTypes['repos']['listCollaborators']['response']['data'][0],
-  ): VcsUser {
+  static dtoToDomain(githubCollaboratorDTO: GithubCollaboratorDTO): VcsUser {
     return new VcsUser(
       githubCollaboratorDTO.id,
       githubCollaboratorDTO.login,
-      githubCollaboratorDTO.avatar_url,
+      githubCollaboratorDTO.avatarUrl,
       GithubCollaboratorsMapper.mapGithubRoleToDomain(
-        githubCollaboratorDTO.role_name,
+        githubCollaboratorDTO.roleName,
       ),
     );
   }

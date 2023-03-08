@@ -50,20 +50,25 @@ describe('ApiKeyController', () => {
     await environmentTestUtil.empty();
     await apiKeyTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
+    appClient.mockReset();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
     it('should respond 200 with api keys', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );

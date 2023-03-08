@@ -55,20 +55,25 @@ describe('ConfigurationController', () => {
     fetchSecretMock.mockSecretPresent({});
     deleteSecretMock.mock();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
   });
 
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and delete configuration', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );

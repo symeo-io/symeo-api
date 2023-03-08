@@ -50,22 +50,27 @@ describe('ApiKeyController', () => {
     await environmentTestUtil.empty();
     await apiKeyTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
   });
 
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId', () => {
     it('should respond 200 and delete api key', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
+      );
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.owner.login,
+        repository.name,
+        VcsRepositoryRole.ADMIN,
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,

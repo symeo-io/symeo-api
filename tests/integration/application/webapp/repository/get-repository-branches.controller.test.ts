@@ -42,8 +42,7 @@ describe('RepositoryController', () => {
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsRepositoryBranchesMock.restore();
+    appClient.mockReset();
   });
 
   describe('(GET) /repository/:repositoryVcsId/branches', () => {
@@ -51,7 +50,9 @@ describe('RepositoryController', () => {
       // Given
       const mockRepositoryVcsId = faker.datatype.number();
       const branches =
-        fetchVcsRepositoryBranchesMock.mockRepositoriesBranchPresent();
+        fetchVcsRepositoryBranchesMock.mockRepositoriesBranchPresent(
+          mockRepositoryVcsId,
+        );
 
       return appClient
         .request(currentUser)
