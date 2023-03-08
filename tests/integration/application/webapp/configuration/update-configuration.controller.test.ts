@@ -5,7 +5,6 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
-import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
@@ -15,7 +14,6 @@ describe('ConfigurationController', () => {
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
-  let fetchVcsFileMock: FetchVcsFileMock;
   let configurationTestUtil: ConfigurationTestUtil;
 
   const currentUser = new User(
@@ -35,7 +33,6 @@ describe('ConfigurationController', () => {
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
   }, 30000);
 

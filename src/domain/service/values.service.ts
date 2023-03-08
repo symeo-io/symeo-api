@@ -9,7 +9,6 @@ import {
   ConfigurationContract,
   ConfigurationContractProperty,
 } from 'src/domain/model/configuration/configuration-contract.model';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 

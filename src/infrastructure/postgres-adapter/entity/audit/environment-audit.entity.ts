@@ -1,7 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit-environment/environment-audit-event-type.enum';
 import EnvironmentAuditMetadata from 'src/domain/model/audit-environment/environment-audit-metadata';
-import ConfigurationAudit from 'src/domain/model/audit-configuration/configuration-audit.model';
 import EnvironmentAudit from 'src/domain/model/audit-environment/environment-audit.model';
 
 @Entity('environment-audits')

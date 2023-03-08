@@ -1,3 +1,1 @@
-export default class EnvironmentAuditAdapter {
-  constructor() {}
-}
+export default class EnvironmentAuditAdapter {}

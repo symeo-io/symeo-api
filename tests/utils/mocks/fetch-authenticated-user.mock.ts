@@ -1,6 +1,4 @@
-import SpyInstance = jest.SpyInstance;
 import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
-import axios from 'axios';
 import * as fs from 'fs';
 import { config } from 'symeo-js';
 import MockAdapter from 'axios-mock-adapter';

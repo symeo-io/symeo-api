@@ -7,13 +7,8 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
-import { FetchVcsRepositoryCollaboratorsMock } from 'tests/utils/mocks/fetch-vcs-repository-collaborators.mock';
-import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
-import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 describe('ValuesController', () => {
   let appClient: AppClient;

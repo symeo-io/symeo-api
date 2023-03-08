@@ -1,6 +1,4 @@
-import SpyInstance = jest.SpyInstance;
 import * as fs from 'fs';
-import axios from 'axios';
 import { config } from 'symeo-js';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
