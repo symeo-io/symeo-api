@@ -7,7 +7,7 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { anyString } from 'ts-mockito';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 import { AxiosRequestConfig } from 'axios';
 
 describe('ConfigurationController', () => {

@@ -1,7 +1,7 @@
 import './tracing';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 import { SymeoExceptionHttpFilter } from 'src/application/common/exception/symeo.exception.http.filter';
 import { ApplicationModule } from 'src/bootstrap/application.module';
 import { createLogger, transports } from 'winston';

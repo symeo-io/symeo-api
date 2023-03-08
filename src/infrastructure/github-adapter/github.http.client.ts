@@ -1,6 +1,6 @@
 import User from 'src/domain/model/user/user.model';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
 import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
 import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';

@@ -7,16 +7,16 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "yarn config:build && nest build",
-    "config:build": "symeo-js",
+    "config:build": "symeo-js build",
     "format": "prettier --write \\\"src/**/*.ts\\\" \\\"tests/**/*.ts\\\"",
-    "start": "symeo-js -- nest start --watch",
-    "start:debug": "symeo-js -- nest start --debug --watch",
-    "start:prod": "symeo-js -- node dist/main",
+    "start": "symeo-js start -- nest start --watch",
+    "start:debug": "symeo-js start -- nest start --debug --watch",
+    "start:prod": "symeo-js start -- node dist/main",
     "lint": "eslint \"{src,tests}/**/*.ts\" --fix",
     "migration:create": "typeorm migration:create",
-    "test": "symeo-js -f symeo.test.yml -- jest --maxWorkers=1",
-    "test:watch": "symeo-js -f symeo.test.yml -- jest --watch --maxWorkers=1",
-    "test:cov": "symeo-js -f symeo.test.yml -- jest --coverage --maxWorkers=1"
+    "test": "symeo-js start -f symeo.test.yml -- jest --maxWorkers=1",
+    "test:watch": "symeo-js start -f symeo.test.yml -- jest --watch --maxWorkers=1",
+    "test:cov": "symeo-js start -f symeo.test.yml -- jest --coverage --maxWorkers=1"
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
@@ -46,7 +46,7 @@
     "reflect-metadata": "^0.1.13",
     "request-context": "^2.0.0",
     "rxjs": "^7.2.0",
-    "symeo-js": "^0.0.6",
+    "symeo-js": "^0.0.7-rc.2",
     "ts-mockito": "^2.6.1",
     "typeorm": "^0.3.12",
     "uuid": "^9.0.0",

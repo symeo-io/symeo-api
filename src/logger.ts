@@ -1,7 +1,7 @@
 import { format } from 'winston';
 import tracer from 'dd-trace';
 import { formats } from 'dd-trace/ext';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 
 export class WinstonLogger {
   getLogFormat() {
