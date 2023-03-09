@@ -10,6 +10,8 @@ import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.u
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
+import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -18,6 +20,7 @@ describe('ConfigurationController', () => {
   let fetchVcsFileMock: FetchVcsFileMock;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
+  let configurationAuditTestUtil: ConfigurationAuditTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -38,6 +41,7 @@ describe('ConfigurationController', () => {
       new FetchUserVcsRepositoryPermissionMock(appClient);
     fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
+    configurationAuditTestUtil = new ConfigurationAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -46,6 +50,7 @@ describe('ConfigurationController', () => {
 
   beforeEach(async () => {
     await configurationTestUtil.empty();
+    await configurationAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -84,6 +89,9 @@ describe('ConfigurationController', () => {
         .send(dataToSend)
         // Then
         .expect(404);
+      const configurationAuditEntity: ConfigurationAuditEntity[] =
+        await configurationAuditTestUtil.repository.find();
+      expect(configurationAuditEntity.length).toEqual(0);
     });
 
     it('should respond 403 and not create configuration for non admin user', async () => {
@@ -117,6 +125,9 @@ describe('ConfigurationController', () => {
       expect(response.body.code).toEqual(
         SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
       );
+      const configurationAuditEntity: ConfigurationAuditEntity[] =
+        await configurationAuditTestUtil.repository.find();
+      expect(configurationAuditEntity.length).toEqual(0);
     });
 
     it('should respond 200 and create new configuration', async () => {
@@ -167,6 +178,16 @@ describe('ConfigurationController', () => {
       expect(configuration?.branch).toEqual(sendData.branch);
       expect(configuration?.environments).toBeDefined();
       expect(configuration?.environments.length).toEqual(2);
+
+      const configurationAuditEntity: ConfigurationAuditEntity[] =
+        await configurationAuditTestUtil.repository.find();
+      expect(configurationAuditEntity.length).toEqual(1);
+      expect(configurationAuditEntity[0].configurationId).toEqual(
+        configuration?.id,
+      );
+      expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
     });
   });
 });

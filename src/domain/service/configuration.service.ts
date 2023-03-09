@@ -14,6 +14,8 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
+import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
+import ConfigurationAuditService from 'src/domain/service/configuration-audit.service';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -21,6 +23,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     private readonly repositoryFacade: RepositoryFacade,
     private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
+    private readonly configurationAuditService: ConfigurationAuditService,
   ) {}
 
   async findAllForRepository(
@@ -149,6 +152,16 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     await this.configurationStoragePort.save(configuration);
+
+    await this.configurationAuditService.save(
+      ConfigurationAuditEventType.CREATED,
+      user,
+      repository,
+      configuration,
+      branch,
+      contractFilePath,
+    );
+
     return configuration;
   }
 

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { EnvironmentAuditEventType } from 'src/domain/model/audit-environment/environment-audit-event-type.enum';
-import EnvironmentAuditMetadata from 'src/domain/model/audit-environment/environment-audit-metadata';
-import EnvironmentAudit from 'src/domain/model/audit-environment/environment-audit.model';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditMetadata from 'src/domain/model/environment-audit/environment-audit-metadata';
+import EnvironmentAudit from 'src/domain/model/environment-audit/environment-audit.model';
 import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 
 @Entity('environment-audits')
