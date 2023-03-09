@@ -215,35 +215,6 @@ describe('ValuesService', () => {
       mockedEnvironmentPermissionFacade,
     );
 
-    const mockedConfigurationContract: ConfigurationContract = {
-      aws: {
-        region: {
-          type: 'string',
-          secret: true,
-        },
-        user: {
-          type: 'string',
-        },
-      },
-      database: {
-        postgres: {
-          host: {
-            type: 'string',
-          },
-          port: {
-            type: 'integer',
-          },
-          password: {
-            type: 'string',
-            secret: true,
-          },
-          type: {
-            type: 'string',
-          },
-        },
-      },
-    };
-
     const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
     const currentUser = new User(
       `github|${vcsUserId}`,
@@ -284,12 +255,6 @@ describe('ValuesService', () => {
       branchName,
       [environment],
     );
-
-    beforeEach(() => {
-      jest
-        .spyOn(mockedConfigurationFacade, 'findContract')
-        .mockImplementation(() => Promise.resolve(mockedConfigurationContract));
-    });
 
     it('should update configuration values with partial requested values', async () => {
       const mockedPersistedValues: ConfigurationValues = {

@@ -11,7 +11,7 @@ import {
 } from 'src/domain/model/configuration/configuration-contract.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
-import { isEmpty } from 'lodash';
+import { isEmpty, merge } from 'lodash';
 
 export class ValuesService implements ValuesFacade {
   constructor(
@@ -95,6 +95,22 @@ export class ValuesService implements ValuesFacade {
     );
   }
 
+  private generateHiddenSecret(valuesProperty: string | number | boolean) {
+    return '*'.repeat(valuesProperty.toString().length);
+  }
+
+  private isContractPropertySecret(
+    contractProperty: ConfigurationContract | ConfigurationContractProperty,
+  ) {
+    return contractProperty.secret === true;
+  }
+
+  private isConfigProperty(
+    contractProperty: ConfigurationContract | ConfigurationContractProperty,
+  ) {
+    return contractProperty.type && typeof contractProperty.type === 'string';
+  }
+
   async updateValuesByEnvironmentForWebapp(
     currentUser: User,
     configuration: Configuration,
@@ -114,76 +130,9 @@ export class ValuesService implements ValuesFacade {
       );
     }
 
-    const configurationContract: ConfigurationContract =
-      await this.configurationFacade.findContract(
-        currentUser,
-        configuration,
-        branchName,
-      );
-
-    const emptyConfigurationValues = new ConfigurationValues();
-
-    const updatedConfigurationValues =
-      this.parseContractAndValuesToUpdateValues(
-        emptyConfigurationValues,
-        configurationContract,
-        persistedValues,
-        requestedValues,
-      );
-
     return await this.secretValuesStoragePort.setValuesForEnvironment(
       environment,
-      updatedConfigurationValues,
+      merge(persistedValues, requestedValues),
     );
-  }
-
-  private parseContractAndValuesToUpdateValues(
-    emptyConfigurationValues: ConfigurationValues,
-    configurationContract: ConfigurationContract,
-    persistedValues: ConfigurationValues,
-    requestedValues: ConfigurationValues,
-  ): ConfigurationValues {
-    Object.keys(configurationContract).forEach((propertyName) => {
-      const contractProperty = configurationContract[propertyName];
-      const persistedValuesProperty = persistedValues[propertyName];
-      const requestedValuesProperty = requestedValues[propertyName];
-
-      if (persistedValuesProperty) {
-        if (!requestedValuesProperty) {
-          emptyConfigurationValues[propertyName] = persistedValuesProperty;
-          return;
-        }
-
-        if (!this.isConfigProperty(contractProperty)) {
-          emptyConfigurationValues[propertyName] =
-            this.parseContractAndValuesToUpdateValues(
-              new ConfigurationValues(),
-              contractProperty as ConfigurationContract,
-              persistedValuesProperty as ConfigurationValues,
-              requestedValuesProperty as ConfigurationValues,
-            );
-          return;
-        }
-        emptyConfigurationValues[propertyName] = requestedValuesProperty;
-      }
-    });
-
-    return emptyConfigurationValues;
-  }
-
-  private generateHiddenSecret(valuesProperty: string | number | boolean) {
-    return '*'.repeat(valuesProperty.toString().length);
-  }
-
-  private isContractPropertySecret(
-    contractProperty: ConfigurationContract | ConfigurationContractProperty,
-  ) {
-    return contractProperty.secret === true;
-  }
-
-  private isConfigProperty(
-    contractProperty: ConfigurationContract | ConfigurationContractProperty,
-  ) {
-    return contractProperty.type && typeof contractProperty.type === 'string';
   }
 }

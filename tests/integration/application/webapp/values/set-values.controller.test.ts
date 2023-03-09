@@ -138,12 +138,6 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
-        configuration.contractFilePath,
-        './tests/utils/stubs/configuration/symeo.config.yml',
-      );
 
       fetchSecretMock.mockSecretPresent({
         database: { host: 'localhost', password: 'password' },
@@ -188,12 +182,6 @@ describe('ValuesController', () => {
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
-      );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
-        configuration.contractFilePath,
-        './tests/utils/stubs/configuration/symeo.config.yml',
       );
       fetchSecretMock.mockSecretPresent({
         database: { host: 'localhost', password: 'password' },
