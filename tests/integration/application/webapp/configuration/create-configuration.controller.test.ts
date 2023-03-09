@@ -197,6 +197,13 @@ describe('ConfigurationController', () => {
       expect(configurationAuditEntity[0].eventType).toEqual(
         ConfigurationAuditEventType.CREATED,
       );
+      expect(configurationAuditEntity[0].metadata).toEqual({
+        metadata: {
+          name: configuration?.name,
+          branch: configuration?.branch,
+          contractFilePath: configuration?.contractFilePath,
+        },
+      });
     });
   });
 });
