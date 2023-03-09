@@ -2,7 +2,6 @@ import { ConfigurationAuditEventType } from 'src/domain/model/audit-configuratio
 import ConfigurationAuditMetadata from 'src/domain/model/audit-configuration/configuration-audit-metadata';
 
 export default class ConfigurationAudit {
-  id: number;
   configurationId: string;
   eventType: ConfigurationAuditEventType;
   repositoryVcsId: number;
@@ -12,7 +11,6 @@ export default class ConfigurationAudit {
   createdAt: Date;
 
   constructor(
-    id: number,
     configurationId: string,
     eventType: ConfigurationAuditEventType,
     repositoryVcsId: number,
@@ -21,7 +19,6 @@ export default class ConfigurationAudit {
     metadata: ConfigurationAuditMetadata,
     createdAt: Date,
   ) {
-    this.id = id;
     this.configurationId = configurationId;
     this.eventType = eventType;
     this.repositoryVcsId = repositoryVcsId;

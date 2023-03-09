@@ -2,7 +2,6 @@ import { EnvironmentAuditEventType } from 'src/domain/model/audit-environment/en
 import EnvironmentAuditMetadata from 'src/domain/model/audit-environment/environment-audit-metadata';
 
 export default class EnvironmentAudit {
-  id: number;
   environmentId: string;
   eventType: EnvironmentAuditEventType;
   repositoryVcsId: number;
@@ -12,7 +11,6 @@ export default class EnvironmentAudit {
   createdAt: Date;
 
   constructor(
-    id: number,
     configurationId: string,
     eventType: EnvironmentAuditEventType,
     repositoryVcsId: number,
@@ -21,7 +19,6 @@ export default class EnvironmentAudit {
     metadata: EnvironmentAuditMetadata,
     createdAt: Date,
   ) {
-    this.id = id;
     this.environmentId = configurationId;
     this.eventType = eventType;
     this.repositoryVcsId = repositoryVcsId;

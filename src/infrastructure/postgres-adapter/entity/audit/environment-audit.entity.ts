@@ -34,7 +34,6 @@ export default class EnvironmentAuditEntity extends AbstractEntity {
 
   fromDomain(environmentAudit: EnvironmentAudit): EnvironmentAuditEntity {
     const entity = new EnvironmentAuditEntity();
-    entity.id = environmentAudit.id;
     entity.environmentId = environmentAudit.environmentId;
     entity.eventType = environmentAudit.eventType;
     entity.repositoryVcsId = environmentAudit.repositoryVcsId;

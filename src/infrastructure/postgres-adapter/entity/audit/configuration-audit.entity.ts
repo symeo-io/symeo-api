@@ -34,7 +34,6 @@ export default class ConfigurationAuditEntity extends AbstractEntity {
 
   fromDomain(configurationAudit: ConfigurationAudit): ConfigurationAuditEntity {
     const entity = new ConfigurationAuditEntity();
-    entity.id = configurationAudit.id;
     entity.configurationId = configurationAudit.configurationId;
     entity.eventType = configurationAudit.eventType;
     entity.repositoryVcsId = configurationAudit.repositoryVcsId;
