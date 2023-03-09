@@ -12,6 +12,7 @@ import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-us
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
 import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
+import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -130,7 +131,7 @@ describe('ConfigurationController', () => {
       expect(configurationAuditEntity.length).toEqual(0);
     });
 
-    it('should respond 200 and create new configuration', async () => {
+    it('should respond 200 and create new configuration and adding "CREATE" audit log in configuration audit table', async () => {
       // Given
       const vcsRepositoryId = faker.datatype.number();
       const repository =
@@ -182,11 +183,19 @@ describe('ConfigurationController', () => {
       const configurationAuditEntity: ConfigurationAuditEntity[] =
         await configurationAuditTestUtil.repository.find();
       expect(configurationAuditEntity.length).toEqual(1);
+      expect(configurationAuditEntity[0].id).toBeDefined();
+      expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(configurationAuditEntity[0].userName).toEqual(
+        currentUser.username,
+      );
       expect(configurationAuditEntity[0].configurationId).toEqual(
         configuration?.id,
       );
       expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
         vcsRepositoryId,
+      );
+      expect(configurationAuditEntity[0].eventType).toEqual(
+        ConfigurationAuditEventType.CREATED,
       );
     });
   });

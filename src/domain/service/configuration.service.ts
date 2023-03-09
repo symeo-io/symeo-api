@@ -109,7 +109,7 @@ export default class ConfigurationService implements ConfigurationFacade {
   }
 
   async createForRepository(
-    user: User,
+    currentUser: User,
     repository: VcsRepository,
     name: string,
     contractFilePath: string,
@@ -117,7 +117,7 @@ export default class ConfigurationService implements ConfigurationFacade {
   ): Promise<Configuration> {
     const fileExistsOnBranch =
       await this.repositoryFacade.checkFileExistsOnBranch(
-        user,
+        currentUser,
         repository.owner.name,
         repository.name,
         contractFilePath,
@@ -155,7 +155,7 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     await this.configurationAuditService.save(
       ConfigurationAuditEventType.CREATED,
-      user,
+      currentUser,
       repository,
       configuration,
       branch,
@@ -166,6 +166,8 @@ export default class ConfigurationService implements ConfigurationFacade {
   }
 
   async update(
+    currentUser: User,
+    repository: VcsRepository,
     configuration: Configuration,
     name: string,
     contractFilePath: string,
@@ -177,14 +179,33 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     await this.configurationStoragePort.save(configuration);
 
+    await this.configurationAuditService.save(
+      ConfigurationAuditEventType.UPDATED,
+      currentUser,
+      repository,
+      configuration,
+      branch,
+      contractFilePath,
+    );
+
     return configuration;
   }
 
-  async delete(configuration: Configuration): Promise<void> {
+  async delete(
+    currentUser: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ): Promise<void> {
     await Promise.all(
       configuration.environments.map((environment) =>
         this.secretValuesStoragePort.deleteValuesForEnvironment(environment),
       ),
+    );
+    await this.configurationAuditService.save(
+      ConfigurationAuditEventType.DELETED,
+      currentUser,
+      repository,
+      configuration,
     );
     return this.configurationStoragePort.delete(configuration);
   }

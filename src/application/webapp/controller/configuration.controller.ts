@@ -32,6 +32,7 @@ import { RequestedRepository } from 'src/application/webapp/decorator/requested-
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { RequiredRepositoryRole } from 'src/application/webapp/decorator/repository-role.decorator';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { Repository } from 'typeorm';
 
 @Controller('configurations')
 @ApiTags('configurations')
@@ -129,9 +130,15 @@ export class ConfigurationController {
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async deleteGitHubConfigurationById(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
   ): Promise<void> {
-    await this.configurationFacade.delete(configuration);
+    await this.configurationFacade.delete(
+      currentUser,
+      repository,
+      configuration,
+    );
   }
 
   @ApiOkResponse({
@@ -165,10 +172,14 @@ export class ConfigurationController {
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async updateForGitHub(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,
   ): Promise<UpdateGitHubConfigurationResponseDTO> {
     const updatedConfiguration = await this.configurationFacade.update(
+      currentUser,
+      repository,
       configuration,
       updateConfigurationDTO.name,
       updateConfigurationDTO.contractFilePath,
