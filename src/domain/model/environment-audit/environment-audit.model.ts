@@ -9,6 +9,7 @@ export default class EnvironmentAudit {
   userName: string;
   metadata: EnvironmentAuditMetadata;
   createdAt: Date;
+  id?: number;
 
   constructor(
     configurationId: string,
@@ -18,6 +19,7 @@ export default class EnvironmentAudit {
     userName: string,
     metadata: EnvironmentAuditMetadata,
     createdAt: Date,
+    id?: number,
   ) {
     this.environmentId = configurationId;
     this.eventType = eventType;
@@ -26,5 +28,6 @@ export default class EnvironmentAudit {
     this.userName = userName;
     this.metadata = metadata;
     this.createdAt = createdAt;
+    this.id = id;
   }
 }

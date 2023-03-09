@@ -4,7 +4,6 @@ import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationAudit from 'src/domain/model/configuration-audit/configuration-audit.model';
-import { v4 as uuid } from 'uuid';
 
 export default class ConfigurationAuditService {
   constructor(
@@ -20,7 +19,6 @@ export default class ConfigurationAuditService {
     contractFilePath?: string,
   ) {
     const configurationAudit = new ConfigurationAudit(
-      uuid(),
       configuration.id,
       ConfigurationAuditEventType.CREATED,
       repository.id,
@@ -33,6 +31,7 @@ export default class ConfigurationAuditService {
           contractFilePath: contractFilePath,
         },
       },
+      new Date(),
     );
     await this.configurationAuditStoragePort.save(configurationAudit);
   }
