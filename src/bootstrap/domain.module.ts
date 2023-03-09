@@ -25,6 +25,9 @@ import ConfigurationAuditService from 'src/domain/service/configuration-audit.se
 import ConfigurationAuditStoragePort from 'src/domain/port/out/configuration-audit.storage.port';
 import ConfigurationAuditAdapter from 'src/infrastructure/audit-adapter/adapter/configuration-audit.adapter';
 import { ConfigurationAuditAdapterModule } from 'src/bootstrap/configuration-audit-adapter.module';
+import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
+import { EnvironmentAuditAdapterModule } from 'src/bootstrap/environment-audit-adapter.module';
+import EnvironmentAuditStoragePort from 'src/domain/port/out/environment-audit.storage.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -57,16 +60,19 @@ const EnvironmentFacadeProvider = {
     configurationStoragePort: ConfigurationStoragePort,
     environmentStoragePort: EnvironmentStoragePort,
     secretValuesStoragePort: SecretValuesStoragePort,
+    environmentAuditService: EnvironmentAuditService,
   ) =>
     new EnvironmentService(
       configurationStoragePort,
       environmentStoragePort,
       secretValuesStoragePort,
+      environmentAuditService,
     ),
   inject: [
     'PostgresConfigurationAdapter',
     'PostgresEnvironmentAdapter',
     'SecretManagerAdapter',
+    'EnvironmentAuditService',
   ],
 };
 
@@ -181,6 +187,13 @@ const ConfigurationAuditServiceProvider = {
   inject: ['ConfigurationAuditAdapter'],
 };
 
+const EnvironmentAuditServiceProvider = {
+  provide: 'EnvironmentAuditService',
+  useFactory: (environmentAuditStoragePort: EnvironmentAuditStoragePort) =>
+    new EnvironmentAuditService(environmentAuditStoragePort),
+  inject: ['EnvironmentAuditAdapter'],
+};
+
 const EnvironmentPermissionUtilsProvider = {
   provide: 'EnvironmentPermissionUtils',
   useValue: new EnvironmentPermissionUtils(),
@@ -192,6 +205,7 @@ const EnvironmentPermissionUtilsProvider = {
     GithubAdapterModule,
     SecretManagerAdapterModule,
     ConfigurationAuditAdapterModule,
+    EnvironmentAuditAdapterModule,
   ],
   providers: [
     ConfigurationFacadeProvider,
@@ -205,6 +219,7 @@ const EnvironmentPermissionUtilsProvider = {
     AuthorizationServiceProvider,
     PermissionRoleServiceProvider,
     ConfigurationAuditServiceProvider,
+    EnvironmentAuditServiceProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -217,6 +232,7 @@ const EnvironmentPermissionUtilsProvider = {
     AuthorizationServiceProvider,
     PermissionRoleServiceProvider,
     ConfigurationAuditServiceProvider,
+    EnvironmentAuditServiceProvider,
   ],
 })
 export class DomainModule {}

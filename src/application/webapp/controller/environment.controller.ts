@@ -24,6 +24,10 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { RequiredEnvironmentPermission } from 'src/application/webapp/decorator/environment-permission-role.decorator';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { RequiredRepositoryRole } from 'src/application/webapp/decorator/repository-role.decorator';
+import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
+import User from 'src/domain/model/user/user.model';
+import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 @Controller('configurations')
 @ApiTags('environments')
@@ -42,10 +46,14 @@ export class EnvironmentController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async updateEnvironment(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedEnvironment() environment: Environment,
     @Body() updateEnvironmentDTO: UpdateEnvironmentDTO,
   ): Promise<UpdateEnvironmentResponseDTO> {
     const updatedEnvironment = await this.environmentFacade.updateEnvironment(
+      currentUser,
+      repository,
       environment,
       updateEnvironmentDTO.name,
       updateEnvironmentDTO.color,
@@ -62,9 +70,15 @@ export class EnvironmentController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async deleteEnvironment(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedEnvironment() environment: Environment,
   ): Promise<void> {
-    await this.environmentFacade.deleteEnvironment(environment);
+    await this.environmentFacade.deleteEnvironment(
+      currentUser,
+      repository,
+      environment,
+    );
   }
 
   @ApiResponse({ status: 200 })
@@ -76,10 +90,14 @@ export class EnvironmentController {
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async createEnvironment(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @Body() createEnvironmentDTO: CreateEnvironmentDTO,
   ): Promise<CreateEnvironmentResponseDTO> {
     const environment = await this.environmentFacade.createEnvironment(
+      currentUser,
+      repository,
       configuration,
       createEnvironmentDTO.name,
       createEnvironmentDTO.color,

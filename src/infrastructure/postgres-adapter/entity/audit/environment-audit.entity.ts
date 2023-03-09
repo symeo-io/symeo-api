@@ -32,7 +32,9 @@ export default class EnvironmentAuditEntity extends AbstractEntity {
   })
   metadata: EnvironmentAuditMetadata;
 
-  fromDomain(environmentAudit: EnvironmentAudit): EnvironmentAuditEntity {
+  static fromDomain(
+    environmentAudit: EnvironmentAudit,
+  ): EnvironmentAuditEntity {
     const entity = new EnvironmentAuditEntity();
     entity.environmentId = environmentAudit.environmentId;
     entity.eventType = environmentAudit.eventType;

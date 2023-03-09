@@ -9,22 +9,22 @@ export default class EnvironmentAuditMetadata {
     | ValuesMetadataType;
 }
 
-class EnvironmentMetadataType {
+export class EnvironmentMetadataType {
   name: string;
   color?: EnvironmentColor;
 }
 
-class ApiKeyMetadataType {
+export class ApiKeyMetadataType {
   hiddenKey: string;
 }
 
-class PermissionMetadataType {
+export class PermissionMetadataType {
   userName: string;
   previousRole: EnvironmentPermissionRole;
   newRole: EnvironmentPermissionRole;
 }
 
-class ValuesMetadataType {
+export class ValuesMetadataType {
   environmentName: string;
   updatedProperties?: string[];
   readProperties?: string[];
