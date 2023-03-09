@@ -2,11 +2,12 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ConfigurationAuditEventType } from 'src/domain/model/audit-configuration/configuration-audit-event-type.enum';
 import ConfigurationAuditMetadata from 'src/domain/model/audit-configuration/configuration-audit-metadata';
 import ConfigurationAudit from 'src/domain/model/audit-configuration/configuration-audit.model';
+import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 
 @Entity('configuration-audits')
-export default class ConfigurationAuditEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export default class ConfigurationAuditEntity extends AbstractEntity {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column()
   configurationId: string;
@@ -40,6 +41,7 @@ export default class ConfigurationAuditEntity {
     entity.userId = configurationAudit.userId;
     entity.userName = configurationAudit.userName;
     entity.metadata = configurationAudit.metadata;
+    entity.createdAt = configurationAudit.createdAt;
     return entity;
   }
 }
