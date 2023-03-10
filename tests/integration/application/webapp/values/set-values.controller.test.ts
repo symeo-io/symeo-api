@@ -15,6 +15,10 @@ import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.en
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
@@ -28,6 +32,7 @@ describe('ValuesController', () => {
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   const userVcsId = faker.datatype.number();
   const currentUser = new User(
@@ -56,6 +61,7 @@ describe('ValuesController', () => {
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
       appClient,
     );
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -66,6 +72,7 @@ describe('ValuesController', () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
+    await environmentAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -119,6 +126,9 @@ describe('ValuesController', () => {
       expect(response.body.message).toBe(
         `User with userVcsId ${userVcsId} is trying to access resources he do not have permission for (minimum ${EnvironmentPermissionRole.WRITE} permission required)`,
       );
+      const environmentAuditEntities: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntities.length).toEqual(0);
     });
 
     it('should update secret if it exists for full values replacement', async () => {
@@ -139,14 +149,46 @@ describe('ValuesController', () => {
         configuration,
       );
 
-      fetchSecretMock.mockSecretPresent({
-        database: { host: 'localhost', password: 'password' },
-      });
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchSecretMock.mockSecretPresent(configurationValues);
       updateSecretMock.mock();
 
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
       const sentValues = {
-        database: { host: 'newHost', password: 'newPassword' },
+        aws: {
+          region: faker.datatype.string(),
+          user: faker.datatype.string(),
+        },
+        database: {
+          postgres: {
+            host: faker.datatype.string(),
+            port: faker.datatype.number(),
+            password: faker.datatype.string(),
+            type: faker.datatype.string(),
+          },
+        },
       };
+
       await appClient
         .request(currentUser)
         .post(
@@ -163,6 +205,33 @@ describe('ValuesController', () => {
       expect(updateSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
         SecretString: JSON.stringify(sentValues),
+      });
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          environmentName: environment.name,
+          updatedProperties: [
+            'region',
+            'user',
+            'host',
+            'port',
+            'password',
+            'type',
+          ],
+        },
       });
     });
 
@@ -183,13 +252,40 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchSecretMock.mockSecretPresent({
-        database: { host: 'localhost', password: 'password' },
-      });
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchSecretMock.mockSecretPresent(configurationValues);
       updateSecretMock.mock();
 
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
       const sentValues = {
-        database: { host: 'newHost' },
+        aws: {
+          region: faker.datatype.string(),
+        },
+        database: {
+          postgres: {
+            host: faker.datatype.string(),
+          },
+        },
       };
 
       await appClient
@@ -208,8 +304,38 @@ describe('ValuesController', () => {
       expect(updateSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
         SecretString: JSON.stringify({
-          database: { host: 'newHost', password: 'password' },
+          aws: {
+            region: sentValues.aws.region,
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: sentValues.database.postgres.host,
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
         }),
+      });
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          environmentName: environment.name,
+          updatedProperties: ['region', 'host'],
+        },
       });
     });
 
@@ -239,9 +365,24 @@ describe('ValuesController', () => {
       fetchSecretMock.mockSecretMissing();
       createSecretMock.mock();
 
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
       const sentValues = {
-        database: { host: 'localhost', password: 'password' },
+        aws: {
+          region: faker.datatype.string(),
+        },
+        database: {
+          postgres: {
+            host: faker.datatype.string(),
+          },
+        },
       };
+
       await appClient
         .request(currentUser)
         .post(
@@ -258,6 +399,26 @@ describe('ValuesController', () => {
       expect(createSecretMock.spy).toHaveBeenCalledWith({
         Name: environment.id,
         SecretString: JSON.stringify(sentValues),
+      });
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          environmentName: environment.name,
+          updatedProperties: ['region', 'host'],
+        },
       });
     });
   });

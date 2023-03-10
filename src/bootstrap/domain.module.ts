@@ -160,16 +160,19 @@ const ValuesFacadeProvider = {
     secretValuesStoragePort: SecretValuesStoragePort,
     configurationFacade: ConfigurationFacade,
     environmentPermissionFacade: EnvironmentPermissionFacade,
+    environmentAuditService: EnvironmentAuditService,
   ) =>
     new ValuesService(
       secretValuesStoragePort,
       configurationFacade,
       environmentPermissionFacade,
+      environmentAuditService,
     ),
   inject: [
     'SecretManagerAdapter',
     'ConfigurationFacade',
     'EnvironmentPermissionFacade',
+    'EnvironmentAuditService',
   ],
 };
 

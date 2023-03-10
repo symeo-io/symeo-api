@@ -16,11 +16,16 @@ export interface ValuesFacade {
   ): Promise<ConfigurationValues>;
 
   getNonHiddenValuesByEnvironmentForWebapp(
+    user: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+    branch: string | undefined,
     environment: Environment,
   ): Promise<ConfigurationValues>;
 
   updateValuesByEnvironmentForWebapp(
     currentUser: User,
+    repository: VcsRepository,
     configuration: Configuration,
     environment: Environment,
     branch: string | undefined,

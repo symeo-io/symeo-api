@@ -4,7 +4,10 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 import Environment from 'src/domain/model/environment/environment.model';
 import EnvironmentAudit from 'src/domain/model/environment-audit/environment-audit.model';
-import { EnvironmentMetadataType } from 'src/domain/model/environment-audit/environment-audit-metadata';
+import {
+  EnvironmentMetadataType,
+  ValuesMetadataType,
+} from 'src/domain/model/environment-audit/environment-audit-metadata';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 import ApiKey from 'src/domain/model/environment/api-key.model';
@@ -94,6 +97,27 @@ export default class EnvironmentAuditService {
         metadata: {
           hiddenKey: apiKey.hiddenKey,
         },
+      },
+      new Date(),
+    );
+    await this.environmentAuditStoragePort.save(environmentAudit);
+  }
+
+  async saveWithValuesMetadataType(
+    environmentAuditEventType: EnvironmentAuditEventType,
+    currentUser: User,
+    repository: VcsRepository,
+    environment: Environment,
+    valuesMetadata: ValuesMetadataType,
+  ) {
+    const environmentAudit = new EnvironmentAudit(
+      environment.id,
+      environmentAuditEventType,
+      repository.id,
+      currentUser.id,
+      currentUser.username,
+      {
+        metadata: valuesMetadata,
       },
       new Date(),
     );
