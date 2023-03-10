@@ -8,6 +8,7 @@ import { EnvironmentMetadataType } from 'src/domain/model/environment-audit/envi
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
+import ApiKey from 'src/domain/model/environment/api-key.model';
 
 export default class EnvironmentAuditService {
   constructor(
@@ -75,5 +76,28 @@ export default class EnvironmentAuditService {
       }
     });
     await this.environmentAuditStoragePort.saveAll(environmentAudits);
+  }
+
+  async saveWithApiKeyMetadataType(
+    environmentAuditEventType: EnvironmentAuditEventType,
+    currentUser: User,
+    repository: VcsRepository,
+    environment: Environment,
+    apiKey: ApiKey,
+  ) {
+    const environmentAudit = new EnvironmentAudit(
+      environment.id,
+      environmentAuditEventType,
+      repository.id,
+      currentUser.id,
+      currentUser.username,
+      {
+        metadata: {
+          hiddenKey: apiKey.hiddenKey,
+        },
+      },
+      new Date(),
+    );
+    await this.environmentAuditStoragePort.save(environmentAudit);
   }
 }

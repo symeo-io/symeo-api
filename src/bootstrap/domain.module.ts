@@ -179,8 +179,18 @@ const ApiKeyFacadeProvider = {
   useFactory: (
     configurationFacade: ConfigurationFacade,
     apiKeyStoragePort: ApiKeyStoragePort,
-  ) => new ApiKeyService(configurationFacade, apiKeyStoragePort),
-  inject: ['ConfigurationFacade', 'PostgresApiKeyAdapter'],
+    environmentAuditService: EnvironmentAuditService,
+  ) =>
+    new ApiKeyService(
+      configurationFacade,
+      apiKeyStoragePort,
+      environmentAuditService,
+    ),
+  inject: [
+    'ConfigurationFacade',
+    'PostgresApiKeyAdapter',
+    'EnvironmentAuditService',
+  ],
 };
 
 const ConfigurationAuditServiceProvider = {

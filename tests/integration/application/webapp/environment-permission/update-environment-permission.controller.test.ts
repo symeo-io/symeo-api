@@ -147,6 +147,9 @@ describe('EnvironmentPermissionController', () => {
         .send({ data: faker.name.firstName() })
         // Then
         .expect(400);
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 404 for trying to update permissions of user that do not have access to repository', async () => {
@@ -199,6 +202,9 @@ describe('EnvironmentPermissionController', () => {
       expect(response.body.message).toBe(
         `User with vcsIds ${updateEnvironmentPermissionDTOList[0].userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
       );
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 400 for trying to update permission of a github repository admin', async () => {
@@ -252,6 +258,9 @@ describe('EnvironmentPermissionController', () => {
       expect(response.body.message).toBe(
         `User with vcsId ${environmentPermissionToUpdateVcsUserId} is administrator of the repository, thus you can not modify his environment permissions`,
       );
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 200 and create new environment permission for a github collaborator', async () => {
