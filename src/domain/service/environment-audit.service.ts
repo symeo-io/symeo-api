@@ -5,6 +5,9 @@ import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/en
 import Environment from 'src/domain/model/environment/environment.model';
 import EnvironmentAudit from 'src/domain/model/environment-audit/environment-audit.model';
 import { EnvironmentMetadataType } from 'src/domain/model/environment-audit/environment-audit-metadata';
+import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
+import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 
 export default class EnvironmentAuditService {
   constructor(
@@ -30,5 +33,47 @@ export default class EnvironmentAuditService {
       new Date(),
     );
     await this.environmentAuditStoragePort.save(environmentAudit);
+  }
+
+  async saveAllWithPermissionMetadataType(
+    environmentAuditEventType: EnvironmentAuditEventType,
+    user: User,
+    repository: VcsRepository,
+    environment: Environment,
+    previousEnvironmentPermissions: EnvironmentPermissionWithUser[],
+    updatedEnvironmentPermissions: EnvironmentPermission[],
+  ): Promise<void> {
+    const environmentAudits: EnvironmentAudit[] = [];
+    updatedEnvironmentPermissions.forEach((updatedEnvironmentPermission) => {
+      const previousEnvironmentPermission = previousEnvironmentPermissions.find(
+        (previousEnvironmentPermission) =>
+          previousEnvironmentPermission.userVcsId ===
+            updatedEnvironmentPermission.userVcsId &&
+          previousEnvironmentPermission.environmentId ===
+            updatedEnvironmentPermission.environmentId,
+      );
+
+      if (previousEnvironmentPermission) {
+        environmentAudits.push(
+          new EnvironmentAudit(
+            environment.id,
+            environmentAuditEventType,
+            repository.id,
+            user.id,
+            user.username,
+            {
+              metadata: {
+                userName: previousEnvironmentPermission.user.name,
+                previousRole:
+                  previousEnvironmentPermission.environmentPermissionRole,
+                newRole: updatedEnvironmentPermission.environmentPermissionRole,
+              },
+            },
+            new Date(),
+          ),
+        );
+      }
+    });
+    await this.environmentAuditStoragePort.saveAll(environmentAudits);
   }
 }

@@ -77,6 +77,7 @@ export class EnvironmentPermissionController {
       await this.environmentPermissionFacade.updateEnvironmentPermissions(
         user,
         repository,
+        environment,
         UpdateEnvironmentPermissionsDTO.toDomains(
           updateEnvironmentPermissionsDTO.permissions,
           environment.id,

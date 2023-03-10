@@ -82,16 +82,19 @@ const EnvironmentPermissionFacadeProvider = {
     githubAdapterPort: GithubAdapterPort,
     environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     environmentPermissionUtils: EnvironmentPermissionUtils,
+    environmentAuditService: EnvironmentAuditService,
   ) =>
     new EnvironmentPermissionService(
       githubAdapterPort,
       environmentPermissionStoragePort,
       environmentPermissionUtils,
+      environmentAuditService,
     ),
   inject: [
     'GithubAdapter',
     'PostgresEnvironmentPermissionAdapter',
     'EnvironmentPermissionUtils',
+    'EnvironmentAuditService',
   ],
 };
 

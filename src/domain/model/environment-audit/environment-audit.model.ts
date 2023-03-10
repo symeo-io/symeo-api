@@ -9,25 +9,22 @@ export default class EnvironmentAudit {
   userName: string;
   metadata: EnvironmentAuditMetadata;
   createdAt: Date;
-  id?: number;
 
   constructor(
-    configurationId: string,
+    environmentId: string,
     eventType: EnvironmentAuditEventType,
     repositoryVcsId: number,
     userId: string,
     userName: string,
     metadata: EnvironmentAuditMetadata,
     createdAt: Date,
-    id?: number,
   ) {
-    this.environmentId = configurationId;
+    this.environmentId = environmentId;
     this.eventType = eventType;
     this.repositoryVcsId = repositoryVcsId;
     this.userId = userId;
     this.userName = userName;
     this.metadata = metadata;
     this.createdAt = createdAt;
-    this.id = id;
   }
 }

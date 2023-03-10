@@ -9,7 +9,6 @@ export default class ConfigurationAudit {
   userName: string;
   metadata: ConfigurationAuditMetadata;
   createdAt: Date;
-  id?: number;
 
   constructor(
     configurationId: string,
@@ -19,7 +18,6 @@ export default class ConfigurationAudit {
     userName: string,
     metadata: ConfigurationAuditMetadata,
     createdAt: Date,
-    id?: number,
   ) {
     this.configurationId = configurationId;
     this.eventType = eventType;
@@ -28,6 +26,5 @@ export default class ConfigurationAudit {
     this.userName = userName;
     this.metadata = metadata;
     this.createdAt = createdAt;
-    this.id = id;
   }
 }

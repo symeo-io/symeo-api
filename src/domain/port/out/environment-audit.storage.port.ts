@@ -2,4 +2,6 @@ import EnvironmentAudit from 'src/domain/model/environment-audit/environment-aud
 
 export default interface EnvironmentAuditStoragePort {
   save(environmentAudit: EnvironmentAudit): Promise<void>;
+
+  saveAll(environmentAudits: EnvironmentAudit[]): Promise<void>;
 }

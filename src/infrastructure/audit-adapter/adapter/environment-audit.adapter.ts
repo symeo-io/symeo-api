@@ -15,4 +15,12 @@ export default class EnvironmentAuditAdapter
       EnvironmentAuditEntity.fromDomain(environmentAudit),
     );
   }
+
+  async saveAll(environmentAudits: EnvironmentAudit[]): Promise<void> {
+    await this.environmentAuditEntityRepository.save(
+      environmentAudits.map((environmentAudit) =>
+        EnvironmentAuditEntity.fromDomain(environmentAudit),
+      ),
+    );
+  }
 }
