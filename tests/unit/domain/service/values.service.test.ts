@@ -10,7 +10,6 @@ import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.stora
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { ValuesService } from 'src/domain/service/values.service';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 

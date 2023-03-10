@@ -14,7 +14,6 @@ import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum
 import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
 import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
 import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;

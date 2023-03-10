@@ -19,7 +19,6 @@ import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-us
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
 import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
 import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 
 describe('EnvironmentPermissionController', () => {

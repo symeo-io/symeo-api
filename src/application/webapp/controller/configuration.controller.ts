@@ -32,7 +32,6 @@ import { RequestedRepository } from 'src/application/webapp/decorator/requested-
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { RequiredRepositoryRole } from 'src/application/webapp/decorator/repository-role.decorator';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
-import { Repository } from 'typeorm';
 
 @Controller('configurations')
 @ApiTags('configurations')

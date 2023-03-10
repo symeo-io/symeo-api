@@ -6,7 +6,6 @@ import Environment from 'src/domain/model/environment/environment.model';
 import EnvironmentAudit from 'src/domain/model/environment-audit/environment-audit.model';
 import { EnvironmentMetadataType } from 'src/domain/model/environment-audit/environment-audit-metadata';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 import ApiKey from 'src/domain/model/environment/api-key.model';
 

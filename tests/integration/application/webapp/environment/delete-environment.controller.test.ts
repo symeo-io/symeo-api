@@ -14,7 +14,6 @@ import { DeleteSecretMock } from 'tests/utils/mocks/delete-secret.mock';
 import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
 import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
 import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
 import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 
 describe('EnvironmentController', () => {

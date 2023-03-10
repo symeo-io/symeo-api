@@ -23,7 +23,6 @@ import { PermissionRoleService } from 'src/domain/service/permission-role.servic
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import ConfigurationAuditService from 'src/domain/service/configuration-audit.service';
 import ConfigurationAuditStoragePort from 'src/domain/port/out/configuration-audit.storage.port';
-import ConfigurationAuditAdapter from 'src/infrastructure/audit-adapter/adapter/configuration-audit.adapter';
 import { ConfigurationAuditAdapterModule } from 'src/bootstrap/configuration-audit-adapter.module';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import { EnvironmentAuditAdapterModule } from 'src/bootstrap/environment-audit-adapter.module';
