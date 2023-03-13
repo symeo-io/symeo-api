@@ -5,8 +5,6 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 
 export default interface ConfigurationFacade {
-  findById(repository: VcsRepository, id: string): Promise<Configuration>;
-
   findAllForRepository(repository: VcsRepository): Promise<Configuration[]>;
 
   validateCreateForUser(

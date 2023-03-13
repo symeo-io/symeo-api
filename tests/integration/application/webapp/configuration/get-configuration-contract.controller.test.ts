@@ -6,9 +6,7 @@ import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-toke
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
-import { anyString } from 'ts-mockito';
 import { config } from 'symeo-js';
-import { AxiosRequestConfig } from 'axios';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -16,7 +14,6 @@ describe('ConfigurationController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsFileMock: FetchVcsFileMock;
   let configurationTestUtil: ConfigurationTestUtil;
-  let mockAccessToken: string;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -43,7 +40,7 @@ describe('ConfigurationController', () => {
 
   beforeEach(async () => {
     await configurationTestUtil.empty();
-    mockAccessToken = fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {

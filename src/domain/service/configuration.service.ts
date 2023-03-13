@@ -23,26 +23,6 @@ export default class ConfigurationService implements ConfigurationFacade {
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
   ) {}
 
-  async findById(
-    repository: VcsRepository,
-    id: string,
-  ): Promise<Configuration> {
-    const configuration = await this.configurationStoragePort.findById(
-      repository.vcsType,
-      repository.id,
-      id,
-    );
-
-    if (!configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${id}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
-    return configuration;
-  }
-
   async findAllForRepository(
     repository: VcsRepository,
   ): Promise<Configuration[]> {

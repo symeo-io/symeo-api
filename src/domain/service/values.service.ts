@@ -9,9 +9,9 @@ import {
   ConfigurationContract,
   ConfigurationContractProperty,
 } from 'src/domain/model/configuration/configuration-contract.model';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
+import { isEmpty, merge } from 'lodash';
 
 export class ValuesService implements ValuesFacade {
   constructor(
@@ -28,46 +28,31 @@ export class ValuesService implements ValuesFacade {
     );
   }
 
-  async findByEnvironmentForWebapp(
+  async getHiddenValuesByEnvironmentForWebapp(
     user: User,
     repository: VcsRepository,
     configuration: Configuration,
     branchName: string | undefined,
     environment: Environment,
   ): Promise<ConfigurationValues> {
-    const currentUserPermissionRole: EnvironmentPermissionRole =
-      await this.environmentPermissionFacade.getEnvironmentPermissionRole(
-        user,
-        repository,
-        configuration,
-        environment,
-      );
-
     const configurationValues: ConfigurationValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
       );
-
-    if (
-      currentUserPermissionRole === EnvironmentPermissionRole.READ_NON_SECRET
-    ) {
-      const configurationContract: ConfigurationContract =
-        await this.configurationFacade.findContract(
-          user,
-          configuration,
-          branchName,
-        );
-
-      const emptyConfigurationValues = new ConfigurationValues();
-
-      return this.parseContractAndValuesToHideSecrets(
-        emptyConfigurationValues,
-        configurationContract,
-        configurationValues,
+    const configurationContract: ConfigurationContract =
+      await this.configurationFacade.findContract(
+        user,
+        configuration,
+        branchName,
       );
-    }
 
-    return configurationValues;
+    const emptyConfigurationValues = new ConfigurationValues();
+
+    return this.parseContractAndValuesToHideSecrets(
+      emptyConfigurationValues,
+      configurationContract,
+      configurationValues,
+    );
   }
 
   private parseContractAndValuesToHideSecrets(
@@ -102,6 +87,14 @@ export class ValuesService implements ValuesFacade {
     return emptyConfigurationValues;
   }
 
+  async getNonHiddenValuesByEnvironmentForWebapp(
+    environment: Environment,
+  ): Promise<ConfigurationValues> {
+    return await this.secretValuesStoragePort.getValuesForEnvironmentId(
+      environment.id,
+    );
+  }
+
   private generateHiddenSecret(valuesProperty: string | number | boolean) {
     return '*'.repeat(valuesProperty.toString().length);
   }
@@ -118,13 +111,28 @@ export class ValuesService implements ValuesFacade {
     return contractProperty.type && typeof contractProperty.type === 'string';
   }
 
-  async updateByEnvironmentForWebapp(
+  async updateValuesByEnvironmentForWebapp(
+    currentUser: User,
+    configuration: Configuration,
     environment: Environment,
-    values: ConfigurationValues,
+    branchName: string | undefined,
+    requestedValues: ConfigurationValues,
   ): Promise<void> {
+    const persistedValues =
+      await this.secretValuesStoragePort.getValuesForEnvironmentId(
+        environment.id,
+      );
+
+    if (isEmpty(persistedValues)) {
+      return await this.secretValuesStoragePort.setValuesForEnvironment(
+        environment,
+        requestedValues,
+      );
+    }
+
     return await this.secretValuesStoragePort.setValuesForEnvironment(
       environment,
-      values,
+      merge(persistedValues, requestedValues),
     );
   }
 }

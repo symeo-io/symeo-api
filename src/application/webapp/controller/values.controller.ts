@@ -42,7 +42,6 @@ export class ValuesController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_NON_SECRET)
   async getEnvironmentValuesForWebapp(
     @CurrentUser() user: User,
     @RequestedRepository() repository: VcsRepository,
@@ -50,13 +49,35 @@ export class ValuesController {
     @RequestedEnvironment() environment: Environment,
     @Query('branch') branch: string | undefined,
   ): Promise<GetEnvironmentValuesResponseDTO> {
-    const values = await this.valuesFacade.findByEnvironmentForWebapp(
-      user,
-      repository,
-      configuration,
-      branch,
-      environment,
-    );
+    const values =
+      await this.valuesFacade.getHiddenValuesByEnvironmentForWebapp(
+        user,
+        repository,
+        configuration,
+        branch,
+        environment,
+      );
+
+    return new GetEnvironmentValuesResponseDTO(values);
+  }
+
+  @ApiOkResponse({
+    description: 'Environment values successfully retrieved',
+    type: GetEnvironmentValuesResponseDTO,
+  })
+  @Get(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+  )
+  @UseGuards(EnvironmentAuthorizationGuard)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_SECRET)
+  async getEnvironmentValuesSecretsForWebapp(
+    @CurrentUser() user: User,
+    @RequestedEnvironment() environment: Environment,
+  ): Promise<GetEnvironmentValuesResponseDTO> {
+    const values =
+      await this.valuesFacade.getNonHiddenValuesByEnvironmentForWebapp(
+        environment,
+      );
 
     return new GetEnvironmentValuesResponseDTO(values);
   }
@@ -71,11 +92,17 @@ export class ValuesController {
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
   async setEnvironmentValuesForWebapp(
+    @CurrentUser() currentUser: User,
+    @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
+    @Query('branch') branchName: string | undefined,
   ): Promise<void> {
-    await this.valuesFacade.updateByEnvironmentForWebapp(
+    await this.valuesFacade.updateValuesByEnvironmentForWebapp(
+      currentUser,
+      configuration,
       environment,
+      branchName,
       setEnvironmentValuesResponseDTO.values,
     );
   }

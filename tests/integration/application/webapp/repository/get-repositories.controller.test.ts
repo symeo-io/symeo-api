@@ -3,7 +3,6 @@ import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
-import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsRepositoriesMock } from 'tests/utils/mocks/fetch-vcs-repositories.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 

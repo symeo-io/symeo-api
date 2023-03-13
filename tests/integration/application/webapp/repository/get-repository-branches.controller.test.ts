@@ -3,13 +3,11 @@ import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
-import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsRepositoryBranchesMock } from 'tests/utils/mocks/fetch-vcs-repository-branches.mock';
 
 describe('RepositoryController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
-  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsRepositoryBranchesMock: FetchVcsRepositoryBranchesMock;
 
   const currentUser = new User(
@@ -25,7 +23,6 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchVcsRepositoryBranchesMock = new FetchVcsRepositoryBranchesMock(
       appClient,

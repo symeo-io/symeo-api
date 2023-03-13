@@ -2,12 +2,6 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 export default interface ConfigurationStoragePort {
-  findById(
-    vcsType: VCSProvider,
-    repositoryVcsId: number,
-    id: string,
-  ): Promise<Configuration | undefined>;
-
   findAllForRepositoryId(
     vcsType: VCSProvider,
     repositoryVcsId: number,
