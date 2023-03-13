@@ -7,7 +7,7 @@ import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
-import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 

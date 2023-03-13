@@ -13,7 +13,7 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { isEmpty, merge } from 'lodash';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
-import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 
 export class ValuesService implements ValuesFacade {
   constructor(

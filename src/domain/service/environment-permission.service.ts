@@ -15,7 +15,7 @@ import Configuration from 'src/domain/model/configuration/configuration.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
-import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade

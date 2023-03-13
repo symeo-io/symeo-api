@@ -195,6 +195,13 @@ const ApiKeyFacadeProvider = {
   ],
 };
 
+const ConfigurationAuditFacadeProvider = {
+  provide: 'ConfigurationAuditFacade',
+  useFactory: (configurationAuditStoragePort: ConfigurationAuditStoragePort) =>
+    new ConfigurationAuditService(configurationAuditStoragePort),
+  inject: ['ConfigurationAuditAdapter'],
+};
+
 const ConfigurationAuditServiceProvider = {
   provide: 'ConfigurationAuditService',
   useFactory: (configurationAuditStoragePort: ConfigurationAuditStoragePort) =>
@@ -235,6 +242,7 @@ const EnvironmentPermissionUtilsProvider = {
     PermissionRoleServiceProvider,
     ConfigurationAuditServiceProvider,
     EnvironmentAuditServiceProvider,
+    ConfigurationAuditFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -248,6 +256,7 @@ const EnvironmentPermissionUtilsProvider = {
     PermissionRoleServiceProvider,
     ConfigurationAuditServiceProvider,
     EnvironmentAuditServiceProvider,
+    ConfigurationAuditFacadeProvider,
   ],
 })
 export class DomainModule {}

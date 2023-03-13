@@ -1,5 +1,5 @@
-import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
-import EnvironmentAuditMetadata from 'src/domain/model/environment-audit/environment-audit-metadata';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditMetadata from 'src/domain/model/audit/environment-audit/environment-audit-metadata';
 
 export default class EnvironmentAudit {
   environmentId: string;

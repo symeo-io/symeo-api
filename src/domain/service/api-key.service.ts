@@ -6,7 +6,7 @@ import Environment from 'src/domain/model/environment/environment.model';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 
 export class ApiKeyService implements ApiKeyFacade {
   constructor(
