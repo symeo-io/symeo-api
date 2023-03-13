@@ -9,13 +9,18 @@ import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-a
 import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
 import { ConfigurationAuditDTO } from 'src/application/webapp/dto/audit/configuration-audit.dto';
 import { GetConfigurationAuditsResponseDTO } from 'src/application/webapp/dto/audit/get-configuration-audits.response.dto';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import { EnvironmentColors } from 'src/domain/model/environment/environment-color.model';
 
 describe('AuditController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let configurationTestUtil: ConfigurationTestUtil;
-  let configurationAuditTestUtil: ConfigurationAuditTestUtil;
+  let environmentTestUtil: EnvironmentTestUtil;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -32,7 +37,8 @@ describe('AuditController', () => {
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
-    configurationAuditTestUtil = new ConfigurationAuditTestUtil(appClient);
+    environmentTestUtil = new EnvironmentTestUtil(appClient);
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   });
 
   afterAll(async () => {
@@ -41,7 +47,8 @@ describe('AuditController', () => {
 
   beforeEach(async () => {
     await configurationTestUtil.empty();
-    await configurationAuditTestUtil.empty();
+    await environmentTestUtil.empty();
+    await environmentAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -50,8 +57,8 @@ describe('AuditController', () => {
     appClient.mockReset();
   });
 
-  describe('getConfigurationAudits', () => {
-    it('should get configuration audits', async () => {
+  describe('getEnvironmentAudits', () => {
+    it('should get environment audits', async () => {
       // Given
       const vcsRepositoryId = faker.datatype.number();
       const repository =
@@ -59,24 +66,52 @@ describe('AuditController', () => {
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
-      await configurationAuditTestUtil.createConfigurationAudit(
-        repository.id,
-        configuration.id,
-        ConfigurationAuditEventType.CREATED,
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
       );
-      await configurationAuditTestUtil.createConfigurationAudit(
+      await environmentAuditTestUtil.createEnvironmentAudit(
         repository.id,
         configuration.id,
-        ConfigurationAuditEventType.UPDATED,
+        environment.id,
+        EnvironmentAuditEventType.CREATED,
+        {
+          metadata: {
+            name: faker.name.firstName(),
+            color: 'amber',
+          },
+        },
+      );
+      await environmentAuditTestUtil.createEnvironmentAudit(
+        repository.id,
+        configuration.id,
+        environment.id,
+        EnvironmentAuditEventType.UPDATED,
+        {
+          metadata: {
+            name: faker.name.firstName(),
+            color: 'blue',
+          },
+        },
+      );
+      await environmentAuditTestUtil.createEnvironmentAudit(
+        repository.id,
+        configuration.id,
+        environment.id,
+        EnvironmentAuditEventType.API_KEY_CREATED,
+        {
+          metadata: {
+            hiddenKey: faker.datatype.string(),
+          },
+        },
       );
 
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/${vcsRepositoryId}/${configuration.id}/audits`,
+          `/api/v1/configurations/${vcsRepositoryId}/${configuration.id}/${environment.id}/audits`,
         )
         .expect(200);
-      expect(response.body.configurationAudits.length).toEqual(2);
+      expect(response.body.environmentAudits.length).toEqual(3);
     });
   });
 });

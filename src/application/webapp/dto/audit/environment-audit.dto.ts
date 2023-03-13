@@ -17,7 +17,7 @@ export class EnvironmentAuditDTO {
   @ApiProperty({ type: EnvironmentAuditMetadata })
   metadata: EnvironmentAuditMetadata;
   @ApiProperty()
-  createdAt: Date;
+  createdAt: string;
 
   constructor(
     environmentId: string,
@@ -26,7 +26,7 @@ export class EnvironmentAuditDTO {
     userId: string,
     userName: string,
     metadata: EnvironmentAuditMetadata,
-    createdAt: Date,
+    createdAt: string,
   ) {
     this.environmentId = environmentId;
     this.eventType = eventType;
@@ -45,7 +45,7 @@ export class EnvironmentAuditDTO {
       environmentAudit.userId,
       environmentAudit.userName,
       environmentAudit.metadata,
-      environmentAudit.createdAt,
+      environmentAudit.createdAt.toISOString(),
     );
   }
 }

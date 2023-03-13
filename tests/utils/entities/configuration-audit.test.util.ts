@@ -18,13 +18,11 @@ export class ConfigurationAuditTestUtil {
   }
 
   async createConfigurationAudit(
-    configurationAuditId: number,
     repositoryId: number,
     configurationId: string,
     eventType: ConfigurationAuditEventType,
   ): Promise<ConfigurationAuditEntity> {
     const configurationAudit = new ConfigurationAuditEntity();
-    configurationAudit.id = configurationAuditId;
     configurationAudit.configurationId = configurationId;
     configurationAudit.eventType = eventType;
     configurationAudit.repositoryVcsId = repositoryId;

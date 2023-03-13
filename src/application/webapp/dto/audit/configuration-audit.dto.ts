@@ -17,7 +17,7 @@ export class ConfigurationAuditDTO {
   @ApiProperty({ enum: ConfigurationAuditMetadata })
   metadata: ConfigurationAuditMetadata;
   @ApiProperty()
-  createdAt: Date;
+  createdAt: string;
 
   constructor(
     configurationId: string,
@@ -26,7 +26,7 @@ export class ConfigurationAuditDTO {
     userId: string,
     userName: string,
     metadata: ConfigurationAuditMetadata,
-    createdAt: Date,
+    createdAt: string,
   ) {
     this.configurationId = configurationId;
     this.eventType = eventType;
@@ -45,7 +45,7 @@ export class ConfigurationAuditDTO {
       configurationAudit.userId,
       configurationAudit.userName,
       configurationAudit.metadata,
-      configurationAudit.createdAt,
+      configurationAudit.createdAt.toISOString(),
     );
   }
 }
