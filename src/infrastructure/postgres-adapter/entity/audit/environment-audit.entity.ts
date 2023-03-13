@@ -32,6 +32,18 @@ export default class EnvironmentAuditEntity extends AbstractEntity {
   })
   metadata: EnvironmentAuditMetadata;
 
+  public toDomain(): EnvironmentAudit {
+    return new EnvironmentAudit(
+      this.environmentId,
+      this.eventType,
+      this.repositoryVcsId,
+      this.userId,
+      this.userName,
+      this.metadata,
+      this.createdAt,
+    );
+  }
+
   static fromDomain(
     environmentAudit: EnvironmentAudit,
   ): EnvironmentAuditEntity {

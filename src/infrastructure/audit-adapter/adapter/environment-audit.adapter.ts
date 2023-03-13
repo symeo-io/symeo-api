@@ -10,6 +10,14 @@ export default class EnvironmentAuditAdapter
     private environmentAuditEntityRepository: Repository<EnvironmentAuditEntity>,
   ) {}
 
+  async findById(environmentId: string): Promise<EnvironmentAudit[]> {
+    const entities: EnvironmentAuditEntity[] =
+      await this.environmentAuditEntityRepository.findBy({
+        environmentId: environmentId,
+      });
+    return entities.map((entity) => entity.toDomain());
+  }
+
   async save(environmentAudit: EnvironmentAudit): Promise<void> {
     await this.environmentAuditEntityRepository.save(
       EnvironmentAuditEntity.fromDomain(environmentAudit),

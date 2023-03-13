@@ -209,6 +209,13 @@ const ConfigurationAuditServiceProvider = {
   inject: ['ConfigurationAuditAdapter'],
 };
 
+const EnvironmentAuditFacadeProvider = {
+  provide: 'EnvironmentAuditFacade',
+  useFactory: (environmentAuditStoragePort: EnvironmentAuditStoragePort) =>
+    new EnvironmentAuditService(environmentAuditStoragePort),
+  inject: ['EnvironmentAuditAdapter'],
+};
+
 const EnvironmentAuditServiceProvider = {
   provide: 'EnvironmentAuditService',
   useFactory: (environmentAuditStoragePort: EnvironmentAuditStoragePort) =>
@@ -243,6 +250,7 @@ const EnvironmentPermissionUtilsProvider = {
     ConfigurationAuditServiceProvider,
     EnvironmentAuditServiceProvider,
     ConfigurationAuditFacadeProvider,
+    EnvironmentAuditFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -257,6 +265,7 @@ const EnvironmentPermissionUtilsProvider = {
     ConfigurationAuditServiceProvider,
     EnvironmentAuditServiceProvider,
     ConfigurationAuditFacadeProvider,
+    EnvironmentAuditFacadeProvider,
   ],
 })
 export class DomainModule {}
