@@ -6,8 +6,6 @@ import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuratio
 
 export default interface ConfigurationAuditFacade {
   findConfigurationAudits(
-    user: User,
-    repository: VcsRepository,
     configuration: Configuration,
   ): Promise<ConfigurationAudit[]>;
 

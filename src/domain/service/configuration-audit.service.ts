@@ -14,8 +14,6 @@ export default class ConfigurationAuditService
   ) {}
 
   async findConfigurationAudits(
-    user: User,
-    repository: VcsRepository,
     configuration: Configuration,
   ): Promise<ConfigurationAudit[]> {
     return await this.configurationAuditStoragePort.findById(configuration.id);

@@ -13,12 +13,7 @@ import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-perm
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 
 export default interface EnvironmentAuditFacade {
-  findEnvironmentAudits(
-    user: User,
-    repository: VcsRepository,
-    configuration: Configuration,
-    environment: Environment,
-  ): Promise<EnvironmentAudit[]>;
+  findEnvironmentAudits(environment: Environment): Promise<EnvironmentAudit[]>;
 
   saveWithEnvironmentMetadataType(
     eventType: EnvironmentAuditEventType,

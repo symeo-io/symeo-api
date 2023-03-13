@@ -36,14 +36,10 @@ export class AuditController {
     type: GetConfigurationAuditsResponseDTO,
   })
   async getConfigurationAudits(
-    @CurrentUser() user: User,
-    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
   ): Promise<GetConfigurationAuditsResponseDTO> {
     const configurationAudits: ConfigurationAudit[] =
       await this.configurationAuditFacade.findConfigurationAudits(
-        user,
-        repository,
         configuration,
       );
 
@@ -57,18 +53,10 @@ export class AuditController {
     type: GetEnvironmentAuditsResponseDTO,
   })
   async getEnvironmentAudits(
-    @CurrentUser() user: User,
-    @RequestedRepository() repository: VcsRepository,
-    @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
   ): Promise<GetEnvironmentAuditsResponseDTO> {
     const environmentAudits: EnvironmentAudit[] =
-      await this.environmentAuditFacade.findEnvironmentAudits(
-        user,
-        repository,
-        configuration,
-        environment,
-      );
+      await this.environmentAuditFacade.findEnvironmentAudits(environment);
 
     return GetEnvironmentAuditsResponseDTO.fromDomains(environmentAudits);
   }

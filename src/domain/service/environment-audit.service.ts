@@ -12,7 +12,6 @@ import { EnvironmentPermission } from 'src/domain/model/environment-permission/e
 import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-permission/environment-permission-user.model';
 import ApiKey from 'src/domain/model/environment/api-key.model';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
-import Configuration from 'src/domain/model/configuration/configuration.model';
 
 export default class EnvironmentAuditService implements EnvironmentAuditFacade {
   constructor(
@@ -20,9 +19,6 @@ export default class EnvironmentAuditService implements EnvironmentAuditFacade {
   ) {}
 
   async findEnvironmentAudits(
-    user: User,
-    repository: VcsRepository,
-    configuration: Configuration,
     environment: Environment,
   ): Promise<EnvironmentAudit[]> {
     return await this.environmentAuditStoragePort.findById(environment.id);
