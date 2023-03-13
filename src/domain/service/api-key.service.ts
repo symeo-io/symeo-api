@@ -7,12 +7,13 @@ import EnvironmentAuditService from 'src/domain/service/environment-audit.servic
 import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
 export class ApiKeyService implements ApiKeyFacade {
   constructor(
     private readonly configurationFacade: ConfigurationFacade,
     private readonly apiKeyStoragePort: ApiKeyStoragePort,
-    private environmentAuditService: EnvironmentAuditService,
+    private environmentAuditFacade: EnvironmentAuditFacade,
   ) {}
 
   async findApiKeyByHash(hash: string): Promise<ApiKey | undefined> {
@@ -32,7 +33,7 @@ export class ApiKeyService implements ApiKeyFacade {
   ): Promise<ApiKey> {
     const apiKey = await ApiKey.buildForEnvironmentId(environment.id);
     await this.apiKeyStoragePort.save(apiKey);
-    await this.environmentAuditService.saveWithApiKeyMetadataType(
+    await this.environmentAuditFacade.saveWithApiKeyMetadataType(
       EnvironmentAuditEventType.API_KEY_CREATED,
       currentUser,
       repository,
@@ -50,7 +51,7 @@ export class ApiKeyService implements ApiKeyFacade {
     apiKey: ApiKey,
   ): Promise<void> {
     await this.apiKeyStoragePort.delete(apiKey);
-    await this.environmentAuditService.saveWithApiKeyMetadataType(
+    await this.environmentAuditFacade.saveWithApiKeyMetadataType(
       EnvironmentAuditEventType.API_KEY_DELETED,
       currentUser,
       repository,

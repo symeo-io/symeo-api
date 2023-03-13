@@ -14,13 +14,14 @@ import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-perm
 import { isEmpty, merge } from 'lodash';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
 export class ValuesService implements ValuesFacade {
   constructor(
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
     private configurationFacade: ConfigurationFacade,
     private environmentPermissionFacade: EnvironmentPermissionFacade,
-    private environmentAuditService: EnvironmentAuditService,
+    private environmentAuditFacade: EnvironmentAuditFacade,
   ) {}
 
   async findByEnvironmentForSdk(
@@ -80,7 +81,7 @@ export class ValuesService implements ValuesFacade {
       [],
       configurationContract,
     );
-    await this.environmentAuditService.saveWithValuesMetadataType(
+    await this.environmentAuditFacade.saveWithValuesMetadataType(
       EnvironmentAuditEventType.SECRETS_READ,
       user,
       repository,
@@ -162,7 +163,7 @@ export class ValuesService implements ValuesFacade {
         values,
       );
 
-    await this.environmentAuditService.saveWithValuesMetadataType(
+    await this.environmentAuditFacade.saveWithValuesMetadataType(
       EnvironmentAuditEventType.VALUES_UPDATED,
       currentUser,
       repository,

@@ -6,17 +6,17 @@ import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.
 import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
-import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
+import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
 export class EnvironmentService implements EnvironmentFacade {
   constructor(
     private readonly configurationStoragePort: ConfigurationStoragePort,
     private readonly environmentStoragePort: EnvironmentStoragePort,
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
-    private readonly environmentAuditService: EnvironmentAuditService,
+    private readonly environmentAuditFacade: EnvironmentAuditFacade,
   ) {}
 
   async createEnvironment(
@@ -34,7 +34,7 @@ export class EnvironmentService implements EnvironmentFacade {
     configuration.environments.push(environment);
     await this.configurationStoragePort.save(configuration);
 
-    await this.environmentAuditService.saveWithEnvironmentMetadataType(
+    await this.environmentAuditFacade.saveWithEnvironmentMetadataType(
       EnvironmentAuditEventType.CREATED,
       currentUser,
       repository,
@@ -60,7 +60,7 @@ export class EnvironmentService implements EnvironmentFacade {
 
     await this.environmentStoragePort.save(environment);
 
-    await this.environmentAuditService.saveWithEnvironmentMetadataType(
+    await this.environmentAuditFacade.saveWithEnvironmentMetadataType(
       EnvironmentAuditEventType.UPDATED,
       currentUser,
       repository,
@@ -81,7 +81,7 @@ export class EnvironmentService implements EnvironmentFacade {
   ): Promise<void> {
     await this.secretValuesStoragePort.deleteValuesForEnvironment(environment);
     await this.environmentStoragePort.delete(environment);
-    await this.environmentAuditService.saveWithEnvironmentMetadataType(
+    await this.environmentAuditFacade.saveWithEnvironmentMetadataType(
       EnvironmentAuditEventType.DELETED,
       currentUser,
       repository,

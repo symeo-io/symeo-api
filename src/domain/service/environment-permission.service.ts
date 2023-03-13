@@ -16,6 +16,7 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
@@ -24,7 +25,7 @@ export class EnvironmentPermissionService
     private githubAdapterPort: GithubAdapterPort,
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
-    private environmentAuditService: EnvironmentAuditService,
+    private environmentAuditFacade: EnvironmentAuditFacade,
   ) {}
 
   async getEnvironmentPermissionRole(
@@ -114,7 +115,7 @@ export class EnvironmentPermissionService
           await this.updateEnvironmentPermissionsWithGithub(
             environmentPermissions,
           );
-        await this.environmentAuditService.saveAllWithPermissionMetadataType(
+        await this.environmentAuditFacade.saveAllWithPermissionMetadataType(
           EnvironmentAuditEventType.PERMISSION_UPDATED,
           user,
           repository,
