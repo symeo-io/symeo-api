@@ -10,103 +10,109 @@ import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.stora
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { ValuesService } from 'src/domain/service/values.service';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
+import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 
 describe('ValuesService', () => {
-  describe('getHiddenValuesByEnvironmentForWebapp', () => {
-    const mockedSecretValuesStoragePort: SecretValuesStoragePort =
-      mock<SecretValuesStoragePort>();
+  const mockedSecretValuesStoragePort: SecretValuesStoragePort =
+    mock<SecretValuesStoragePort>();
 
-    const mockedConfigurationFacade: ConfigurationFacade =
-      mock<ConfigurationFacade>();
+  const mockedConfigurationFacade: ConfigurationFacade =
+    mock<ConfigurationFacade>();
 
-    const mockedEnvironmentPermissionFacade: EnvironmentPermissionFacade =
-      mock<EnvironmentPermissionFacade>();
+  const mockedEnvironmentPermissionFacade: EnvironmentPermissionFacade =
+    mock<EnvironmentPermissionFacade>();
 
-    const valuesService: ValuesService = new ValuesService(
-      mockedSecretValuesStoragePort,
-      mockedConfigurationFacade,
-      mockedEnvironmentPermissionFacade,
-    );
+  const mockedEnvironmentAuditService: EnvironmentAuditService = mock(
+    EnvironmentAuditService,
+  );
 
-    const mockedConfigurationContract: ConfigurationContract = {
-      aws: {
-        region: {
+  const valuesService: ValuesService = new ValuesService(
+    mockedSecretValuesStoragePort,
+    mockedConfigurationFacade,
+    mockedEnvironmentPermissionFacade,
+    mockedEnvironmentAuditService,
+  );
+
+  const mockedConfigurationContract: ConfigurationContract = {
+    aws: {
+      region: {
+        type: 'string',
+        secret: true,
+      },
+      user: {
+        type: 'string',
+      },
+    },
+    database: {
+      postgres: {
+        host: {
+          type: 'string',
+        },
+        port: {
+          type: 'integer',
+        },
+        password: {
           type: 'string',
           secret: true,
         },
-        user: {
+        type: {
           type: 'string',
         },
       },
-      database: {
-        postgres: {
-          host: {
-            type: 'string',
-          },
-          port: {
-            type: 'integer',
-          },
-          password: {
-            type: 'string',
-            secret: true,
-          },
-          type: {
-            type: 'string',
-          },
-        },
-      },
-    };
+    },
+  };
 
-    const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
-    const currentUser = new User(
-      `github|${vcsUserId}`,
-      faker.internet.email(),
-      faker.name.firstName(),
-      VCSProvider.GitHub,
-      faker.datatype.number(),
-    );
+  const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
+  const currentUser = new User(
+    `github|${vcsUserId}`,
+    faker.internet.email(),
+    faker.name.firstName(),
+    VCSProvider.GitHub,
+    faker.datatype.number(),
+  );
 
-    const vcsRepository: VcsRepository = {
+  const repository: VcsRepository = {
+    id: faker.datatype.number(),
+    name: faker.name.firstName(),
+    owner: {
       id: faker.datatype.number(),
       name: faker.name.firstName(),
-      owner: {
-        id: faker.datatype.number(),
-        name: faker.name.firstName(),
-        avatarUrl: faker.datatype.string(),
-      },
-      vcsType: VCSProvider.GitHub,
-      vcsUrl: faker.datatype.string(),
-      isCurrentUserAdmin: false,
-    };
+      avatarUrl: faker.datatype.string(),
+    },
+    vcsType: VCSProvider.GitHub,
+    vcsUrl: faker.datatype.string(),
+    isCurrentUserAdmin: false,
+  };
 
-    const branchName = 'staging';
-    const environment: Environment = new Environment(
-      uuid(),
-      faker.name.firstName(),
-      'blue',
-      new Date(),
-    );
+  const branchName = 'staging';
+  const environment: Environment = new Environment(
+    uuid(),
+    faker.name.firstName(),
+    'blue',
+    new Date(),
+  );
 
-    const configuration: Configuration = new Configuration(
-      uuid(),
-      faker.name.firstName(),
-      VCSProvider.GitHub,
-      { name: vcsRepository.name, vcsId: vcsRepository.id },
-      { name: vcsRepository.owner.name, vcsId: vcsRepository.owner.id },
-      faker.datatype.string(),
-      branchName,
-      [environment],
-    );
+  const configuration: Configuration = new Configuration(
+    uuid(),
+    faker.name.firstName(),
+    VCSProvider.GitHub,
+    { name: repository.name, vcsId: repository.id },
+    { name: repository.owner.name, vcsId: repository.owner.id },
+    faker.datatype.string(),
+    branchName,
+    [environment],
+  );
 
-    beforeEach(() => {
-      jest
-        .spyOn(mockedConfigurationFacade, 'findContract')
-        .mockImplementation(() => Promise.resolve(mockedConfigurationContract));
-    });
+  beforeEach(() => {
+    jest
+      .spyOn(mockedConfigurationFacade, 'findContract')
+      .mockImplementation(() => Promise.resolve(mockedConfigurationContract));
+  });
 
+  describe('getHiddenValuesByEnvironmentForWebapp', () => {
     it('should return hidden configuration values for contract completely filled with values', async () => {
       // Given
       const mockedConfigurationValues: ConfigurationValues = {
@@ -132,7 +138,7 @@ describe('ValuesService', () => {
       const hiddenConfigurationValues: ConfigurationValues =
         await valuesService.getHiddenValuesByEnvironmentForWebapp(
           currentUser,
-          vcsRepository,
+          repository,
           configuration,
           branchName,
           environment,
@@ -178,7 +184,7 @@ describe('ValuesService', () => {
       const hiddenConfigurationValues: ConfigurationValues =
         await valuesService.getHiddenValuesByEnvironmentForWebapp(
           currentUser,
-          vcsRepository,
+          repository,
           configuration,
           branchName,
           environment,
@@ -199,63 +205,8 @@ describe('ValuesService', () => {
       });
     });
   });
+
   describe('updateValuesByEnvironmentForWebapp', () => {
-    const mockedSecretValuesStoragePort: SecretValuesStoragePort =
-      mock<SecretValuesStoragePort>();
-
-    const mockedConfigurationFacade: ConfigurationFacade =
-      mock<ConfigurationFacade>();
-
-    const mockedEnvironmentPermissionFacade: EnvironmentPermissionFacade =
-      mock<EnvironmentPermissionFacade>();
-
-    const valuesService: ValuesService = new ValuesService(
-      mockedSecretValuesStoragePort,
-      mockedConfigurationFacade,
-      mockedEnvironmentPermissionFacade,
-    );
-
-    const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
-    const currentUser = new User(
-      `github|${vcsUserId}`,
-      faker.internet.email(),
-      faker.name.firstName(),
-      VCSProvider.GitHub,
-      faker.datatype.number(),
-    );
-
-    const vcsRepository: VcsRepository = {
-      id: faker.datatype.number(),
-      name: faker.name.firstName(),
-      owner: {
-        id: faker.datatype.number(),
-        name: faker.name.firstName(),
-        avatarUrl: faker.datatype.string(),
-      },
-      vcsType: VCSProvider.GitHub,
-      vcsUrl: faker.datatype.string(),
-      isCurrentUserAdmin: false,
-    };
-
-    const branchName = 'staging';
-    const environment: Environment = new Environment(
-      uuid(),
-      faker.name.firstName(),
-      'blue',
-      new Date(),
-    );
-
-    const configuration: Configuration = new Configuration(
-      uuid(),
-      faker.name.firstName(),
-      VCSProvider.GitHub,
-      { name: vcsRepository.name, vcsId: vcsRepository.id },
-      { name: vcsRepository.owner.name, vcsId: vcsRepository.owner.id },
-      faker.datatype.string(),
-      branchName,
-      [environment],
-    );
-
     it('should update configuration values with partial requested values', async () => {
       const mockedPersistedValues: ConfigurationValues = {
         aws: {
@@ -285,13 +236,18 @@ describe('ValuesService', () => {
       jest
         .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
         .mockImplementation(() => Promise.resolve(mockedPersistedValues));
-      const spy = jest.spyOn(
+      const spySetValuesForEnvironment = jest.spyOn(
         mockedSecretValuesStoragePort,
         'setValuesForEnvironment',
+      );
+      const spySaveWithValuesMetadataType = jest.spyOn(
+        mockedEnvironmentAuditService,
+        'saveWithValuesMetadataType',
       );
 
       await valuesService.updateValuesByEnvironmentForWebapp(
         currentUser,
+        repository,
         configuration,
         environment,
         branchName,
@@ -312,8 +268,22 @@ describe('ValuesService', () => {
       };
 
       // Then
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(environment, expectedUpdatedValues);
+      expect(spySetValuesForEnvironment).toBeCalledTimes(1);
+      expect(spySetValuesForEnvironment).toBeCalledWith(
+        environment,
+        expectedUpdatedValues,
+      );
+      expect(spySaveWithValuesMetadataType).toBeCalledTimes(1);
+      expect(spySaveWithValuesMetadataType).toBeCalledWith(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+        currentUser,
+        repository,
+        environment,
+        {
+          environmentName: environment.name,
+          updatedProperties: ['user', 'port'],
+        },
+      );
     });
   });
 });

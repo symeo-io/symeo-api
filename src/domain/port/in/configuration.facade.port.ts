@@ -35,11 +35,17 @@ export default interface ConfigurationFacade {
   ): Promise<Configuration>;
 
   update(
+    currentUser: User,
+    repository: VcsRepository,
     configuration: Configuration,
     name: string,
     contractFilePath: string,
     branch: string,
   ): Promise<Configuration>;
 
-  delete(configuration: Configuration): Promise<void>;
+  delete(
+    currentUser: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ): Promise<void>;
 }

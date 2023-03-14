@@ -34,7 +34,7 @@ export class EnvironmentPermissionUtils {
     );
   }
 
-  generateEnvironmentPermissionUser(
+  generateEnvironmentPermissionWithUser(
     vcsUser: VcsUser,
     inBaseEnvironmentPermission: EnvironmentPermission,
   ): EnvironmentPermissionWithUser {

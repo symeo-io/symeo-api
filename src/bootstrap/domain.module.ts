@@ -21,6 +21,12 @@ import { AuthorizationService } from 'src/domain/service/authorization.service';
 import EnvironmentStoragePort from 'src/domain/port/out/environment.storage.port';
 import { PermissionRoleService } from 'src/domain/service/permission-role.service';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
+import ConfigurationAuditService from 'src/domain/service/configuration-audit.service';
+import ConfigurationAuditStoragePort from 'src/domain/port/out/configuration-audit.storage.port';
+import { ConfigurationAuditAdapterModule } from 'src/bootstrap/configuration-audit-adapter.module';
+import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
+import { EnvironmentAuditAdapterModule } from 'src/bootstrap/environment-audit-adapter.module';
+import EnvironmentAuditStoragePort from 'src/domain/port/out/environment-audit.storage.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -29,18 +35,21 @@ const ConfigurationFacadeProvider = {
     repositoryFacade: RepositoryFacade,
     environmentPermissionFacade: EnvironmentPermissionFacade,
     secretValuesStoragePort: SecretValuesStoragePort,
+    configurationAuditService: ConfigurationAuditService,
   ) =>
     new ConfigurationService(
       configurationStoragePort,
       repositoryFacade,
       environmentPermissionFacade,
       secretValuesStoragePort,
+      configurationAuditService,
     ),
   inject: [
     'PostgresConfigurationAdapter',
     'RepositoryFacade',
     'EnvironmentPermissionFacade',
     'SecretManagerAdapter',
+    'ConfigurationAuditService',
   ],
 };
 
@@ -50,16 +59,19 @@ const EnvironmentFacadeProvider = {
     configurationStoragePort: ConfigurationStoragePort,
     environmentStoragePort: EnvironmentStoragePort,
     secretValuesStoragePort: SecretValuesStoragePort,
+    environmentAuditService: EnvironmentAuditService,
   ) =>
     new EnvironmentService(
       configurationStoragePort,
       environmentStoragePort,
       secretValuesStoragePort,
+      environmentAuditService,
     ),
   inject: [
     'PostgresConfigurationAdapter',
     'PostgresEnvironmentAdapter',
     'SecretManagerAdapter',
+    'EnvironmentAuditService',
   ],
 };
 
@@ -69,16 +81,19 @@ const EnvironmentPermissionFacadeProvider = {
     githubAdapterPort: GithubAdapterPort,
     environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     environmentPermissionUtils: EnvironmentPermissionUtils,
+    environmentAuditService: EnvironmentAuditService,
   ) =>
     new EnvironmentPermissionService(
       githubAdapterPort,
       environmentPermissionStoragePort,
       environmentPermissionUtils,
+      environmentAuditService,
     ),
   inject: [
     'GithubAdapter',
     'PostgresEnvironmentPermissionAdapter',
     'EnvironmentPermissionUtils',
+    'EnvironmentAuditService',
   ],
 };
 
@@ -145,16 +160,19 @@ const ValuesFacadeProvider = {
     secretValuesStoragePort: SecretValuesStoragePort,
     configurationFacade: ConfigurationFacade,
     environmentPermissionFacade: EnvironmentPermissionFacade,
+    environmentAuditService: EnvironmentAuditService,
   ) =>
     new ValuesService(
       secretValuesStoragePort,
       configurationFacade,
       environmentPermissionFacade,
+      environmentAuditService,
     ),
   inject: [
     'SecretManagerAdapter',
     'ConfigurationFacade',
     'EnvironmentPermissionFacade',
+    'EnvironmentAuditService',
   ],
 };
 
@@ -163,8 +181,32 @@ const ApiKeyFacadeProvider = {
   useFactory: (
     configurationFacade: ConfigurationFacade,
     apiKeyStoragePort: ApiKeyStoragePort,
-  ) => new ApiKeyService(configurationFacade, apiKeyStoragePort),
-  inject: ['ConfigurationFacade', 'PostgresApiKeyAdapter'],
+    environmentAuditService: EnvironmentAuditService,
+  ) =>
+    new ApiKeyService(
+      configurationFacade,
+      apiKeyStoragePort,
+      environmentAuditService,
+    ),
+  inject: [
+    'ConfigurationFacade',
+    'PostgresApiKeyAdapter',
+    'EnvironmentAuditService',
+  ],
+};
+
+const ConfigurationAuditServiceProvider = {
+  provide: 'ConfigurationAuditService',
+  useFactory: (configurationAuditStoragePort: ConfigurationAuditStoragePort) =>
+    new ConfigurationAuditService(configurationAuditStoragePort),
+  inject: ['ConfigurationAuditAdapter'],
+};
+
+const EnvironmentAuditServiceProvider = {
+  provide: 'EnvironmentAuditService',
+  useFactory: (environmentAuditStoragePort: EnvironmentAuditStoragePort) =>
+    new EnvironmentAuditService(environmentAuditStoragePort),
+  inject: ['EnvironmentAuditAdapter'],
 };
 
 const EnvironmentPermissionUtilsProvider = {
@@ -177,6 +219,8 @@ const EnvironmentPermissionUtilsProvider = {
     PostgresAdapterModule,
     GithubAdapterModule,
     SecretManagerAdapterModule,
+    ConfigurationAuditAdapterModule,
+    EnvironmentAuditAdapterModule,
   ],
   providers: [
     ConfigurationFacadeProvider,
@@ -189,6 +233,8 @@ const EnvironmentPermissionUtilsProvider = {
     EnvironmentPermissionUtilsProvider,
     AuthorizationServiceProvider,
     PermissionRoleServiceProvider,
+    ConfigurationAuditServiceProvider,
+    EnvironmentAuditServiceProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -200,6 +246,8 @@ const EnvironmentPermissionUtilsProvider = {
     EnvironmentPermissionFacadeProvider,
     AuthorizationServiceProvider,
     PermissionRoleServiceProvider,
+    ConfigurationAuditServiceProvider,
+    EnvironmentAuditServiceProvider,
   ],
 })
 export class DomainModule {}

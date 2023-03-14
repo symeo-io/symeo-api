@@ -13,6 +13,10 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
@@ -20,9 +24,11 @@ describe('ValuesController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchSecretMock: FetchSecretMock;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
+  let fetchVcsFileMock: FetchVcsFileMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -34,11 +40,13 @@ describe('ValuesController', () => {
     fetchSecretMock = new FetchSecretMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
       appClient,
     );
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -48,6 +56,7 @@ describe('ValuesController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
+    await environmentAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -95,6 +104,9 @@ describe('ValuesController', () => {
         expect(response.body.code).toEqual(
           SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
         );
+        const environmentAuditEntities: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntities.length).toEqual(0);
       });
 
       it('should respond 200 and return non hidden values for inBase write user', async () => {
@@ -120,6 +132,13 @@ describe('ValuesController', () => {
           environment,
           EnvironmentPermissionRole.WRITE,
           userVcsId,
+        );
+
+        fetchVcsFileMock.mockSymeoContractFilePresent(
+          configuration.ownerVcsName,
+          configuration.repositoryVcsName,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
 
         const configurationValues: ConfigurationValues = {
@@ -164,6 +183,27 @@ describe('ValuesController', () => {
               password: 'password',
               type: 'postgres',
             },
+          },
+        });
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          vcsRepositoryId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.SECRETS_READ,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            environmentName: environment.name,
+            readProperties: ['region', 'password'],
           },
         });
       });
@@ -207,6 +247,9 @@ describe('ValuesController', () => {
         expect(response.body.code).toEqual(
           SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
         );
+        const environmentAuditEntities: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntities.length).toEqual(0);
       });
 
       it('should respond 200 and return non hidden values for github admin user mapped to admin symeoUser', async () => {
@@ -233,6 +276,13 @@ describe('ValuesController', () => {
           repository.owner.login,
           repository.name,
           VcsRepositoryRole.ADMIN,
+        );
+
+        fetchVcsFileMock.mockSymeoContractFilePresent(
+          configuration.ownerVcsName,
+          configuration.repositoryVcsName,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
 
         const configurationValues: ConfigurationValues = {
@@ -276,6 +326,27 @@ describe('ValuesController', () => {
               password: 'password',
               type: 'postgres',
             },
+          },
+        });
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          vcsRepositoryId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.SECRETS_READ,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            environmentName: environment.name,
+            readProperties: ['region', 'password'],
           },
         });
       });
