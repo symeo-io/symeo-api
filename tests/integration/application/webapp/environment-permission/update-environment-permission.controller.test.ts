@@ -17,6 +17,9 @@ import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util'
 import { EnvironmentPermissionTestUtil } from 'tests/utils/entities/environment-permission.test.util';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 
 describe('EnvironmentPermissionController', () => {
   let appClient: AppClient;
@@ -27,6 +30,7 @@ describe('EnvironmentPermissionController', () => {
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -51,6 +55,7 @@ describe('EnvironmentPermissionController', () => {
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
       appClient,
     );
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(() => {
@@ -61,6 +66,7 @@ describe('EnvironmentPermissionController', () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
+    await environmentAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -104,6 +110,9 @@ describe('EnvironmentPermissionController', () => {
       expect(response.body.code).toEqual(
         SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
       );
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 400 for missing environment permissions data', async () => {
@@ -137,6 +146,9 @@ describe('EnvironmentPermissionController', () => {
         .send({ data: faker.name.firstName() })
         // Then
         .expect(400);
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 404 for trying to update permissions of user that do not have access to repository', async () => {
@@ -189,6 +201,9 @@ describe('EnvironmentPermissionController', () => {
       expect(response.body.message).toBe(
         `User with vcsIds ${updateEnvironmentPermissionDTOList[0].userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
       );
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 400 for trying to update permission of a github repository admin', async () => {
@@ -242,6 +257,9 @@ describe('EnvironmentPermissionController', () => {
       expect(response.body.message).toBe(
         `User with vcsId ${environmentPermissionToUpdateVcsUserId} is administrator of the repository, thus you can not modify his environment permissions`,
       );
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('should return 200 and create new environment permission for a github collaborator', async () => {
@@ -317,6 +335,27 @@ describe('EnvironmentPermissionController', () => {
       expect(
         updatedEnvironmentPermissionEntity?.environmentPermissionRole,
       ).toBe(EnvironmentPermissionRole.READ_SECRET);
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.PERMISSION_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          userName: 'Dorian-Frances',
+          previousRole: EnvironmentPermissionRole.READ_NON_SECRET,
+          newRole: EnvironmentPermissionRole.READ_SECRET,
+        },
+      });
     });
 
     it('should return 200 and update an in-base environment permission for a github collaborator', async () => {
@@ -401,6 +440,27 @@ describe('EnvironmentPermissionController', () => {
       expect(
         updatedEnvironmentPermissionEntity?.environmentPermissionRole,
       ).toBe(EnvironmentPermissionRole.READ_SECRET);
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.PERMISSION_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          userName: 'Dorian-Frances',
+          previousRole: EnvironmentPermissionRole.WRITE,
+          newRole: EnvironmentPermissionRole.READ_SECRET,
+        },
+      });
     });
   });
 });

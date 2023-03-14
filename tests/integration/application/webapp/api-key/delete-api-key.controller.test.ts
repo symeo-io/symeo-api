@@ -9,6 +9,9 @@ import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util'
 import { ApiKeyTestUtil } from 'tests/utils/entities/api-key.test.util';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
@@ -18,6 +21,7 @@ describe('ApiKeyController', () => {
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let apiKeyTestUtil: ApiKeyTestUtil;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -39,6 +43,7 @@ describe('ApiKeyController', () => {
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     apiKeyTestUtil = new ApiKeyTestUtil(appClient);
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -49,6 +54,7 @@ describe('ApiKeyController', () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
     await apiKeyTestUtil.empty();
+    await environmentAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
@@ -89,6 +95,25 @@ describe('ApiKeyController', () => {
       });
 
       expect(deletedApiKey).toBeNull();
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.API_KEY_DELETED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          hiddenKey: apiKey?.hiddenKey,
+        },
+      });
     });
   });
 });

@@ -1,5 +1,5 @@
-import { EnvironmentAuditEventType } from 'src/domain/model/audit-environment/environment-audit-event-type.enum';
-import EnvironmentAuditMetadata from 'src/domain/model/audit-environment/environment-audit-metadata';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditMetadata from 'src/domain/model/environment-audit/environment-audit-metadata';
 
 export default class EnvironmentAudit {
   environmentId: string;
@@ -11,7 +11,7 @@ export default class EnvironmentAudit {
   createdAt: Date;
 
   constructor(
-    configurationId: string,
+    environmentId: string,
     eventType: EnvironmentAuditEventType,
     repositoryVcsId: number,
     userId: string,
@@ -19,7 +19,7 @@ export default class EnvironmentAudit {
     metadata: EnvironmentAuditMetadata,
     createdAt: Date,
   ) {
-    this.environmentId = configurationId;
+    this.environmentId = environmentId;
     this.eventType = eventType;
     this.repositoryVcsId = repositoryVcsId;
     this.userId = userId;

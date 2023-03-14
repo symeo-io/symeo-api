@@ -72,10 +72,17 @@ export class ValuesController {
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_SECRET)
   async getEnvironmentValuesSecretsForWebapp(
     @CurrentUser() user: User,
+    @RequestedRepository() repository: VcsRepository,
+    @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
+    @Query('branch') branch: string | undefined,
   ): Promise<GetEnvironmentValuesResponseDTO> {
     const values =
       await this.valuesFacade.getNonHiddenValuesByEnvironmentForWebapp(
+        user,
+        repository,
+        configuration,
+        branch,
         environment,
       );
 
@@ -93,6 +100,7 @@ export class ValuesController {
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
   async setEnvironmentValuesForWebapp(
     @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
@@ -100,6 +108,7 @@ export class ValuesController {
   ): Promise<void> {
     await this.valuesFacade.updateValuesByEnvironmentForWebapp(
       currentUser,
+      repository,
       configuration,
       environment,
       branchName,

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { EnvironmentAuditEventType } from 'src/domain/model/audit-environment/environment-audit-event-type.enum';
-import EnvironmentAuditMetadata from 'src/domain/model/audit-environment/environment-audit-metadata';
-import EnvironmentAudit from 'src/domain/model/audit-environment/environment-audit.model';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditMetadata from 'src/domain/model/environment-audit/environment-audit-metadata';
+import EnvironmentAudit from 'src/domain/model/environment-audit/environment-audit.model';
 import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 
 @Entity('environment-audits')
@@ -32,7 +32,9 @@ export default class EnvironmentAuditEntity extends AbstractEntity {
   })
   metadata: EnvironmentAuditMetadata;
 
-  fromDomain(environmentAudit: EnvironmentAudit): EnvironmentAuditEntity {
+  static fromDomain(
+    environmentAudit: EnvironmentAudit,
+  ): EnvironmentAuditEntity {
     const entity = new EnvironmentAuditEntity();
     entity.environmentId = environmentAudit.environmentId;
     entity.eventType = environmentAudit.eventType;

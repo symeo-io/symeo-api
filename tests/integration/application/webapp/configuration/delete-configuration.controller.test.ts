@@ -11,6 +11,9 @@ import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum
 import { DeleteSecretMock } from 'tests/utils/mocks/delete-secret.mock';
 import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
+import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
+import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
+import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -21,6 +24,7 @@ describe('ConfigurationController', () => {
   let fetchSecretMock: FetchSecretMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
+  let configurationAuditTestUtil: ConfigurationAuditTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -43,6 +47,7 @@ describe('ConfigurationController', () => {
     fetchSecretMock = new FetchSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
+    configurationAuditTestUtil = new ConfigurationAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -52,6 +57,7 @@ describe('ConfigurationController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
+    await configurationAuditTestUtil.empty();
     fetchSecretMock.mockSecretPresent({});
     deleteSecretMock.mock();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
@@ -105,6 +111,29 @@ describe('ConfigurationController', () => {
         });
 
       expect(deletedConfiguration).toBeNull();
+
+      const configurationAuditEntity: ConfigurationAuditEntity[] =
+        await configurationAuditTestUtil.repository.find();
+      expect(configurationAuditEntity.length).toEqual(1);
+      expect(configurationAuditEntity[0].id).toBeDefined();
+      expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(configurationAuditEntity[0].userName).toEqual(
+        currentUser.username,
+      );
+      expect(configurationAuditEntity[0].configurationId).toEqual(
+        configuration?.id,
+      );
+      expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(configurationAuditEntity[0].eventType).toEqual(
+        ConfigurationAuditEventType.CREATED,
+      );
+      expect(configurationAuditEntity[0].metadata).toEqual({
+        metadata: {
+          name: configuration.name,
+        },
+      });
     });
   });
 });

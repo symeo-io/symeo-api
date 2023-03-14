@@ -12,6 +12,9 @@ import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-us
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { DeleteSecretMock } from 'tests/utils/mocks/delete-secret.mock';
 import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
 
 describe('EnvironmentController', () => {
   let appClient: AppClient;
@@ -19,9 +22,10 @@ describe('EnvironmentController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let deleteSecretMock: DeleteSecretMock;
   let fetchSecretMock: FetchSecretMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
-  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -44,6 +48,7 @@ describe('EnvironmentController', () => {
     fetchSecretMock = new FetchSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -52,10 +57,11 @@ describe('EnvironmentController', () => {
 
   beforeEach(async () => {
     fetchSecretMock.mockSecretPresent({});
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
     deleteSecretMock.mock();
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
-    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    await environmentAuditTestUtil.empty();
   });
 
   afterEach(() => {
@@ -94,6 +100,9 @@ describe('EnvironmentController', () => {
       expect(response.body.code).toEqual(
         SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
       );
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(0);
     });
 
     it('Should return 200 and delete environment', async () => {
@@ -133,6 +142,25 @@ describe('EnvironmentController', () => {
         });
       expect(configurationEntity).toBeDefined();
       expect(configurationEntity?.environments.length).toEqual(0);
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        vcsRepositoryId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.DELETED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          name: environment.name,
+        },
+      });
     });
   });
 });
