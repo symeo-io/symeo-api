@@ -3,7 +3,7 @@ import SpyInstance = jest.SpyInstance;
 import { AppClient } from 'tests/utils/app.client';
 
 type SecretVersionMockType = {
-  CreatedDate: string;
+  CreatedDate: Date;
   VersionId: string;
   VersionStages: string[];
 };

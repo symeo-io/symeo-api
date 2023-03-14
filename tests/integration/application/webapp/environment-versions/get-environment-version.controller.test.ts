@@ -54,7 +54,7 @@ describe('EnvironmentVersionController', () => {
   });
 
   describe('(GET) /github/:repositoryVcsId/:configurationId/environments/:environmentId/versions', () => {
-    it('should respond 200 and return environment versions', async () => {
+    it('should respond 200 and return environment versions sorted by creation date descending order', async () => {
       // Given
       const vcsRepositoryId = faker.datatype.number();
       const repository =
@@ -68,18 +68,18 @@ describe('EnvironmentVersionController', () => {
 
       const secretVersions = [
         {
-          CreatedDate: faker.datatype.datetime({}).toLocaleDateString(),
-          VersionId: faker.datatype.string(),
+          CreatedDate: new Date(1980, 1, 1),
+          VersionId: faker.datatype.uuid(),
           VersionStages: [],
         },
         {
-          CreatedDate: faker.datatype.datetime({}).toLocaleDateString(),
-          VersionId: faker.datatype.string(),
+          CreatedDate: new Date(1990, 1, 1),
+          VersionId: faker.datatype.uuid(),
           VersionStages: [faker.datatype.uuid()],
         },
         {
-          CreatedDate: faker.datatype.datetime({}).toLocaleDateString(),
-          VersionId: faker.datatype.string(),
+          CreatedDate: new Date(1970, 1, 1),
+          VersionId: faker.datatype.uuid(),
           VersionStages: [faker.datatype.uuid()],
         },
       ];
@@ -95,21 +95,49 @@ describe('EnvironmentVersionController', () => {
         // Then
         .expect(200);
       expect(response.body.versions.length).toEqual(3);
-      expect(
-        response.body.versions.map(
-          (version: EnvironmentVersionDTO) => version.versionId,
-        ),
-      ).toContain(secretVersions[0].VersionId);
-      expect(
-        response.body.versions.map(
-          (version: EnvironmentVersionDTO) => version.versionId,
-        ),
-      ).toContain(secretVersions[1].VersionId);
-      expect(
-        response.body.versions.map(
-          (version: EnvironmentVersionDTO) => version.versionId,
-        ),
-      ).toContain(secretVersions[2].VersionId);
+      expect(response.body.versions[0].versionId).toEqual(
+        secretVersions[1].VersionId,
+      );
+      expect(response.body.versions[1].versionId).toEqual(
+        secretVersions[0].VersionId,
+      );
+      expect(response.body.versions[2].versionId).toEqual(
+        secretVersions[2].VersionId,
+      );
+    });
+
+    it('should respond 200 and return the latest 20 environment versions sorted by creation date descending order', async () => {
+      // Given
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+
+      const secretVersions = [];
+      for (let i = 0; i < 30; i++) {
+        secretVersions.push({
+          CreatedDate: new Date(parseInt(`19${i}0`), 1, 1),
+          VersionId: faker.datatype.uuid(),
+          VersionStages: [faker.datatype.uuid()],
+        });
+      }
+
+      fetchSecretVersionMock.mockSecretVersionPresent(secretVersions);
+
+      // When
+      const response = await appClient
+        .request(currentUser)
+        .get(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/versions`,
+        )
+        // Then
+        .expect(200);
+      expect(response.body.versions.length).toEqual(20);
     });
   });
 });
