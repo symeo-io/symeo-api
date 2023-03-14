@@ -132,10 +132,12 @@ export class ValuesService implements ValuesFacade {
     configuration: Configuration,
     environment: Environment,
     values: ConfigurationValues,
+    versionId?: string,
   ): Promise<void> {
     const persistedValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
+        versionId,
       );
 
     if (isEmpty(persistedValues)) {

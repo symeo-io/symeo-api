@@ -91,19 +91,6 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
       .promise();
   }
 
-  private async assignVersionLabelToSecret(
-    versionId: string,
-    environment: Environment,
-  ) {
-    await this.secretManagerClient.client
-      .updateSecretVersionStage({
-        SecretId: environment.id,
-        MoveToVersionId: versionId,
-        VersionStage: `${environment.id}|${new Date().toISOString()}`,
-      })
-      .promise();
-  }
-
   async deleteValuesForEnvironment(environment: Environment): Promise<void> {
     const secretExists = await this.secretExistsForEnvironment(environment);
 

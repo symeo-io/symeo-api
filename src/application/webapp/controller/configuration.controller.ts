@@ -91,7 +91,7 @@ export class ConfigurationController {
   })
   @Get('github/:repositoryVcsId/:configurationId/contract')
   @UseGuards(ConfigurationAuthorizationGuard)
-  @ApiQuery({ name: 'branch' })
+  @ApiQuery({ name: 'branch', required: false })
   async getGitHubConfigurationContractById(
     @RequestedConfiguration() configuration: Configuration,
     @Query('branch') branch: string | undefined,

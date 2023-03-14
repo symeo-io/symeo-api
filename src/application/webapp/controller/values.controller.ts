@@ -42,8 +42,8 @@ export class ValuesController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  @ApiQuery({ name: 'branch' })
-  @ApiQuery({ name: 'versionId' })
+  @ApiQuery({ name: 'branch', required: false })
+  @ApiQuery({ name: 'versionId', required: false })
   async getEnvironmentValuesForWebapp(
     @CurrentUser() user: User,
     @RequestedRepository() repository: VcsRepository,
@@ -74,8 +74,8 @@ export class ValuesController {
   )
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_SECRET)
-  @ApiQuery({ name: 'branch' })
-  @ApiQuery({ name: 'versionId' })
+  @ApiQuery({ name: 'branch', required: false })
+  @ApiQuery({ name: 'versionId', required: false })
   async getEnvironmentValuesSecretsForWebapp(
     @CurrentUser() user: User,
     @RequestedRepository() repository: VcsRepository,
@@ -106,7 +106,8 @@ export class ValuesController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
-  @ApiQuery({ name: 'branch' })
+  @ApiQuery({ name: 'branch', required: false })
+  @ApiQuery({ name: 'versionId', required: false })
   async setEnvironmentValuesForWebapp(
     @CurrentUser() currentUser: User,
     @RequestedRepository() repository: VcsRepository,
@@ -114,6 +115,7 @@ export class ValuesController {
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
     @Query('branch') branch: string | undefined,
+    @Query('versionId') versionId: string | undefined,
   ): Promise<void> {
     await this.valuesFacade.updateValuesByEnvironmentForWebapp(
       currentUser,
@@ -122,6 +124,7 @@ export class ValuesController {
       environment,
       branch,
       setEnvironmentValuesResponseDTO.values,
+      versionId,
     );
   }
 }

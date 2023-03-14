@@ -31,5 +31,6 @@ export interface ValuesFacade {
     configuration: Configuration,
     environment: Environment,
     values: ConfigurationValues,
+    versionId?: string,
   ): Promise<void>;
 }
