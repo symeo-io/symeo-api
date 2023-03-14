@@ -207,6 +207,107 @@ describe('ValuesController', () => {
           },
         });
       });
+
+      it('should respond 200 and return non hidden values for inBase write user given specific versionId', async () => {
+        // Given
+        const userVcsId = 102222086;
+        const currentUser = new User(
+          `github|${userVcsId}`,
+          faker.internet.email(),
+          faker.name.firstName(),
+          VCSProvider.GitHub,
+          faker.datatype.number(),
+        );
+        const vcsRepositoryId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        await environmentPermissionTestUtil.createEnvironmentPermission(
+          environment,
+          EnvironmentPermissionRole.WRITE,
+          userVcsId,
+        );
+
+        fetchVcsFileMock.mockSymeoContractFilePresent(
+          configuration.ownerVcsName,
+          configuration.repositoryVcsName,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
+        );
+
+        const configurationValues: ConfigurationValues = {
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        };
+
+        fetchSecretMock.mockSecretPresent(configurationValues);
+
+        const versionId = faker.datatype.string();
+        // When
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values/secrets?versionId=${versionId}`,
+          )
+          // Then
+          .expect(200);
+
+        expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+        expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment.id,
+          VersionId: versionId,
+        });
+        expect(response.body.values).toEqual({
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        });
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          vcsRepositoryId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.SECRETS_READ,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            environmentName: environment.name,
+            readProperties: ['region', 'password'],
+          },
+        });
+      });
     });
 
     describe('Tests for non-persisted user permission => default permission from github', () => {
@@ -347,6 +448,108 @@ describe('ValuesController', () => {
           metadata: {
             environmentName: environment.name,
             readProperties: ['aws.region', 'database.postgres.password'],
+          },
+        });
+      });
+
+      it('should respond 200 and return non hidden values for github admin user mapped to admin symeoUser given specific versionId', async () => {
+        // Given
+        const userVcsId = 102222086;
+        const currentUser = new User(
+          `github|${userVcsId}`,
+          faker.internet.email(),
+          faker.name.firstName(),
+          VCSProvider.GitHub,
+          faker.datatype.number(),
+        );
+        const vcsRepositoryId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+          currentUser,
+          repository.owner.login,
+          repository.name,
+          VcsRepositoryRole.ADMIN,
+        );
+
+        fetchVcsFileMock.mockSymeoContractFilePresent(
+          configuration.ownerVcsName,
+          configuration.repositoryVcsName,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
+        );
+
+        const configurationValues: ConfigurationValues = {
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        };
+
+        fetchSecretMock.mockSecretPresent(configurationValues);
+
+        const versionId = faker.datatype.string();
+
+        // When
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values/secrets?versionId=${versionId}`,
+          )
+          // Then
+          .expect(200);
+        expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+        expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment.id,
+          VersionId: versionId,
+        });
+        expect(response.body.values).toEqual({
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        });
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          vcsRepositoryId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.SECRETS_READ,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            environmentName: environment.name,
+            readProperties: ['region', 'password'],
           },
         });
       });

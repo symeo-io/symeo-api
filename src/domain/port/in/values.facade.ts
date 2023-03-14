@@ -13,6 +13,7 @@ export interface ValuesFacade {
     configuration: Configuration,
     branch: string | undefined,
     environment: Environment,
+    versionId?: string,
   ): Promise<ConfigurationValues>;
 
   getNonHiddenValuesByEnvironmentForWebapp(
@@ -21,6 +22,7 @@ export interface ValuesFacade {
     configuration: Configuration,
     branch: string | undefined,
     environment: Environment,
+    versionId?: string,
   ): Promise<ConfigurationValues>;
 
   updateValuesByEnvironmentForWebapp(

@@ -8,11 +8,13 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
   constructor(private secretManagerClient: SecretManagerClient) {}
   async getValuesForEnvironmentId(
     environmentId: string,
+    versionId?: string,
   ): Promise<ConfigurationValues> {
     try {
       const { SecretString } = await this.secretManagerClient.client
         .getSecretValue({
           SecretId: environmentId,
+          VersionId: versionId,
         })
         .promise();
 

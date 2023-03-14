@@ -5,6 +5,7 @@ import { EnvironmentVersion } from 'src/domain/model/environment-version/environ
 export interface SecretValuesStoragePort {
   getValuesForEnvironmentId(
     environmentId: string,
+    versionId?: string,
   ): Promise<ConfigurationValues>;
 
   getValuesForEnvironment(

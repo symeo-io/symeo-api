@@ -21,7 +21,7 @@ import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/appl
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/create-github-configuration.response.dto';
 import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UpdateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.dto';
 import { UpdateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.response.dto';
 import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
@@ -91,6 +91,7 @@ export class ConfigurationController {
   })
   @Get('github/:repositoryVcsId/:configurationId/contract')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @ApiQuery({ name: 'branch' })
   async getGitHubConfigurationContractById(
     @RequestedConfiguration() configuration: Configuration,
     @Query('branch') branch: string | undefined,
