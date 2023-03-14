@@ -72,28 +72,21 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
     const secretExists = await this.secretExistsForEnvironment(environment);
 
     if (!secretExists) {
-      const { VersionId } = await this.secretManagerClient.client
+      await this.secretManagerClient.client
         .createSecret({
           Name: environment.id,
           SecretString: JSON.stringify(values),
         })
         .promise();
-
-      if (VersionId) {
-        await this.assignVersionLabelToSecret(VersionId, environment);
-      }
       return;
     }
 
-    const { VersionId } = await this.secretManagerClient.client
+    await this.secretManagerClient.client
       .putSecretValue({
         SecretId: environment.id,
         SecretString: JSON.stringify(values),
       })
       .promise();
-    if (VersionId) {
-      await this.assignVersionLabelToSecret(VersionId, environment);
-    }
   }
 
   private async assignVersionLabelToSecret(
