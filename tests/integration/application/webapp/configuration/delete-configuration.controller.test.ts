@@ -12,7 +12,7 @@ import { DeleteSecretMock } from 'tests/utils/mocks/delete-secret.mock';
 import { FetchSecretMock } from 'tests/utils/mocks/fetch-secret.mock';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
+import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
 import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
 
 describe('ConfigurationController', () => {

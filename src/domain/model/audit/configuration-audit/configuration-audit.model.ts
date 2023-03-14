@@ -1,5 +1,5 @@
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
-import ConfigurationAuditMetadata from 'src/domain/model/configuration-audit/configuration-audit-metadata';
+import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
+import ConfigurationAuditMetadata from 'src/domain/model/audit/configuration-audit/configuration-audit-metadata';
 
 export default class ConfigurationAudit {
   configurationId: string;

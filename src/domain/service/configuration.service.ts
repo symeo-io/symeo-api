@@ -14,8 +14,8 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
-import ConfigurationAuditService from 'src/domain/service/configuration-audit.service';
+import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
+import ConfigurationAuditFacade from 'src/domain/port/in/configuration-audit.facade.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -23,7 +23,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     private readonly repositoryFacade: RepositoryFacade,
     private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
-    private readonly configurationAuditService: ConfigurationAuditService,
+    private readonly configurationAuditFacade: ConfigurationAuditFacade,
   ) {}
 
   async findAllForRepository(
@@ -153,7 +153,7 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     await this.configurationStoragePort.save(configuration);
 
-    await this.configurationAuditService.save(
+    await this.configurationAuditFacade.save(
       ConfigurationAuditEventType.CREATED,
       currentUser,
       repository,
@@ -179,7 +179,7 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     await this.configurationStoragePort.save(configuration);
 
-    await this.configurationAuditService.save(
+    await this.configurationAuditFacade.save(
       ConfigurationAuditEventType.UPDATED,
       currentUser,
       repository,
@@ -201,7 +201,7 @@ export default class ConfigurationService implements ConfigurationFacade {
         this.secretValuesStoragePort.deleteValuesForEnvironment(environment),
       ),
     );
-    await this.configurationAuditService.save(
+    await this.configurationAuditFacade.save(
       ConfigurationAuditEventType.DELETED,
       currentUser,
       repository,

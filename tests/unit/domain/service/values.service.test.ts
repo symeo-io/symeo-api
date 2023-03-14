@@ -13,7 +13,7 @@ import { ConfigurationValues } from 'src/domain/model/configuration/configuratio
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
-import { EnvironmentAuditEventType } from 'src/domain/model/environment-audit/environment-audit-event-type.enum';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 
 describe('ValuesService', () => {
   const mockedSecretValuesStoragePort: SecretValuesStoragePort =

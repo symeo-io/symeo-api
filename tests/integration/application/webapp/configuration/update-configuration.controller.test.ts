@@ -9,7 +9,7 @@ import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.u
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
+import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
 import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
 
 describe('ConfigurationController', () => {

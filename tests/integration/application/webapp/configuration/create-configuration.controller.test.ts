@@ -12,7 +12,7 @@ import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-us
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
 import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
-import { ConfigurationAuditEventType } from 'src/domain/model/configuration-audit/configuration-audit-event-type.enum';
+import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
