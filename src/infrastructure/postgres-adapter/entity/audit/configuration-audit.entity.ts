@@ -1,11 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
 import ConfigurationAuditMetadata from 'src/domain/model/audit/configuration-audit/configuration-audit-metadata';
 import ConfigurationAudit from 'src/domain/model/audit/configuration-audit/configuration-audit.model';
-import AbstractEntity from 'src/infrastructure/postgres-adapter/entity/abstract.entity';
 
 @Entity('configuration-audits')
-export default class ConfigurationAuditEntity extends AbstractEntity {
+export default class ConfigurationAuditEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -31,6 +35,9 @@ export default class ConfigurationAuditEntity extends AbstractEntity {
     type: 'jsonb',
   })
   metadata: ConfigurationAuditMetadata;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  public createdAt: Date;
 
   public toDomain(): ConfigurationAudit {
     return new ConfigurationAudit(
