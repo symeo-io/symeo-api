@@ -62,7 +62,7 @@ export class ValuesController {
   }
 
   @ApiOkResponse({
-    description: 'Environment values successfully retrieved',
+    description: 'Environment secret values successfully retrieved',
     type: GetEnvironmentValuesResponseDTO,
   })
   @Get(
