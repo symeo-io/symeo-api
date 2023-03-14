@@ -257,7 +257,7 @@ describe('ValuesController', () => {
 
         fetchSecretMock.mockSecretPresent(configurationValues);
 
-        const versionId = faker.datatype.string();
+        const versionId = faker.datatype.uuid();
         // When
         const response = await appClient
           .request(currentUser)
@@ -502,7 +502,7 @@ describe('ValuesController', () => {
 
         fetchSecretMock.mockSecretPresent(configurationValues);
 
-        const versionId = faker.datatype.string();
+        const versionId = faker.datatype.uuid();
 
         // When
         const response = await appClient
