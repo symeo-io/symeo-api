@@ -250,7 +250,6 @@ describe('ValuesService', () => {
         repository,
         configuration,
         environment,
-        branchName,
         requestedValues,
       );
 
@@ -281,7 +280,7 @@ describe('ValuesService', () => {
         environment,
         {
           environmentName: environment.name,
-          updatedProperties: ['user', 'port'],
+          updatedProperties: ['aws.user', 'database.postgres.port'],
         },
       );
     });

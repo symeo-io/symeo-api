@@ -203,7 +203,7 @@ describe('ValuesController', () => {
         expect(environmentAuditEntity[0].metadata).toEqual({
           metadata: {
             environmentName: environment.name,
-            readProperties: ['region', 'password'],
+            readProperties: ['aws.region', 'database.postgres.password'],
           },
         });
       });
@@ -346,7 +346,7 @@ describe('ValuesController', () => {
         expect(environmentAuditEntity[0].metadata).toEqual({
           metadata: {
             environmentName: environment.name,
-            readProperties: ['region', 'password'],
+            readProperties: ['aws.region', 'database.postgres.password'],
           },
         });
       });

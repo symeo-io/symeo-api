@@ -104,14 +104,12 @@ export class ValuesController {
     @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
-    @Query('branch') branchName: string | undefined,
   ): Promise<void> {
     await this.valuesFacade.updateValuesByEnvironmentForWebapp(
       currentUser,
       repository,
       configuration,
       environment,
-      branchName,
       setEnvironmentValuesResponseDTO.values,
     );
   }

@@ -224,12 +224,12 @@ describe('ValuesController', () => {
         metadata: {
           environmentName: environment.name,
           updatedProperties: [
-            'region',
-            'user',
-            'host',
-            'port',
-            'password',
-            'type',
+            'aws.region',
+            'aws.user',
+            'database.postgres.host',
+            'database.postgres.port',
+            'database.postgres.password',
+            'database.postgres.type',
           ],
         },
       });
@@ -334,7 +334,7 @@ describe('ValuesController', () => {
       expect(environmentAuditEntity[0].metadata).toEqual({
         metadata: {
           environmentName: environment.name,
-          updatedProperties: ['region', 'host'],
+          updatedProperties: ['aws.region', 'database.postgres.host'],
         },
       });
     });
@@ -417,7 +417,7 @@ describe('ValuesController', () => {
       expect(environmentAuditEntity[0].metadata).toEqual({
         metadata: {
           environmentName: environment.name,
-          updatedProperties: ['region', 'host'],
+          updatedProperties: ['aws.region', 'database.postgres.host'],
         },
       });
     });

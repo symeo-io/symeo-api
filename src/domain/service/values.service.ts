@@ -12,7 +12,6 @@ import {
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { isEmpty, merge } from 'lodash';
-import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
@@ -78,7 +77,6 @@ export class ValuesService implements ValuesFacade {
       );
 
     const secretProperties: string[] = this.parseContractToGetSecretProperties(
-      [],
       configurationContract,
     );
     await this.environmentAuditFacade.saveWithValuesMetadataType(
@@ -129,19 +127,11 @@ export class ValuesService implements ValuesFacade {
     repository: VcsRepository,
     configuration: Configuration,
     environment: Environment,
-    branch: string | undefined,
     values: ConfigurationValues,
   ): Promise<void> {
     const persistedValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
-      );
-
-    const configurationContract: ConfigurationContract =
-      await this.configurationFacade.findContract(
-        currentUser,
-        configuration,
-        branch,
       );
 
     if (isEmpty(persistedValues)) {
@@ -156,12 +146,7 @@ export class ValuesService implements ValuesFacade {
       );
     }
 
-    const updateValuesProperties: string[] =
-      this.parseContractAndValuesToGetUpdatedProperties(
-        [],
-        configurationContract,
-        values,
-      );
+    const updateValuesProperties: string[] = this.getObjectPaths(values);
 
     await this.environmentAuditFacade.saveWithValuesMetadataType(
       EnvironmentAuditEventType.VALUES_UPDATED,
@@ -176,53 +161,34 @@ export class ValuesService implements ValuesFacade {
   }
 
   private parseContractToGetSecretProperties(
-    secretProperties: string[],
     configurationContract: ConfigurationContract,
+    secretProperties?: string[],
+    path?: string,
   ): string[] {
+    let result = secretProperties ? [...secretProperties] : [];
     Object.keys(configurationContract).forEach((propertyName) => {
       const contractProperty = configurationContract[propertyName];
 
       if (!this.isConfigProperty(contractProperty)) {
-        this.parseContractToGetSecretProperties(
-          secretProperties,
-          contractProperty as ConfigurationContract,
-        );
+        result = [
+          ...result,
+          ...this.parseContractToGetSecretProperties(
+            contractProperty as ConfigurationContract,
+            secretProperties,
+            path ? path + '.' + propertyName : propertyName,
+          ),
+        ];
       }
 
       if (
         this.isConfigProperty(contractProperty) &&
         this.isContractPropertySecret(contractProperty)
       ) {
-        secretProperties.push(propertyName);
+        result.push(path ? path + '.' + propertyName : propertyName);
       }
     });
 
-    return secretProperties;
-  }
-
-  private parseContractAndValuesToGetUpdatedProperties(
-    valuesProperties: string[],
-    configurationContract: ConfigurationContract,
-    updatedValues: ConfigurationValues,
-  ) {
-    Object.keys(configurationContract).forEach((propertyName) => {
-      const contractProperty = configurationContract[propertyName];
-      const valuesProperty = updatedValues[propertyName];
-
-      if (!this.isConfigProperty(contractProperty)) {
-        this.parseContractAndValuesToGetUpdatedProperties(
-          valuesProperties,
-          contractProperty as ConfigurationContract,
-          valuesProperty as ConfigurationValues,
-        );
-      }
-
-      if (this.isConfigProperty(contractProperty) && !!valuesProperty) {
-        valuesProperties.push(propertyName);
-      }
-    });
-
-    return valuesProperties;
+    return result;
   }
 
   private generateHiddenSecret(valuesProperty: string | number | boolean) {
@@ -239,5 +205,22 @@ export class ValuesService implements ValuesFacade {
     contractProperty: ConfigurationContract | ConfigurationContractProperty,
   ) {
     return contractProperty.type && typeof contractProperty.type === 'string';
+  }
+
+  private getObjectPaths(object: any) {
+    const paths: string[] = [];
+    const walk = function (object: any, path?: string) {
+      for (const n in object) {
+        if (object[n]) {
+          if (typeof object[n] === 'object' || object[n] instanceof Array) {
+            walk(object[n], path ? path + '.' + n : n);
+          } else {
+            paths.push(path ? path + '.' + n : n);
+          }
+        }
+      }
+    };
+    walk(object);
+    return paths;
   }
 }

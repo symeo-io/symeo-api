@@ -28,7 +28,6 @@ export interface ValuesFacade {
     repository: VcsRepository,
     configuration: Configuration,
     environment: Environment,
-    branch: string | undefined,
     values: ConfigurationValues,
   ): Promise<void>;
 }
