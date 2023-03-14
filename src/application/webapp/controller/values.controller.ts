@@ -106,7 +106,6 @@ export class ValuesController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
-  @ApiQuery({ name: 'branch', required: false })
   @ApiQuery({ name: 'versionId', required: false })
   async setEnvironmentValuesForWebapp(
     @CurrentUser() currentUser: User,
@@ -114,7 +113,6 @@ export class ValuesController {
     @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
-    @Query('branch') branch: string | undefined,
     @Query('versionId') versionId: string | undefined,
   ): Promise<void> {
     await this.valuesFacade.updateValuesByEnvironmentForWebapp(
@@ -122,7 +120,6 @@ export class ValuesController {
       repository,
       configuration,
       environment,
-      branch,
       setEnvironmentValuesResponseDTO.values,
       versionId,
     );
