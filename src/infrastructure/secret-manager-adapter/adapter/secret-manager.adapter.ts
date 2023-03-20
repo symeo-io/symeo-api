@@ -2,16 +2,19 @@ import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.stora
 import Environment from 'src/domain/model/environment/environment.model';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
+import { ValuesVersion } from 'src/domain/model/values-version/values-version.model';
 
 export default class SecretManagerAdapter implements SecretValuesStoragePort {
   constructor(private secretManagerClient: SecretManagerClient) {}
   async getValuesForEnvironmentId(
     environmentId: string,
+    versionId?: string,
   ): Promise<ConfigurationValues> {
     try {
       const { SecretString } = await this.secretManagerClient.client
         .getSecretValue({
           SecretId: environmentId,
+          VersionId: versionId,
         })
         .promise();
 
@@ -26,6 +29,36 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
       }
 
       throw e;
+    }
+  }
+  async getVersionsForEnvironment(
+    environment: Environment,
+  ): Promise<ValuesVersion[]> {
+    try {
+      const valuesVersions: ValuesVersion[] = [];
+      const { Versions } = await this.secretManagerClient.client
+        .listSecretVersionIds({
+          SecretId: environment.id,
+          IncludeDeprecated: false,
+        })
+        .promise();
+
+      if (Versions) {
+        Versions.forEach((version) => {
+          if (version.VersionId && version.CreatedDate) {
+            valuesVersions.push(
+              new ValuesVersion(version.VersionId, version.CreatedDate),
+            );
+          }
+        });
+      }
+      return valuesVersions;
+    } catch (error) {
+      if ((error as { code: string }).code === 'ResourceNotFoundException') {
+        return [];
+      }
+
+      throw error;
     }
   }
 
@@ -48,7 +81,6 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
           SecretString: JSON.stringify(values),
         })
         .promise();
-
       return;
     }
 

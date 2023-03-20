@@ -37,10 +37,12 @@ export class ValuesService implements ValuesFacade {
     configuration: Configuration,
     branchName: string | undefined,
     environment: Environment,
+    versionId?: string,
   ): Promise<ConfigurationValues> {
     const configurationValues: ConfigurationValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
+        versionId,
       );
     const configurationContract: ConfigurationContract =
       await this.configurationFacade.findContract(
@@ -64,10 +66,12 @@ export class ValuesService implements ValuesFacade {
     configuration: Configuration,
     branchName: string | undefined,
     environment: Environment,
+    versionId?: string,
   ): Promise<ConfigurationValues> {
     const configurationValues: ConfigurationValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
+        versionId,
       );
     const configurationContract: ConfigurationContract =
       await this.configurationFacade.findContract(
@@ -128,10 +132,12 @@ export class ValuesService implements ValuesFacade {
     configuration: Configuration,
     environment: Environment,
     values: ConfigurationValues,
+    versionId?: string,
   ): Promise<void> {
     const persistedValues =
       await this.secretValuesStoragePort.getValuesForEnvironmentId(
         environment.id,
+        versionId,
       );
 
     if (isEmpty(persistedValues)) {

@@ -29,6 +29,7 @@ import { EnvironmentAuditAdapterModule } from 'src/bootstrap/environment-audit-a
 import EnvironmentAuditStoragePort from 'src/domain/port/out/environment-audit.storage.port';
 import ConfigurationAuditFacade from 'src/domain/port/in/configuration-audit.facade.port';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
+import { ValuesVersionService } from 'src/domain/service/values-version.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -216,6 +217,13 @@ const EnvironmentPermissionUtilsProvider = {
   useValue: new EnvironmentPermissionUtils(),
 };
 
+const ValuesVersionFacadeProvider = {
+  provide: 'ValuesVersionFacade',
+  useFactory: (secretValueStoragePort: SecretValuesStoragePort) =>
+    new ValuesVersionService(secretValueStoragePort),
+  inject: ['SecretManagerAdapter'],
+};
+
 @Module({
   imports: [
     PostgresAdapterModule,
@@ -237,6 +245,7 @@ const EnvironmentPermissionUtilsProvider = {
     PermissionRoleServiceProvider,
     ConfigurationAuditFacadeProvider,
     EnvironmentAuditFacadeProvider,
+    ValuesVersionFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -250,6 +259,7 @@ const EnvironmentPermissionUtilsProvider = {
     PermissionRoleServiceProvider,
     ConfigurationAuditFacadeProvider,
     EnvironmentAuditFacadeProvider,
+    ValuesVersionFacadeProvider,
   ],
 })
 export class DomainModule {}

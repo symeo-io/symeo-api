@@ -119,5 +119,79 @@ describe('ValuesController', () => {
         },
       });
     });
+
+    it('should respond 200 and return hidden values with specific versionId', async () => {
+      // Given
+      const requestedBranch = 'staging';
+      const userVcsId = 102222086;
+      const currentUser = new User(
+        `github|${userVcsId}`,
+        faker.internet.email(),
+        faker.name.firstName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      const vcsRepositoryId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.ownerVcsName,
+        configuration.repositoryVcsName,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchSecretMock.mockSecretPresent(configurationValues);
+
+      const versionId = faker.datatype.uuid();
+
+      const response = await appClient
+        .request(currentUser)
+        .get(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}&versionId=${versionId}`,
+        )
+        .expect(200);
+
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+        VersionId: versionId,
+      });
+      expect(response.body.values).toEqual({
+        aws: {
+          region: '*********',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: '********',
+            type: 'postgres',
+          },
+        },
+      });
+    });
   });
 });

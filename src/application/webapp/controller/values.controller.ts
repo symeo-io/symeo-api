@@ -12,7 +12,7 @@ import { GetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/valu
 import { ValuesFacade } from 'src/domain/port/in/values.facade';
 import { SetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/values/set-environment-values.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
 import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
 import Environment from 'src/domain/model/environment/environment.model';
@@ -42,12 +42,15 @@ export class ValuesController {
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
+  @ApiQuery({ name: 'branch', required: false })
+  @ApiQuery({ name: 'versionId', required: false })
   async getEnvironmentValuesForWebapp(
     @CurrentUser() user: User,
     @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Query('branch') branch: string | undefined,
+    @Query('versionId') versionId: string | undefined,
   ): Promise<GetEnvironmentValuesResponseDTO> {
     const values =
       await this.valuesFacade.getHiddenValuesByEnvironmentForWebapp(
@@ -56,13 +59,14 @@ export class ValuesController {
         configuration,
         branch,
         environment,
+        versionId,
       );
 
     return new GetEnvironmentValuesResponseDTO(values);
   }
 
   @ApiOkResponse({
-    description: 'Environment values successfully retrieved',
+    description: 'Environment secret values successfully retrieved',
     type: GetEnvironmentValuesResponseDTO,
   })
   @Get(
@@ -70,12 +74,15 @@ export class ValuesController {
   )
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_SECRET)
+  @ApiQuery({ name: 'branch', required: false })
+  @ApiQuery({ name: 'versionId', required: false })
   async getEnvironmentValuesSecretsForWebapp(
     @CurrentUser() user: User,
     @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Query('branch') branch: string | undefined,
+    @Query('versionId') versionId: string | undefined,
   ): Promise<GetEnvironmentValuesResponseDTO> {
     const values =
       await this.valuesFacade.getNonHiddenValuesByEnvironmentForWebapp(
@@ -84,6 +91,7 @@ export class ValuesController {
         configuration,
         branch,
         environment,
+        versionId,
       );
 
     return new GetEnvironmentValuesResponseDTO(values);
@@ -98,12 +106,14 @@ export class ValuesController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
+  @ApiQuery({ name: 'versionId', required: false })
   async setEnvironmentValuesForWebapp(
     @CurrentUser() currentUser: User,
     @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @RequestedEnvironment() environment: Environment,
     @Body() setEnvironmentValuesResponseDTO: SetEnvironmentValuesResponseDTO,
+    @Query('versionId') versionId: string | undefined,
   ): Promise<void> {
     await this.valuesFacade.updateValuesByEnvironmentForWebapp(
       currentUser,
@@ -111,6 +121,7 @@ export class ValuesController {
       configuration,
       environment,
       setEnvironmentValuesResponseDTO.values,
+      versionId,
     );
   }
 }
