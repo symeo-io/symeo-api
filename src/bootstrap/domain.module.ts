@@ -29,7 +29,7 @@ import { EnvironmentAuditAdapterModule } from 'src/bootstrap/environment-audit-a
 import EnvironmentAuditStoragePort from 'src/domain/port/out/environment-audit.storage.port';
 import ConfigurationAuditFacade from 'src/domain/port/in/configuration-audit.facade.port';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
-import { EnvironmentVersionService } from 'src/domain/service/environment-version.service';
+import { ValuesVersionService } from 'src/domain/service/values-version.service';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -217,10 +217,10 @@ const EnvironmentPermissionUtilsProvider = {
   useValue: new EnvironmentPermissionUtils(),
 };
 
-const EnvironmentVersionFacadeProvider = {
-  provide: 'EnvironmentVersionFacade',
+const ValuesVersionFacadeProvider = {
+  provide: 'ValuesVersionFacade',
   useFactory: (secretValueStoragePort: SecretValuesStoragePort) =>
-    new EnvironmentVersionService(secretValueStoragePort),
+    new ValuesVersionService(secretValueStoragePort),
   inject: ['SecretManagerAdapter'],
 };
 
@@ -245,7 +245,7 @@ const EnvironmentVersionFacadeProvider = {
     PermissionRoleServiceProvider,
     ConfigurationAuditFacadeProvider,
     EnvironmentAuditFacadeProvider,
-    EnvironmentVersionFacadeProvider,
+    ValuesVersionFacadeProvider,
   ],
   exports: [
     ConfigurationFacadeProvider,
@@ -259,7 +259,7 @@ const EnvironmentVersionFacadeProvider = {
     PermissionRoleServiceProvider,
     ConfigurationAuditFacadeProvider,
     EnvironmentAuditFacadeProvider,
-    EnvironmentVersionFacadeProvider,
+    ValuesVersionFacadeProvider,
   ],
 })
 export class DomainModule {}

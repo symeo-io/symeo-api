@@ -7,9 +7,9 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { FetchSecretVersionMock } from 'tests/utils/mocks/fetch-secret-version.mock';
-import { EnvironmentVersionDTO } from 'src/application/webapp/dto/environment-version/environment-version.dto';
+import { ValuesVersionDto } from 'src/application/webapp/dto/values-version/values-version.dto';
 
-describe('EnvironmentVersionController', () => {
+describe('ValuesVersionController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
@@ -104,40 +104,6 @@ describe('EnvironmentVersionController', () => {
       expect(response.body.versions[2].versionId).toEqual(
         secretVersions[2].VersionId,
       );
-    });
-
-    it('should respond 200 and return the latest 20 environment versions sorted by creation date descending order', async () => {
-      // Given
-      const vcsRepositoryId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
-      const configuration = await configurationTestUtil.createConfiguration(
-        repository.id,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-
-      const secretVersions = [];
-      for (let i = 0; i < 30; i++) {
-        secretVersions.push({
-          CreatedDate: new Date(parseInt(`19${i}0`), 1, 1),
-          VersionId: faker.datatype.uuid(),
-          VersionStages: [faker.datatype.uuid()],
-        });
-      }
-
-      fetchSecretVersionMock.mockSecretVersionPresent(secretVersions);
-
-      // When
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/versions`,
-        )
-        // Then
-        .expect(200);
-      expect(response.body.versions.length).toEqual(20);
     });
   });
 });

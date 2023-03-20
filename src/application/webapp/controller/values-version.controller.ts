@@ -4,31 +4,31 @@ import { AuthGuard } from '@nestjs/passport';
 import { EnvironmentAuthorizationGuard } from 'src/application/webapp/authorization/EnvironmentAuthorizationGuard';
 import { RequestedEnvironment } from 'src/application/webapp/decorator/requested-environment.decorator';
 import Environment from 'src/domain/model/environment/environment.model';
-import EnvironmentVersionFacade from 'src/domain/port/in/environment-version.facade';
-import { GetEnvironmentVersionsResponseDTO } from 'src/application/webapp/dto/environment-version/get-environment-versions.response.dto';
+import ValuesVersionFacade from 'src/domain/port/in/values-version.facade';
+import { GetValuesVersionsResponseDto } from 'src/application/webapp/dto/values-version/get-values-versions.response.dto';
 
 @Controller('configurations')
 @ApiTags('versions')
 @UseGuards(AuthGuard('jwt'))
-export class EnvironmentVersionController {
+export class ValuesVersionController {
   constructor(
-    @Inject('EnvironmentVersionFacade')
-    private readonly versionsFacade: EnvironmentVersionFacade,
+    @Inject('ValuesVersionFacade')
+    private readonly versionsFacade: ValuesVersionFacade,
   ) {}
 
   @ApiOkResponse({
     description: 'Versions of the environment successfully retrieved',
-    type: GetEnvironmentVersionsResponseDTO,
+    type: GetValuesVersionsResponseDto,
   })
   @Get(
     'github/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
-  async getEnvironmentVersions(
+  async getValuesVersions(
     @RequestedEnvironment() environment: Environment,
-  ): Promise<GetEnvironmentVersionsResponseDTO> {
-    return GetEnvironmentVersionsResponseDTO.fromDomains(
-      await this.versionsFacade.getEnvironmentVersions(environment),
+  ): Promise<GetValuesVersionsResponseDto> {
+    return GetValuesVersionsResponseDto.fromDomains(
+      await this.versionsFacade.getValuesVersions(environment),
     );
   }
 }

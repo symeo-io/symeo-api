@@ -2,7 +2,7 @@ import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.stora
 import Environment from 'src/domain/model/environment/environment.model';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 import { SecretManagerClient } from 'src/infrastructure/secret-manager-adapter/secret-manager.client';
-import { EnvironmentVersion } from 'src/domain/model/environment-version/environment-version.model';
+import { ValuesVersion } from 'src/domain/model/values-version/values-version.model';
 
 export default class SecretManagerAdapter implements SecretValuesStoragePort {
   constructor(private secretManagerClient: SecretManagerClient) {}
@@ -33,25 +33,26 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
   }
   async getVersionsForEnvironment(
     environment: Environment,
-  ): Promise<EnvironmentVersion[]> {
+  ): Promise<ValuesVersion[]> {
     try {
-      const environmentVersions: EnvironmentVersion[] = [];
+      const valuesVersions: ValuesVersion[] = [];
       const { Versions } = await this.secretManagerClient.client
         .listSecretVersionIds({
           SecretId: environment.id,
+          IncludeDeprecated: false,
         })
         .promise();
 
       if (Versions) {
         Versions.forEach((version) => {
           if (version.VersionId && version.CreatedDate) {
-            environmentVersions.push(
-              new EnvironmentVersion(version.VersionId, version.CreatedDate),
+            valuesVersions.push(
+              new ValuesVersion(version.VersionId, version.CreatedDate),
             );
           }
         });
       }
-      return environmentVersions;
+      return valuesVersions;
     } catch (error) {
       if ((error as { code: string }).code === 'ResourceNotFoundException') {
         return [];

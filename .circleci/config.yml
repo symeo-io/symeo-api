@@ -16,7 +16,7 @@ jobs:
     - run:
         name: Install dependencies
         command: yarn install
-    - checkout # Checking out code in case of a yarn environment-version mismatch modifies the yarn.lock
+    - checkout # Checking out code in case of a yarn values-version mismatch modifies the yarn.lock
     - save_cache:
         key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
         paths:
@@ -37,7 +37,7 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "~/symeo-api/yarn.lock" }}
       - run:
-          name: Change NodeJS environment-version
+          name: Change NodeJS values-version
           command: |
             export NVM_DIR="/opt/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"

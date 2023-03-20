@@ -1,6 +1,6 @@
 import Environment from 'src/domain/model/environment/environment.model';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { EnvironmentVersion } from 'src/domain/model/environment-version/environment-version.model';
+import { ValuesVersion } from 'src/domain/model/values-version/values-version.model';
 
 export interface SecretValuesStoragePort {
   getValuesForEnvironmentId(
@@ -19,7 +19,5 @@ export interface SecretValuesStoragePort {
 
   deleteValuesForEnvironment(environment: Environment): Promise<void>;
 
-  getVersionsForEnvironment(
-    environment: Environment,
-  ): Promise<EnvironmentVersion[]>;
+  getVersionsForEnvironment(environment: Environment): Promise<ValuesVersion[]>;
 }

@@ -1,4 +1,4 @@
-export class EnvironmentVersion {
+export class ValuesVersion {
   constructor(versionId: string, creationDate: Date) {
     this.versionId = versionId;
     this.creationDate = creationDate;
