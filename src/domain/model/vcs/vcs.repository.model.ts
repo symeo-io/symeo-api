@@ -10,6 +10,7 @@ export class VcsRepository {
   vcsUrl: string;
   configurations?: Configuration[];
   isCurrentUserAdmin: boolean;
+  defaultBranch: string;
 
   constructor(
     id: number,
@@ -19,6 +20,7 @@ export class VcsRepository {
     vcsType: VCSProvider,
     vcsUrl: string,
     isCurrentUserRepositoryAdmin: boolean,
+    defaultBranch: string,
   ) {
     this.id = id;
     this.name = name;
@@ -27,5 +29,6 @@ export class VcsRepository {
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
     this.isCurrentUserAdmin = isCurrentUserRepositoryAdmin;
+    this.defaultBranch = defaultBranch;
   }
 }

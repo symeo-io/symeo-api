@@ -30,4 +30,7 @@ export class GithubRepositoryDTO {
   @ValidateNested({ each: true })
   @Type(() => GithubPermissionsDTO)
   permissions: GithubPermissionsDTO;
+  @Expose({ name: 'default_branch' })
+  @IsString()
+  defaultBranch: string;
 }

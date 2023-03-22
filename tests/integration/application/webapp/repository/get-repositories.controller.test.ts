@@ -70,6 +70,7 @@ describe('RepositoryController', () => {
               vcsType: VCSProvider.GitHub,
               vcsUrl: 'https://github.com/octocat/Hello-World',
               isCurrentUserAdmin: false,
+              defaultBranch: 'master',
               configurations: [
                 {
                   id: configuration.id,

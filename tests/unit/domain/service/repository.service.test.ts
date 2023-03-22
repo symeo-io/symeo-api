@@ -74,6 +74,7 @@ describe('RepositoryService', () => {
         VCSProvider.GitHub,
         faker.internet.url(),
         true,
+        faker.lorem.slug(),
       );
 
       // When

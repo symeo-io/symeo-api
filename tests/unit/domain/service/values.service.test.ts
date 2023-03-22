@@ -84,6 +84,7 @@ describe('ValuesService', () => {
     },
     vcsType: VCSProvider.GitHub,
     vcsUrl: faker.datatype.string(),
+    defaultBranch: faker.lorem.slug(),
     isCurrentUserAdmin: false,
   };
 

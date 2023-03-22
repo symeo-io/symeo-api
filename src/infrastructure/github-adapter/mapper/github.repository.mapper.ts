@@ -28,6 +28,7 @@ export class GithubRepositoryMapper {
       githubRepositoryDTO.permissions
         ? githubRepositoryDTO.permissions.admin
         : false,
+      githubRepositoryDTO.defaultBranch,
     );
   }
 }
