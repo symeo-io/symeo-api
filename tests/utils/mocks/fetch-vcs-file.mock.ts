@@ -53,7 +53,7 @@ export class FetchVcsFileMock {
           `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`,
       )
       .replyOnce(() => {
-        throw { status: 404 };
+        throw { response: { status: 404 } };
       });
   }
 }

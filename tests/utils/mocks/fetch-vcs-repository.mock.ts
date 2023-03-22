@@ -56,7 +56,7 @@ export class FetchVcsRepositoryMock {
         config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`,
       )
       .replyOnce(() => {
-        throw { status: 404 };
+        throw { response: { status: 404 } };
       });
   }
 }

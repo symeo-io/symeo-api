@@ -6,7 +6,7 @@ import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dt
 import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
 import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
-import { AxiosInstance } from 'axios';
+import { AxiosError, AxiosInstance } from 'axios';
 
 export class GithubHttpClient {
   constructor(
@@ -64,7 +64,10 @@ export class GithubHttpClient {
 
       return response.data;
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return undefined;
       }
       throw exception;
@@ -94,7 +97,10 @@ export class GithubHttpClient {
 
       return response.data;
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return [];
       }
       throw exception;
@@ -117,7 +123,10 @@ export class GithubHttpClient {
 
       return response.status === 200;
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return false;
       }
 
@@ -148,7 +157,10 @@ export class GithubHttpClient {
 
       return response.status === 200;
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return false;
       }
 
@@ -188,7 +200,10 @@ export class GithubHttpClient {
 
       return buffer.toString();
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return undefined;
       }
 
@@ -221,7 +236,10 @@ export class GithubHttpClient {
 
       return response.data;
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return [];
       }
       throw exception;
@@ -245,7 +263,10 @@ export class GithubHttpClient {
       });
       return response.data;
     } catch (exception) {
-      if ((exception as any).status && (exception as any).status === 404) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
         return undefined;
       }
       throw exception;
