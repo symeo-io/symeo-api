@@ -45,11 +45,7 @@ export class PermissionRoleService {
     }
 
     const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(
-        user,
-        repository.owner.name,
-        repository.name,
-      );
+      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
 
     if (!userRepositoryRole) {
       throw new SymeoException(
@@ -78,11 +74,7 @@ export class PermissionRoleService {
     const userVcsId = user.getVcsUserId();
 
     const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(
-        user,
-        repository.owner.name,
-        repository.name,
-      );
+      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
 
     if (!userRepositoryRole) {
       throw new SymeoException(

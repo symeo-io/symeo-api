@@ -7,6 +7,7 @@ import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.br
 import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
 import { AxiosError, AxiosInstance } from 'axios';
+import { GithubFileDTO } from 'src/infrastructure/github-adapter/dto/github.file.dto';
 
 export class GithubHttpClient {
   constructor(
@@ -107,6 +108,34 @@ export class GithubHttpClient {
     }
   }
 
+  async getFilesByRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<GithubFileDTO[]> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryVcsId}/git/trees/${branch}?recursive=true`;
+    try {
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data.tree;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return [];
+      }
+      throw exception;
+    }
+  }
+
   async hasAccessToRepository(
     user: User,
     repositoryVcsId: number,
@@ -136,15 +165,14 @@ export class GithubHttpClient {
 
   async checkFileExistsOnBranch(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     filePath: string,
     branch: string,
   ): Promise<boolean> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const url =
       config.vcsProvider.github.apiUrl +
-      `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`;
+      `repositories/${repositoryId}/contents/${filePath}`;
     try {
       const response = await this.client.get(url, {
         params: {
@@ -170,15 +198,14 @@ export class GithubHttpClient {
 
   async getFileContent(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     filePath: string,
     branch: string,
   ): Promise<string | undefined> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const url =
       config.vcsProvider.github.apiUrl +
-      `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`;
+      `repositories/${repositoryId}/contents/${filePath}`;
     try {
       const response = await this.client.get(url, {
         params: {
@@ -213,15 +240,14 @@ export class GithubHttpClient {
 
   async getCollaboratorsForRepository(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     page: number,
     perPage: number,
   ): Promise<GithubCollaboratorDTO[]> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const url =
       config.vcsProvider.github.apiUrl +
-      `repos/${repositoryOwnerName}/${repositoryName}/collaborators`;
+      `repositories/${repositoryId}/collaborators`;
 
     try {
       const response = await this.client.get(url, {
@@ -248,13 +274,12 @@ export class GithubHttpClient {
 
   async getUserRepositoryPermission(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
   ): Promise<GithubUserPermissionDTO | undefined> {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const url =
       config.vcsProvider.github.apiUrl +
-      `repos/${repositoryOwnerName}/${repositoryName}/collaborators/${user.username}/permission`;
+      `repositories/${repositoryId}/collaborators/${user.username}/permission`;
     try {
       const response = await this.client.get(url, {
         headers: {
