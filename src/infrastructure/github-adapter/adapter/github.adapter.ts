@@ -124,7 +124,7 @@ export default class GithubAdapter implements GithubAdapterPort {
       branch,
     );
     const rawEnvFiles = files.filter(
-      (file) => file.type === 'blob' && file.path.includes('.env'),
+      (file) => file.type === 'blob' && this.isEnvFile(file.path),
     );
     const envFilesContents = await Promise.all(
       rawEnvFiles.map((rawEnvFile) =>
@@ -253,5 +253,9 @@ export default class GithubAdapter implements GithubAdapterPort {
 
     return plainToInstance(GithubUserPermissionDTO, repositoryPermission)
       .roleName as VcsRepositoryRole;
+  }
+
+  private isEnvFile(path: string): boolean {
+    return !!path.match(/^.*\/.env[^\/]*$/) || !!path.match(/^.env[^\/]*$/);
   }
 }
