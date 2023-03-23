@@ -68,9 +68,9 @@ describe('EnvironmentPermissionController', () => {
     describe('should respond 200 and return permissions', () => {
       it('should respond 200 with only github environment accesses', async () => {
         // Given
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
 
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
@@ -122,9 +122,9 @@ describe('EnvironmentPermissionController', () => {
 
       it('should respond 200 with mixed github and inBase environment accesses', async () => {
         // Given
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
 
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
@@ -188,9 +188,9 @@ describe('EnvironmentPermissionController', () => {
 
       it('should respond 200 with in-base environment accesses but updating github role to admin and delete environmentPermission linked to it', async () => {
         // Given
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -261,9 +261,9 @@ describe('EnvironmentPermissionController', () => {
 
       it('should respond 200 with in-base environment accesses but removing user from github organization', async () => {
         // Given
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );

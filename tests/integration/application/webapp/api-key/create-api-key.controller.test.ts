@@ -68,9 +68,9 @@ describe('ApiKeyController', () => {
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
     it('should respond 403 and not create api key for user without permission', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -99,9 +99,9 @@ describe('ApiKeyController', () => {
 
     it('should respond 201 and create api key', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -143,7 +143,7 @@ describe('ApiKeyController', () => {
       expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
       expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
       expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-        vcsRepositoryId,
+        repositoryVcsId,
       );
       expect(environmentAuditEntity[0].eventType).toEqual(
         EnvironmentAuditEventType.API_KEY_CREATED,

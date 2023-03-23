@@ -10,7 +10,7 @@ export class FetchVcsRepositoryBranchesMock {
     this.spy = appClient.axiosMock;
   }
 
-  public mockRepositoriesBranchPresent(vcsRepositoryId: number) {
+  public mockRepositoriesBranchPresent(repositoryVcsId: number) {
     const mockGitHubBranchesStub1 = JSON.parse(
       fs
         .readFileSync(
@@ -22,12 +22,12 @@ export class FetchVcsRepositoryBranchesMock {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repositories/${vcsRepositoryId}/branches`,
+          `repositories/${repositoryVcsId}/branches`,
       )
       .replyOnce(200, mockGitHubBranchesStub1)
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repositories/${vcsRepositoryId}/branches`,
+          `repositories/${repositoryVcsId}/branches`,
       )
       .replyOnce(200, []);
 

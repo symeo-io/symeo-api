@@ -66,9 +66,9 @@ describe('ConfigurationController', () => {
 
     it('should respond false for non existing file', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const dataToSend = {
         repositoryVcsId: repository.id,
         contractFilePath: faker.lorem.slug(),
@@ -92,9 +92,9 @@ describe('ConfigurationController', () => {
 
     it('should respond true for existing file', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const dataToSend = {
         repositoryVcsId: repository.id,
         contractFilePath: 'symeo.config.yml',

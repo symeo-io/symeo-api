@@ -71,9 +71,9 @@ describe('ConfigurationController', () => {
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and delete configuration', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
         repository.id,
@@ -123,7 +123,7 @@ describe('ConfigurationController', () => {
         configuration?.id,
       );
       expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
-        vcsRepositoryId,
+        repositoryVcsId,
       );
       expect(configurationAuditEntity[0].eventType).toEqual(
         ConfigurationAuditEventType.CREATED,

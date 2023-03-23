@@ -56,9 +56,9 @@ describe('ValuesVersionController', () => {
   describe('(GET) /github/:repositoryVcsId/:configurationId/environments/:environmentId/versions', () => {
     it('should respond 200 and return environment versions sorted by creation date descending order', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );

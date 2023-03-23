@@ -63,9 +63,9 @@ describe('ConfigurationController', () => {
   describe('(POST) /configurations/github/:repositoryVcsId', () => {
     it('should respond 404 and not create configuration for non existing config file', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const dataToSend = {
         name: faker.name.jobTitle(),
         branch: 'staging',
@@ -95,9 +95,9 @@ describe('ConfigurationController', () => {
 
     it('should respond 403 and not create configuration for non admin user', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const dataToSend = {
         name: faker.name.jobTitle(),
         branch: 'staging',
@@ -129,9 +129,9 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 and create new configuration and adding "CREATE" audit log in configuration audit table', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const sendData = {
         name: faker.name.jobTitle(),
         branch: 'staging',
@@ -186,7 +186,7 @@ describe('ConfigurationController', () => {
         configuration?.id,
       );
       expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
-        vcsRepositoryId,
+        repositoryVcsId,
       );
       expect(configurationAuditEntity[0].eventType).toEqual(
         ConfigurationAuditEventType.CREATED,

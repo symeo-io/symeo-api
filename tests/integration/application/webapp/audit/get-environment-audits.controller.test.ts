@@ -60,9 +60,9 @@ describe('AuditController', () => {
   describe('getEnvironmentAudits', () => {
     it('should get environment audits', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -108,7 +108,7 @@ describe('AuditController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${vcsRepositoryId}/${configuration.id}/${environment.id}/audits`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/${environment.id}/audits`,
         )
         .expect(200);
       expect(response.body.environmentAudits.length).toEqual(3);

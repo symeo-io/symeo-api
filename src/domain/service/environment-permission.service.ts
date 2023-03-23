@@ -46,7 +46,7 @@ export class EnvironmentPermissionService
         await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
       if (!githubUserRepositoryRole) {
         throw new SymeoException(
-          `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+          `User with vcsId ${userVcsId} do not have access to repository with repositoryVcsId ${repository.id}`,
           SymeoExceptionCode.REPOSITORY_NOT_FOUND,
         );
       }
@@ -250,7 +250,7 @@ export class EnvironmentPermissionService
 
     if (!userRepositoryRole) {
       throw new SymeoException(
-        `User with vcsId ${user.getVcsUserId()} do not have access to repository with vcsRepositoryId ${
+        `User with vcsId ${user.getVcsUserId()} do not have access to repository with repositoryVcsId ${
           repository.id
         }`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
@@ -360,7 +360,7 @@ export class EnvironmentPermissionService
       throw new SymeoException(
         `User with vcsIds ${permissionUserIdsNotInGithubUsers.join(
           ', ',
-        )} do not have access to repository with vcsRepositoryId ${
+        )} do not have access to repository with repositoryVcsId ${
           repository.id
         }`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,

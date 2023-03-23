@@ -65,9 +65,9 @@ describe('EnvironmentController', () => {
   describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
     it('Should return 403 and not update environment for user without permission', async () => {
       // When
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -103,9 +103,9 @@ describe('EnvironmentController', () => {
 
     it('Should return 200 and update environment for user with permission', async () => {
       // When
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -153,7 +153,7 @@ describe('EnvironmentController', () => {
         configurationEntity?.environments[0].id,
       );
       expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-        vcsRepositoryId,
+        repositoryVcsId,
       );
       expect(environmentAuditEntity[0].eventType).toEqual(
         EnvironmentAuditEventType.UPDATED,

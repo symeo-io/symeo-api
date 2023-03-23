@@ -60,9 +60,9 @@ describe('ApiKeyController', () => {
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
     it('should respond 200 with api keys', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
         repository.id,
