@@ -23,10 +23,10 @@ export class FetchVcsRepositoryMock {
     this.spy = appClient.axiosMock;
   }
 
-  public mockRepositoryPresent(vcsRepositoryId: number): MockedRepository {
+  public mockRepositoryPresent(repositoryVcsId: number): MockedRepository {
     const data = {
       name: faker.lorem.slug(),
-      id: vcsRepositoryId,
+      id: repositoryVcsId,
       owner: {
         login: faker.lorem.slug(),
         id: faker.datatype.number(),
@@ -43,17 +43,17 @@ export class FetchVcsRepositoryMock {
 
     this.spy
       .onGet(
-        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`,
+        config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`,
       )
       .reply(200, data);
 
     return data;
   }
 
-  public mockRepositoryMissing(vcsRepositoryId: number): void {
+  public mockRepositoryMissing(repositoryVcsId: number): void {
     this.spy
       .onGet(
-        config.vcsProvider.github.apiUrl + `repositories/${vcsRepositoryId}`,
+        config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`,
       )
       .replyOnce(() => {
         throw { response: { status: 404 } };

@@ -29,7 +29,7 @@ export class AuditController {
     private readonly environmentAuditFacade: EnvironmentAuditFacade,
   ) {}
 
-  @Get(':repositoryVcsId/:configurationId/audits')
+  @Get('github/:repositoryVcsId/:configurationId/audits')
   @UseGuards(ConfigurationAuthorizationGuard)
   @ApiOkResponse({
     description: 'Configuration audits successfully retrieved',
@@ -46,7 +46,7 @@ export class AuditController {
     return GetConfigurationAuditsResponseDTO.fromDomains(configurationAudits);
   }
 
-  @Get(':repositoryVcsId/:configurationId/:environmentId/audits')
+  @Get('github/:repositoryVcsId/:configurationId/:environmentId/audits')
   @UseGuards(EnvironmentAuthorizationGuard)
   @ApiOkResponse({
     description: 'Environment audits successfully retrieved',

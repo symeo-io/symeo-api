@@ -63,9 +63,9 @@ describe('ConfigurationController', () => {
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and return configuration', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -82,8 +82,7 @@ describe('ConfigurationController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.READ,
       );
 

@@ -14,7 +14,6 @@ import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-perm
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
-import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
@@ -44,14 +43,10 @@ export class EnvironmentPermissionService
       return inBaseEnvironmentPermissions.environmentPermissionRole;
     } else {
       const githubUserRepositoryRole: VcsRepositoryRole | undefined =
-        await this.githubAdapterPort.getUserRepositoryRole(
-          user,
-          repository.owner.name,
-          repository.name,
-        );
+        await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
       if (!githubUserRepositoryRole) {
         throw new SymeoException(
-          `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+          `User with vcsId ${userVcsId} do not have access to repository with repositoryVcsId ${repository.id}`,
           SymeoExceptionCode.REPOSITORY_NOT_FOUND,
         );
       }
@@ -137,8 +132,7 @@ export class EnvironmentPermissionService
     const githubRepositoryUsers: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
-        repository.owner.name,
-        repository.name,
+        repository.id,
       );
 
     const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
@@ -252,15 +246,11 @@ export class EnvironmentPermissionService
     }
 
     const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(
-        user,
-        repository.owner.name,
-        repository.name,
-      );
+      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
 
     if (!userRepositoryRole) {
       throw new SymeoException(
-        `User with vcsId ${user.getVcsUserId()} do not have access to repository with vcsRepositoryId ${
+        `User with vcsId ${user.getVcsUserId()} do not have access to repository with repositoryVcsId ${
           repository.id
         }`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
@@ -313,8 +303,7 @@ export class EnvironmentPermissionService
     const githubRepositoryUsersWithRole: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
-        repository.owner.name,
-        repository.name,
+        repository.id,
       );
 
     const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
@@ -371,7 +360,7 @@ export class EnvironmentPermissionService
       throw new SymeoException(
         `User with vcsIds ${permissionUserIdsNotInGithubUsers.join(
           ', ',
-        )} do not have access to repository with vcsRepositoryId ${
+        )} do not have access to repository with repositoryVcsId ${
           repository.id
         }`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,

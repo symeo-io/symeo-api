@@ -12,45 +12,38 @@ export class FetchVcsFileMock {
   }
 
   public mockFilePresent(
-    repositoryOwnerName: string,
-    repositoryName: string,
-    contractFilePath: string,
+    repositoryId: number,
+    filePath: string,
     content?: string,
   ): void {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/contents/${contractFilePath}`,
+          `repositories/${repositoryId}/contents/${filePath}`,
       )
       .reply(200, {
-        content: content,
+        content: content ? base64encode(content) : undefined,
         encoding: 'base64',
       });
   }
 
   public mockSymeoContractFilePresent(
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     contractFilePath: string,
     stubPath: string,
   ) {
     return this.mockFilePresent(
-      repositoryOwnerName,
-      repositoryName,
+      repositoryId,
       contractFilePath,
-      base64encode(fs.readFileSync(stubPath).toString()) as string,
+      fs.readFileSync(stubPath).toString() as string,
     );
   }
 
-  public mockFileMissing(
-    repositoryOwnerName: string,
-    repositoryName: string,
-    filePath?: string,
-  ): void {
+  public mockFileMissing(repositoryId: number, filePath?: string): void {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/contents/${filePath}`,
+          `repositories/${repositoryId}/contents/${filePath}`,
       )
       .replyOnce(() => {
         throw { response: { status: 404 } };

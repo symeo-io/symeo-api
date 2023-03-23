@@ -10,10 +10,7 @@ export class FetchVcsRepositoryCollaboratorsMock {
     this.spy = appClient.axiosMock;
   }
 
-  public mockCollaboratorsPresent(
-    repositoryOwnerName: string,
-    repositoryName: string,
-  ): void {
+  public mockCollaboratorsPresent(repositoryId: number): void {
     const mockGithubListCollaboratorsStub1 = JSON.parse(
       fs
         .readFileSync(
@@ -39,22 +36,22 @@ export class FetchVcsRepositoryCollaboratorsMock {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+          `repositories/${repositoryId}/collaborators`,
       )
       .replyOnce(200, mockGithubListCollaboratorsStub1)
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+          `repositories/${repositoryId}/collaborators`,
       )
       .replyOnce(200, mockGithubListCollaboratorsStub2)
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+          `repositories/${repositoryId}/collaborators`,
       )
       .replyOnce(200, mockGithubListCollaboratorsStub3)
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/collaborators`,
+          `repositories/${repositoryId}/collaborators`,
       )
       .replyOnce(200, []);
   }

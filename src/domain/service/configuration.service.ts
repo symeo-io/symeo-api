@@ -56,8 +56,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     const fileExistsOnBranch =
       await this.repositoryFacade.checkFileExistsOnBranch(
         user,
-        repository.owner.name,
-        repository.name,
+        repository.id,
         contractFilePath,
         branch,
       );
@@ -80,8 +79,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     const requestedBranchName = branchName ?? configuration.branch;
     const contractString = await this.repositoryFacade.getFileContent(
       user,
-      configuration.owner.name,
-      configuration.repository.name,
+      configuration.repository.vcsId,
       configuration.contractFilePath,
       requestedBranchName,
     );
@@ -118,8 +116,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     const fileExistsOnBranch =
       await this.repositoryFacade.checkFileExistsOnBranch(
         currentUser,
-        repository.owner.name,
-        repository.name,
+        repository.id,
         contractFilePath,
         branch,
       );

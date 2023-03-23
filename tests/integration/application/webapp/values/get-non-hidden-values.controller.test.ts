@@ -78,9 +78,9 @@ describe('ValuesController', () => {
           VCSProvider.GitHub,
           faker.datatype.number(),
         );
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -119,9 +119,9 @@ describe('ValuesController', () => {
           VCSProvider.GitHub,
           faker.datatype.number(),
         );
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -135,8 +135,7 @@ describe('ValuesController', () => {
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -195,7 +194,7 @@ describe('ValuesController', () => {
         );
         expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
         expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-          vcsRepositoryId,
+          repositoryVcsId,
         );
         expect(environmentAuditEntity[0].eventType).toEqual(
           EnvironmentAuditEventType.SECRETS_READ,
@@ -218,9 +217,9 @@ describe('ValuesController', () => {
           VCSProvider.GitHub,
           faker.datatype.number(),
         );
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -234,8 +233,7 @@ describe('ValuesController', () => {
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -296,7 +294,7 @@ describe('ValuesController', () => {
         );
         expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
         expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-          vcsRepositoryId,
+          repositoryVcsId,
         );
         expect(environmentAuditEntity[0].eventType).toEqual(
           EnvironmentAuditEventType.SECRETS_READ,
@@ -321,9 +319,9 @@ describe('ValuesController', () => {
           VCSProvider.GitHub,
           faker.datatype.number(),
         );
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -332,8 +330,7 @@ describe('ValuesController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.WRITE,
         );
 
@@ -363,9 +360,9 @@ describe('ValuesController', () => {
           VCSProvider.GitHub,
           faker.datatype.number(),
         );
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -374,14 +371,12 @@ describe('ValuesController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -439,7 +434,7 @@ describe('ValuesController', () => {
         );
         expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
         expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-          vcsRepositoryId,
+          repositoryVcsId,
         );
         expect(environmentAuditEntity[0].eventType).toEqual(
           EnvironmentAuditEventType.SECRETS_READ,
@@ -462,9 +457,9 @@ describe('ValuesController', () => {
           VCSProvider.GitHub,
           faker.datatype.number(),
         );
-        const vcsRepositoryId = faker.datatype.number();
+        const repositoryVcsId = faker.datatype.number();
         const repository =
-          fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+          fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
           repository.id,
         );
@@ -473,14 +468,12 @@ describe('ValuesController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -541,7 +534,7 @@ describe('ValuesController', () => {
         );
         expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
         expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-          vcsRepositoryId,
+          repositoryVcsId,
         );
         expect(environmentAuditEntity[0].eventType).toEqual(
           EnvironmentAuditEventType.SECRETS_READ,

@@ -45,15 +45,11 @@ export class PermissionRoleService {
     }
 
     const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(
-        user,
-        repository.owner.name,
-        repository.name,
-      );
+      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
 
     if (!userRepositoryRole) {
       throw new SymeoException(
-        `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+        `User with vcsId ${userVcsId} do not have access to repository with repositoryVcsId ${repository.id}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
@@ -78,15 +74,11 @@ export class PermissionRoleService {
     const userVcsId = user.getVcsUserId();
 
     const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(
-        user,
-        repository.owner.name,
-        repository.name,
-      );
+      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
 
     if (!userRepositoryRole) {
       throw new SymeoException(
-        `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+        `User with vcsId ${userVcsId} do not have access to repository with repositoryVcsId ${repository.id}`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }

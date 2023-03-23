@@ -13,14 +13,13 @@ export class FetchUserVcsRepositoryPermissionMock {
 
   public mockUserRepositoryRole(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     role: VcsRepositoryRole,
   ): void {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repos/${repositoryOwnerName}/${repositoryName}/collaborators/${user.username}/permission`,
+          `repositories/${repositoryId}/collaborators/${user.username}/permission`,
       )
       .reply(200, {
         role_name: role,

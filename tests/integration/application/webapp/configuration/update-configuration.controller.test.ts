@@ -59,13 +59,12 @@ describe('ConfigurationController', () => {
   describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and update configuration', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -110,7 +109,7 @@ describe('ConfigurationController', () => {
         configuration?.id,
       );
       expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
-        vcsRepositoryId,
+        repositoryVcsId,
       );
       expect(configurationAuditEntity[0].eventType).toEqual(
         ConfigurationAuditEventType.CREATED,

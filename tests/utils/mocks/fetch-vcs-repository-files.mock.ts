@@ -3,18 +3,18 @@ import { config } from 'symeo-js';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
 
-export class FetchVcsRepositoryBranchesMock {
+export class FetchVcsRepositoryFilesMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
     this.spy = appClient.axiosMock;
   }
 
-  public mockRepositoriesBranchPresent(repositoryVcsId: number) {
+  public mockRepositoriesFilesPresent(repositoryVcsId: number, branch: string) {
     const mockGitHubBranchesStub1 = JSON.parse(
       fs
         .readFileSync(
-          './tests/utils/stubs/repository/get_branches_for_repository_id_page_1.json',
+          './tests/utils/stubs/repository/get_files_for_repository_id.json',
         )
         .toString(),
     );
@@ -22,14 +22,9 @@ export class FetchVcsRepositoryBranchesMock {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repositories/${repositoryVcsId}/branches`,
+          `repositories/${repositoryVcsId}/git/trees/${branch}?recursive=true`,
       )
-      .replyOnce(200, mockGitHubBranchesStub1)
-      .onGet(
-        config.vcsProvider.github.apiUrl +
-          `repositories/${repositoryVcsId}/branches`,
-      )
-      .replyOnce(200, []);
+      .replyOnce(200, mockGitHubBranchesStub1);
 
     return mockGitHubBranchesStub1;
   }

@@ -60,6 +60,22 @@ describe('Authorizations', () => {
       path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
       verbs: ['get', 'post'],
     },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+      verbs: ['get'],
+    },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
+      verbs: ['get'],
+    },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/audits',
+      verbs: ['get'],
+    },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/:environmentId/audits',
+      verbs: ['get'],
+    },
   ];
 
   let appClient: AppClient;
@@ -150,14 +166,13 @@ describe('Authorizations', () => {
     '$verb $path should respond 404 with unknown configuration id',
     async (route) => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
 
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
 
@@ -193,13 +208,12 @@ describe('Authorizations', () => {
     '$verb $path should respond 404 with unknown environment id',
     async (route) => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -237,13 +251,12 @@ describe('Authorizations', () => {
     '$verb $path should respond 404 with unknown api key id',
     async (route) => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(

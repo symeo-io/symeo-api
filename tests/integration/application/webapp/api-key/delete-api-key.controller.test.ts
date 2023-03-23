@@ -66,16 +66,15 @@ describe('ApiKeyController', () => {
   describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId', () => {
     it('should respond 200 and delete api key', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const environment = await environmentTestUtil.createEnvironment(
@@ -104,7 +103,7 @@ describe('ApiKeyController', () => {
       expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
       expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
       expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-        vcsRepositoryId,
+        repositoryVcsId,
       );
       expect(environmentAuditEntity[0].eventType).toEqual(
         EnvironmentAuditEventType.API_KEY_DELETED,

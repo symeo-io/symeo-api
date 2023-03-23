@@ -47,9 +47,9 @@ describe('ConfigurationController', () => {
   describe('(GET) /configurations/github/:repositoryVcsId', () => {
     it('should respond 200 and return repository configurations', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       await configurationTestUtil.createConfiguration(repository.id);
       await configurationTestUtil.createConfiguration(repository.id);
 

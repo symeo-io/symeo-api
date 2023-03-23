@@ -53,9 +53,9 @@ describe('AuditController', () => {
   describe('getConfigurationAudits', () => {
     it('should get configuration audits', async () => {
       // Given
-      const vcsRepositoryId = faker.datatype.number();
+      const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -73,7 +73,7 @@ describe('AuditController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/${vcsRepositoryId}/${configuration.id}/audits`,
+          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/audits`,
         )
         .expect(200);
       expect(response.body.configurationAudits.length).toEqual(2);
