@@ -60,6 +60,22 @@ describe('Authorizations', () => {
       path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
       verbs: ['get', 'post'],
     },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+      verbs: ['get'],
+    },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
+      verbs: ['get'],
+    },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/audits',
+      verbs: ['get'],
+    },
+    {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/:environmentId/audits',
+      verbs: ['get'],
+    },
   ];
 
   let appClient: AppClient;

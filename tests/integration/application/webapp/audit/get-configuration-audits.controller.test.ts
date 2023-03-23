@@ -73,7 +73,7 @@ describe('AuditController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/${vcsRepositoryId}/${configuration.id}/audits`,
+          `/api/v1/configurations/github/${vcsRepositoryId}/${configuration.id}/audits`,
         )
         .expect(200);
       expect(response.body.configurationAudits.length).toEqual(2);

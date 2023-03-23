@@ -13,16 +13,16 @@ export class FetchVcsFileMock {
 
   public mockFilePresent(
     repositoryId: number,
-    contractFilePath: string,
+    filePath: string,
     content?: string,
   ): void {
     this.spy
       .onGet(
         config.vcsProvider.github.apiUrl +
-          `repositories/${repositoryId}/contents/${contractFilePath}`,
+          `repositories/${repositoryId}/contents/${filePath}`,
       )
       .reply(200, {
-        content: content,
+        content: content ? base64encode(content) : undefined,
         encoding: 'base64',
       });
   }
@@ -35,7 +35,7 @@ export class FetchVcsFileMock {
     return this.mockFilePresent(
       repositoryId,
       contractFilePath,
-      base64encode(fs.readFileSync(stubPath).toString()) as string,
+      fs.readFileSync(stubPath).toString() as string,
     );
   }
 
