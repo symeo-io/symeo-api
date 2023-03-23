@@ -73,13 +73,11 @@ describe('ConfigurationController', () => {
       };
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsFileMock.mockFileMissing(
-        repository.owner.login,
-        repository.name,
+        repository.id,
         dataToSend.contractFilePath,
       );
 
@@ -107,13 +105,11 @@ describe('ConfigurationController', () => {
       };
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.WRITE,
       );
       fetchVcsFileMock.mockFilePresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
         dataToSend.contractFilePath,
       );
       const response = await appClient
@@ -143,13 +139,11 @@ describe('ConfigurationController', () => {
       };
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsFileMock.mockFilePresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
         sendData.contractFilePath,
       );
       const response = await appClient

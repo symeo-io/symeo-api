@@ -135,8 +135,7 @@ describe('ValuesController', () => {
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -234,8 +233,7 @@ describe('ValuesController', () => {
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -332,8 +330,7 @@ describe('ValuesController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.WRITE,
         );
 
@@ -374,14 +371,12 @@ describe('ValuesController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
@@ -473,14 +468,12 @@ describe('ValuesController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
 
         fetchVcsFileMock.mockSymeoContractFilePresent(
-          configuration.ownerVcsName,
-          configuration.repositoryVcsName,
+          configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );

@@ -81,13 +81,11 @@ describe('EnvironmentPermissionController', () => {
 
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
         fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
-          repository.owner.login,
-          repository.name,
+          repository.id,
         );
 
         const response = await appClient
@@ -137,13 +135,11 @@ describe('EnvironmentPermissionController', () => {
 
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
         fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
-          repository.owner.login,
-          repository.name,
+          repository.id,
         );
         const environmentPermission1 =
           await environmentPermissionTestUtil.createEnvironmentPermission(
@@ -203,13 +199,11 @@ describe('EnvironmentPermissionController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
         fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
-          repository.owner.login,
-          repository.name,
+          repository.id,
         );
         const environmentPermissionToBeRemoved =
           await environmentPermissionTestUtil.createEnvironmentPermission(
@@ -278,13 +272,11 @@ describe('EnvironmentPermissionController', () => {
         );
         fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
           currentUser,
-          repository.owner.login,
-          repository.name,
+          repository.id,
           VcsRepositoryRole.ADMIN,
         );
         fetchVcsRepositoryCollaboratorsMock.mockCollaboratorsPresent(
-          repository.owner.login,
-          repository.name,
+          repository.id,
         );
 
         await environmentPermissionTestUtil.createEnvironmentPermission(

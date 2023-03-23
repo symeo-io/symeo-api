@@ -79,8 +79,7 @@ describe('ApiKeyController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.WRITE,
       );
 
@@ -111,8 +110,7 @@ describe('ApiKeyController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
 

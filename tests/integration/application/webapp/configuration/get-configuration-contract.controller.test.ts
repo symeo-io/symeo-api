@@ -58,7 +58,7 @@ describe('ConfigurationController', () => {
         repository.id,
       );
 
-      fetchVcsFileMock.mockFileMissing(repository.owner.login, repository.name);
+      fetchVcsFileMock.mockFileMissing(repository.id);
 
       appClient
         .request(currentUser)
@@ -79,8 +79,7 @@ describe('ConfigurationController', () => {
         repository.id,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.yml',
       );
@@ -95,7 +94,7 @@ describe('ConfigurationController', () => {
         (getRequest) =>
           getRequest.url ===
           config.vcsProvider.github.apiUrl +
-            `repos/${configuration.ownerVcsName}/${configuration.repositoryVcsName}/contents/${configuration.contractFilePath}`,
+            `repositories/${repository.id}/contents/${configuration.contractFilePath}`,
       );
       expect(githubRequest).toBeDefined();
       expect(githubRequest?.params.ref).toEqual(configuration.branch);
@@ -117,8 +116,7 @@ describe('ConfigurationController', () => {
         repository.id,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.yml',
       );
@@ -134,7 +132,7 @@ describe('ConfigurationController', () => {
         (getRequest) =>
           getRequest.url ===
           config.vcsProvider.github.apiUrl +
-            `repos/${configuration.ownerVcsName}/${configuration.repositoryVcsName}/contents/${configuration.contractFilePath}`,
+            `repositories/${repository.id}/contents/${configuration.contractFilePath}`,
       );
       expect(githubRequest).toBeDefined();
       expect(githubRequest?.params.ref).toEqual(requestedBranch);

@@ -82,8 +82,7 @@ describe('ConfigurationController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.READ,
       );
 

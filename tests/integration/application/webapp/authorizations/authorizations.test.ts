@@ -156,8 +156,7 @@ describe('Authorizations', () => {
 
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
 
@@ -198,8 +197,7 @@ describe('Authorizations', () => {
         fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -242,8 +240,7 @@ describe('Authorizations', () => {
         fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(

@@ -75,8 +75,7 @@ describe('ConfigurationController', () => {
         branch: faker.lorem.slug(),
       };
       fetchVcsFileMock.mockFileMissing(
-        repository.owner.login,
-        repository.name,
+        repository.id,
         dataToSend.contractFilePath,
       );
 
@@ -102,8 +101,7 @@ describe('ConfigurationController', () => {
         branch: 'staging',
       };
       fetchVcsFileMock.mockFilePresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
         dataToSend.contractFilePath,
       );
 

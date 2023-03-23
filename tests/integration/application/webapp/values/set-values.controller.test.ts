@@ -92,8 +92,7 @@ describe('ValuesController', () => {
         fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -138,8 +137,7 @@ describe('ValuesController', () => {
         fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -168,8 +166,7 @@ describe('ValuesController', () => {
       updateSecretMock.mock();
 
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
@@ -242,8 +239,7 @@ describe('ValuesController', () => {
         fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -271,8 +267,7 @@ describe('ValuesController', () => {
       updateSecretMock.mock();
 
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
@@ -346,8 +341,7 @@ describe('ValuesController', () => {
         fetchVcsRepositoryMock.mockRepositoryPresent(vcsRepositoryId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
@@ -357,8 +351,7 @@ describe('ValuesController', () => {
         configuration,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.yml',
       );
@@ -366,8 +359,7 @@ describe('ValuesController', () => {
       createSecretMock.mock();
 
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );

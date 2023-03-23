@@ -71,8 +71,7 @@ describe('EnvironmentController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.WRITE,
       );
 
@@ -107,8 +106,7 @@ describe('EnvironmentController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
 

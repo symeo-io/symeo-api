@@ -70,8 +70,7 @@ describe('ValuesController', () => {
         configuration,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );
@@ -141,8 +140,7 @@ describe('ValuesController', () => {
         configuration,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(
-        configuration.ownerVcsName,
-        configuration.repositoryVcsName,
+        configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
       );

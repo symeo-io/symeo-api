@@ -89,13 +89,11 @@ describe('EnvironmentPermissionController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.WRITE,
       );
       fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
       );
 
       const response = await appClient
@@ -128,13 +126,11 @@ describe('EnvironmentPermissionController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
       );
 
       await appClient
@@ -163,13 +159,11 @@ describe('EnvironmentPermissionController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
       );
 
       const updateEnvironmentPermissionsDTO =
@@ -218,13 +212,11 @@ describe('EnvironmentPermissionController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
       );
 
       const environmentPermissionToUpdateId = uuid();
@@ -274,13 +266,11 @@ describe('EnvironmentPermissionController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
       );
       await environmentPermissionTestUtil.createEnvironmentPermission(
         environment,
@@ -370,13 +360,11 @@ describe('EnvironmentPermissionController', () => {
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
-        repository.owner.login,
-        repository.name,
+        repository.id,
         VcsRepositoryRole.ADMIN,
       );
       fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
-        repository.owner.login,
-        repository.name,
+        repository.id,
       );
 
       await environmentPermissionTestUtil.createEnvironmentPermission(
