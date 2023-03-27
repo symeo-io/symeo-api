@@ -85,6 +85,27 @@ export class RepositoryService implements RepositoryFacade {
     }
   }
 
+  async commitFileToRepositoryBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.commitFileToRepositoryBranch(
+          user,
+          repositoryVcsId,
+          branch,
+          filePath,
+          fileContent,
+          commitMessage,
+        );
+    }
+  }
+
   async hasAccessToRepository(
     user: User,
     repositoryVcsId: number,

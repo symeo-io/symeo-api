@@ -1,4 +1,12 @@
-import { Controller, Get, Inject, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import User from 'src/domain/model/user/user.model';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
 import { GetRepositoriesResponseDTO } from 'src/application/webapp/dto/repository/get-repositories.response.dto';
@@ -7,6 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GetRepositoryBranchesResponseDTO } from 'src/application/webapp/dto/repository/get-repository-branches.response.dto';
 import { GetRepositoryEnvFilesResponseDTO } from 'src/application/webapp/dto/repository/get-repository-env-files.response.dto';
+import { CommitToRepositoryDTO } from 'src/application/webapp/dto/repository/commit-to-repository.dto';
 
 @Controller('repositories')
 @ApiTags('repositories')
@@ -63,6 +72,27 @@ export class RepositoryController {
         parseInt(repositoryVcsId),
         branch,
       ),
+    );
+  }
+
+  @Post(':repositoryVcsId/commit/:branch')
+  @ApiOkResponse({
+    description: 'Repository env files successfully retrieved',
+    type: GetRepositoryEnvFilesResponseDTO,
+  })
+  async commitFileToRepository(
+    @CurrentUser() user: User,
+    @Param('repositoryVcsId') repositoryVcsId: string,
+    @Param('branch') branch: string,
+    @Body() commitToRepositoryDTO: CommitToRepositoryDTO,
+  ): Promise<void> {
+    await this.repositoryFacade.commitFileToRepositoryBranch(
+      user,
+      parseInt(repositoryVcsId),
+      branch,
+      commitToRepositoryDTO.filePath,
+      commitToRepositoryDTO.fileContent,
+      commitToRepositoryDTO.commitMessage,
     );
   }
 }

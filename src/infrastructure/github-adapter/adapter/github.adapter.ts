@@ -20,6 +20,8 @@ import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dt
 import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
 import { EnvFile } from 'src/domain/model/vcs/env-file.model';
+import { SymeoException } from 'src/domain/exception/symeo.exception';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 @Injectable()
 export default class GithubAdapter implements GithubAdapterPort {
@@ -253,6 +255,54 @@ export default class GithubAdapter implements GithubAdapterPort {
 
     return plainToInstance(GithubUserPermissionDTO, repositoryPermission)
       .roleName as VcsRepositoryRole;
+  }
+
+  async commitFileToRepositoryBranch(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void> {
+    const branchData = await this.githubHttpClient.getRepositoryBranch(
+      user,
+      repositoryId,
+      branch,
+    );
+
+    if (!branchData) {
+      throw new SymeoException(
+        `Error when committing file to repository ${repositoryId}, unknown branch ${branch}`,
+        SymeoExceptionCode.COMMITTING_FILE_ERROR,
+      );
+    }
+
+    const blob = await this.githubHttpClient.createBlobForRepository(
+      user,
+      repositoryId,
+      fileContent,
+    );
+    const tree = await this.githubHttpClient.createTreeForFileAndRepository(
+      user,
+      repositoryId,
+      branchData.commit.sha,
+      filePath,
+      blob.sha,
+    );
+    const commit = await this.githubHttpClient.createCommitForRepository(
+      user,
+      repositoryId,
+      branchData.commit.sha,
+      tree.sha,
+      commitMessage,
+    );
+    await this.githubHttpClient.updateBranchReferenceForRepository(
+      user,
+      repositoryId,
+      branch,
+      commit.sha,
+    );
   }
 
   private isEnvFile(path: string): boolean {
