@@ -1,11 +1,7 @@
 import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
-import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
-import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
-import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
-import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
-import User from 'src/domain/model/user/user.model';
 import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationAudit from 'src/domain/model/audit/configuration-audit/configuration-audit.model';

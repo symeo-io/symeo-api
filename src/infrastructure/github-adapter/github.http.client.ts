@@ -340,15 +340,18 @@ export class GithubHttpClient {
       `repositories/${repositoryId}/git/blobs`;
 
     try {
-      const response = await this.client.post(url, {
-        body: {
+      const response = await this.client.post(
+        url,
+        {
           content: fileContent,
           encoding: 'utf-8',
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       return response.data;
     } catch (exception) {
       throw exception;
@@ -368,8 +371,9 @@ export class GithubHttpClient {
       `repositories/${repositoryId}/git/trees`;
 
     try {
-      const response = await this.client.post(url, {
-        body: {
+      const response = await this.client.post(
+        url,
+        {
           base_tree: baseCommitSha,
           tree: [
             {
@@ -380,10 +384,12 @@ export class GithubHttpClient {
             },
           ],
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       return response.data;
     } catch (exception) {
       throw exception;
@@ -403,8 +409,9 @@ export class GithubHttpClient {
       `repositories/${repositoryId}/git/commits`;
 
     try {
-      const response = await this.client.post(url, {
-        body: {
+      const response = await this.client.post(
+        url,
+        {
           message: commitMessage,
           author: {
             name: user.username,
@@ -413,10 +420,12 @@ export class GithubHttpClient {
           parents: [baseCommitSha],
           tree: treeSha,
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       return response.data;
     } catch (exception) {
       throw exception;
@@ -432,19 +441,21 @@ export class GithubHttpClient {
     const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
     const url =
       config.vcsProvider.github.apiUrl +
-      `repositories/${repositoryId}/git/refs/heads`;
+      `repositories/${repositoryId}/git/refs/heads/${branch}`;
 
     try {
-      const response = await this.client.post(url, {
-        body: {
+      await this.client.post(
+        url,
+        {
           ref: `refs/heads/${branch}`,
           sha: commitSha,
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
-      return response.data;
+      );
     } catch (exception) {
       throw exception;
     }
