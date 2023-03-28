@@ -22,6 +22,15 @@ export interface RepositoryFacade {
     branch: string,
   ): Promise<EnvFile[]>;
 
+  commitFileToRepositoryBranch(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void>;
+
   hasAccessToRepository(user: User, repositoryVcsId: number): Promise<boolean>;
 
   checkFileExistsOnBranch(

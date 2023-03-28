@@ -49,4 +49,13 @@ export default interface GithubAdapterPort {
     user: User,
     repositoryVcsId: number,
   ): Promise<VcsRepositoryRole | undefined>;
+
+  commitFileToRepositoryBranch(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void>;
 }

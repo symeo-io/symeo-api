@@ -8,6 +8,9 @@ import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/git
 import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
 import { AxiosError, AxiosInstance } from 'axios';
 import { GithubFileDTO } from 'src/infrastructure/github-adapter/dto/github.file.dto';
+import { GithubBlobDTO } from 'src/infrastructure/github-adapter/dto/github.blob.dto';
+import { GithubTreeDTO } from 'src/infrastructure/github-adapter/dto/github.tree.dto';
+import { GithubCommitDTO } from 'src/infrastructure/github-adapter/dto/github.commit.dto';
 
 export class GithubHttpClient {
   constructor(
@@ -294,6 +297,166 @@ export class GithubHttpClient {
       ) {
         return undefined;
       }
+      throw exception;
+    }
+  }
+
+  async getRepositoryBranch(
+    user: User,
+    repositoryId: number,
+    branch: string,
+  ): Promise<GithubBranchDTO | undefined> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryId}/branches/${branch}`;
+
+    try {
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return undefined;
+      }
+      throw exception;
+    }
+  }
+
+  async createBlobForRepository(
+    user: User,
+    repositoryId: number,
+    fileContent: string,
+  ): Promise<GithubBlobDTO> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryId}/git/blobs`;
+
+    try {
+      const response = await this.client.post(
+        url,
+        {
+          content: fileContent,
+          encoding: 'utf-8',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (exception) {
+      throw exception;
+    }
+  }
+
+  async createTreeForFileAndRepository(
+    user: User,
+    repositoryId: number,
+    baseCommitSha: string,
+    filePath: string,
+    blobSha: string,
+  ): Promise<GithubTreeDTO> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryId}/git/trees`;
+
+    try {
+      const response = await this.client.post(
+        url,
+        {
+          base_tree: baseCommitSha,
+          tree: [
+            {
+              path: filePath,
+              mode: '100644',
+              type: 'blob',
+              sha: blobSha,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (exception) {
+      throw exception;
+    }
+  }
+
+  async createCommitForRepository(
+    user: User,
+    repositoryId: number,
+    baseCommitSha: string,
+    treeSha: string,
+    commitMessage: string,
+  ): Promise<GithubCommitDTO> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryId}/git/commits`;
+
+    try {
+      const response = await this.client.post(
+        url,
+        {
+          message: commitMessage,
+          author: {
+            name: user.username,
+            email: user.email,
+          },
+          parents: [baseCommitSha],
+          tree: treeSha,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (exception) {
+      throw exception;
+    }
+  }
+
+  async updateBranchReferenceForRepository(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    commitSha: string,
+  ): Promise<void> {
+    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl +
+      `repositories/${repositoryId}/git/refs/heads/${branch}`;
+
+    try {
+      await this.client.post(
+        url,
+        {
+          ref: `refs/heads/${branch}`,
+          sha: commitSha,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    } catch (exception) {
       throw exception;
     }
   }
