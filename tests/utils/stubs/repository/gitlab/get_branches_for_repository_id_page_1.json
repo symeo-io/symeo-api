@@ -1,0 +1,80 @@
+[
+  {
+    "name": "main",
+    "commit": {
+      "id": "1e47f6c6726648df63137136805fa81bef97ee0c",
+      "short_id": "1e47f6c6",
+      "created_at": "2023-03-28T15:03:58.000+00:00",
+      "parent_ids": [],
+      "title": "Initial commit",
+      "message": "Initial commit",
+      "author_name": "Dorian Frances",
+      "author_email": "dorian.frances@symeo.io",
+      "authored_date": "2023-03-28T15:03:58.000+00:00",
+      "committer_name": "Dorian Frances",
+      "committer_email": "dorian.frances@symeo.io",
+      "committed_date": "2023-03-28T15:03:58.000+00:00",
+      "trailers": {},
+      "web_url": "https://gitlab.com/dfrances-test/first-project/-/commit/1e47f6c6726648df63137136805fa81bef97ee0c"
+    },
+    "merged": false,
+    "protected": true,
+    "developers_can_push": false,
+    "developers_can_merge": false,
+    "can_push": true,
+    "default": true,
+    "web_url": "https://gitlab.com/dfrances-test/first-project/-/tree/main"
+  },
+  {
+    "name": "test-1",
+    "commit": {
+      "id": "1e47f6c6726648df63137136805fa81bef97ee0c",
+      "short_id": "1e47f6c6",
+      "created_at": "2023-03-28T15:03:58.000+00:00",
+      "parent_ids": [],
+      "title": "Initial commit",
+      "message": "Initial commit",
+      "author_name": "Dorian Frances",
+      "author_email": "dorian.frances@symeo.io",
+      "authored_date": "2023-03-28T15:03:58.000+00:00",
+      "committer_name": "Dorian Frances",
+      "committer_email": "dorian.frances@symeo.io",
+      "committed_date": "2023-03-28T15:03:58.000+00:00",
+      "trailers": {},
+      "web_url": "https://gitlab.com/dfrances-test/first-project/-/commit/1e47f6c6726648df63137136805fa81bef97ee0c"
+    },
+    "merged": false,
+    "protected": false,
+    "developers_can_push": false,
+    "developers_can_merge": false,
+    "can_push": true,
+    "default": false,
+    "web_url": "https://gitlab.com/dfrances-test/first-project/-/tree/test-1"
+  },
+  {
+    "name": "test-2",
+    "commit": {
+      "id": "1e47f6c6726648df63137136805fa81bef97ee0c",
+      "short_id": "1e47f6c6",
+      "created_at": "2023-03-28T15:03:58.000+00:00",
+      "parent_ids": [],
+      "title": "Initial commit",
+      "message": "Initial commit",
+      "author_name": "Dorian Frances",
+      "author_email": "dorian.frances@symeo.io",
+      "authored_date": "2023-03-28T15:03:58.000+00:00",
+      "committer_name": "Dorian Frances",
+      "committer_email": "dorian.frances@symeo.io",
+      "committed_date": "2023-03-28T15:03:58.000+00:00",
+      "trailers": {},
+      "web_url": "https://gitlab.com/dfrances-test/first-project/-/commit/1e47f6c6726648df63137136805fa81bef97ee0c"
+    },
+    "merged": false,
+    "protected": false,
+    "developers_can_push": false,
+    "developers_can_merge": false,
+    "can_push": true,
+    "default": false,
+    "web_url": "https://gitlab.com/dfrances-test/first-project/-/tree/test-2"
+  }
+]

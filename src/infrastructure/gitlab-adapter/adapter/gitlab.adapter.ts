@@ -13,6 +13,11 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
 import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
 import { GitlabRepositoryMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.repository.mapper';
+import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
+import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
+import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
+import { GitlabBranchMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.branch.mapper';
+import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 
 @Injectable()
 export default class GitlabAdapter implements GitlabAdapterPort {
@@ -72,7 +77,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       ),
     );
   }
-
   async getRepositoryById(
     user: User,
     repositoryVcsId: number,
@@ -88,6 +92,40 @@ export default class GitlabAdapter implements GitlabAdapterPort {
 
     return GitlabRepositoryMapper.dtoToDomain(
       plainToInstance(GitlabRepositoryDTO, gitlabRepository),
+    );
+  }
+
+  async getBranchByRepositoryId(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsBranch[]> {
+    let page = 1;
+    const perPage: number = config.vcsProvider.paginationLength;
+    let gitlabBranchesDTO =
+      await this.gitlabHttpClient.getBranchesByRepositoryId(
+        user,
+        repositoryVcsId,
+        page,
+        perPage,
+      );
+    let alreadyCollectedBranchesDTO = gitlabBranchesDTO;
+
+    while (gitlabBranchesDTO.length === perPage) {
+      page += 1;
+      gitlabBranchesDTO = await this.gitlabHttpClient.getBranchesByRepositoryId(
+        user,
+        repositoryVcsId,
+        page,
+        perPage,
+      );
+
+      alreadyCollectedBranchesDTO =
+        alreadyCollectedBranchesDTO.concat(gitlabBranchesDTO);
+    }
+    return GitlabBranchMapper.dtoToDomains(
+      alreadyCollectedBranchesDTO.map((branchDTO) =>
+        plainToInstance(GitlabBranchDTO, branchDTO),
+      ),
     );
   }
 }
