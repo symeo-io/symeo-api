@@ -50,8 +50,14 @@ describe('ConfigurationController', () => {
       const repositoryVcsId = faker.datatype.number();
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
-      await configurationTestUtil.createConfiguration(repository.id);
-      await configurationTestUtil.createConfiguration(repository.id);
+      await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
+        repository.id,
+      );
+      await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
+        repository.id,
+      );
 
       const response = await appClient
         .request(currentUser)

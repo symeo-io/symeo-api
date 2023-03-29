@@ -70,6 +70,7 @@ describe('ApiKeyController', () => {
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(

@@ -30,6 +30,8 @@ import EnvironmentAuditStoragePort from 'src/domain/port/out/environment-audit.s
 import ConfigurationAuditFacade from 'src/domain/port/in/configuration-audit.facade.port';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 import { ValuesVersionService } from 'src/domain/service/values-version.service';
+import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
+import { GitlabAdapterModule } from 'src/bootstrap/gitlab-adapter.module';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -143,18 +145,26 @@ const PermissionRoleServiceProvider = {
 
 const OrganizationFacadeProvider = {
   provide: 'OrganizationFacade',
-  useFactory: (githubAdapterPort: GithubAdapterPort) =>
-    new OrganizationService(githubAdapterPort),
-  inject: ['GithubAdapter'],
+  useFactory: (
+    githubAdapterPort: GithubAdapterPort,
+    gitlabAdapterPort: GitlabAdapterPort,
+  ) => new OrganizationService(githubAdapterPort, gitlabAdapterPort),
+  inject: ['GithubAdapter', 'GitlabAdapter'],
 };
 
 const RepositoryFacadeProvider = {
   provide: 'RepositoryFacade',
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
+    gitlabAdapterPort: GitlabAdapterPort,
     configurationStoragePort: ConfigurationStoragePort,
-  ) => new RepositoryService(githubAdapterPort, configurationStoragePort),
-  inject: ['GithubAdapter', 'PostgresConfigurationAdapter'],
+  ) =>
+    new RepositoryService(
+      githubAdapterPort,
+      gitlabAdapterPort,
+      configurationStoragePort,
+    ),
+  inject: ['GithubAdapter', 'GitlabAdapter', 'PostgresConfigurationAdapter'],
 };
 
 const ValuesFacadeProvider = {
@@ -228,6 +238,7 @@ const ValuesVersionFacadeProvider = {
   imports: [
     PostgresAdapterModule,
     GithubAdapterModule,
+    GitlabAdapterModule,
     SecretManagerAdapterModule,
     ConfigurationAuditAdapterModule,
     EnvironmentAuditAdapterModule,

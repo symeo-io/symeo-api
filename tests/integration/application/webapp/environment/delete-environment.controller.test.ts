@@ -77,6 +77,7 @@ describe('EnvironmentController', () => {
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(
@@ -110,6 +111,7 @@ describe('EnvironmentController', () => {
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(

@@ -68,6 +68,7 @@ describe('ConfigurationController', () => {
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
 

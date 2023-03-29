@@ -8,7 +8,7 @@ export class FetchUserVcsRepositoryPermissionMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.spy = appClient.axiosMockGithub;
   }
 
   public mockUserRepositoryRole(

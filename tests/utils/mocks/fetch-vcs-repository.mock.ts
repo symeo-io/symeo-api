@@ -3,7 +3,7 @@ import { config } from 'symeo-js';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
 
-export type MockedRepository = {
+export type MockedGithubRepository = {
   name: string;
   id: number;
   owner: { login: string; id: number; avatar_url: string };
@@ -16,14 +16,32 @@ export type MockedRepository = {
   };
 };
 
+export type MockedGitlabRepository = {
+  name: string;
+  id: number;
+  namespace: { name: string; id: number; avatar_url: string };
+  permissions: {
+    project_access: {
+      access_level: number;
+      notification_level: number;
+    };
+    group_access: {
+      access_level: number;
+      notification_level: number;
+    };
+  };
+};
+
 export class FetchVcsRepositoryMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.spy = appClient.axiosMockGithub;
   }
 
-  public mockRepositoryPresent(repositoryVcsId: number): MockedRepository {
+  public mockRepositoryPresent(
+    repositoryVcsId: number,
+  ): MockedGithubRepository {
     const data = {
       name: faker.lorem.slug(),
       id: repositoryVcsId,

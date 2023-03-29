@@ -6,10 +6,12 @@ import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { EnvFile } from 'src/domain/model/vcs/env-file.model';
+import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
 
 export class RepositoryService implements RepositoryFacade {
   constructor(
     private readonly githubAdapterPort: GithubAdapterPort,
+    private readonly gitlabAdapterPort: GitlabAdapterPort,
     private readonly configurationStoragePort: ConfigurationStoragePort,
   ) {}
   async getRepositories(user: User): Promise<VcsRepository[]> {
@@ -17,6 +19,9 @@ export class RepositoryService implements RepositoryFacade {
     switch (user.provider) {
       case VCSProvider.GitHub:
         repositories = await this.githubAdapterPort.getRepositories(user);
+        break;
+      case VCSProvider.Gitlab:
+        repositories = await this.gitlabAdapterPort.getRepositories(user);
         break;
       default:
         repositories = [];
@@ -45,6 +50,11 @@ export class RepositoryService implements RepositoryFacade {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return await this.githubAdapterPort.getRepositoryById(
+          user,
+          repositoryVcsId,
+        );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.getRepositoryById(
           user,
           repositoryVcsId,
         );
