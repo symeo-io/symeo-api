@@ -13,14 +13,6 @@ describe('RepositoryController', () => {
   let fetchVcsRepositoryFilesMock: FetchVcsRepositoryFilesMock;
   let fetchVcsFileMock: FetchVcsFileMock;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -45,62 +37,146 @@ describe('RepositoryController', () => {
   });
 
   describe('(GET) /repository/:repositoryVcsId/env-files/:branch', () => {
-    it('should respond 200 with github branches', async () => {
-      // Given
-      const mockRepositoryVcsId = faker.datatype.number();
-      const mockBranch = faker.lorem.slug();
-      fetchVcsRepositoryFilesMock.mockRepositoriesFilesPresent(
-        mockRepositoryVcsId,
-        mockBranch,
+    describe('For Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
       );
-      const envContent = fs
-        .readFileSync('./tests/utils/stubs/repository/.env')
-        .toString();
-      fetchVcsFileMock.mockFilePresent(mockRepositoryVcsId, '.env', envContent);
-      const envTestContent = fs
-        .readFileSync('./tests/utils/stubs/repository/.env.test')
-        .toString();
-      fetchVcsFileMock.mockFilePresent(
-        mockRepositoryVcsId,
-        '.env.test',
-        envTestContent,
-      );
+      it('should respond 200 with github branches', async () => {
+        // Given
+        const mockRepositoryVcsId = faker.datatype.number();
+        const mockBranch = faker.lorem.slug();
+        fetchVcsRepositoryFilesMock.mockGithubRepositoriesFilesPresent(
+          mockRepositoryVcsId,
+          mockBranch,
+        );
+        const envContent = fs
+          .readFileSync('./tests/utils/stubs/repository/.env')
+          .toString();
+        fetchVcsFileMock.mockGithubFilePresent(
+          mockRepositoryVcsId,
+          '.env',
+          envContent,
+        );
+        const envTestContent = fs
+          .readFileSync('./tests/utils/stubs/repository/.env.test')
+          .toString();
+        fetchVcsFileMock.mockGithubFilePresent(
+          mockRepositoryVcsId,
+          '.env.test',
+          envTestContent,
+        );
 
-      return appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/repositories/${mockRepositoryVcsId}/env-files/${mockBranch}`,
-        )
-        .expect(200)
-        .expect({
-          files: [
-            {
-              path: '.env',
-              content: envContent,
-              contract:
-                'port:\n' +
-                '  type: integer\n' +
-                'database:\n' +
-                '  name:\n' +
-                '    type: string\n' +
-                '  url:\n' +
-                '    type: string\n' +
-                '  port:\n' +
-                '    type: integer\n' +
-                '  user:\n' +
-                '    type: string\n' +
-                '  password:\n' +
-                '    type: string\n' +
-                '    secret: true\n',
-            },
-            {
-              path: '.env.test',
-              content: envTestContent,
-              contract:
-                'port:\n  type: integer\ndatabaseName:\n  type: string\n',
-            },
-          ],
-        });
+        return appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/repositories/${mockRepositoryVcsId}/env-files/${mockBranch}`,
+          )
+          .expect(200)
+          .expect({
+            files: [
+              {
+                path: '.env',
+                content: envContent,
+                contract:
+                  'port:\n' +
+                  '  type: integer\n' +
+                  'database:\n' +
+                  '  name:\n' +
+                  '    type: string\n' +
+                  '  url:\n' +
+                  '    type: string\n' +
+                  '  port:\n' +
+                  '    type: integer\n' +
+                  '  user:\n' +
+                  '    type: string\n' +
+                  '  password:\n' +
+                  '    type: string\n' +
+                  '    secret: true\n',
+              },
+              {
+                path: '.env.test',
+                content: envTestContent,
+                contract:
+                  'port:\n  type: integer\ndatabaseName:\n  type: string\n',
+              },
+            ],
+          });
+      });
+    });
+
+    describe('For Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
+      );
+      it('should respond 200 with gitlab branches', async () => {
+        // Given
+        const mockRepositoryVcsId = faker.datatype.number();
+        const mockBranch = faker.lorem.slug();
+        fetchVcsRepositoryFilesMock.mockGitlabRepositoriesFilesPresent(
+          mockRepositoryVcsId,
+          mockBranch,
+        );
+        const envContent = fs
+          .readFileSync('./tests/utils/stubs/repository/.env')
+          .toString();
+        fetchVcsFileMock.mockGitlabFilePresent(
+          mockRepositoryVcsId,
+          'bbf3674d00b0b5c77747641a486969b289146be9',
+          envContent,
+        );
+        const envTestContent = fs
+          .readFileSync('./tests/utils/stubs/repository/.env.test')
+          .toString();
+        fetchVcsFileMock.mockGitlabFilePresent(
+          mockRepositoryVcsId,
+          'dc53f4b07fce916396694828c4c4948d8091119c',
+          envTestContent,
+        );
+
+        return appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/repositories/${mockRepositoryVcsId}/env-files/${mockBranch}`,
+          )
+          .expect(200)
+          .expect({
+            files: [
+              {
+                path: '.env',
+                content: envContent,
+                contract:
+                  'port:\n' +
+                  '  type: integer\n' +
+                  'database:\n' +
+                  '  name:\n' +
+                  '    type: string\n' +
+                  '  url:\n' +
+                  '    type: string\n' +
+                  '  port:\n' +
+                  '    type: integer\n' +
+                  '  user:\n' +
+                  '    type: string\n' +
+                  '  password:\n' +
+                  '    type: string\n' +
+                  '    secret: true\n',
+              },
+              {
+                path: 'infrastructure/.env.test',
+                content: envTestContent,
+                contract:
+                  'port:\n  type: integer\ndatabaseName:\n  type: string\n',
+              },
+            ],
+          });
+      });
     });
   });
 });

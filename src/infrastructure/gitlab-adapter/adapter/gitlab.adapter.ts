@@ -18,6 +18,7 @@ import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.br
 import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
 import { GitlabBranchMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.branch.mapper';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
+import { EnvFile } from 'src/domain/model/vcs/env-file.model';
 
 @Injectable()
 export default class GitlabAdapter implements GitlabAdapterPort {
@@ -94,7 +95,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       plainToInstance(GitlabRepositoryDTO, gitlabRepository),
     );
   }
-
   async getBranchByRepositoryId(
     user: User,
     repositoryVcsId: number,
@@ -127,5 +127,42 @@ export default class GitlabAdapter implements GitlabAdapterPort {
         plainToInstance(GitlabBranchDTO, branchDTO),
       ),
     );
+  }
+
+  async getEnvFilesForRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<EnvFile[]> {
+    const files = await this.gitlabHttpClient.getFilesByRepositoryIdAndBranch(
+      user,
+      repositoryVcsId,
+      branch,
+    );
+    const rawEnvFiles = files.filter(
+      (file) => file.type === 'blob' && this.isEnvFile(file.path),
+    );
+    const envFilesContents = await Promise.all(
+      rawEnvFiles.map((rawEnvFile) =>
+        this.gitlabHttpClient.getFileContent(
+          user,
+          repositoryVcsId,
+          rawEnvFile.id,
+        ),
+      ),
+    );
+    const envFiles: EnvFile[] = [];
+
+    for (let i = 0; i < rawEnvFiles.length; i++) {
+      envFiles.push(
+        new EnvFile(rawEnvFiles[i].path, envFilesContents[i] ?? ''),
+      );
+    }
+
+    return envFiles;
+  }
+
+  private isEnvFile(path: string) {
+    return !!path.match(/^.*\/.env[^\/]*$/) || !!path.match(/^.env[^\/]*$/);
   }
 }

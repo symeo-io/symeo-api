@@ -100,7 +100,7 @@ describe('ConfigurationController', () => {
         contractFilePath: 'symeo.config.yml',
         branch: 'staging',
       };
-      fetchVcsFileMock.mockFilePresent(
+      fetchVcsFileMock.mockGithubFilePresent(
         repository.id,
         dataToSend.contractFilePath,
       );

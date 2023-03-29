@@ -95,6 +95,12 @@ export class RepositoryService implements RepositoryFacade {
           repositoryVcsId,
           branch,
         );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.getEnvFilesForRepositoryIdAndBranch(
+          user,
+          repositoryVcsId,
+          branch,
+        );
       default:
         return [];
     }

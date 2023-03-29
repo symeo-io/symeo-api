@@ -92,7 +92,7 @@ describe('ConfigurationController', () => {
         )
         .expect(200);
 
-      const githubRequest = fetchVcsFileMock.spy.history.get.find(
+      const githubRequest = fetchVcsFileMock.githubClientSpy.history.get.find(
         (getRequest) =>
           getRequest.url ===
           config.vcsProvider.github.apiUrl +
@@ -131,7 +131,7 @@ describe('ConfigurationController', () => {
         )
         .expect(200);
 
-      const githubRequest = fetchVcsFileMock.spy.history.get.find(
+      const githubRequest = fetchVcsFileMock.githubClientSpy.history.get.find(
         (getRequest) =>
           getRequest.url ===
           config.vcsProvider.github.apiUrl +
