@@ -80,6 +80,7 @@ describe('ConfigurationController', () => {
         VcsRepositoryRole.ADMIN,
       );
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       const environment1 = await environmentTestUtil.createEnvironment(

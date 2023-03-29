@@ -14,7 +14,7 @@ export class FetchVcsAccessTokenMock {
   }
 
   public mockAccessTokenPresent(): string {
-    this.spy = jest.spyOn(this.vcsAccessTokenStorage, 'getGitHubAccessToken');
+    this.spy = jest.spyOn(this.vcsAccessTokenStorage, 'getAccessToken');
 
     const token = uuid();
 

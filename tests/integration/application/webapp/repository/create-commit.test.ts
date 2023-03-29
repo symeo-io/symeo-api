@@ -50,7 +50,7 @@ describe('RepositoryController', () => {
   afterEach(async () => {
     await appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    appClient.axiosMock.restore();
+    appClient.axiosMockGithub.restore();
   });
 
   describe('(POST) /repositories/:repositoryVcsId/commit/:branch', () => {
@@ -81,14 +81,14 @@ describe('RepositoryController', () => {
         .send({ fileContent, filePath, commitMessage })
         .expect(201);
 
-      expect(appClient.axiosMock.history.post[0].data).toEqual(
+      expect(appClient.axiosMockGithub.history.post[0].data).toEqual(
         JSON.stringify({
           content: fileContent,
           encoding: 'utf-8',
         }),
       );
 
-      expect(appClient.axiosMock.history.post[1].data).toEqual(
+      expect(appClient.axiosMockGithub.history.post[1].data).toEqual(
         JSON.stringify({
           base_tree: branchStub.commit.sha,
           tree: [
@@ -102,7 +102,7 @@ describe('RepositoryController', () => {
         }),
       );
 
-      expect(appClient.axiosMock.history.post[2].data).toEqual(
+      expect(appClient.axiosMockGithub.history.post[2].data).toEqual(
         JSON.stringify({
           message: commitMessage,
           author: {
@@ -114,7 +114,7 @@ describe('RepositoryController', () => {
         }),
       );
 
-      expect(appClient.axiosMock.history.post[3].data).toEqual(
+      expect(appClient.axiosMockGithub.history.post[3].data).toEqual(
         JSON.stringify({
           ref: `refs/heads/${branch}`,
           sha: commitStub.sha,

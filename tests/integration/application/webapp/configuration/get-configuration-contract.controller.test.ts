@@ -55,6 +55,7 @@ describe('ConfigurationController', () => {
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
 
@@ -76,6 +77,7 @@ describe('ConfigurationController', () => {
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(
@@ -113,6 +115,7 @@ describe('ConfigurationController', () => {
       const repository =
         fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       fetchVcsFileMock.mockSymeoContractFilePresent(

@@ -26,6 +26,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: JwtPayload): User {
+    if (payload.sub.split('|').includes('gitlab')) {
+      return new User(
+        payload.sub.split('|').slice(1).join('|'),
+        payload['https://symeo.io/email'],
+        payload['https://symeo.io/username'],
+        payload.sub.split('|')[1] as VCSProvider,
+        payload.exp,
+      );
+    }
+
     return new User(
       payload.sub,
       payload['https://symeo.io/email'],

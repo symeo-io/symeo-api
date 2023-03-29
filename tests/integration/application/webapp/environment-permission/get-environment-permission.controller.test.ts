@@ -73,6 +73,7 @@ describe('EnvironmentPermissionController', () => {
           fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
 
         const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
@@ -127,6 +128,7 @@ describe('EnvironmentPermissionController', () => {
           fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
 
         const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
@@ -192,6 +194,7 @@ describe('EnvironmentPermissionController', () => {
         const repository =
           fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(
@@ -265,6 +268,7 @@ describe('EnvironmentPermissionController', () => {
         const repository =
           fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
         const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
           repository.id,
         );
         const environment = await environmentTestUtil.createEnvironment(

@@ -7,14 +7,14 @@ export class FetchVcsRepositoryBranchesMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.spy = appClient.axiosMockGithub;
   }
 
   public mockRepositoriesBranchPresent(repositoryVcsId: number) {
     const mockGitHubBranchesStub1 = JSON.parse(
       fs
         .readFileSync(
-          './tests/utils/stubs/repository/get_branches_for_repository_id_page_1.json',
+          './tests/utils/stubs/repository/github/get_branches_for_repository_id_page_1.json',
         )
         .toString(),
     );

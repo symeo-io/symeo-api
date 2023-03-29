@@ -7,7 +7,7 @@ export class addConfigurationAndEnvironments1676465859848
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "public"."configurations_vcstype_enum" AS ENUM('github')`,
+      `CREATE TYPE "public"."configurations_vcstype_enum" AS ENUM('github', 'gitlab')`,
     );
 
     await queryRunner.query(

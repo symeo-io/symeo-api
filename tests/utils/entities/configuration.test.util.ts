@@ -15,12 +15,13 @@ export class ConfigurationTestUtil {
   }
 
   public async createConfiguration(
+    vcsProvider: VCSProvider,
     repositoryVcsId?: number,
   ): Promise<ConfigurationEntity> {
     const configuration = new ConfigurationEntity();
     configuration.id = uuid();
     configuration.name = faker.lorem.slug();
-    configuration.vcsType = VCSProvider.GitHub;
+    configuration.vcsType = vcsProvider;
     configuration.repositoryVcsId = repositoryVcsId ?? faker.datatype.number();
     configuration.repositoryVcsName = faker.lorem.slug();
     configuration.ownerVcsId = faker.datatype.number();
