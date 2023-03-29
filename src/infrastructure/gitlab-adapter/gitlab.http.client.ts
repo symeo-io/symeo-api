@@ -5,6 +5,9 @@ import { GitlabRepositoryDTO } from 'src/infrastructure/gitlab-adapter/dto/gitla
 import { config } from 'symeo-js';
 import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.authenticated.user.dto';
 import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
+import { GithubFileDTO } from 'src/infrastructure/github-adapter/dto/github.file.dto';
+import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
+import { json } from 'express';
 
 export class GitlabHttpClient {
   constructor(
@@ -99,6 +102,68 @@ export class GitlabHttpClient {
       ) {
         return [];
       }
+      throw exception;
+    }
+  }
+
+  async getFilesByRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<GitlabFileDTO[]> {
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryVcsId}/repository/tree?ref=${branch}&recursive=true`;
+    try {
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return [];
+      }
+      throw exception;
+    }
+  }
+
+  async getFileContent(
+    user: User,
+    repositoryVcsId: number,
+    blobId: string,
+  ): Promise<string | undefined> {
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryVcsId}/repository/blobs/${blobId}/raw`;
+    try {
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const content = response.data;
+
+      if (!content) {
+        return undefined;
+      }
+
+      return content;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return undefined;
+      }
+
       throw exception;
     }
   }

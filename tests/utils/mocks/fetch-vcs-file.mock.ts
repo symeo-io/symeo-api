@@ -5,18 +5,20 @@ import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
 
 export class FetchVcsFileMock {
-  public spy: MockAdapter;
+  public githubClientSpy: MockAdapter;
+  public gitlabClientSpy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMockGithub;
+    this.githubClientSpy = appClient.axiosMockGithub;
+    this.gitlabClientSpy = appClient.axiosMockGitlab;
   }
 
-  public mockFilePresent(
+  public mockGithubFilePresent(
     repositoryId: number,
     filePath: string,
     content?: string,
   ): void {
-    this.spy
+    this.githubClientSpy
       .onGet(
         config.vcsProvider.github.apiUrl +
           `repositories/${repositoryId}/contents/${filePath}`,
@@ -27,12 +29,25 @@ export class FetchVcsFileMock {
       });
   }
 
+  public mockGitlabFilePresent(
+    repositoryId: number,
+    blobId: string,
+    content?: string,
+  ): void {
+    this.gitlabClientSpy
+      .onGet(
+        config.vcsProvider.gitlab.apiUrl +
+          `projects/${repositoryId}/repository/blobs/${blobId}/raw`,
+      )
+      .reply(200, content);
+  }
+
   public mockSymeoContractFilePresent(
     repositoryId: number,
     contractFilePath: string,
     stubPath: string,
   ) {
-    return this.mockFilePresent(
+    return this.mockGithubFilePresent(
       repositoryId,
       contractFilePath,
       fs.readFileSync(stubPath).toString() as string,
@@ -40,7 +55,7 @@ export class FetchVcsFileMock {
   }
 
   public mockFileMissing(repositoryId: number, filePath?: string): void {
-    this.spy
+    this.githubClientSpy
       .onGet(
         config.vcsProvider.github.apiUrl +
           `repositories/${repositoryId}/contents/${filePath}`,

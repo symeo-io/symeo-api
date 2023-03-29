@@ -108,7 +108,7 @@ describe('ConfigurationController', () => {
         repository.id,
         VcsRepositoryRole.WRITE,
       );
-      fetchVcsFileMock.mockFilePresent(
+      fetchVcsFileMock.mockGithubFilePresent(
         repository.id,
         dataToSend.contractFilePath,
       );
@@ -142,7 +142,7 @@ describe('ConfigurationController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsFileMock.mockFilePresent(
+      fetchVcsFileMock.mockGithubFilePresent(
         repository.id,
         sendData.contractFilePath,
       );

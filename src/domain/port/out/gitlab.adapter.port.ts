@@ -2,6 +2,7 @@ import User from 'src/domain/model/user/user.model';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
+import { EnvFile } from 'src/domain/model/vcs/env-file.model';
 
 export interface GitlabAdapterPort {
   getOrganizations(user: User): Promise<VcsOrganization[]>;
@@ -17,4 +18,10 @@ export interface GitlabAdapterPort {
     user: User,
     repositoryVcsId: number,
   ): Promise<VcsBranch[]>;
+
+  getEnvFilesForRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<EnvFile[]>;
 }
