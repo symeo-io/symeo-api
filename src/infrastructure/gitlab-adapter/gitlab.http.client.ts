@@ -142,20 +142,24 @@ export class GitlabHttpClient {
     const token = await this.vcsAccessTokenStorage.getAccessToken(user);
     const url =
       config.vcsProvider.gitlab.apiUrl +
-      `projects/${repositoryVcsId}/repository/blobs/${blobId}/raw`;
+      `projects/${repositoryVcsId}/repository/blobs/${blobId}`;
     try {
       const response = await this.client.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const content = response.data;
+
+      const content = (response.data as { content?: string }).content;
+      const encoding = (response.data as { encoding: BufferEncoding }).encoding;
 
       if (!content) {
         return undefined;
       }
 
-      return content;
+      const buffer = Buffer.from(content, encoding);
+
+      return buffer.toString();
     } catch (exception) {
       if (
         (exception as AxiosError).response?.status &&

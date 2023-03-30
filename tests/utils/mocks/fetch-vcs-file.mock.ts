@@ -37,9 +37,12 @@ export class FetchVcsFileMock {
     this.gitlabClientSpy
       .onGet(
         config.vcsProvider.gitlab.apiUrl +
-          `projects/${repositoryId}/repository/blobs/${blobId}/raw`,
+          `projects/${repositoryId}/repository/blobs/${blobId}`,
       )
-      .reply(200, content);
+      .reply(200, {
+        content: content ? base64encode(content) : undefined,
+        encoding: 'base64',
+      });
   }
 
   public mockSymeoContractFilePresent(
