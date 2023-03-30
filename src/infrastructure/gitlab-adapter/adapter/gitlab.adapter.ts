@@ -147,7 +147,8 @@ export default class GitlabAdapter implements GitlabAdapterPort {
         this.gitlabHttpClient.getFileContent(
           user,
           repositoryVcsId,
-          rawEnvFile.id,
+          rawEnvFile.path,
+          branch,
         ),
       ),
     );

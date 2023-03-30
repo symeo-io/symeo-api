@@ -31,13 +31,13 @@ export class FetchVcsFileMock {
 
   public mockGitlabFilePresent(
     repositoryId: number,
-    blobId: string,
+    filePath: string,
     content?: string,
   ): void {
     this.gitlabClientSpy
       .onGet(
         config.vcsProvider.gitlab.apiUrl +
-          `projects/${repositoryId}/repository/blobs/${blobId}`,
+          `projects/${repositoryId}/repository/files/${filePath}`,
       )
       .reply(200, {
         content: content ? base64encode(content) : undefined,

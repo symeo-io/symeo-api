@@ -129,7 +129,7 @@ describe('RepositoryController', () => {
           .toString();
         fetchVcsFileMock.mockGitlabFilePresent(
           mockRepositoryVcsId,
-          'bbf3674d00b0b5c77747641a486969b289146be9',
+          '.env',
           envContent,
         );
         const envTestContent = fs
@@ -137,7 +137,7 @@ describe('RepositoryController', () => {
           .toString();
         fetchVcsFileMock.mockGitlabFilePresent(
           mockRepositoryVcsId,
-          'dc53f4b07fce916396694828c4c4948d8091119c',
+          'infrastructure/.env.test',
           envTestContent,
         );
 
