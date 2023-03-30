@@ -33,4 +33,11 @@ export interface GitlabAdapterPort {
     fileContent: string,
     commitMessage: string,
   ): Promise<void>;
+
+  checkFileExistsOnBranch(
+    user: User,
+    repositoryId: number,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean>;
 }

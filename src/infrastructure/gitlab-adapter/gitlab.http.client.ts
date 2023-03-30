@@ -236,4 +236,13 @@ export class GitlabHttpClient {
       throw exception;
     }
   }
+
+  async checkFileExistsOnBranch(
+    user: User,
+    repositoryVcsId: number,
+    filePath: string,
+    branch: string,
+  ) {
+    return false;
+  }
 }

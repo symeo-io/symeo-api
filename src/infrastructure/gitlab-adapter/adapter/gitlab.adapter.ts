@@ -159,7 +159,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
 
     return envFiles;
   }
-
   private isEnvFile(path: string) {
     return !!path.match(/^.*\/.env[^\/]*$/) || !!path.match(/^.env[^\/]*$/);
   }
@@ -192,6 +191,20 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       fileContent,
       filePath,
       commitMessage,
+    );
+  }
+
+  async checkFileExistsOnBranch(
+    user: User,
+    repositoryVcsId: number,
+    filePath: string,
+    branch: string,
+  ): Promise<boolean> {
+    return await this.gitlabHttpClient.checkFileExistsOnBranch(
+      user,
+      repositoryVcsId,
+      filePath,
+      branch,
     );
   }
 }

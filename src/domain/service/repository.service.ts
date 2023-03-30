@@ -165,6 +165,13 @@ export class RepositoryService implements RepositoryFacade {
           filePath,
           branch,
         );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.checkFileExistsOnBranch(
+          user,
+          repositoryId,
+          filePath,
+          branch,
+        );
       default:
         return false;
     }
