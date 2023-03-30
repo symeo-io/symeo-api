@@ -137,14 +137,18 @@ export class GitlabHttpClient {
   async getFileContent(
     user: User,
     repositoryVcsId: number,
-    blobId: string,
+    filePath: string,
+    branch: string,
   ): Promise<string | undefined> {
     const token = await this.vcsAccessTokenStorage.getAccessToken(user);
     const url =
       config.vcsProvider.gitlab.apiUrl +
-      `projects/${repositoryVcsId}/repository/blobs/${blobId}`;
+      `projects/${repositoryVcsId}/repository/files/${filePath}`;
     try {
       const response = await this.client.get(url, {
+        params: {
+          ref: branch,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
