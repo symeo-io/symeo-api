@@ -48,24 +48,24 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/contract', () => {
+  describe('(GET) /configurations/:repositoryVcsId/:configurationId/contract', () => {
     it('should respond 404 with unknown file', async () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         VCSProvider.GitHub,
         repository.id,
       );
 
-      fetchVcsFileMock.mockFileMissing(repository.id);
+      fetchVcsFileMock.mockGithubFileMissing(repository.id);
 
       appClient
         .request(currentUser)
         // When
         .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/contract`,
+          `/api/v1/configurations/${repository.id}/${configuration.id}/contract`,
         )
         // Then
         .expect(404);
@@ -75,7 +75,7 @@ describe('ConfigurationController', () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         VCSProvider.GitHub,
         repository.id,
@@ -88,7 +88,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/contract`,
+          `/api/v1/configurations/${repository.id}/${configuration.id}/contract`,
         )
         .expect(200);
 
@@ -113,7 +113,7 @@ describe('ConfigurationController', () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         VCSProvider.GitHub,
         repository.id,
@@ -127,7 +127,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/contract?branch=${requestedBranch}`,
+          `/api/v1/configurations/${repository.id}/${configuration.id}/contract?branch=${requestedBranch}`,
         )
         .expect(200);
 

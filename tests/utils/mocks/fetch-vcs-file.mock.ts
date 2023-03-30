@@ -45,6 +45,28 @@ export class FetchVcsFileMock {
       });
   }
 
+  public mockGithubFileMissing(repositoryId: number, filePath?: string): void {
+    this.githubClientSpy
+      .onGet(
+        config.vcsProvider.github.apiUrl +
+          `repositories/${repositoryId}/contents/${filePath}`,
+      )
+      .replyOnce(() => {
+        throw { response: { status: 404 } };
+      });
+  }
+
+  public mockGitlabFileMissing(repositoryId: number, filePath?: string): void {
+    this.gitlabClientSpy
+      .onGet(
+        config.vcsProvider.gitlab.apiUrl +
+          `projects/${repositoryId}/repository/files/${filePath}`,
+      )
+      .replyOnce(() => {
+        throw { response: { status: 404 } };
+      });
+  }
+
   public mockSymeoContractFilePresent(
     repositoryId: number,
     contractFilePath: string,
@@ -55,16 +77,5 @@ export class FetchVcsFileMock {
       contractFilePath,
       fs.readFileSync(stubPath).toString() as string,
     );
-  }
-
-  public mockFileMissing(repositoryId: number, filePath?: string): void {
-    this.githubClientSpy
-      .onGet(
-        config.vcsProvider.github.apiUrl +
-          `repositories/${repositoryId}/contents/${filePath}`,
-      )
-      .replyOnce(() => {
-        throw { response: { status: 404 } };
-      });
   }
 }

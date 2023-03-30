@@ -60,12 +60,12 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId', () => {
+  describe('(GET) /configurations/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and return configuration', async () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         VCSProvider.GitHub,
         repository.id,
@@ -89,9 +89,7 @@ describe('ConfigurationController', () => {
 
       const response = await appClient
         .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}`,
-        )
+        .get(`/api/v1/configurations/${repository.id}/${configuration.id}`)
         .expect(200);
 
       expect(response.body.configuration).toBeDefined();

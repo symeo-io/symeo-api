@@ -60,12 +60,12 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(POST) /configurations/github/:repositoryVcsId', () => {
+  describe('(POST) /configurations/:repositoryVcsId', () => {
     it('should respond 404 and not create configuration for non existing config file', async () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const dataToSend = {
         name: faker.name.jobTitle(),
         branch: 'staging',
@@ -76,7 +76,7 @@ describe('ConfigurationController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsFileMock.mockFileMissing(
+      fetchVcsFileMock.mockGithubFileMissing(
         repository.id,
         dataToSend.contractFilePath,
       );
@@ -84,7 +84,7 @@ describe('ConfigurationController', () => {
       await appClient
         .request(currentUser)
         // When
-        .post(`/api/v1/configurations/github/${repository.id}`)
+        .post(`/api/v1/configurations/${repository.id}`)
         .send(dataToSend)
         // Then
         .expect(404);
@@ -97,7 +97,7 @@ describe('ConfigurationController', () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const dataToSend = {
         name: faker.name.jobTitle(),
         branch: 'staging',
@@ -115,7 +115,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/api/v1/configurations/github/${repository.id}`)
+        .post(`/api/v1/configurations/${repository.id}`)
         .send(dataToSend)
         // Then
         .expect(403);
@@ -131,7 +131,7 @@ describe('ConfigurationController', () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const sendData = {
         name: faker.name.jobTitle(),
         branch: 'staging',
@@ -149,7 +149,7 @@ describe('ConfigurationController', () => {
       const response = await appClient
         .request(currentUser)
         // When
-        .post(`/api/v1/configurations/github/${repository.id}`)
+        .post(`/api/v1/configurations/${repository.id}`)
         .send(sendData)
         // Then
         .expect(201);

@@ -68,12 +68,12 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {
+  describe('(DELETE) /configurations/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and delete configuration', async () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
         repository.id,
@@ -92,9 +92,7 @@ describe('ConfigurationController', () => {
 
       await appClient
         .request(currentUser)
-        .delete(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}`,
-        )
+        .delete(`/api/v1/configurations/${repository.id}/${configuration.id}`)
         .expect(200);
 
       expect(deleteSecretMock.spy).toHaveBeenCalledTimes(2);

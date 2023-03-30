@@ -56,12 +56,12 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId', () => {
+  describe('(PATCH) /configurations/:repositoryVcsId/:configurationId', () => {
     it('should respond 200 and update configuration', async () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
         currentUser,
         repository.id,
@@ -80,9 +80,7 @@ describe('ConfigurationController', () => {
 
       await appClient
         .request(currentUser)
-        .patch(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}`,
-        )
+        .patch(`/api/v1/configurations/${repository.id}/${configuration.id}`)
         .send(newValues)
         .expect(200);
 

@@ -230,7 +230,6 @@ export class GitlabHttpClient {
           },
         },
       );
-      console.log(response.data);
       return response.data;
     } catch (exception) {
       throw exception;
@@ -243,6 +242,30 @@ export class GitlabHttpClient {
     filePath: string,
     branch: string,
   ) {
-    return false;
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryVcsId}/repository/files/${filePath}`;
+    try {
+      const response = await this.client.get(url, {
+        params: {
+          ref: branch,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.status === 200;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return false;
+      }
+
+      throw exception;
+    }
   }
 }

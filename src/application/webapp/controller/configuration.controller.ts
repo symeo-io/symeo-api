@@ -46,7 +46,7 @@ export class ConfigurationController {
     description: 'Creation of Github configuration parameters validated',
     type: ValidateCreateGithubConfigurationParametersResponseDTO,
   })
-  @Post('github/validate')
+  @Post('validate')
   @HttpCode(200)
   async validateConfigurationCreationParameters(
     @Body()
@@ -65,7 +65,7 @@ export class ConfigurationController {
     description: 'Github configuration successfully retrieved',
     type: GetConfigurationResponseDTO,
   })
-  @Get('github/:repositoryVcsId/:configurationId')
+  @Get(':repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
   async getGitHubConfigurationById(
     @RequestedRepository() repository: VcsRepository,
@@ -89,7 +89,7 @@ export class ConfigurationController {
     description: 'Github configuration contract successfully retrieved',
     type: GetConfigurationContractResponseDTO,
   })
-  @Get('github/:repositoryVcsId/:configurationId/contract')
+  @Get(':repositoryVcsId/:configurationId/contract')
   @UseGuards(ConfigurationAuthorizationGuard)
   @ApiQuery({ name: 'branch', required: false })
   async getGitHubConfigurationContractById(
@@ -111,7 +111,7 @@ export class ConfigurationController {
       'Github configurations for repositoryId successfully retrieved',
     type: GetConfigurationsResponseDTO,
   })
-  @Get('github/:repositoryVcsId')
+  @Get(':repositoryVcsId')
   @UseGuards(RepositoryAuthorizationGuard)
   async getGitHubConfigurationsForRepositoryId(
     @RequestedRepository() repository: VcsRepository,
@@ -126,7 +126,7 @@ export class ConfigurationController {
   @ApiOkResponse({
     description: 'Github configuration successfully deleted',
   })
-  @Delete('github/:repositoryVcsId/:configurationId')
+  @Delete(':repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async deleteGitHubConfigurationById(
@@ -145,7 +145,7 @@ export class ConfigurationController {
     description: 'Github configuration successfully created',
     type: CreateGitHubConfigurationResponseDTO,
   })
-  @Post('github/:repositoryVcsId')
+  @Post(':repositoryVcsId')
   @UseGuards(RepositoryAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async createForGitHub(
@@ -168,7 +168,7 @@ export class ConfigurationController {
     description: 'Github configuration successfully updated',
     type: UpdateGitHubConfigurationResponseDTO,
   })
-  @Patch('github/:repositoryVcsId/:configurationId')
+  @Patch(':repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async updateForGitHub(
