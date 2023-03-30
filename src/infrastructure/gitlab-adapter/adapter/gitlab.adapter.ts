@@ -17,6 +17,9 @@ import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { EnvFile } from 'src/domain/model/vcs/env-file.model';
 import { SymeoException } from 'src/domain/exception/symeo.exception';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { GitlabUserPermissionDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.user.permission.dto';
+import { GitlabAccessLevelMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.access.level.mapper';
 
 @Injectable()
 export default class GitlabAdapter implements GitlabAdapterPort {
@@ -162,7 +165,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
   private isEnvFile(path: string) {
     return !!path.match(/^.*\/.env[^\/]*$/) || !!path.match(/^.env[^\/]*$/);
   }
-
   async commitFileToRepositoryBranch(
     user: User,
     repositoryId: number,
@@ -193,7 +195,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       commitMessage,
     );
   }
-
   async checkFileExistsOnBranch(
     user: User,
     repositoryVcsId: number,
@@ -201,6 +202,43 @@ export default class GitlabAdapter implements GitlabAdapterPort {
     branch: string,
   ): Promise<boolean> {
     return await this.gitlabHttpClient.checkFileExistsOnBranch(
+      user,
+      repositoryVcsId,
+      filePath,
+      branch,
+    );
+  }
+
+  async getUserRepositoryRole(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsRepositoryRole | undefined> {
+    const repositoryPermission =
+      await this.gitlabHttpClient.getUserRepositoryPermission(
+        user,
+        repositoryVcsId,
+      );
+
+    if (!repositoryPermission) {
+      return undefined;
+    }
+
+    const gitlabPermissionRole =
+      GitlabAccessLevelMapper.accessLevelToVcsRepositoryRole(
+        plainToInstance(GitlabUserPermissionDTO, repositoryPermission)
+          .accessLevel,
+      );
+
+    return gitlabPermissionRole as VcsRepositoryRole;
+  }
+
+  async getFileContent(
+    user: User,
+    repositoryVcsId: number,
+    filePath: string,
+    branch: string,
+  ): Promise<string | undefined> {
+    return await this.gitlabHttpClient.getFileContent(
       user,
       repositoryVcsId,
       filePath,

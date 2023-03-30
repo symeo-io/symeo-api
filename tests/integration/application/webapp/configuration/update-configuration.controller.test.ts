@@ -20,14 +20,6 @@ describe('ConfigurationController', () => {
   let configurationTestUtil: ConfigurationTestUtil;
   let configurationAuditTestUtil: ConfigurationAuditTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -57,68 +49,151 @@ describe('ConfigurationController', () => {
   });
 
   describe('(PATCH) /configurations/:repositoryVcsId/:configurationId', () => {
-    it('should respond 200 and update configuration', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        currentUser,
-        repository.id,
-        VcsRepositoryRole.ADMIN,
-      );
-      const configuration = await configurationTestUtil.createConfiguration(
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
+      it('should respond 200 and update configuration', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
+          currentUser,
+          repository.id,
+          VcsRepositoryRole.ADMIN,
+        );
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
 
-      const newValues = {
-        name: faker.lorem.slug(),
-        contractFilePath: faker.lorem.slug(),
-        branch: faker.lorem.slug(),
-      };
+        const newValues = {
+          name: faker.lorem.slug(),
+          contractFilePath: faker.lorem.slug(),
+          branch: faker.lorem.slug(),
+        };
 
-      await appClient
-        .request(currentUser)
-        .patch(`/api/v1/configurations/${repository.id}/${configuration.id}`)
-        .send(newValues)
-        .expect(200);
+        await appClient
+          .request(currentUser)
+          .patch(`/api/v1/configurations/${repository.id}/${configuration.id}`)
+          .send(newValues)
+          .expect(200);
 
-      const updatedConfiguration: ConfigurationEntity | null =
-        await configurationTestUtil.repository.findOneBy({
-          id: configuration.id,
+        const updatedConfiguration: ConfigurationEntity | null =
+          await configurationTestUtil.repository.findOneBy({
+            id: configuration.id,
+          });
+
+        expect(updatedConfiguration).toBeDefined();
+        expect(updatedConfiguration?.name).toEqual(newValues.name);
+        expect(updatedConfiguration?.contractFilePath).toEqual(
+          newValues.contractFilePath,
+        );
+        expect(updatedConfiguration?.branch).toEqual(newValues.branch);
+
+        const configurationAuditEntity: ConfigurationAuditEntity[] =
+          await configurationAuditTestUtil.repository.find();
+        expect(configurationAuditEntity.length).toEqual(1);
+        expect(configurationAuditEntity[0].id).toBeDefined();
+        expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(configurationAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(configurationAuditEntity[0].configurationId).toEqual(
+          configuration?.id,
+        );
+        expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(configurationAuditEntity[0].eventType).toEqual(
+          ConfigurationAuditEventType.CREATED,
+        );
+        expect(configurationAuditEntity[0].metadata).toEqual({
+          metadata: {
+            name: newValues.name,
+            branch: newValues.branch,
+            contractFilePath: newValues.contractFilePath,
+          },
         });
+      });
+    });
 
-      expect(updatedConfiguration).toBeDefined();
-      expect(updatedConfiguration?.name).toEqual(newValues.name);
-      expect(updatedConfiguration?.contractFilePath).toEqual(
-        newValues.contractFilePath,
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
       );
-      expect(updatedConfiguration?.branch).toEqual(newValues.branch);
+      it('should respond 200 and update configuration', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        fetchUserVcsRepositoryPermissionMock.mockGitlabUserRepositoryRole(
+          currentUser,
+          repository.id,
+          50,
+        );
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
 
-      const configurationAuditEntity: ConfigurationAuditEntity[] =
-        await configurationAuditTestUtil.repository.find();
-      expect(configurationAuditEntity.length).toEqual(1);
-      expect(configurationAuditEntity[0].id).toBeDefined();
-      expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
-      expect(configurationAuditEntity[0].userName).toEqual(
-        currentUser.username,
-      );
-      expect(configurationAuditEntity[0].configurationId).toEqual(
-        configuration?.id,
-      );
-      expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
-        repositoryVcsId,
-      );
-      expect(configurationAuditEntity[0].eventType).toEqual(
-        ConfigurationAuditEventType.CREATED,
-      );
-      expect(configurationAuditEntity[0].metadata).toEqual({
-        metadata: {
-          name: newValues.name,
-          branch: newValues.branch,
-          contractFilePath: newValues.contractFilePath,
-        },
+        const newValues = {
+          name: faker.lorem.slug(),
+          contractFilePath: faker.lorem.slug(),
+          branch: faker.lorem.slug(),
+        };
+
+        await appClient
+          .request(currentUser)
+          .patch(`/api/v1/configurations/${repository.id}/${configuration.id}`)
+          .send(newValues)
+          .expect(200);
+
+        const updatedConfiguration: ConfigurationEntity | null =
+          await configurationTestUtil.repository.findOneBy({
+            id: configuration.id,
+          });
+
+        expect(updatedConfiguration).toBeDefined();
+        expect(updatedConfiguration?.name).toEqual(newValues.name);
+        expect(updatedConfiguration?.contractFilePath).toEqual(
+          newValues.contractFilePath,
+        );
+        expect(updatedConfiguration?.branch).toEqual(newValues.branch);
+
+        const configurationAuditEntity: ConfigurationAuditEntity[] =
+          await configurationAuditTestUtil.repository.find();
+        expect(configurationAuditEntity.length).toEqual(1);
+        expect(configurationAuditEntity[0].id).toBeDefined();
+        expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(configurationAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(configurationAuditEntity[0].configurationId).toEqual(
+          configuration?.id,
+        );
+        expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(configurationAuditEntity[0].eventType).toEqual(
+          ConfigurationAuditEventType.CREATED,
+        );
+        expect(configurationAuditEntity[0].metadata).toEqual({
+          metadata: {
+            name: newValues.name,
+            branch: newValues.branch,
+            contractFilePath: newValues.contractFilePath,
+          },
+        });
       });
     });
   });

@@ -136,7 +136,7 @@ describe('ValuesController', () => {
           userVcsId,
         );
 
-        fetchVcsFileMock.mockSymeoContractFilePresent(
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
           configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
@@ -235,7 +235,7 @@ describe('ValuesController', () => {
           userVcsId,
         );
 
-        fetchVcsFileMock.mockSymeoContractFilePresent(
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
           configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
@@ -332,7 +332,7 @@ describe('ValuesController', () => {
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
         );
-        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
           currentUser,
           repository.id,
           VcsRepositoryRole.WRITE,
@@ -374,13 +374,13 @@ describe('ValuesController', () => {
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
         );
-        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
           currentUser,
           repository.id,
           VcsRepositoryRole.ADMIN,
         );
 
-        fetchVcsFileMock.mockSymeoContractFilePresent(
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
           configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',
@@ -472,13 +472,13 @@ describe('ValuesController', () => {
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
         );
-        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
           currentUser,
           repository.id,
           VcsRepositoryRole.ADMIN,
         );
 
-        fetchVcsFileMock.mockSymeoContractFilePresent(
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
           configuration.repositoryVcsId,
           configuration.contractFilePath,
           './tests/utils/stubs/configuration/symeo.config.secret.yml',

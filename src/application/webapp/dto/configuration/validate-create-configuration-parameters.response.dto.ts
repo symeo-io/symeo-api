@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ValidateCreateGithubConfigurationParametersResponseDTO {
+export class ValidateCreateConfigurationParametersResponseDTO {
   @ApiProperty()
   isValid: boolean;
   @ApiProperty()

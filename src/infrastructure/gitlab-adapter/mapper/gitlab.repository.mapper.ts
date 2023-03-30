@@ -38,6 +38,13 @@ export class GitlabRepositoryMapper {
   private static isCurrentUserRepositoryAdmin(
     permissions: GitlabPermissionsDTO,
   ) {
+    if (!!permissions.project_access && !!permissions.group_access) {
+      return (
+        permissions.project_access.access_level === 50 ||
+        permissions.group_access.access_level === 50
+      );
+    }
+
     if (!!permissions.project_access) {
       return permissions.project_access.access_level === 50;
     }

@@ -268,4 +268,27 @@ export class GitlabHttpClient {
       throw exception;
     }
   }
+
+  async getUserRepositoryPermission(user: User, repositoryId: number) {
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryId}/members/${user.getVcsUserId()}`;
+    try {
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return undefined;
+      }
+      throw exception;
+    }
+  }
 }

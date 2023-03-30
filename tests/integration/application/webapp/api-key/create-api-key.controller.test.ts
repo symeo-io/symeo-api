@@ -78,7 +78,7 @@ describe('ApiKeyController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.WRITE,
@@ -110,7 +110,7 @@ describe('ApiKeyController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,

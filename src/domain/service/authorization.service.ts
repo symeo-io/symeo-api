@@ -11,10 +11,13 @@ import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { PermissionRoleService } from 'src/domain/service/permission-role.service';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
+import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
 
 export class AuthorizationService {
   constructor(
     private githubAdapterPort: GithubAdapterPort,
+    private gitlabAdapterPort: GitlabAdapterPort,
     private configurationStoragePort: ConfigurationStoragePort,
     private apiKeyStoragePort: ApiKeyStoragePort,
     private permissionRoleService: PermissionRoleService,
@@ -25,10 +28,21 @@ export class AuthorizationService {
     repositoryVcsId: number,
     requiredRepositoryRole?: VcsRepositoryRole,
   ): Promise<{ repository: VcsRepository }> {
-    const repository = await this.githubAdapterPort.getRepositoryById(
-      user,
-      repositoryVcsId,
-    );
+    let repository: VcsRepository | undefined;
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        repository = await this.githubAdapterPort.getRepositoryById(
+          user,
+          repositoryVcsId,
+        );
+        break;
+      case VCSProvider.Gitlab:
+        repository = await this.gitlabAdapterPort.getRepositoryById(
+          user,
+          repositoryVcsId,
+        );
+        break;
+    }
 
     if (!repository) {
       throw new SymeoException(

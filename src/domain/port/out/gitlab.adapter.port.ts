@@ -3,6 +3,7 @@ import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { EnvFile } from 'src/domain/model/vcs/env-file.model';
+import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 
 export interface GitlabAdapterPort {
   getOrganizations(user: User): Promise<VcsOrganization[]>;
@@ -40,4 +41,16 @@ export interface GitlabAdapterPort {
     filePath: string,
     branch: string,
   ): Promise<boolean>;
+
+  getUserRepositoryRole(
+    user: User,
+    id: number,
+  ): Promise<VcsRepositoryRole | undefined>;
+
+  getFileContent(
+    user: User,
+    repositoryId: number,
+    filePath: string,
+    branch: string,
+  ): Promise<string | undefined>;
 }

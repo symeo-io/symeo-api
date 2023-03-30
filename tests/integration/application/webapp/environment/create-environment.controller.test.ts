@@ -70,7 +70,7 @@ describe('EnvironmentController', () => {
         VCSProvider.GitHub,
         repository.id,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.WRITE,
@@ -106,7 +106,7 @@ describe('EnvironmentController', () => {
         VCSProvider.GitHub,
         repository.id,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,

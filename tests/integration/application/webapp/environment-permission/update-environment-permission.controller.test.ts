@@ -88,7 +88,7 @@ describe('EnvironmentPermissionController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.WRITE,
@@ -126,7 +126,7 @@ describe('EnvironmentPermissionController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,
@@ -160,7 +160,7 @@ describe('EnvironmentPermissionController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,
@@ -214,7 +214,7 @@ describe('EnvironmentPermissionController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,
@@ -269,7 +269,7 @@ describe('EnvironmentPermissionController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,
@@ -364,7 +364,7 @@ describe('EnvironmentPermissionController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,

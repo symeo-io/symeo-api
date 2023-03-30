@@ -12,14 +12,6 @@ describe('ConfigurationController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let configurationTestUtil: ConfigurationTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -45,28 +37,70 @@ describe('ConfigurationController', () => {
   });
 
   describe('(GET) /configurations/:repositoryVcsId', () => {
-    it('should respond 200 and return repository configurations', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      await configurationTestUtil.createConfiguration(
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
-      await configurationTestUtil.createConfiguration(
-        VCSProvider.GitHub,
-        repository.id,
+      it('should respond 200 and return repository configurations', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          .get(`/api/v1/configurations/${repository.id}`)
+          .expect(200);
+
+        expect(response.body.configurations).toBeDefined();
+        expect(response.body.configurations.length).toEqual(2);
+        expect(response.body.isCurrentUserRepositoryAdmin).toEqual(true);
+      });
+    });
+
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
       );
+      it('should respond 200 and return repository configurations', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
 
-      const response = await appClient
-        .request(currentUser)
-        .get(`/api/v1/configurations/${repository.id}`)
-        .expect(200);
+        const response = await appClient
+          .request(currentUser)
+          .get(`/api/v1/configurations/${repository.id}`)
+          .expect(200);
 
-      expect(response.body.configurations).toBeDefined();
-      expect(response.body.configurations.length).toEqual(2);
-      expect(response.body.isCurrentUserRepositoryAdmin).toEqual(true);
+        expect(response.body.configurations).toBeDefined();
+        expect(response.body.configurations.length).toEqual(2);
+        expect(response.body.isCurrentUserRepositoryAdmin).toEqual(true);
+      });
     });
   });
 });

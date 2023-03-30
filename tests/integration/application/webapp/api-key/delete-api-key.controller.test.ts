@@ -73,7 +73,7 @@ describe('ApiKeyController', () => {
         VCSProvider.GitHub,
         repository.id,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,

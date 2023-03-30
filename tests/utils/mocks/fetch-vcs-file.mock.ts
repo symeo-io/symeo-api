@@ -67,12 +67,24 @@ export class FetchVcsFileMock {
       });
   }
 
-  public mockSymeoContractFilePresent(
+  public mockSymeoContractFilePresentOnGithub(
     repositoryId: number,
     contractFilePath: string,
     stubPath: string,
   ) {
     return this.mockGithubFilePresent(
+      repositoryId,
+      contractFilePath,
+      fs.readFileSync(stubPath).toString() as string,
+    );
+  }
+
+  public mockSymeoContractFilePresentOnGitlab(
+    repositoryId: number,
+    contractFilePath: string,
+    stubPath: string,
+  ) {
+    return this.mockGitlabFilePresent(
       repositoryId,
       contractFilePath,
       fs.readFileSync(stubPath).toString() as string,

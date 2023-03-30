@@ -70,7 +70,7 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
+      fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
         configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
@@ -141,7 +141,7 @@ describe('ValuesController', () => {
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
+      fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
         configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',

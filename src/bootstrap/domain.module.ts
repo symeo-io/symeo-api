@@ -84,18 +84,21 @@ const EnvironmentPermissionFacadeProvider = {
   provide: 'EnvironmentPermissionFacade',
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
+    gitlabAdapterPort: GitlabAdapterPort,
     environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     environmentPermissionUtils: EnvironmentPermissionUtils,
     environmentAuditFacade: EnvironmentAuditFacade,
   ) =>
     new EnvironmentPermissionService(
       githubAdapterPort,
+      gitlabAdapterPort,
       environmentPermissionStoragePort,
       environmentPermissionUtils,
       environmentAuditFacade,
     ),
   inject: [
     'GithubAdapter',
+    'GitlabAdapter',
     'PostgresEnvironmentPermissionAdapter',
     'EnvironmentPermissionUtils',
     'EnvironmentAuditFacade',
@@ -106,18 +109,21 @@ const AuthorizationServiceProvider = {
   provide: 'AuthorizationService',
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
+    gitlabAdapterPort: GitlabAdapterPort,
     configurationStoragePort: ConfigurationStoragePort,
     apiKeyStoragePort: ApiKeyStoragePort,
     permissionRoleService: PermissionRoleService,
   ) =>
     new AuthorizationService(
       githubAdapterPort,
+      gitlabAdapterPort,
       configurationStoragePort,
       apiKeyStoragePort,
       permissionRoleService,
     ),
   inject: [
     'GithubAdapter',
+    'GitlabAdapter',
     'PostgresConfigurationAdapter',
     'PostgresApiKeyAdapter',
     'PermissionRoleService',
@@ -128,16 +134,19 @@ const PermissionRoleServiceProvider = {
   provide: 'PermissionRoleService',
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
+    gitlabAdapterPort: GitlabAdapterPort,
     environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     environmentPermissionUtils: EnvironmentPermissionUtils,
   ) =>
     new PermissionRoleService(
       githubAdapterPort,
+      gitlabAdapterPort,
       environmentPermissionStoragePort,
       environmentPermissionUtils,
     ),
   inject: [
     'GithubAdapter',
+    'GitlabAdapter',
     'PostgresEnvironmentPermissionAdapter',
     'EnvironmentPermissionUtils',
   ],

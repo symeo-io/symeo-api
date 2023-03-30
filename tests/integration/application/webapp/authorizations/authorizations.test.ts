@@ -174,7 +174,7 @@ describe('Authorizations', () => {
         const repository =
           fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
 
-        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
           currentUser,
           repository.id,
           VcsRepositoryRole.ADMIN,
@@ -217,7 +217,7 @@ describe('Authorizations', () => {
         const repositoryVcsId = faker.datatype.number();
         const repository =
           fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
           currentUser,
           repository.id,
           VcsRepositoryRole.ADMIN,
@@ -261,7 +261,7 @@ describe('Authorizations', () => {
         const repositoryVcsId = faker.datatype.number();
         const repository =
           fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-        fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
           currentUser,
           repository.id,
           VcsRepositoryRole.ADMIN,
