@@ -24,4 +24,13 @@ export interface GitlabAdapterPort {
     repositoryVcsId: number,
     branch: string,
   ): Promise<EnvFile[]>;
+
+  commitFileToRepositoryBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void>;
 }

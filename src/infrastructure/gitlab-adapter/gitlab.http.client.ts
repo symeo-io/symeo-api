@@ -5,9 +5,8 @@ import { GitlabRepositoryDTO } from 'src/infrastructure/gitlab-adapter/dto/gitla
 import { config } from 'symeo-js';
 import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.authenticated.user.dto';
 import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
-import { GithubFileDTO } from 'src/infrastructure/github-adapter/dto/github.file.dto';
 import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
-import { json } from 'express';
+import { GitlabBlobDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.blob.dto';
 
 export class GitlabHttpClient {
   constructor(
@@ -172,6 +171,68 @@ export class GitlabHttpClient {
         return undefined;
       }
 
+      throw exception;
+    }
+  }
+
+  async getRepositoryBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<GitlabBranchDTO | undefined> {
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryVcsId}/repository/branches/${branch}`;
+    try {
+      const response = await this.client.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return undefined;
+      }
+      throw exception;
+    }
+  }
+
+  async createFileForRepository(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    fileContent: string,
+    filePath: string,
+    commitMessage: string,
+  ): Promise<GitlabBlobDTO> {
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryId}/repository/files/${filePath}`;
+
+    try {
+      const response = await this.client.post(
+        url,
+        {
+          content: fileContent,
+          encoding: 'text',
+          commit_message: commitMessage,
+          branch: branch,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log(response.data);
+      return response.data;
+    } catch (exception) {
       throw exception;
     }
   }

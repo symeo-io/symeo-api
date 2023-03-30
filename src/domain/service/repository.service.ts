@@ -124,6 +124,15 @@ export class RepositoryService implements RepositoryFacade {
           fileContent,
           commitMessage,
         );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.commitFileToRepositoryBranch(
+          user,
+          repositoryVcsId,
+          branch,
+          filePath,
+          fileContent,
+          commitMessage,
+        );
     }
   }
 
