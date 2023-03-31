@@ -40,7 +40,7 @@ describe('OrganizationService', () => {
     it('should get organizations for gitlab as vcs provider', async () => {
       // Given
       const user = new User(
-        `gitlab|${faker.datatype.number()}`,
+        `oauth2|gitlab|${faker.datatype.number()}`,
         faker.internet.email(),
         faker.internet.userName(),
         VCSProvider.Gitlab,

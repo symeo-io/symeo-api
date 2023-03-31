@@ -47,8 +47,20 @@ export class PermissionRoleService {
       );
     }
 
-    const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
+    let userRepositoryRole: VcsRepositoryRole | undefined;
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        userRepositoryRole = await this.githubAdapterPort.getUserRepositoryRole(
+          user,
+          repository.id,
+        );
+        break;
+      case VCSProvider.Gitlab:
+        userRepositoryRole = await this.gitlabAdapterPort.getUserRepositoryRole(
+          user,
+          repository.id,
+        );
+    }
 
     if (!userRepositoryRole) {
       throw new SymeoException(
@@ -58,7 +70,7 @@ export class PermissionRoleService {
     }
 
     const environmentPermissionRole =
-      this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
+      this.environmentPermissionUtils.mapVcsRoleToDefaultEnvironmentPermission(
         userRepositoryRole,
       );
 

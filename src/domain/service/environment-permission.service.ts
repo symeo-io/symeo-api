@@ -53,7 +53,7 @@ export class EnvironmentPermissionService
         );
       }
 
-      return this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
+      return this.environmentPermissionUtils.mapVcsRoleToDefaultEnvironmentPermission(
         githubUserRepositoryRole,
       );
     }
@@ -67,6 +67,12 @@ export class EnvironmentPermissionService
     switch (user.provider) {
       case VCSProvider.GitHub:
         return this.getEnvironmentPermissionsWithGithub(
+          user,
+          repository,
+          environment,
+        );
+      case VCSProvider.Gitlab:
+        return this.getEnvironmentPermissionsWithGitlab(
           user,
           repository,
           environment,
@@ -149,7 +155,7 @@ export class EnvironmentPermissionService
       );
 
     const persistedEnvironmentPermissionsForEnvironmentAndVcsUsers =
-      await this.removePersistedEnvironmentPermissionWithoutGithubAccess(
+      await this.removePersistedEnvironmentPermissionWithoutVcsAccess(
         githubRepositoryUsers,
         persistedEnvironmentPermissionsForEnvironmentId,
       );
@@ -180,8 +186,56 @@ export class EnvironmentPermissionService
     });
   }
 
-  private async removePersistedEnvironmentPermissionWithoutGithubAccess(
-    githubRepositoryUsers: VcsUser[],
+  private async getEnvironmentPermissionsWithGitlab(
+    user: User,
+    repository: VcsRepository,
+    environment: Environment,
+  ): Promise<EnvironmentPermissionWithUser[]> {
+    const gitlabRepositoryUsers: VcsUser[] =
+      await this.gitlabAdapterPort.getCollaboratorsForRepository(
+        user,
+        repository.id,
+      );
+
+    const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
+      await this.environmentPermissionStoragePort.findForEnvironmentId(
+        environment.id,
+      );
+
+    const persistedEnvironmentPermissionsForEnvironmentAndVcsUsers =
+      await this.removePersistedEnvironmentPermissionWithoutVcsAccess(
+        gitlabRepositoryUsers,
+        persistedEnvironmentPermissionsForEnvironmentId,
+      );
+
+    const persistedEnvironmentPermissionsForEnvironmentAndVcsUsersWithoutVcsAdminRole =
+      await this.removePersistedEnvironmentPermissionWithVcsAdminRole(
+        gitlabRepositoryUsers,
+        persistedEnvironmentPermissionsForEnvironmentAndVcsUsers,
+      );
+
+    return gitlabRepositoryUsers.map((vcsUser) => {
+      const persistedEnvironmentPermission =
+        persistedEnvironmentPermissionsForEnvironmentAndVcsUsersWithoutVcsAdminRole.find(
+          (inBaseEnvironmentPermission) =>
+            inBaseEnvironmentPermission.userVcsId === vcsUser.id,
+        );
+
+      if (!!persistedEnvironmentPermission)
+        return this.environmentPermissionUtils.generateEnvironmentPermissionWithUser(
+          vcsUser,
+          persistedEnvironmentPermission,
+        );
+
+      return this.environmentPermissionUtils.generateDefaultEnvironmentPermissionFromVcsUser(
+        vcsUser,
+        environment,
+      );
+    });
+  }
+
+  private async removePersistedEnvironmentPermissionWithoutVcsAccess(
+    vcsRepositoryUsers: VcsUser[],
     persistedEnvironmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]> {
     const persistedEnvironmentPermissionsToRemoveToKeep: EnvironmentPermission[] =
@@ -189,10 +243,10 @@ export class EnvironmentPermissionService
     const persistedEnvironmentPermissionsToRemove: EnvironmentPermission[] = [];
 
     persistedEnvironmentPermissions.forEach((environmentPermission) => {
-      const githubUserInBase = githubRepositoryUsers.find(
-        (githubUser) => environmentPermission.userVcsId === githubUser.id,
+      const vcsUserInBase = vcsRepositoryUsers.find(
+        (vcsUser) => environmentPermission.userVcsId === vcsUser.id,
       );
-      if (!githubUserInBase) {
+      if (!vcsUserInBase) {
         persistedEnvironmentPermissionsToRemove.push(environmentPermission);
         return;
       }
@@ -207,7 +261,7 @@ export class EnvironmentPermissionService
   }
 
   private async removePersistedEnvironmentPermissionWithVcsAdminRole(
-    githubRepositoryUsers: VcsUser[],
+    vcsRepositoryUsers: VcsUser[],
     persistedEnvironmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]> {
     const persistedEnvironmentPermissionsToRemoveToKeep: EnvironmentPermission[] =
@@ -215,12 +269,12 @@ export class EnvironmentPermissionService
     const persistedEnvironmentPermissionsToRemove: EnvironmentPermission[] = [];
 
     persistedEnvironmentPermissions.forEach((environmentPermission) => {
-      const githubUserWithAdminRole = githubRepositoryUsers.find(
-        (githubUser) =>
-          environmentPermission.userVcsId === githubUser.id &&
-          githubUser.role === VcsRepositoryRole.ADMIN,
+      const vcsUserWithAdminRole = vcsRepositoryUsers.find(
+        (vcsUser) =>
+          environmentPermission.userVcsId === vcsUser.id &&
+          vcsUser.role === VcsRepositoryRole.ADMIN,
       );
-      if (githubUserWithAdminRole) {
+      if (vcsUserWithAdminRole) {
         persistedEnvironmentPermissionsToRemove.push(environmentPermission);
         return;
       }

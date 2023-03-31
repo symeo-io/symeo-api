@@ -24,14 +24,6 @@ describe('EnvironmentController', () => {
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -62,109 +54,236 @@ describe('EnvironmentController', () => {
     appClient.mockReset();
   });
 
-  describe('(PATCH) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
-    it('Should return 403 and not update environment for user without permission', async () => {
-      // When
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
+  describe('(PATCH) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId', () => {
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
-        currentUser,
-        repository.id,
-        VcsRepositoryRole.WRITE,
-      );
-
-      const updatedEnvironmentData: UpdateEnvironmentDTO = {
-        name: faker.name.firstName(),
-        color: 'blueGrey',
-      };
-      const response = await appClient
-        .request(currentUser)
+      it('Should return 403 and not update environment for user without permission', async () => {
         // When
-        .patch(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}`,
-        )
-        .send(updatedEnvironmentData)
-        // Then
-        .expect(403);
-      expect(response.body.code).toEqual(
-        SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
-      );
-      const environmentAuditEntity: EnvironmentAuditEntity[] =
-        await environmentAuditTestUtil.repository.find();
-      expect(environmentAuditEntity.length).toEqual(0);
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
+          currentUser,
+          repository.id,
+          VcsRepositoryRole.WRITE,
+        );
+
+        const updatedEnvironmentData: UpdateEnvironmentDTO = {
+          name: faker.name.firstName(),
+          color: 'blueGrey',
+        };
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .patch(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}`,
+          )
+          .send(updatedEnvironmentData)
+          // Then
+          .expect(403);
+        expect(response.body.code).toEqual(
+          SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
+        );
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(0);
+      });
+
+      it('Should return 200 and update environment for user with permission', async () => {
+        // When
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
+          currentUser,
+          repository.id,
+          VcsRepositoryRole.ADMIN,
+        );
+
+        const updatedEnvironmentData: UpdateEnvironmentDTO = {
+          name: faker.name.firstName(),
+          color: 'blueGrey',
+        };
+        await appClient
+          .request(currentUser)
+          // When
+          .patch(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}`,
+          )
+          .send(updatedEnvironmentData)
+          // Then
+          .expect(200);
+        const configurationEntity: ConfigurationEntity | null =
+          await configurationTestUtil.repository.findOneBy({
+            id: configuration.id,
+          });
+        expect(configurationEntity).toBeDefined();
+        expect(configurationEntity?.environments[0].id).toEqual(environment.id);
+        expect(configurationEntity?.environments[0].name).toEqual(
+          updatedEnvironmentData.name,
+        );
+        expect(configurationEntity?.environments[0].color).toEqual(
+          updatedEnvironmentData.color.toString(),
+        );
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(
+          configurationEntity?.environments[0].id,
+        );
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.UPDATED,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            name: updatedEnvironmentData.name,
+            color: updatedEnvironmentData.color,
+          },
+        });
+      });
     });
 
-    it('Should return 200 and update environment for user with permission', async () => {
-      // When
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
-        VCSProvider.GitHub,
-        repository.id,
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `oauth2|gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
       );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
-        currentUser,
-        repository.id,
-        VcsRepositoryRole.ADMIN,
-      );
-
-      const updatedEnvironmentData: UpdateEnvironmentDTO = {
-        name: faker.name.firstName(),
-        color: 'blueGrey',
-      };
-      await appClient
-        .request(currentUser)
+      it('Should return 403 and not update environment for user without permission', async () => {
         // When
-        .patch(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}`,
-        )
-        .send(updatedEnvironmentData)
-        // Then
-        .expect(200);
-      const configurationEntity: ConfigurationEntity | null =
-        await configurationTestUtil.repository.findOneBy({
-          id: configuration.id,
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockGitlabUserRepositoryRole(
+          currentUser,
+          repository.id,
+          30,
+        );
+
+        const updatedEnvironmentData: UpdateEnvironmentDTO = {
+          name: faker.name.firstName(),
+          color: 'blueGrey',
+        };
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .patch(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}`,
+          )
+          .send(updatedEnvironmentData)
+          // Then
+          .expect(403);
+        expect(response.body.code).toEqual(
+          SymeoExceptionCode.RESOURCE_ACCESS_DENIED,
+        );
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(0);
+      });
+
+      it('Should return 200 and update environment for user with permission', async () => {
+        // When
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockGitlabUserRepositoryRole(
+          currentUser,
+          repository.id,
+          50,
+        );
+
+        const updatedEnvironmentData: UpdateEnvironmentDTO = {
+          name: faker.name.firstName(),
+          color: 'blueGrey',
+        };
+        await appClient
+          .request(currentUser)
+          // When
+          .patch(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}`,
+          )
+          .send(updatedEnvironmentData)
+          // Then
+          .expect(200);
+        const configurationEntity: ConfigurationEntity | null =
+          await configurationTestUtil.repository.findOneBy({
+            id: configuration.id,
+          });
+        expect(configurationEntity).toBeDefined();
+        expect(configurationEntity?.environments[0].id).toEqual(environment.id);
+        expect(configurationEntity?.environments[0].name).toEqual(
+          updatedEnvironmentData.name,
+        );
+        expect(configurationEntity?.environments[0].color).toEqual(
+          updatedEnvironmentData.color.toString(),
+        );
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(
+          configurationEntity?.environments[0].id,
+        );
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.UPDATED,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            name: updatedEnvironmentData.name,
+            color: updatedEnvironmentData.color,
+          },
         });
-      expect(configurationEntity).toBeDefined();
-      expect(configurationEntity?.environments[0].id).toEqual(environment.id);
-      expect(configurationEntity?.environments[0].name).toEqual(
-        updatedEnvironmentData.name,
-      );
-      expect(configurationEntity?.environments[0].color).toEqual(
-        updatedEnvironmentData.color.toString(),
-      );
-      const environmentAuditEntity: EnvironmentAuditEntity[] =
-        await environmentAuditTestUtil.repository.find();
-      expect(environmentAuditEntity.length).toEqual(1);
-      expect(environmentAuditEntity[0].id).toBeDefined();
-      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
-      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
-      expect(environmentAuditEntity[0].environmentId).toEqual(
-        configurationEntity?.environments[0].id,
-      );
-      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-        repositoryVcsId,
-      );
-      expect(environmentAuditEntity[0].eventType).toEqual(
-        EnvironmentAuditEventType.UPDATED,
-      );
-      expect(environmentAuditEntity[0].metadata).toEqual({
-        metadata: {
-          name: updatedEnvironmentData.name,
-          color: updatedEnvironmentData.color,
-        },
       });
     });
   });

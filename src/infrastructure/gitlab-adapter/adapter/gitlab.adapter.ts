@@ -20,6 +20,11 @@ import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.en
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { GitlabUserPermissionDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.user.permission.dto';
 import { GitlabAccessLevelMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.access.level.mapper';
+import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/mapper/github.collaborators.mapper';
+import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
+import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
+import { GitlabCollaboratorsMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.collaborators.mapper';
+import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
 
 @Injectable()
 export default class GitlabAdapter implements GitlabAdapterPort {
@@ -208,7 +213,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       branch,
     );
   }
-
   async getUserRepositoryRole(
     user: User,
     repositoryVcsId: number,
@@ -243,6 +247,40 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       repositoryVcsId,
       filePath,
       branch,
+    );
+  }
+
+  async getCollaboratorsForRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsUser[]> {
+    let page = 1;
+    const perPage = config.vcsProvider.paginationLength;
+    let gitlabCollaboratorsDTO =
+      await this.gitlabHttpClient.getCollaboratorsForRepository(
+        user,
+        repositoryVcsId,
+        page,
+        perPage,
+      );
+    let alreadyCollectedCollaboratorsDTO = gitlabCollaboratorsDTO;
+    while (gitlabCollaboratorsDTO.length === perPage) {
+      page += 1;
+      gitlabCollaboratorsDTO =
+        await this.gitlabHttpClient.getCollaboratorsForRepository(
+          user,
+          repositoryVcsId,
+          page,
+          perPage,
+        );
+      alreadyCollectedCollaboratorsDTO =
+        alreadyCollectedCollaboratorsDTO.concat(gitlabCollaboratorsDTO);
+    }
+
+    return GitlabCollaboratorsMapper.dtoToDomains(
+      alreadyCollectedCollaboratorsDTO.map((collaboratorDTO) =>
+        plainToInstance(GitlabCollaboratorDTO, collaboratorDTO),
+      ),
     );
   }
 }

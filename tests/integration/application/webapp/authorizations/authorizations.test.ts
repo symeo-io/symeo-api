@@ -37,11 +37,11 @@ describe('Authorizations', () => {
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments',
       verbs: ['post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId',
       verbs: ['patch', 'delete'],
     },
     {
@@ -180,17 +180,17 @@ describe('Authorizations', () => {
           VcsRepositoryRole.ADMIN,
         );
 
-      const configurationId = uuid();
-      const environmentId = uuid();
-      const apiKeyId = uuid();
-      const versionId = uuid();
+        const configurationId = uuid();
+        const environmentId = uuid();
+        const apiKeyId = uuid();
+        const versionId = uuid();
 
-      const url = route.path
-        .replace(':repositoryVcsId', repository.id.toString())
-        .replace(':configurationId', configurationId)
-        .replace(':environmentId', environmentId)
-        .replace(':apiKeyId', apiKeyId)
-        .replace(':versionId', versionId);
+        const url = route.path
+          .replace(':repositoryVcsId', repository.id.toString())
+          .replace(':configurationId', configurationId)
+          .replace(':environmentId', environmentId)
+          .replace(':apiKeyId', apiKeyId)
+          .replace(':versionId', versionId);
 
         const response = await appClient
           .request(currentUser)

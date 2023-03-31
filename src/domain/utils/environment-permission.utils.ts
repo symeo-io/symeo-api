@@ -15,7 +15,7 @@ export class EnvironmentPermissionUtils {
     return new EnvironmentPermission(
       uuid(),
       vcsUserId,
-      this.mapGithubRoleToDefaultEnvironmentPermission(userRepositoryRole),
+      this.mapVcsRoleToDefaultEnvironmentPermission(userRepositoryRole),
       environment.id,
     );
   }
@@ -44,7 +44,7 @@ export class EnvironmentPermissionUtils {
     );
   }
 
-  mapGithubRoleToDefaultEnvironmentPermission(
+  mapVcsRoleToDefaultEnvironmentPermission(
     vcsRepositoryRoleEnum: VcsRepositoryRole,
   ) {
     switch (vcsRepositoryRoleEnum) {

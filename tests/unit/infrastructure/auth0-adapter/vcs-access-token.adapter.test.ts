@@ -144,7 +144,7 @@ describe('VCSAccessTokenAdapter', () => {
     describe('GitlabAccessToken', () => {
       it('should return gitlab access token', async () => {
         const user = new User(
-          `gitlab|${faker.datatype.number()}`,
+          `oauth2|gitlab|${faker.datatype.number()}`,
           faker.internet.email(),
           faker.internet.userName(),
           VCSProvider.Gitlab,
@@ -187,7 +187,7 @@ describe('VCSAccessTokenAdapter', () => {
 
       it('should return undefined when no gitlab identity', async () => {
         const user = new User(
-          `gitlab|${faker.datatype.number()}`,
+          `oauth2|gitlab|${faker.datatype.number()}`,
           faker.internet.email(),
           faker.internet.userName(),
           VCSProvider.Gitlab,
@@ -223,7 +223,7 @@ describe('VCSAccessTokenAdapter', () => {
 
       it('should return gitlab access token from cache', async () => {
         const user = new User(
-          `gitlab|${faker.datatype.number()}`,
+          `oauth2|gitlab|${faker.datatype.number()}`,
           faker.internet.email(),
           faker.internet.userName(),
           VCSProvider.Gitlab,

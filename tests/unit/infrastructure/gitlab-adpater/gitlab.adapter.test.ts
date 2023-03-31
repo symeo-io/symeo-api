@@ -15,7 +15,7 @@ describe('GitlabAdapter', () => {
     const mockedGitlabHttpClient: GitlabHttpClient = mock(GitlabHttpClient);
 
     const user = new User(
-      `gitlab|${faker.datatype.number()}`,
+      `oauth2|gitlab|${faker.datatype.number()}`,
       faker.internet.email(),
       faker.internet.userName(),
       VCSProvider.Gitlab,

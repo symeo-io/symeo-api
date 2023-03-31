@@ -119,7 +119,7 @@ describe('ConfigurationController', () => {
 
     describe('For Gitlab as VcsProvider', () => {
       const currentUser = new User(
-        `gitlab|${faker.datatype.number()}`,
+        `oauth2|gitlab|${faker.datatype.number()}`,
         faker.internet.email(),
         faker.internet.userName(),
         VCSProvider.Gitlab,

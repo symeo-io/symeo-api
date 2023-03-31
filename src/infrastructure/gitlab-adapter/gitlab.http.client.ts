@@ -7,6 +7,8 @@ import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dt
 import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
 import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
 import { GitlabBlobDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.blob.dto';
+import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
+import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
 
 export class GitlabHttpClient {
   constructor(
@@ -291,6 +293,39 @@ export class GitlabHttpClient {
         (exception as AxiosError).response?.status === 404
       ) {
         return undefined;
+      }
+      throw exception;
+    }
+  }
+
+  async getCollaboratorsForRepository(
+    user: User,
+    repositoryVcsId: number,
+    page: number,
+    perPage: any,
+  ): Promise<GitlabCollaboratorDTO[]> {
+    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const url =
+      config.vcsProvider.github.apiUrl + `projects/${repositoryVcsId}/members`;
+
+    try {
+      const response = await this.client.get(url, {
+        params: {
+          page: page,
+          per_page: perPage,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (exception) {
+      if (
+        (exception as AxiosError).response?.status &&
+        (exception as AxiosError).response?.status === 404
+      ) {
+        return [];
       }
       throw exception;
     }
