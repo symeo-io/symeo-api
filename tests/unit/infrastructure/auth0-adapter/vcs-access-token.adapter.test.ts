@@ -180,7 +180,7 @@ describe('VCSAccessTokenAdapter', () => {
 
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith({ id: 'oauth2|' + user.id });
+        expect(spy).toHaveBeenCalledWith({ id: user.id });
         expect(receivedToken).toEqual(mockGitlabAccessToken);
         spy.mockRestore();
       });
@@ -216,7 +216,7 @@ describe('VCSAccessTokenAdapter', () => {
 
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith({ id: 'oauth2|' + user.id });
+        expect(spy).toHaveBeenCalledWith({ id: user.id });
         expect(receivedToken).toEqual(undefined);
         spy.mockRestore();
       });
@@ -263,7 +263,7 @@ describe('VCSAccessTokenAdapter', () => {
 
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith({ id: 'oauth2|' + user.id });
+        expect(spy).toHaveBeenCalledWith({ id: user.id });
         expect(receivedToken1).toEqual(mockGitHubAccessToken);
         expect(receivedToken2).toEqual(mockGitHubAccessToken);
         expect(receivedToken3).toEqual(mockGitHubAccessToken);

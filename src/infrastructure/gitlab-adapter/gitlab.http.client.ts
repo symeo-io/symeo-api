@@ -142,7 +142,9 @@ export class GitlabHttpClient {
     const token = await this.vcsAccessTokenStorage.getAccessToken(user);
     const url =
       config.vcsProvider.gitlab.apiUrl +
-      `projects/${repositoryVcsId}/repository/files/${filePath}`;
+      `projects/${repositoryVcsId}/repository/files/${encodeURIComponent(
+        filePath,
+      )}`;
     try {
       const response = await this.client.get(url, {
         params: {
@@ -245,7 +247,9 @@ export class GitlabHttpClient {
     const token = await this.vcsAccessTokenStorage.getAccessToken(user);
     const url =
       config.vcsProvider.gitlab.apiUrl +
-      `projects/${repositoryVcsId}/repository/files/${filePath}`;
+      `projects/${repositoryVcsId}/repository/files/${encodeURIComponent(
+        filePath,
+      )}`;
     try {
       const response = await this.client.get(url, {
         params: {

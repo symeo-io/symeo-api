@@ -314,7 +314,7 @@ describe('ConfigurationController', () => {
         expect(configuration?.repositoryVcsName).toEqual(repository.name);
         expect(configuration?.ownerVcsId).toEqual(repository.namespace.id);
         expect(configuration?.ownerVcsName).toEqual(repository.namespace.name);
-        expect(configuration?.vcsType).toEqual(VCSProvider.GitHub);
+        expect(configuration?.vcsType).toEqual(VCSProvider.Gitlab);
         expect(configuration?.contractFilePath).toEqual(
           sendData.contractFilePath,
         );

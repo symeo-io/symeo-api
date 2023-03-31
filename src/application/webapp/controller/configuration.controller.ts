@@ -11,18 +11,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
-import { CreateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/create-github-configuration.dto';
+import { CreateConfigurationDTO } from 'src/application/webapp/dto/configuration/create-configuration.dto';
 import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
 import User from 'src/domain/model/user/user.model';
 import { GetConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/get-configuration.response.dto';
 import { GetConfigurationsResponseDTO } from 'src/application/webapp/dto/configuration/get-configurations.response.dto';
-import { ValidateCreateGithubConfigurationParametersDTO } from 'src/application/webapp/dto/configuration/validate-create-github-configuration-parameters.dto';
+import { ValidateCreateConfigurationParametersDTO } from 'src/application/webapp/dto/configuration/validate-create-configuration-parameters.dto';
 import { ValidateCreateConfigurationParametersResponseDTO } from 'src/application/webapp/dto/configuration/validate-create-configuration-parameters.response.dto';
 import { CreateConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/create-configuration.response.dto';
 import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { UpdateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.dto';
+import { UpdateConfigurationDTO } from 'src/application/webapp/dto/configuration/update-configuration.dto';
 import { UpdateConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/update-configuration.response.dto';
 import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
 import { RequestedConfiguration } from 'src/application/webapp/decorator/requested-configuration.decorator';
@@ -43,26 +43,26 @@ export class ConfigurationController {
   ) {}
 
   @ApiOkResponse({
-    description: 'Creation of Github configuration parameters validated',
+    description: 'Creation of configuration parameters validated',
     type: ValidateCreateConfigurationParametersResponseDTO,
   })
   @Post('validate')
   @HttpCode(200)
   async validateConfigurationCreationParameters(
     @Body()
-    validateCreateGithubConfigurationParametersDTO: ValidateCreateGithubConfigurationParametersDTO,
+    validateCreateConfigurationParametersDTO: ValidateCreateConfigurationParametersDTO,
     @CurrentUser() user: User,
   ): Promise<ValidateCreateConfigurationParametersResponseDTO> {
     return await this.configurationFacade.validateCreateForUser(
       user,
-      validateCreateGithubConfigurationParametersDTO.repositoryVcsId,
-      validateCreateGithubConfigurationParametersDTO.contractFilePath,
-      validateCreateGithubConfigurationParametersDTO.branch,
+      validateCreateConfigurationParametersDTO.repositoryVcsId,
+      validateCreateConfigurationParametersDTO.contractFilePath,
+      validateCreateConfigurationParametersDTO.branch,
     );
   }
 
   @ApiOkResponse({
-    description: 'Github configuration successfully retrieved',
+    description: 'Configuration successfully retrieved',
     type: GetConfigurationResponseDTO,
   })
   @Get(':repositoryVcsId/:configurationId')
@@ -86,7 +86,7 @@ export class ConfigurationController {
   }
 
   @ApiOkResponse({
-    description: 'Github configuration contract successfully retrieved',
+    description: 'Configuration contract successfully retrieved',
     type: GetConfigurationContractResponseDTO,
   })
   @Get(':repositoryVcsId/:configurationId/contract')
@@ -107,8 +107,7 @@ export class ConfigurationController {
   }
 
   @ApiOkResponse({
-    description:
-      'Github configurations for repositoryId successfully retrieved',
+    description: 'Configurations for repositoryId successfully retrieved',
     type: GetConfigurationsResponseDTO,
   })
   @Get(':repositoryVcsId')
@@ -124,7 +123,7 @@ export class ConfigurationController {
   }
 
   @ApiOkResponse({
-    description: 'Github configuration successfully deleted',
+    description: 'Configuration successfully deleted',
   })
   @Delete(':repositoryVcsId/:configurationId')
   @UseGuards(ConfigurationAuthorizationGuard)
@@ -142,7 +141,7 @@ export class ConfigurationController {
   }
 
   @ApiOkResponse({
-    description: 'Github configuration successfully created',
+    description: 'Configuration successfully created',
     type: CreateConfigurationResponseDTO,
   })
   @Post(':repositoryVcsId')
@@ -151,7 +150,7 @@ export class ConfigurationController {
   async createConfiguration(
     @RequestedRepository() repository: VcsRepository,
     @CurrentUser() user: User,
-    @Body() createConfigurationDTO: CreateGitHubConfigurationDTO,
+    @Body() createConfigurationDTO: CreateConfigurationDTO,
   ): Promise<CreateConfigurationResponseDTO> {
     const configuration = await this.configurationFacade.createForRepository(
       user,
@@ -165,7 +164,7 @@ export class ConfigurationController {
   }
 
   @ApiOkResponse({
-    description: 'Github configuration successfully updated',
+    description: 'Configuration successfully updated',
     type: UpdateConfigurationResponseDTO,
   })
   @Patch(':repositoryVcsId/:configurationId')
@@ -175,7 +174,7 @@ export class ConfigurationController {
     @CurrentUser() currentUser: User,
     @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
-    @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,
+    @Body() updateConfigurationDTO: UpdateConfigurationDTO,
   ): Promise<UpdateConfigurationResponseDTO> {
     const updatedConfiguration = await this.configurationFacade.update(
       currentUser,
