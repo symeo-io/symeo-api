@@ -19,6 +19,10 @@ import { RequestedApiKey } from 'src/application/webapp/decorator/requested-api-
 import ApiKey from 'src/domain/model/environment/api-key.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { RequiredEnvironmentPermission } from 'src/application/webapp/decorator/environment-permission-role.decorator';
+import { CurrentUser } from 'src/application/webapp/decorator/current-user.decorator';
+import User from 'src/domain/model/user/user.model';
+import { RequestedRepository } from 'src/application/webapp/decorator/requested-repository.decorator';
+import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 
 @Controller('configurations')
 @ApiTags('apiKeys')
@@ -58,9 +62,13 @@ export class ApiKeyController {
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async createApiKeyForEnvironment(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedEnvironment() environment: Environment,
   ): Promise<CreateApiKeyResponseDTO> {
     const apiKey = await this.apiKeyFacade.createApiKeyForEnvironment(
+      currentUser,
+      repository,
       environment,
     );
 
@@ -76,8 +84,16 @@ export class ApiKeyController {
   @UseGuards(ApiKeyAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async deleteApiKeyForEnvironment(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
+    @RequestedEnvironment() environment: Environment,
     @RequestedApiKey() apiKey: ApiKey,
   ): Promise<void> {
-    await this.apiKeyFacade.deleteApiKey(apiKey);
+    await this.apiKeyFacade.deleteApiKey(
+      currentUser,
+      repository,
+      environment,
+      apiKey,
+    );
   }
 }

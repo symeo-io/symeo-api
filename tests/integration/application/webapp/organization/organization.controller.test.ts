@@ -1,16 +1,16 @@
-import { v4 as uuid } from 'uuid';
 import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Octokit } from '@octokit/rest';
-import * as fs from 'fs';
+import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchVcsRepositoriesMock } from 'tests/utils/mocks/fetch-vcs-repositories.mock';
+import { FetchAuthenticatedUserMock } from 'tests/utils/mocks/fetch-authenticated-user.mock';
 
 describe('OrganizationController', () => {
   let appClient: AppClient;
-  let vcsAccessTokenStorage: VCSAccessTokenStorage;
-  let githubClient: Octokit;
+  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
+  let fetchAuthenticatedUserMock: FetchAuthenticatedUserMock;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -22,56 +22,28 @@ describe('OrganizationController', () => {
 
   beforeAll(async () => {
     appClient = new AppClient();
-
     await appClient.init();
-
-    vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
-    githubClient = appClient.module.get<Octokit>('Octokit');
+    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
+    fetchAuthenticatedUserMock = new FetchAuthenticatedUserMock(appClient);
   }, 30000);
 
   afterAll(async () => {
     await appClient.close();
   });
 
+  beforeEach(() => {
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+  });
+  afterEach(() => {
+    fetchVcsAccessTokenMock.restore();
+    appClient.mockReset();
+  });
+
   describe('(GET) /organizations', () => {
     it('should respond 200 with github repository', async () => {
       // Given
-      const mockGitHubToken = uuid();
-      const mockGitHubRepositoriesForUserStub1 = JSON.parse(
-        fs
-          .readFileSync(
-            './tests/utils/stubs/repository/get_repositories_for_user_page_1.json',
-          )
-          .toString(),
-      );
-      const mockGitHubRepositoriesForUserResponse1 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: mockGitHubRepositoriesForUserStub1,
-      };
-      const mockGitHubRepositoriesForUserResponse2 = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: [],
-      };
-
-      jest
-        .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
-        .mockImplementation(() => Promise.resolve(mockGitHubToken));
-      jest
-        .spyOn(githubClient.rest.repos, 'listForAuthenticatedUser')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoriesForUserResponse1),
-        );
-      jest
-        .spyOn(githubClient.rest.repos, 'listForAuthenticatedUser')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoriesForUserResponse2),
-        );
+      fetchVcsRepositoriesMock.mockRepositoryPresent();
 
       return appClient
         .request(currentUser)
@@ -90,42 +62,8 @@ describe('OrganizationController', () => {
 
     it('should respond 200 with github organization when no repositories', async () => {
       // Given
-      const mockGitHubToken = uuid();
-      const mockGitHubRepositoriesForUserResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: [],
-      };
-
-      const mockGitHubAuthenticatedUserStub1 = JSON.parse(
-        fs
-          .readFileSync(
-            './tests/utils/stubs/organization/get_authenticated_user.json',
-          )
-          .toString(),
-      );
-
-      const mockGitHubAuthenticatedUserResponse = {
-        status: 200 as const,
-        headers: {},
-        url: '',
-        data: mockGitHubAuthenticatedUserStub1,
-      };
-
-      jest
-        .spyOn(vcsAccessTokenStorage, 'getGitHubAccessToken')
-        .mockImplementation(() => Promise.resolve(mockGitHubToken));
-      jest
-        .spyOn(githubClient.rest.repos, 'listForAuthenticatedUser')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubRepositoriesForUserResponse),
-        );
-      jest
-        .spyOn(githubClient.rest.users, 'getAuthenticated')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockGitHubAuthenticatedUserResponse),
-        );
+      fetchVcsRepositoriesMock.mockRepositoryNotPresent();
+      fetchAuthenticatedUserMock.mockAuthenticatedPresent();
 
       return appClient
         .request(currentUser)

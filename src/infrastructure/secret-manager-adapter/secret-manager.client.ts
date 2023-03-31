@@ -1,5 +1,5 @@
 import { SecretsManager } from 'aws-sdk';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 
 export class SecretManagerClient {
   public client: SecretsManager;

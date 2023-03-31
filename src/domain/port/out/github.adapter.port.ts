@@ -4,6 +4,7 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import User from 'src/domain/model/user/user.model';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { EnvFile } from 'src/domain/model/vcs/env-file.model';
 
 export default interface GithubAdapterPort {
   getOrganizations(user: User): Promise<VcsOrganization[]>;
@@ -19,31 +20,42 @@ export default interface GithubAdapterPort {
     repositoryVcsId: number,
   ): Promise<VcsBranch[]>;
 
+  getEnvFilesForRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<EnvFile[]>;
+
   checkFileExistsOnBranch(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
     filePath: string,
     branch: string,
   ): Promise<boolean>;
 
   getFileContent(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
     filePath: string,
     branch: string,
   ): Promise<string | undefined>;
 
   getCollaboratorsForRepository(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
   ): Promise<VcsUser[]>;
 
   getUserRepositoryRole(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
   ): Promise<VcsRepositoryRole | undefined>;
+
+  commitFileToRepositoryBranch(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void>;
 }

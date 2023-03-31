@@ -3,14 +3,12 @@ import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
-import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsRepositoriesMock } from 'tests/utils/mocks/fetch-vcs-repositories.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 
 describe('RepositoryController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
-  let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
   let configurationTestUtil: ConfigurationTestUtil;
 
@@ -27,7 +25,6 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
     fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
@@ -42,10 +39,9 @@ describe('RepositoryController', () => {
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsRepositoriesMock.restore();
   });
 
   describe('(GET) /repositories', () => {
@@ -74,6 +70,7 @@ describe('RepositoryController', () => {
               vcsType: VCSProvider.GitHub,
               vcsUrl: 'https://github.com/octocat/Hello-World',
               isCurrentUserAdmin: false,
+              defaultBranch: 'master',
               configurations: [
                 {
                   id: configuration.id,

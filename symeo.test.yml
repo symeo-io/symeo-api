@@ -2,6 +2,7 @@ aws:
   secretAccessKey: "0"
   accessKeyId: "0"
   region: "eu-west-3"
+  versionAmountLimit: 20
 database:
   typeorm:
     host: "localhost"
@@ -18,6 +19,8 @@ auth0:
   issuer: "https://symeo-staging.eu.auth0.com/"
   domain: "symeo-staging.eu.auth0.com"
 vcsProvider:
+  github:
+    apiUrl: "https://api.github.com/"
   paginationLength: 1
 logger:
   local: false

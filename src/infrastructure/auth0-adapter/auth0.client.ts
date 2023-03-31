@@ -1,5 +1,5 @@
 import { ManagementClient } from 'auth0';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 
 export class Auth0Client {
   public client: ManagementClient;

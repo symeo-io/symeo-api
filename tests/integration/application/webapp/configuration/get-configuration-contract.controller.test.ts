@@ -6,6 +6,7 @@ import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-toke
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
+import { config } from 'symeo-js';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
@@ -13,7 +14,6 @@ describe('ConfigurationController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsFileMock: FetchVcsFileMock;
   let configurationTestUtil: ConfigurationTestUtil;
-  let mockAccessToken: string;
 
   const currentUser = new User(
     `github|${faker.datatype.number()}`,
@@ -40,25 +40,25 @@ describe('ConfigurationController', () => {
 
   beforeEach(async () => {
     await configurationTestUtil.empty();
-    mockAccessToken = fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchVcsAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
-    fetchVcsFileMock.restore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/contract', () => {
     it('should respond 404 with unknown file', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsRepositoryMock.mockRepositoryMissing();
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
 
-      fetchVcsFileMock.mockFileMissing();
+      fetchVcsFileMock.mockFileMissing(repository.id);
 
       appClient
         .request(currentUser)
@@ -72,14 +72,17 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 and return contract', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        './tests/utils/stubs/configuration/symeo.config.yml',
-      );
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
-
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.repositoryVcsId,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
       const response = await appClient
         .request(currentUser)
         .get(
@@ -87,14 +90,14 @@ describe('ConfigurationController', () => {
         )
         .expect(200);
 
-      expect(fetchVcsFileMock.spy).toHaveBeenCalled();
-      expect(fetchVcsFileMock.spy).toHaveBeenCalledWith({
-        owner: configuration.ownerVcsName,
-        repo: configuration.repositoryVcsName,
-        path: configuration.contractFilePath,
-        ref: configuration.branch,
-        headers: { Authorization: `token ${mockAccessToken}` },
-      });
+      const githubRequest = fetchVcsFileMock.spy.history.get.find(
+        (getRequest) =>
+          getRequest.url ===
+          config.vcsProvider.github.apiUrl +
+            `repositories/${repository.id}/contents/${configuration.contractFilePath}`,
+      );
+      expect(githubRequest).toBeDefined();
+      expect(githubRequest?.params.ref).toEqual(configuration.branch);
       expect(response.body.contract).toBeDefined();
       expect(response.body.contract.database).toBeDefined();
       expect(response.body.contract.database.host).toBeDefined();
@@ -106,14 +109,17 @@ describe('ConfigurationController', () => {
 
     it('should respond 200 and return contract for custom branch', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
-      fetchVcsFileMock.mockSymeoContractFilePresent(
-        './tests/utils/stubs/configuration/symeo.config.yml',
-      );
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
-
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.repositoryVcsId,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
       const requestedBranch = faker.lorem.slug();
       const response = await appClient
         .request(currentUser)
@@ -122,14 +128,14 @@ describe('ConfigurationController', () => {
         )
         .expect(200);
 
-      expect(fetchVcsFileMock.spy).toHaveBeenCalled();
-      expect(fetchVcsFileMock.spy).toHaveBeenCalledWith({
-        owner: configuration.ownerVcsName,
-        repo: configuration.repositoryVcsName,
-        path: configuration.contractFilePath,
-        ref: requestedBranch,
-        headers: { Authorization: `token ${mockAccessToken}` },
-      });
+      const githubRequest = fetchVcsFileMock.spy.history.get.find(
+        (getRequest) =>
+          getRequest.url ===
+          config.vcsProvider.github.apiUrl +
+            `repositories/${repository.id}/contents/${configuration.contractFilePath}`,
+      );
+      expect(githubRequest).toBeDefined();
+      expect(githubRequest?.params.ref).toEqual(requestedBranch);
       expect(response.body.contract).toBeDefined();
       expect(response.body.contract.database).toBeDefined();
       expect(response.body.contract.database.host).toBeDefined();

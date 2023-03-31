@@ -5,6 +5,7 @@ import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
+import { EnvFile } from 'src/domain/model/vcs/env-file.model';
 
 export class RepositoryService implements RepositoryFacade {
   constructor(
@@ -67,6 +68,44 @@ export class RepositoryService implements RepositoryFacade {
     }
   }
 
+  async getEnvFilesForRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<EnvFile[]> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.getEnvFilesForRepositoryIdAndBranch(
+          user,
+          repositoryVcsId,
+          branch,
+        );
+      default:
+        return [];
+    }
+  }
+
+  async commitFileToRepositoryBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void> {
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        return await this.githubAdapterPort.commitFileToRepositoryBranch(
+          user,
+          repositoryVcsId,
+          branch,
+          filePath,
+          fileContent,
+          commitMessage,
+        );
+    }
+  }
+
   async hasAccessToRepository(
     user: User,
     repositoryVcsId: number,
@@ -84,8 +123,7 @@ export class RepositoryService implements RepositoryFacade {
 
   async checkFileExistsOnBranch(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     filePath: string,
     branch: string,
   ): Promise<boolean> {
@@ -93,8 +131,7 @@ export class RepositoryService implements RepositoryFacade {
       case VCSProvider.GitHub:
         return await this.githubAdapterPort.checkFileExistsOnBranch(
           user,
-          repositoryOwnerName,
-          repositoryName,
+          repositoryId,
           filePath,
           branch,
         );
@@ -105,8 +142,7 @@ export class RepositoryService implements RepositoryFacade {
 
   async getFileContent(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryId: number,
     filePath: string,
     branch: string,
   ): Promise<string | undefined> {
@@ -114,8 +150,7 @@ export class RepositoryService implements RepositoryFacade {
       case VCSProvider.GitHub:
         return await this.githubAdapterPort.getFileContent(
           user,
-          repositoryOwnerName,
-          repositoryName,
+          repositoryId,
           filePath,
           branch,
         );

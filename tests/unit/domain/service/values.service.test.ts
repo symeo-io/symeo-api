@@ -10,215 +10,111 @@ import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.stora
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
 import { ValuesService } from 'src/domain/service/values.service';
 import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
-import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { ConfigurationContract } from 'src/domain/model/configuration/configuration-contract.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
+import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 
 describe('ValuesService', () => {
-  describe('findByEnvironmentForWebapp', () => {
-    const mockedSecretValuesStoragePort: SecretValuesStoragePort =
-      mock<SecretValuesStoragePort>();
+  const mockedSecretValuesStoragePort: SecretValuesStoragePort =
+    mock<SecretValuesStoragePort>();
 
-    const mockedConfigurationFacade: ConfigurationFacade =
-      mock<ConfigurationFacade>();
+  const mockedConfigurationFacade: ConfigurationFacade =
+    mock<ConfigurationFacade>();
 
-    const mockedEnvironmentPermissionFacade: EnvironmentPermissionFacade =
-      mock<EnvironmentPermissionFacade>();
+  const mockedEnvironmentPermissionFacade: EnvironmentPermissionFacade =
+    mock<EnvironmentPermissionFacade>();
 
-    const valuesService: ValuesService = new ValuesService(
-      mockedSecretValuesStoragePort,
-      mockedConfigurationFacade,
-      mockedEnvironmentPermissionFacade,
-    );
+  const mockedEnvironmentAuditService: EnvironmentAuditService = mock(
+    EnvironmentAuditService,
+  );
 
-    const mockedConfigurationContract: ConfigurationContract = {
-      aws: {
-        region: {
+  const valuesService: ValuesService = new ValuesService(
+    mockedSecretValuesStoragePort,
+    mockedConfigurationFacade,
+    mockedEnvironmentPermissionFacade,
+    mockedEnvironmentAuditService,
+  );
+
+  const mockedConfigurationContract: ConfigurationContract = {
+    aws: {
+      region: {
+        type: 'string',
+        secret: true,
+      },
+      user: {
+        type: 'string',
+      },
+    },
+    database: {
+      postgres: {
+        host: {
+          type: 'string',
+        },
+        port: {
+          type: 'integer',
+        },
+        password: {
           type: 'string',
           secret: true,
         },
-        user: {
+        type: {
           type: 'string',
         },
       },
-      database: {
-        postgres: {
-          host: {
-            type: 'string',
-          },
-          port: {
-            type: 'integer',
-          },
-          password: {
-            type: 'string',
-            secret: true,
-          },
-          type: {
-            type: 'string',
-          },
-        },
-      },
-    };
+    },
+  };
 
-    const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
-    const currentUser = new User(
-      `github|${vcsUserId}`,
-      faker.internet.email(),
-      faker.name.firstName(),
-      VCSProvider.GitHub,
-      faker.datatype.number(),
-    );
+  const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
+  const currentUser = new User(
+    `github|${vcsUserId}`,
+    faker.internet.email(),
+    faker.name.firstName(),
+    VCSProvider.GitHub,
+    faker.datatype.number(),
+  );
 
-    const vcsRepository: VcsRepository = {
+  const repository: VcsRepository = {
+    id: faker.datatype.number(),
+    name: faker.name.firstName(),
+    owner: {
       id: faker.datatype.number(),
       name: faker.name.firstName(),
-      owner: {
-        id: faker.datatype.number(),
-        name: faker.name.firstName(),
-        avatarUrl: faker.datatype.string(),
-      },
-      vcsType: VCSProvider.GitHub,
-      vcsUrl: faker.datatype.string(),
-      isCurrentUserAdmin: false,
-    };
+      avatarUrl: faker.datatype.string(),
+    },
+    vcsType: VCSProvider.GitHub,
+    vcsUrl: faker.datatype.string(),
+    defaultBranch: faker.lorem.slug(),
+    isCurrentUserAdmin: false,
+  };
 
-    const branchName = 'staging';
-    const environment: Environment = new Environment(
-      uuid(),
-      faker.name.firstName(),
-      'blue',
-      new Date(),
-    );
+  const branchName = 'staging';
+  const environment: Environment = new Environment(
+    uuid(),
+    faker.name.firstName(),
+    'blue',
+    new Date(),
+  );
 
-    const configuration: Configuration = new Configuration(
-      uuid(),
-      faker.name.firstName(),
-      VCSProvider.GitHub,
-      { name: vcsRepository.name, vcsId: vcsRepository.id },
-      { name: vcsRepository.owner.name, vcsId: vcsRepository.owner.id },
-      faker.datatype.string(),
-      branchName,
-      [environment],
-    );
+  const configuration: Configuration = new Configuration(
+    uuid(),
+    faker.name.firstName(),
+    VCSProvider.GitHub,
+    { name: repository.name, vcsId: repository.id },
+    { name: repository.owner.name, vcsId: repository.owner.id },
+    faker.datatype.string(),
+    branchName,
+    [environment],
+  );
 
-    beforeEach(() => {
-      jest
-        .spyOn(mockedConfigurationFacade, 'findContract')
-        .mockImplementation(() => Promise.resolve(mockedConfigurationContract));
-    });
+  beforeEach(() => {
+    jest
+      .spyOn(mockedConfigurationFacade, 'findContract')
+      .mockImplementation(() => Promise.resolve(mockedConfigurationContract));
+  });
 
-    describe('For user with in-base environment permission', () => {
-      it('should return hidden configuration values for contract completely filled with values', async () => {
-        // Given
-        const mockedConfigurationValues: ConfigurationValues = {
-          aws: {
-            region: 'eu-west-3',
-            user: 'fake-user',
-          },
-          database: {
-            postgres: {
-              host: 'fake-host',
-              port: 9999,
-              password: 'password',
-              type: 'postgres',
-            },
-          },
-        };
-
-        // When
-        jest
-          .spyOn(
-            mockedEnvironmentPermissionFacade,
-            'getEnvironmentPermissionRole',
-          )
-          .mockImplementation(() =>
-            Promise.resolve(EnvironmentPermissionRole.READ_NON_SECRET),
-          );
-
-        jest
-          .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
-          .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
-
-        const hiddenConfigurationValues: ConfigurationValues =
-          await valuesService.findByEnvironmentForWebapp(
-            currentUser,
-            vcsRepository,
-            configuration,
-            branchName,
-            environment,
-          );
-
-        // Then
-        expect(hiddenConfigurationValues).toEqual({
-          aws: {
-            region: '*********',
-            user: 'fake-user',
-          },
-          database: {
-            postgres: {
-              host: 'fake-host',
-              port: 9999,
-              password: '********',
-              type: 'postgres',
-            },
-          },
-        });
-      });
-
-      it('should return hidden configuration values for contract partially filled with values', async () => {
-        // Given
-        const mockedConfigurationValues: ConfigurationValues = {
-          aws: {
-            region: 'eu-west-3',
-            user: 'fake-user',
-          },
-          database: {
-            postgres: {
-              host: 'fake-host',
-              port: 9999,
-            },
-          },
-        };
-
-        // When
-        jest
-          .spyOn(
-            mockedEnvironmentPermissionFacade,
-            'getEnvironmentPermissionRole',
-          )
-          .mockImplementation(() =>
-            Promise.resolve(EnvironmentPermissionRole.READ_NON_SECRET),
-          );
-        jest
-          .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
-          .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
-
-        const hiddenConfigurationValues: ConfigurationValues =
-          await valuesService.findByEnvironmentForWebapp(
-            currentUser,
-            vcsRepository,
-            configuration,
-            branchName,
-            environment,
-          );
-
-        // Then
-        expect(hiddenConfigurationValues).toEqual({
-          aws: {
-            region: '*********',
-            user: 'fake-user',
-          },
-          database: {
-            postgres: {
-              host: 'fake-host',
-              port: 9999,
-            },
-          },
-        });
-      });
-    });
-
-    it('should return configurations values without hiding them ', async () => {
+  describe('getHiddenValuesByEnvironmentForWebapp', () => {
+    it('should return hidden configuration values for contract completely filled with values', async () => {
       // Given
       const mockedConfigurationValues: ConfigurationValues = {
         aws: {
@@ -237,28 +133,157 @@ describe('ValuesService', () => {
 
       // When
       jest
-        .spyOn(
-          mockedEnvironmentPermissionFacade,
-          'getEnvironmentPermissionRole',
-        )
-        .mockImplementation(() =>
-          Promise.resolve(EnvironmentPermissionRole.ADMIN),
-        );
-      jest
         .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
         .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
 
       const hiddenConfigurationValues: ConfigurationValues =
-        await valuesService.findByEnvironmentForWebapp(
+        await valuesService.getHiddenValuesByEnvironmentForWebapp(
           currentUser,
-          vcsRepository,
+          repository,
           configuration,
           branchName,
           environment,
         );
 
       // Then
-      expect(hiddenConfigurationValues).toEqual(mockedConfigurationValues);
+      expect(hiddenConfigurationValues).toEqual({
+        aws: {
+          region: '*********',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: '********',
+            type: 'postgres',
+          },
+        },
+      });
+    });
+
+    it('should return hidden configuration values for contract partially filled with values', async () => {
+      // Given
+      const mockedConfigurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+          },
+        },
+      };
+
+      // When
+      jest
+        .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
+        .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
+
+      const hiddenConfigurationValues: ConfigurationValues =
+        await valuesService.getHiddenValuesByEnvironmentForWebapp(
+          currentUser,
+          repository,
+          configuration,
+          branchName,
+          environment,
+        );
+
+      // Then
+      expect(hiddenConfigurationValues).toEqual({
+        aws: {
+          region: '*********',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+          },
+        },
+      });
+    });
+  });
+
+  describe('updateValuesByEnvironmentForWebapp', () => {
+    it('should update configuration values with partial requested values', async () => {
+      const mockedPersistedValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+          },
+        },
+      };
+
+      const requestedValues: ConfigurationValues = {
+        aws: {
+          user: 'new-fake-user',
+        },
+        database: {
+          postgres: {
+            port: 1111,
+          },
+        },
+      };
+
+      // When
+      jest
+        .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
+        .mockImplementation(() => Promise.resolve(mockedPersistedValues));
+      const spySetValuesForEnvironment = jest.spyOn(
+        mockedSecretValuesStoragePort,
+        'setValuesForEnvironment',
+      );
+      const spySaveWithValuesMetadataType = jest.spyOn(
+        mockedEnvironmentAuditService,
+        'saveWithValuesMetadataType',
+      );
+
+      await valuesService.updateValuesByEnvironmentForWebapp(
+        currentUser,
+        repository,
+        configuration,
+        environment,
+        requestedValues,
+      );
+
+      const expectedUpdatedValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'new-fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 1111,
+          },
+        },
+      };
+
+      // Then
+      expect(spySetValuesForEnvironment).toBeCalledTimes(1);
+      expect(spySetValuesForEnvironment).toBeCalledWith(
+        environment,
+        expectedUpdatedValues,
+      );
+      expect(spySaveWithValuesMetadataType).toBeCalledTimes(1);
+      expect(spySaveWithValuesMetadataType).toBeCalledWith(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+        currentUser,
+        repository,
+        environment,
+        {
+          environmentName: environment.name,
+          updatedProperties: ['aws.user', 'database.postgres.port'],
+        },
+      );
     });
   });
 });

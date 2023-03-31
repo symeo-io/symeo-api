@@ -14,6 +14,8 @@ import { EnvironmentPermissionWithUser } from 'src/domain/model/environment-perm
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import { EnvironmentPermissionRole } from 'src/domain/model/environment-permission/environment-permission-role.enum';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
@@ -22,6 +24,7 @@ export class EnvironmentPermissionService
     private githubAdapterPort: GithubAdapterPort,
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
+    private environmentAuditFacade: EnvironmentAuditFacade,
   ) {}
 
   async getEnvironmentPermissionRole(
@@ -40,14 +43,10 @@ export class EnvironmentPermissionService
       return inBaseEnvironmentPermissions.environmentPermissionRole;
     } else {
       const githubUserRepositoryRole: VcsRepositoryRole | undefined =
-        await this.githubAdapterPort.getUserRepositoryRole(
-          user,
-          repository.owner.name,
-          repository.name,
-        );
+        await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
       if (!githubUserRepositoryRole) {
         throw new SymeoException(
-          `User with vcsId ${userVcsId} do not have access to repository with vcsRepositoryId ${repository.id}`,
+          `User with vcsId ${userVcsId} do not have access to repository with repositoryVcsId ${repository.id}`,
           SymeoExceptionCode.REPOSITORY_NOT_FOUND,
         );
       }
@@ -95,15 +94,31 @@ export class EnvironmentPermissionService
   async updateEnvironmentPermissions(
     user: User,
     repository: VcsRepository,
+    environment: Environment,
     environmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]> {
     switch (user.provider) {
       case VCSProvider.GitHub:
-        return this.updateEnvironmentPermissionsWithGithub(
+        const previousEnvironmentPermissions: EnvironmentPermissionWithUser[] =
+          await this.getEnvironmentPermissionsForEnvironmentAndUserVcsIds(
+            user,
+            repository,
+            environment,
+            environmentPermissions,
+          );
+        const updatedEnvironmentPermissions: EnvironmentPermission[] =
+          await this.updateEnvironmentPermissionsWithGithub(
+            environmentPermissions,
+          );
+        await this.environmentAuditFacade.saveAllWithPermissionMetadataType(
+          EnvironmentAuditEventType.PERMISSION_UPDATED,
           user,
           repository,
-          environmentPermissions,
+          environment,
+          previousEnvironmentPermissions,
+          updatedEnvironmentPermissions,
         );
+        return updatedEnvironmentPermissions;
       default:
         return [];
     }
@@ -117,8 +132,7 @@ export class EnvironmentPermissionService
     const githubRepositoryUsers: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
-        repository.owner.name,
-        repository.name,
+        repository.id,
       );
 
     const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
@@ -146,7 +160,7 @@ export class EnvironmentPermissionService
         );
 
       if (!!persistedEnvironmentPermission)
-        return this.environmentPermissionUtils.generateEnvironmentPermissionUser(
+        return this.environmentPermissionUtils.generateEnvironmentPermissionWithUser(
           vcsUser,
           persistedEnvironmentPermission,
         );
@@ -232,15 +246,11 @@ export class EnvironmentPermissionService
     }
 
     const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(
-        user,
-        repository.owner.name,
-        repository.name,
-      );
+      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
 
     if (!userRepositoryRole) {
       throw new SymeoException(
-        `User with vcsId ${user.getVcsUserId()} do not have access to repository with vcsRepositoryId ${
+        `User with vcsId ${user.getVcsUserId()} do not have access to repository with repositoryVcsId ${
           repository.id
         }`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
@@ -268,16 +278,8 @@ export class EnvironmentPermissionService
   }
 
   private async updateEnvironmentPermissionsWithGithub(
-    user: User,
-    repository: VcsRepository,
     environmentPermissionsToUpdate: EnvironmentPermission[],
   ) {
-    await this.validateEnvironmentPermissions(
-      environmentPermissionsToUpdate,
-      user,
-      repository,
-    );
-
     await this.environmentPermissionStoragePort.saveAll(
       environmentPermissionsToUpdate,
     );
@@ -285,49 +287,86 @@ export class EnvironmentPermissionService
     return environmentPermissionsToUpdate;
   }
 
-  private async validateEnvironmentPermissions(
-    environmentPermissionsToUpdate: EnvironmentPermission[],
+  private isUserRepositoryAdministrator(githubRepositoryUser: VcsUser) {
+    return githubRepositoryUser.role === 'admin';
+  }
+
+  private async getEnvironmentPermissionsForEnvironmentAndUserVcsIds(
     user: User,
     repository: VcsRepository,
-  ): Promise<void> {
+    environment: Environment,
+    environmentPermissionsToUpdate: EnvironmentPermission[],
+  ) {
+    const previousEnvironmentPermissions: EnvironmentPermissionWithUser[] = [];
+    const permissionUserIdsNotInGithubUsers: number[] = [];
+
     const githubRepositoryUsersWithRole: VcsUser[] =
       await this.githubAdapterPort.getCollaboratorsForRepository(
         user,
-        repository.owner.name,
-        repository.name,
+        repository.id,
       );
 
-    const permissionUserIdsNotInGithubUsers: number[] = [];
+    const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
+      await this.environmentPermissionStoragePort.findForEnvironmentId(
+        environment.id,
+      );
 
     environmentPermissionsToUpdate.forEach((environmentPermissionToUpdate) => {
+      const persistedEnvironmentPermissionForId =
+        persistedEnvironmentPermissionsForEnvironmentId.find(
+          (persistedEnvironmentPermissionForEnvironmentId) =>
+            persistedEnvironmentPermissionForEnvironmentId.id ===
+            environmentPermissionToUpdate.id,
+        );
+
       const githubRepositoryUser = githubRepositoryUsersWithRole.find(
         (vcsUser) => environmentPermissionToUpdate.userVcsId === vcsUser.id,
       );
+
       if (!githubRepositoryUser) {
         permissionUserIdsNotInGithubUsers.push(
           environmentPermissionToUpdate.userVcsId,
         );
-      } else if (this.isUserRepositoryAdministrator(githubRepositoryUser)) {
+        return;
+      }
+
+      if (this.isUserRepositoryAdministrator(githubRepositoryUser)) {
         throw new SymeoException(
           `User with vcsId ${githubRepositoryUser.id} is administrator of the repository, thus you can not modify his environment permissions`,
           SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION,
         );
       }
+
+      if (persistedEnvironmentPermissionForId) {
+        previousEnvironmentPermissions.push(
+          this.environmentPermissionUtils.generateEnvironmentPermissionWithUser(
+            githubRepositoryUser,
+            persistedEnvironmentPermissionForId,
+          ),
+        );
+        return;
+      }
+
+      previousEnvironmentPermissions.push(
+        this.environmentPermissionUtils.generateDefaultEnvironmentPermissionFromVcsUser(
+          githubRepositoryUser,
+          environment,
+        ),
+      );
+      return;
     });
 
     if (permissionUserIdsNotInGithubUsers.length > 0) {
       throw new SymeoException(
         `User with vcsIds ${permissionUserIdsNotInGithubUsers.join(
           ', ',
-        )} do not have access to repository with vcsRepositoryId ${
+        )} do not have access to repository with repositoryVcsId ${
           repository.id
         }`,
         SymeoExceptionCode.REPOSITORY_NOT_FOUND,
       );
     }
-  }
 
-  private isUserRepositoryAdministrator(githubRepositoryUser: VcsUser) {
-    return githubRepositoryUser.role === 'admin';
+    return previousEnvironmentPermissions;
   }
 }

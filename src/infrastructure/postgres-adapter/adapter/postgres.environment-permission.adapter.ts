@@ -10,37 +10,6 @@ export class PostgresEnvironmentPermissionAdapter
   constructor(
     private environmentPermissionRepository: Repository<EnvironmentPermissionEntity>,
   ) {}
-  async findForEnvironmentIdAndVcsUserIds(
-    environmentId: string,
-    vcsUserIds: number[],
-  ): Promise<EnvironmentPermission[]> {
-    const clock = Date.now();
-    Logger.log(
-      `Starting to fetch persisted EnvironmentPermissions for environmentId ${environmentId} and vcsUserIds ${vcsUserIds.join(
-        ', ',
-      )}`,
-    );
-    const entities = await this.environmentPermissionRepository.find({
-      relations: {
-        environment: true,
-      },
-      where: {
-        userVcsId: In(vcsUserIds),
-        environment: {
-          id: environmentId,
-        },
-      },
-    });
-
-    if (!entities) return [];
-    Logger.log(
-      `Persisted EnvironmentPermissions successfully fetched for environmentId ${environmentId} and vcsUserIds ${vcsUserIds.join(
-        ', ',
-      )} - Executed in : ${(Date.now() - clock) / 1000} s`,
-    );
-    return entities.map((entity) => entity.toDomain());
-  }
-
   async findForEnvironmentIdAndVcsUserId(
     environmentId: string,
     userVcsId: number,

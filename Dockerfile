@@ -21,4 +21,4 @@ ENV TZ=UTC
 ENV SYMEO_API_KEY=$symeo_api_key
 
 EXPOSE 9999
-CMD node_modules/.bin/symeo-js --api-key $SYMEO_API_KEY -- node /var/app/dist/main.js
+CMD node_modules/.bin/symeo-js start --api-key $SYMEO_API_KEY -- node /var/app/dist/main.js

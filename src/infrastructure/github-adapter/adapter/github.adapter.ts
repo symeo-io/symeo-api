@@ -1,5 +1,5 @@
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
-import { config } from 'symeo-js/config';
+import { config } from 'symeo-js';
 import { GithubOrganizationMapper } from 'src/infrastructure/github-adapter/mapper/github.organization.mapper';
 import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';
@@ -7,23 +7,27 @@ import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { GithubRepositoryMapper } from 'src/infrastructure/github-adapter/mapper/github.repository.mapper';
 import { uniqBy } from 'lodash';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods/dist-types/generated/parameters-and-response-types';
 import { GithubBranchMapper } from 'src/infrastructure/github-adapter/mapper/github.branch.mapper';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/mapper/github.collaborators.mapper';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
-import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
+import { plainToInstance } from 'class-transformer';
+import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
+import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
+import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
+import { GithubUserPermissionDTO } from 'src/infrastructure/github-adapter/dto/github.user.permission.dto';
+import { EnvFile } from 'src/domain/model/vcs/env-file.model';
+import { SymeoException } from 'src/domain/exception/symeo.exception';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 @Injectable()
 export default class GithubAdapter implements GithubAdapterPort {
   constructor(private githubHttpClient: GithubHttpClient) {}
 
   async getOrganizations(user: User): Promise<VcsOrganization[]> {
-    const clock = Date.now();
-    Logger.log(
-      `Starting to fetch Organizations through VcsRepositories on Github for user ${user.id}`,
-    );
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     let githubRepositoriesForUserDTO =
@@ -41,20 +45,18 @@ export default class GithubAdapter implements GithubAdapterPort {
     }
 
     if (alreadyCollectedRepositoriesDTO.length === 0) {
+      const authenticatedUser =
+        await this.githubHttpClient.getAuthenticatedUser(user);
       return [
         GithubOrganizationMapper.githubUserDtoToDomain(
-          await this.githubHttpClient.getAuthenticatedUser(user),
+          plainToInstance(GithubAuthenticatedUserDTO, authenticatedUser),
         ),
       ];
     }
 
     const gitHubOrganizationsDTO = alreadyCollectedRepositoriesDTO.map(
-      (repository) => repository.owner,
-    );
-    Logger.log(
-      `Organizations successfully fetched through VcsRepositories from Github for user ${
-        user.id
-      } - Executed in : ${(Date.now() - clock) / 1000} s`,
+      (repositoryDTO) =>
+        plainToInstance(GithubRepositoryDTO, repositoryDTO).owner,
     );
     return GithubOrganizationMapper.dtoToDomains(
       uniqBy(gitHubOrganizationsDTO, 'id'),
@@ -65,10 +67,6 @@ export default class GithubAdapter implements GithubAdapterPort {
     user: User,
     repositoryVcsId: number,
   ): Promise<VcsRepository | undefined> {
-    const clock = Date.now();
-    Logger.log(
-      `Starting to fetch VcsRepository on Github for vcsRepositoryId ${repositoryVcsId}`,
-    );
     const gitHubRepository = await this.githubHttpClient.getRepositoryById(
       user,
       repositoryVcsId,
@@ -78,14 +76,8 @@ export default class GithubAdapter implements GithubAdapterPort {
       return undefined;
     }
 
-    Logger.log(
-      `VcsRepository successfully fetched from Github for vcsRepositoryId ${repositoryVcsId} - Executed in : ${
-        (Date.now() - clock) / 1000
-      } s`,
-    );
-
     return GithubRepositoryMapper.dtoToDomain(
-      gitHubRepository as RestEndpointMethodTypes['repos']['listForAuthenticatedUser']['response']['data'][0],
+      plainToInstance(GithubRepositoryDTO, gitHubRepository),
     );
   }
 
@@ -93,10 +85,6 @@ export default class GithubAdapter implements GithubAdapterPort {
     user: User,
     repositoryVcsId: number,
   ): Promise<VcsBranch[]> {
-    const clock = Date.now();
-    Logger.log(
-      `Starting to fetch VcsBranches on Github for vcsRepositoryId ${repositoryVcsId}`,
-    );
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     let githubBranchesDTO =
@@ -120,12 +108,45 @@ export default class GithubAdapter implements GithubAdapterPort {
       alreadyCollectedBranchesDTO =
         alreadyCollectedBranchesDTO.concat(githubBranchesDTO);
     }
-    Logger.log(
-      `VcsBranches successfully fetched from Github for vcsRepositoryId ${repositoryVcsId} - Executed in : ${
-        (Date.now() - clock) / 1000
-      } s`,
+    return GithubBranchMapper.dtoToDomains(
+      alreadyCollectedBranchesDTO.map((branchDTO) =>
+        plainToInstance(GithubBranchDTO, branchDTO),
+      ),
     );
-    return GithubBranchMapper.dtoToDomains(alreadyCollectedBranchesDTO);
+  }
+
+  async getEnvFilesForRepositoryIdAndBranch(
+    user: User,
+    repositoryVcsId: number,
+    branch: string,
+  ): Promise<EnvFile[]> {
+    const files = await this.githubHttpClient.getFilesByRepositoryIdAndBranch(
+      user,
+      repositoryVcsId,
+      branch,
+    );
+    const rawEnvFiles = files.filter(
+      (file) => file.type === 'blob' && this.isEnvFile(file.path),
+    );
+    const envFilesContents = await Promise.all(
+      rawEnvFiles.map((rawEnvFile) =>
+        this.githubHttpClient.getFileContent(
+          user,
+          repositoryVcsId,
+          rawEnvFile.path,
+          branch,
+        ),
+      ),
+    );
+    const envFiles: EnvFile[] = [];
+
+    for (let i = 0; i < rawEnvFiles.length; i++) {
+      envFiles.push(
+        new EnvFile(rawEnvFiles[i].path, envFilesContents[i] ?? ''),
+      );
+    }
+
+    return envFiles;
   }
 
   async hasAccessToRepository(
@@ -136,8 +157,6 @@ export default class GithubAdapter implements GithubAdapterPort {
   }
 
   async getRepositories(user: User): Promise<VcsRepository[]> {
-    const clock = Date.now();
-    Logger.log(`Starting to fetch repositories on Github for user ${user.id}`);
     let page = 1;
     const perPage: number = config.vcsProvider.paginationLength;
     let githubRepositoriesForOrganizationDTO =
@@ -151,25 +170,22 @@ export default class GithubAdapter implements GithubAdapterPort {
         githubRepositoriesForOrganizationDTO,
       );
     }
-    Logger.log(
-      `VcsRepositories successfully fetched from Github for user ${
-        user.id
-      } - Executed in : ${(Date.now() - clock) / 1000} s`,
+    return GithubRepositoryMapper.dtoToDomains(
+      alreadyCollectedRepositoriesDTO.map((repositoryDTO) =>
+        plainToInstance(GithubRepositoryDTO, repositoryDTO),
+      ),
     );
-    return GithubRepositoryMapper.dtoToDomains(alreadyCollectedRepositoriesDTO);
   }
 
   async checkFileExistsOnBranch(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
     filePath: string,
     branch: string,
   ): Promise<boolean> {
     return await this.githubHttpClient.checkFileExistsOnBranch(
       user,
-      repositoryOwnerName,
-      repositoryName,
+      repositoryVcsId,
       filePath,
       branch,
     );
@@ -177,15 +193,13 @@ export default class GithubAdapter implements GithubAdapterPort {
 
   async getFileContent(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
     filePath: string,
     branch: string,
   ): Promise<string | undefined> {
     return await this.githubHttpClient.getFileContent(
       user,
-      repositoryOwnerName,
-      repositoryName,
+      repositoryVcsId,
       filePath,
       branch,
     );
@@ -193,20 +207,14 @@ export default class GithubAdapter implements GithubAdapterPort {
 
   async getCollaboratorsForRepository(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
   ): Promise<VcsUser[]> {
-    const clock = Date.now();
-    Logger.log(
-      `Starting to fetch Collaborators on Github for userId ${user.id}, repositoryOwnerName ${repositoryOwnerName} and repositoryName ${repositoryName}`,
-    );
     let page = 1;
     const perPage = config.vcsProvider.paginationLength;
     let githubCollaboratorsDTO =
       await this.githubHttpClient.getCollaboratorsForRepository(
         user,
-        repositoryOwnerName,
-        repositoryName,
+        repositoryVcsId,
         page,
         perPage,
       );
@@ -216,8 +224,7 @@ export default class GithubAdapter implements GithubAdapterPort {
       githubCollaboratorsDTO =
         await this.githubHttpClient.getCollaboratorsForRepository(
           user,
-          repositoryOwnerName,
-          repositoryName,
+          repositoryVcsId,
           page,
           perPage,
         );
@@ -225,35 +232,80 @@ export default class GithubAdapter implements GithubAdapterPort {
         alreadyCollectedCollaboratorsDTO.concat(githubCollaboratorsDTO);
     }
 
-    Logger.log(
-      `Collaborators successfully fetched from Github for userId ${
-        user.id
-      }, repositoryOwnerName ${repositoryOwnerName} and repositoryName ${repositoryName} - Executed in : ${
-        (Date.now() - clock) / 1000
-      } s`,
-    );
-
     return GithubCollaboratorsMapper.dtoToDomains(
-      alreadyCollectedCollaboratorsDTO,
+      alreadyCollectedCollaboratorsDTO.map((collaboratorDTO) =>
+        plainToInstance(GithubCollaboratorDTO, collaboratorDTO),
+      ),
     );
   }
 
   async getUserRepositoryRole(
     user: User,
-    repositoryOwnerName: string,
-    repositoryName: string,
+    repositoryVcsId: number,
   ): Promise<VcsRepositoryRole | undefined> {
     const repositoryPermission =
       await this.githubHttpClient.getUserRepositoryPermission(
         user,
-        repositoryOwnerName,
-        repositoryName,
+        repositoryVcsId,
       );
 
     if (!repositoryPermission) {
       return undefined;
     }
 
-    return repositoryPermission.role_name as VcsRepositoryRole;
+    return plainToInstance(GithubUserPermissionDTO, repositoryPermission)
+      .roleName as VcsRepositoryRole;
+  }
+
+  async commitFileToRepositoryBranch(
+    user: User,
+    repositoryId: number,
+    branch: string,
+    filePath: string,
+    fileContent: string,
+    commitMessage: string,
+  ): Promise<void> {
+    const branchData = await this.githubHttpClient.getRepositoryBranch(
+      user,
+      repositoryId,
+      branch,
+    );
+
+    if (!branchData) {
+      throw new SymeoException(
+        `Error when committing file to repository ${repositoryId}, unknown branch ${branch}`,
+        SymeoExceptionCode.COMMITTING_FILE_ERROR,
+      );
+    }
+
+    const blob = await this.githubHttpClient.createBlobForRepository(
+      user,
+      repositoryId,
+      fileContent,
+    );
+    const tree = await this.githubHttpClient.createTreeForFileAndRepository(
+      user,
+      repositoryId,
+      branchData.commit.sha,
+      filePath,
+      blob.sha,
+    );
+    const commit = await this.githubHttpClient.createCommitForRepository(
+      user,
+      repositoryId,
+      branchData.commit.sha,
+      tree.sha,
+      commitMessage,
+    );
+    await this.githubHttpClient.updateBranchReferenceForRepository(
+      user,
+      repositoryId,
+      branch,
+      commit.sha,
+    );
+  }
+
+  private isEnvFile(path: string): boolean {
+    return !!path.match(/^.*\/.env[^\/]*$/) || !!path.match(/^.env[^\/]*$/);
   }
 }

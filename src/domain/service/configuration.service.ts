@@ -14,6 +14,8 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-permission.facade.port';
 import { SecretValuesStoragePort } from 'src/domain/port/out/secret-values.storage.port';
+import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
+import ConfigurationAuditFacade from 'src/domain/port/in/configuration-audit.facade.port';
 
 export default class ConfigurationService implements ConfigurationFacade {
   constructor(
@@ -21,27 +23,8 @@ export default class ConfigurationService implements ConfigurationFacade {
     private readonly repositoryFacade: RepositoryFacade,
     private readonly environmentPermissionFacade: EnvironmentPermissionFacade,
     private readonly secretValuesStoragePort: SecretValuesStoragePort,
+    private readonly configurationAuditFacade: ConfigurationAuditFacade,
   ) {}
-
-  async findById(
-    repository: VcsRepository,
-    id: string,
-  ): Promise<Configuration> {
-    const configuration = await this.configurationStoragePort.findById(
-      repository.vcsType,
-      repository.id,
-      id,
-    );
-
-    if (!configuration) {
-      throw new SymeoException(
-        `Configuration not found for id ${id}`,
-        SymeoExceptionCode.CONFIGURATION_NOT_FOUND,
-      );
-    }
-
-    return configuration;
-  }
 
   async findAllForRepository(
     repository: VcsRepository,
@@ -73,8 +56,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     const fileExistsOnBranch =
       await this.repositoryFacade.checkFileExistsOnBranch(
         user,
-        repository.owner.name,
-        repository.name,
+        repository.id,
         contractFilePath,
         branch,
       );
@@ -97,8 +79,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     const requestedBranchName = branchName ?? configuration.branch;
     const contractString = await this.repositoryFacade.getFileContent(
       user,
-      configuration.owner.name,
-      configuration.repository.name,
+      configuration.repository.vcsId,
       configuration.contractFilePath,
       requestedBranchName,
     );
@@ -126,7 +107,7 @@ export default class ConfigurationService implements ConfigurationFacade {
   }
 
   async createForRepository(
-    user: User,
+    currentUser: User,
     repository: VcsRepository,
     name: string,
     contractFilePath: string,
@@ -134,9 +115,8 @@ export default class ConfigurationService implements ConfigurationFacade {
   ): Promise<Configuration> {
     const fileExistsOnBranch =
       await this.repositoryFacade.checkFileExistsOnBranch(
-        user,
-        repository.owner.name,
-        repository.name,
+        currentUser,
+        repository.id,
         contractFilePath,
         branch,
       );
@@ -169,10 +149,22 @@ export default class ConfigurationService implements ConfigurationFacade {
     );
 
     await this.configurationStoragePort.save(configuration);
+
+    await this.configurationAuditFacade.save(
+      ConfigurationAuditEventType.CREATED,
+      currentUser,
+      repository,
+      configuration,
+      branch,
+      contractFilePath,
+    );
+
     return configuration;
   }
 
   async update(
+    currentUser: User,
+    repository: VcsRepository,
     configuration: Configuration,
     name: string,
     contractFilePath: string,
@@ -184,14 +176,33 @@ export default class ConfigurationService implements ConfigurationFacade {
 
     await this.configurationStoragePort.save(configuration);
 
+    await this.configurationAuditFacade.save(
+      ConfigurationAuditEventType.UPDATED,
+      currentUser,
+      repository,
+      configuration,
+      branch,
+      contractFilePath,
+    );
+
     return configuration;
   }
 
-  async delete(configuration: Configuration): Promise<void> {
+  async delete(
+    currentUser: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ): Promise<void> {
     await Promise.all(
       configuration.environments.map((environment) =>
         this.secretValuesStoragePort.deleteValuesForEnvironment(environment),
       ),
+    );
+    await this.configurationAuditFacade.save(
+      ConfigurationAuditEventType.DELETED,
+      currentUser,
+      repository,
+      configuration,
     );
     return this.configurationStoragePort.delete(configuration);
   }

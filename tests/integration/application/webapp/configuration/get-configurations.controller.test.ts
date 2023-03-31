@@ -40,14 +40,16 @@ describe('ConfigurationController', () => {
   });
 
   afterEach(() => {
+    appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
   });
 
   describe('(GET) /configurations/github/:repositoryVcsId', () => {
     it('should respond 200 and return repository configurations', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
       await configurationTestUtil.createConfiguration(repository.id);
       await configurationTestUtil.createConfiguration(repository.id);
 

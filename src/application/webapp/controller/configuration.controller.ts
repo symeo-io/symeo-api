@@ -21,7 +21,7 @@ import { ValidateCreateGithubConfigurationParametersResponseDTO } from 'src/appl
 import { CreateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/create-github-configuration.response.dto';
 import { GetConfigurationContractResponseDTO } from 'src/application/webapp/dto/contract/get-configuration-contract.response.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UpdateGitHubConfigurationDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.dto';
 import { UpdateGitHubConfigurationResponseDTO } from 'src/application/webapp/dto/configuration/update-github-configuration.response.dto';
 import { ConfigurationAuthorizationGuard } from 'src/application/webapp/authorization/ConfigurationAuthorizationGuard';
@@ -91,6 +91,7 @@ export class ConfigurationController {
   })
   @Get('github/:repositoryVcsId/:configurationId/contract')
   @UseGuards(ConfigurationAuthorizationGuard)
+  @ApiQuery({ name: 'branch', required: false })
   async getGitHubConfigurationContractById(
     @RequestedConfiguration() configuration: Configuration,
     @Query('branch') branch: string | undefined,
@@ -129,9 +130,15 @@ export class ConfigurationController {
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async deleteGitHubConfigurationById(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
   ): Promise<void> {
-    await this.configurationFacade.delete(configuration);
+    await this.configurationFacade.delete(
+      currentUser,
+      repository,
+      configuration,
+    );
   }
 
   @ApiOkResponse({
@@ -165,10 +172,14 @@ export class ConfigurationController {
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async updateForGitHub(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
     @RequestedConfiguration() configuration: Configuration,
     @Body() updateConfigurationDTO: UpdateGitHubConfigurationDTO,
   ): Promise<UpdateGitHubConfigurationResponseDTO> {
     const updatedConfiguration = await this.configurationFacade.update(
+      currentUser,
+      repository,
       configuration,
       updateConfigurationDTO.name,
       updateConfigurationDTO.contractFilePath,

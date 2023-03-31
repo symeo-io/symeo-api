@@ -8,6 +8,8 @@ import { ValuesController } from 'src/application/webapp/controller/values.contr
 import { EnvironmentController } from 'src/application/webapp/controller/environment.controller';
 import { ApiKeyController } from 'src/application/webapp/controller/api-key.controller';
 import { EnvironmentPermissionController } from 'src/application/webapp/controller/environment-permission.controller';
+import { AuditController } from 'src/application/webapp/controller/audit.controller';
+import { ValuesVersionController } from 'src/application/webapp/controller/values-version.controller';
 
 @Module({
   imports: [DomainModule, WebappAuthenticationModule],
@@ -19,6 +21,8 @@ import { EnvironmentPermissionController } from 'src/application/webapp/controll
     EnvironmentController,
     ApiKeyController,
     EnvironmentPermissionController,
+    AuditController,
+    ValuesVersionController,
   ],
 })
 export class WebappApplicationModule {}

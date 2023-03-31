@@ -33,6 +33,8 @@ export class VcsRepositoryDTO {
   configurations?: ConfigurationDTO[];
   @ApiProperty()
   isCurrentUserAdmin: boolean;
+  @ApiProperty()
+  defaultBranch: string;
 
   constructor(
     vcsId: number,
@@ -42,6 +44,7 @@ export class VcsRepositoryDTO {
     vcsType: VCSProvider,
     vcsUrl: string,
     isCurrentUserRepositoryAdmin: boolean,
+    defaultBranch: string,
     configurations?: ConfigurationDTO[],
   ) {
     this.vcsId = vcsId;
@@ -51,6 +54,7 @@ export class VcsRepositoryDTO {
     this.vcsType = vcsType;
     this.vcsUrl = vcsUrl;
     this.isCurrentUserAdmin = isCurrentUserRepositoryAdmin;
+    this.defaultBranch = defaultBranch;
     this.configurations = configurations;
   }
 
@@ -71,6 +75,7 @@ export class VcsRepositoryDTO {
       repository.vcsType,
       repository.vcsUrl,
       repository.isCurrentUserAdmin,
+      repository.defaultBranch,
       repository.configurations?.map((configuration) =>
         ConfigurationDTO.fromDomain(configuration),
       ),

@@ -5,8 +5,6 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
 
 export default interface ConfigurationFacade {
-  findById(repository: VcsRepository, id: string): Promise<Configuration>;
-
   findAllForRepository(repository: VcsRepository): Promise<Configuration[]>;
 
   validateCreateForUser(
@@ -37,11 +35,17 @@ export default interface ConfigurationFacade {
   ): Promise<Configuration>;
 
   update(
+    currentUser: User,
+    repository: VcsRepository,
     configuration: Configuration,
     name: string,
     contractFilePath: string,
     branch: string,
   ): Promise<Configuration>;
 
-  delete(configuration: Configuration): Promise<void>;
+  delete(
+    currentUser: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ): Promise<void>;
 }

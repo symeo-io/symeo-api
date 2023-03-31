@@ -14,18 +14,25 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 import { FetchUserVcsRepositoryPermissionMock } from 'tests/utils/mocks/fetch-user-vcs-repository-permission.mock';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
+import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
+import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import { ConfigurationValues } from 'src/domain/model/configuration/configuration-values.model';
 
 describe('ValuesController', () => {
   let appClient: AppClient;
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
+  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let fetchSecretMock: FetchSecretMock;
+  let fetchVcsFileMock: FetchVcsFileMock;
   let updateSecretMock: UpdateSecretMock;
   let createSecretMock: CreateSecretMock;
-  let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentPermissionTestUtil: EnvironmentPermissionTestUtil;
+  let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
   const userVcsId = faker.datatype.number();
   const currentUser = new User(
@@ -41,18 +48,20 @@ describe('ValuesController', () => {
 
     await appClient.init();
 
-    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
-    fetchSecretMock = new FetchSecretMock(appClient);
-    updateSecretMock = new UpdateSecretMock(appClient);
-    createSecretMock = new CreateSecretMock(appClient);
+    fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
+    fetchSecretMock = new FetchSecretMock(appClient);
+    fetchVcsFileMock = new FetchVcsFileMock(appClient);
+    updateSecretMock = new UpdateSecretMock(appClient);
+    createSecretMock = new CreateSecretMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
     environmentTestUtil = new EnvironmentTestUtil(appClient);
     environmentPermissionTestUtil = new EnvironmentPermissionTestUtil(
       appClient,
     );
+    environmentAuditTestUtil = new EnvironmentAuditTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -63,25 +72,29 @@ describe('ValuesController', () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
     await environmentPermissionTestUtil.empty();
+    await environmentAuditTestUtil.empty();
     fetchVcsAccessTokenMock.mockAccessTokenPresent();
-    fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-      VcsRepositoryRole.ADMIN,
-    );
   });
 
   afterEach(() => {
     fetchVcsAccessTokenMock.restore();
-    fetchVcsRepositoryMock.restore();
     fetchSecretMock.restore();
     updateSecretMock.restore();
     createSecretMock.restore();
-    fetchUserVcsRepositoryPermissionMock.restore();
+    appClient.mockReset();
   });
 
   describe('(POST) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
     it('should return 403 for current user without write permission', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.id,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
@@ -112,21 +125,67 @@ describe('ValuesController', () => {
       expect(response.body.message).toBe(
         `User with userVcsId ${userVcsId} is trying to access resources he do not have permission for (minimum ${EnvironmentPermissionRole.WRITE} permission required)`,
       );
+      const environmentAuditEntities: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntities.length).toEqual(0);
     });
 
-    it('should update secret if it exists', async () => {
+    it('should update secret if it exists for full values replacement', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.id,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchSecretMock.mockSecretPresent({ aws: { region: 'eu-west-3' } });
+
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
+
+      fetchSecretMock.mockSecretPresent(configurationValues);
       updateSecretMock.mock();
 
-      const sentValues = { aws: { region: 'eu-west-3' } };
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.repositoryVcsId,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
+      const sentValues = {
+        aws: {
+          region: faker.datatype.string(),
+          user: faker.datatype.string(),
+        },
+        database: {
+          postgres: {
+            host: faker.datatype.string(),
+            port: faker.datatype.number(),
+            password: faker.datatype.string(),
+            type: faker.datatype.string(),
+          },
+        },
+      };
+
       await appClient
         .request(currentUser)
         .post(
@@ -135,7 +194,7 @@ describe('ValuesController', () => {
         .send({ values: sentValues })
         .expect(200);
 
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(2);
       expect(fetchSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
       });
@@ -144,21 +203,86 @@ describe('ValuesController', () => {
         SecretId: environment.id,
         SecretString: JSON.stringify(sentValues),
       });
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        repositoryVcsId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          environmentName: environment.name,
+          updatedProperties: [
+            'aws.region',
+            'aws.user',
+            'database.postgres.host',
+            'database.postgres.port',
+            'database.postgres.password',
+            'database.postgres.type',
+          ],
+        },
+      });
     });
 
-    it('should create secret if it does not exists', async () => {
+    it('should update secret if it exists for partial values replacement', async () => {
       // Given
-      const repository = fetchVcsRepositoryMock.mockRepositoryPresent();
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.id,
+        VcsRepositoryRole.ADMIN,
+      );
       const configuration = await configurationTestUtil.createConfiguration(
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchSecretMock.mockSecretMissing();
-      createSecretMock.mock();
+      const configurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+            password: 'password',
+            type: 'postgres',
+          },
+        },
+      };
 
-      const sentValues = { aws: { region: 'eu-west-3' } };
+      fetchSecretMock.mockSecretPresent(configurationValues);
+      updateSecretMock.mock();
+
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.repositoryVcsId,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
+      const sentValues = {
+        aws: {
+          region: faker.datatype.string(),
+        },
+        database: {
+          postgres: {
+            host: faker.datatype.string(),
+          },
+        },
+      };
+
       await appClient
         .request(currentUser)
         .post(
@@ -167,7 +291,99 @@ describe('ValuesController', () => {
         .send({ values: sentValues })
         .expect(200);
 
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(2);
+      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+      });
+      expect(updateSecretMock.spy).toHaveBeenCalledTimes(1);
+      expect(updateSecretMock.spy).toHaveBeenCalledWith({
+        SecretId: environment.id,
+        SecretString: JSON.stringify({
+          aws: {
+            region: sentValues.aws.region,
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: sentValues.database.postgres.host,
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        }),
+      });
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        repositoryVcsId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          environmentName: environment.name,
+          updatedProperties: ['aws.region', 'database.postgres.host'],
+        },
+      });
+    });
+
+    it('should create secret if it does not exists', async () => {
+      // Given
+      const repositoryVcsId = faker.datatype.number();
+      const repository =
+        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+        currentUser,
+        repository.id,
+        VcsRepositoryRole.ADMIN,
+      );
+      const configuration = await configurationTestUtil.createConfiguration(
+        repository.id,
+      );
+      const environment = await environmentTestUtil.createEnvironment(
+        configuration,
+      );
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.repositoryVcsId,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.yml',
+      );
+      fetchSecretMock.mockSecretMissing();
+      createSecretMock.mock();
+
+      fetchVcsFileMock.mockSymeoContractFilePresent(
+        configuration.repositoryVcsId,
+        configuration.contractFilePath,
+        './tests/utils/stubs/configuration/symeo.config.secret.yml',
+      );
+
+      const sentValues = {
+        aws: {
+          region: faker.datatype.string(),
+        },
+        database: {
+          postgres: {
+            host: faker.datatype.string(),
+          },
+        },
+      };
+
+      await appClient
+        .request(currentUser)
+        .post(
+          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values`,
+        )
+        .send({ values: sentValues })
+        .expect(200);
+
+      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(2);
       expect(fetchSecretMock.spy).toHaveBeenCalledWith({
         SecretId: environment.id,
       });
@@ -175,6 +391,26 @@ describe('ValuesController', () => {
       expect(createSecretMock.spy).toHaveBeenCalledWith({
         Name: environment.id,
         SecretString: JSON.stringify(sentValues),
+      });
+
+      const environmentAuditEntity: EnvironmentAuditEntity[] =
+        await environmentAuditTestUtil.repository.find();
+      expect(environmentAuditEntity.length).toEqual(1);
+      expect(environmentAuditEntity[0].id).toBeDefined();
+      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
+      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+        repositoryVcsId,
+      );
+      expect(environmentAuditEntity[0].eventType).toEqual(
+        EnvironmentAuditEventType.VALUES_UPDATED,
+      );
+      expect(environmentAuditEntity[0].metadata).toEqual({
+        metadata: {
+          environmentName: environment.name,
+          updatedProperties: ['aws.region', 'database.postgres.host'],
+        },
       });
     });
   });
