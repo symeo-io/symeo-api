@@ -68,11 +68,12 @@ describe('ApiKeyController', () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,

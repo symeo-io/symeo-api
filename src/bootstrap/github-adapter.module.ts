@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
+import { Auth0AdapterModule } from 'src/bootstrap/auth0-adapter.module';
 import { GithubHttpClient } from '../infrastructure/github-adapter/github.http.client';
 import GithubAdapter from '../infrastructure/github-adapter/adapter/github.adapter';
 import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Auth0AdapterModule } from 'src/bootstrap/auth0-adapter.module';
 import axios, { AxiosInstance } from 'axios';
 
 const GithubAdapterProvider = {
@@ -18,11 +18,11 @@ const GithubHttpClientProvider = {
     vcsAccessTokenStorage: VCSAccessTokenStorage,
     client: AxiosInstance,
   ) => new GithubHttpClient(vcsAccessTokenStorage, client),
-  inject: ['VCSAccessTokenAdapter', 'AxiosInstance'],
+  inject: ['VCSAccessTokenAdapter', 'AxiosInstanceGithub'],
 };
 
 const AxiosInstanceProvider = {
-  provide: 'AxiosInstance',
+  provide: 'AxiosInstanceGithub',
   useValue: axios.create(),
 };
 

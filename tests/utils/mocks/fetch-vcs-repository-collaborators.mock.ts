@@ -7,7 +7,7 @@ export class FetchVcsRepositoryCollaboratorsMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.spy = appClient.axiosMockGithub;
   }
 
   public mockCollaboratorsPresent(repositoryId: number): void {

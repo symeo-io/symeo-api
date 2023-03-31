@@ -62,14 +62,15 @@ describe('ValuesController', () => {
       );
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
+      fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
         configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',
@@ -132,14 +133,15 @@ describe('ValuesController', () => {
       );
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(
         configuration,
       );
-      fetchVcsFileMock.mockSymeoContractFilePresent(
+      fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
         configuration.repositoryVcsId,
         configuration.contractFilePath,
         './tests/utils/stubs/configuration/symeo.config.secret.yml',

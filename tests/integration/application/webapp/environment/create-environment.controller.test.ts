@@ -65,11 +65,12 @@ describe('EnvironmentController', () => {
     it('Should return 403 and not create new environment for user without permission', async () => {
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.WRITE,
@@ -100,11 +101,12 @@ describe('EnvironmentController', () => {
     it('Should return 201 and create new environment', async () => {
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
+      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
         currentUser,
         repository.id,
         VcsRepositoryRole.ADMIN,

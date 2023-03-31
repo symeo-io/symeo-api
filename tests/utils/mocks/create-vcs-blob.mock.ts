@@ -7,7 +7,7 @@ export class CreateVcsBlobMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.spy = appClient.axiosMockGithub;
   }
 
   public mockCreateRepositoryBlob(repositoryVcsId: number) {

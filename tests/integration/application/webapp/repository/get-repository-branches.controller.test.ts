@@ -10,14 +10,6 @@ describe('RepositoryController', () => {
   let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
   let fetchVcsRepositoryBranchesMock: FetchVcsRepositoryBranchesMock;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -43,47 +35,98 @@ describe('RepositoryController', () => {
   });
 
   describe('(GET) /repository/:repositoryVcsId/branches', () => {
-    it('should respond 200 with github branches', async () => {
-      // Given
-      const mockRepositoryVcsId = faker.datatype.number();
-      const branches =
-        fetchVcsRepositoryBranchesMock.mockRepositoriesBranchPresent(
-          mockRepositoryVcsId,
-        );
+    describe('For Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      it('should respond 200 with github branches', async () => {
+        // Given
+        const mockRepositoryVcsId = faker.datatype.number();
+        const branches =
+          fetchVcsRepositoryBranchesMock.mockGithubRepositoriesBranchPresent(
+            mockRepositoryVcsId,
+          );
 
-      return appClient
-        .request(currentUser)
-        .get(`/api/v1/repositories/${mockRepositoryVcsId}/branches`)
-        .expect(200)
-        .expect({
-          branches: [
-            {
-              name: branches[0].name,
-              commitSha: branches[0].commit.sha,
-              vcsType: 'github',
-            },
-            {
-              name: branches[1].name,
-              commitSha: branches[1].commit.sha,
-              vcsType: 'github',
-            },
-            {
-              name: branches[2].name,
-              commitSha: branches[2].commit.sha,
-              vcsType: 'github',
-            },
-            {
-              name: branches[3].name,
-              commitSha: branches[3].commit.sha,
-              vcsType: 'github',
-            },
-            {
-              name: branches[4].name,
-              commitSha: branches[4].commit.sha,
-              vcsType: 'github',
-            },
-          ],
-        });
+        return appClient
+          .request(currentUser)
+          .get(`/api/v1/repositories/${mockRepositoryVcsId}/branches`)
+          .expect(200)
+          .expect({
+            branches: [
+              {
+                name: branches[0].name,
+                commitSha: branches[0].commit.sha,
+                vcsType: 'github',
+              },
+              {
+                name: branches[1].name,
+                commitSha: branches[1].commit.sha,
+                vcsType: 'github',
+              },
+              {
+                name: branches[2].name,
+                commitSha: branches[2].commit.sha,
+                vcsType: 'github',
+              },
+              {
+                name: branches[3].name,
+                commitSha: branches[3].commit.sha,
+                vcsType: 'github',
+              },
+              {
+                name: branches[4].name,
+                commitSha: branches[4].commit.sha,
+                vcsType: 'github',
+              },
+            ],
+          });
+      });
+    });
+
+    describe('For Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
+      );
+      it('should respond 200 with gitlab branches', async () => {
+        // Given
+        const mockRepositoryVcsId = faker.datatype.number();
+        const branches =
+          fetchVcsRepositoryBranchesMock.mockGitlabRepositoriesBranchPresent(
+            mockRepositoryVcsId,
+          );
+
+        return appClient
+          .request(currentUser)
+          .get(`/api/v1/repositories/${mockRepositoryVcsId}/branches`)
+          .expect(200)
+          .expect({
+            branches: [
+              {
+                name: branches[0].name,
+                commitSha: branches[0].commit.id,
+                vcsType: 'gitlab',
+              },
+              {
+                name: branches[1].name,
+                commitSha: branches[1].commit.id,
+                vcsType: 'gitlab',
+              },
+              {
+                name: branches[2].name,
+                commitSha: branches[2].commit.id,
+                vcsType: 'gitlab',
+              },
+            ],
+          });
+      });
     });
   });
 });

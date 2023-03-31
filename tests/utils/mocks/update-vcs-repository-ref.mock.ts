@@ -6,7 +6,7 @@ export class UpdateVcsRepositoryRefMock {
   public spy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.spy = appClient.axiosMockGithub;
   }
 
   public mockUpdateRef(repositoryVcsId: number, branch: string) {

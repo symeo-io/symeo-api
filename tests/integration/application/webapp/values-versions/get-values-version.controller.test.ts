@@ -7,7 +7,6 @@ import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.m
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { FetchSecretVersionMock } from 'tests/utils/mocks/fetch-secret-version.mock';
-import { ValuesVersionDto } from 'src/application/webapp/dto/values-version/values-version.dto';
 
 describe('ValuesVersionController', () => {
   let appClient: AppClient;
@@ -58,8 +57,9 @@ describe('ValuesVersionController', () => {
       // Given
       const repositoryVcsId = faker.datatype.number();
       const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
+        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         repository.id,
       );
       const environment = await environmentTestUtil.createEnvironment(

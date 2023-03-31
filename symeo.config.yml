@@ -44,6 +44,9 @@ vcsProvider:
   github:
     apiUrl:
       type: string
+  gitlab:
+    apiUrl:
+      type: string
   paginationLength:
     type: integer
 datadog:

@@ -16,12 +16,14 @@ import { EnvironmentPermissionRole } from 'src/domain/model/environment-permissi
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
+import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
 
 export class EnvironmentPermissionService
   implements EnvironmentPermissionFacade
 {
   constructor(
     private githubAdapterPort: GithubAdapterPort,
+    private gitlabAdapterPort: GitlabAdapterPort,
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
     private environmentAuditFacade: EnvironmentAuditFacade,
@@ -81,7 +83,13 @@ export class EnvironmentPermissionService
   ): Promise<EnvironmentPermission[]> {
     switch (user.provider) {
       case VCSProvider.GitHub:
-        return this.findForConfigurationAndUserWithGithub(
+        return this.findForConfigurationAndGithubUser(
+          user,
+          repository,
+          configuration,
+        );
+      case VCSProvider.Gitlab:
+        return this.findForConfigurationAndGitlabUser(
           user,
           repository,
           configuration,
@@ -227,7 +235,7 @@ export class EnvironmentPermissionService
     return persistedEnvironmentPermissionsToRemoveToKeep;
   }
 
-  async findForConfigurationAndUserWithGithub(
+  async findForConfigurationAndGithubUser(
     user: User,
     repository: VcsRepository,
     configuration: Configuration,
@@ -368,5 +376,55 @@ export class EnvironmentPermissionService
     }
 
     return previousEnvironmentPermissions;
+  }
+
+  private async findForConfigurationAndGitlabUser(
+    user: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+  ) {
+    const persistedEnvironmentPermissions: EnvironmentPermission[] =
+      await this.environmentPermissionStoragePort.findForEnvironmentIdsAndVcsUserId(
+        configuration.environments.map((environment) => environment.id),
+        user.getVcsUserId(),
+      );
+
+    if (
+      persistedEnvironmentPermissions.length ===
+      configuration.environments.length
+    ) {
+      return persistedEnvironmentPermissions;
+    }
+
+    const userRepositoryRole =
+      await this.gitlabAdapterPort.getUserRepositoryRole(user, repository.id);
+
+    if (!userRepositoryRole) {
+      throw new SymeoException(
+        `User with vcsId ${user.getVcsUserId()} do not have access to repository with repositoryVcsId ${
+          repository.id
+        }`,
+        SymeoExceptionCode.REPOSITORY_NOT_FOUND,
+      );
+    }
+
+    const environmentsWithMissingPermissions =
+      configuration.environments.filter(
+        (environment) =>
+          !persistedEnvironmentPermissions.find(
+            (permission) => permission.environmentId === environment.id,
+          ),
+      );
+
+    const generatedPermissions = environmentsWithMissingPermissions.map(
+      (environment) =>
+        this.environmentPermissionUtils.generateDefaultEnvironmentPermission(
+          user.getVcsUserId(),
+          userRepositoryRole,
+          environment,
+        ),
+    );
+
+    return [...persistedEnvironmentPermissions, ...generatedPermissions];
   }
 }
