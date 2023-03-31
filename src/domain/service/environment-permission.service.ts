@@ -196,7 +196,6 @@ export class EnvironmentPermissionService
         user,
         repository.id,
       );
-
     const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
       await this.environmentPermissionStoragePort.findForEnvironmentId(
         environment.id,

@@ -306,7 +306,8 @@ export class GitlabHttpClient {
   ): Promise<GitlabCollaboratorDTO[]> {
     const token = await this.vcsAccessTokenStorage.getAccessToken(user);
     const url =
-      config.vcsProvider.github.apiUrl + `projects/${repositoryVcsId}/members`;
+      config.vcsProvider.gitlab.apiUrl +
+      `projects/${repositoryVcsId}/members/all`;
 
     try {
       const response = await this.client.get(url, {

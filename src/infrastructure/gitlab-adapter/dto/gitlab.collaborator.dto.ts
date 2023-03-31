@@ -7,11 +7,11 @@ export class GitlabCollaboratorDTO {
   id: number;
   @Expose({ name: 'username' })
   @IsString()
-  login: string;
+  username: string;
   @Expose({ name: 'avatar_url' })
   @IsString()
-  avatarUrl: string;
+  avatar_url: string;
   @Expose({ name: 'access_level' })
   @IsNumber()
-  accessLevel: number;
+  access_level: number;
 }

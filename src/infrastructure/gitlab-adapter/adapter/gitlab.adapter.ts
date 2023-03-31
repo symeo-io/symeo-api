@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { GitlabHttpClient } from 'src/infrastructure/gitlab-adapter/gitlab.http.client';
 import { config } from 'symeo-js';
 import { plainToInstance } from 'class-transformer';
-import { uniqBy } from 'lodash';
+import { orderBy, uniqBy } from 'lodash';
 import { GitlabOrganizationMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.organization.mapper';
 import { GitlabRepositoryDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.repository.dto';
 import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.authenticated.user.dto';
@@ -20,8 +20,6 @@ import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.en
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { GitlabUserPermissionDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.user.permission.dto';
 import { GitlabAccessLevelMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.access.level.mapper';
-import { GithubCollaboratorsMapper } from 'src/infrastructure/github-adapter/mapper/github.collaborators.mapper';
-import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { GitlabCollaboratorsMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.collaborators.mapper';
 import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
@@ -58,7 +56,7 @@ export default class GitlabAdapter implements GitlabAdapterPort {
 
     const gitlabOrganizationsDTO = alreadyCollectedRepositoriesDTO.map(
       (repositoryDTO) =>
-        plainToInstance(GitlabRepositoryDTO, repositoryDTO).owner,
+        plainToInstance(GitlabRepositoryDTO, repositoryDTO).namespace,
     );
     return GitlabOrganizationMapper.dtoToDomains(
       uniqBy(gitlabOrganizationsDTO, 'id'),
@@ -230,7 +228,7 @@ export default class GitlabAdapter implements GitlabAdapterPort {
     const gitlabPermissionRole =
       GitlabAccessLevelMapper.accessLevelToVcsRepositoryRole(
         plainToInstance(GitlabUserPermissionDTO, repositoryPermission)
-          .accessLevel,
+          .access_level,
       );
 
     return gitlabPermissionRole as VcsRepositoryRole;
@@ -277,9 +275,21 @@ export default class GitlabAdapter implements GitlabAdapterPort {
         alreadyCollectedCollaboratorsDTO.concat(gitlabCollaboratorsDTO);
     }
 
-    return GitlabCollaboratorsMapper.dtoToDomains(
+    const alreadyCollaboratorsSortedByAscendingAccessLevel = orderBy(
       alreadyCollectedCollaboratorsDTO.map((collaboratorDTO) =>
         plainToInstance(GitlabCollaboratorDTO, collaboratorDTO),
+      ),
+      (collaborator) => collaborator.access_level,
+      'asc',
+    );
+
+    return GitlabCollaboratorsMapper.dtoToDomains(
+      uniqBy(
+        alreadyCollaboratorsSortedByAscendingAccessLevel.map(
+          (collaboratorDTO) =>
+            plainToInstance(GitlabCollaboratorDTO, collaboratorDTO),
+        ),
+        'id',
       ),
     );
   }

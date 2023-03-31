@@ -18,19 +18,19 @@ export class GitlabRepositoryDTO {
   @Expose({ name: 'namespace' })
   @ValidateNested({ each: true })
   @Type(() => GitlabOwnerDTO)
-  owner: GitlabOwnerDTO;
+  namespace: GitlabOwnerDTO;
   @Expose({ name: 'created_at' })
   @IsString()
   @IsOptional()
-  pushedAt: string;
+  created_at: string;
   @Expose({ name: 'web_url' })
   @IsString()
-  htmlUrl: string;
+  web_url: string;
   @Expose({ name: 'permissions' })
   @ValidateNested({ each: true })
   @Type(() => GitlabPermissionsDTO)
   permissions: GitlabPermissionsDTO;
   @Expose({ name: 'default_branch' })
   @IsString()
-  defaultBranch: string;
+  default_branch: string;
 }

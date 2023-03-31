@@ -93,7 +93,7 @@ describe('EnvironmentPermissionController', () => {
         repository.id,
         VcsRepositoryRole.WRITE,
       );
-      fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
+      fetchVcsRepositoryCollaboratorsMockForPermission.mockGithubCollaboratorsPresent(
         repository.id,
       );
 
@@ -131,7 +131,7 @@ describe('EnvironmentPermissionController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
+      fetchVcsRepositoryCollaboratorsMockForPermission.mockGithubCollaboratorsPresent(
         repository.id,
       );
 
@@ -165,7 +165,7 @@ describe('EnvironmentPermissionController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
+      fetchVcsRepositoryCollaboratorsMockForPermission.mockGithubCollaboratorsPresent(
         repository.id,
       );
 
@@ -219,7 +219,7 @@ describe('EnvironmentPermissionController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
+      fetchVcsRepositoryCollaboratorsMockForPermission.mockGithubCollaboratorsPresent(
         repository.id,
       );
 
@@ -274,7 +274,7 @@ describe('EnvironmentPermissionController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
+      fetchVcsRepositoryCollaboratorsMockForPermission.mockGithubCollaboratorsPresent(
         repository.id,
       );
       await environmentPermissionTestUtil.createEnvironmentPermission(
@@ -369,7 +369,7 @@ describe('EnvironmentPermissionController', () => {
         repository.id,
         VcsRepositoryRole.ADMIN,
       );
-      fetchVcsRepositoryCollaboratorsMockForPermission.mockCollaboratorsPresent(
+      fetchVcsRepositoryCollaboratorsMockForPermission.mockGithubCollaboratorsPresent(
         repository.id,
       );
 

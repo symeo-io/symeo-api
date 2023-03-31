@@ -13,10 +13,10 @@ export class GitlabCollaboratorsMapper {
   static dtoToDomain(gitlabCollaboratorDTO: GitlabCollaboratorDTO): VcsUser {
     return new VcsUser(
       gitlabCollaboratorDTO.id,
-      gitlabCollaboratorDTO.login,
-      gitlabCollaboratorDTO.avatarUrl,
+      gitlabCollaboratorDTO.username,
+      gitlabCollaboratorDTO.avatar_url,
       GitlabCollaboratorsMapper.mapGitlabRoleToDomain(
-        gitlabCollaboratorDTO.accessLevel,
+        gitlabCollaboratorDTO.access_level,
       ),
     );
   }

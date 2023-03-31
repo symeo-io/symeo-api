@@ -17,21 +17,21 @@ export class GitlabRepositoryMapper {
       gitlabRepositoryDTO.id,
       gitlabRepositoryDTO.name,
       {
-        name: gitlabRepositoryDTO.owner.login,
-        id: gitlabRepositoryDTO.owner.id,
-        avatarUrl: gitlabRepositoryDTO.owner.avatarUrl,
+        name: gitlabRepositoryDTO.namespace.name,
+        id: gitlabRepositoryDTO.namespace.id,
+        avatarUrl: gitlabRepositoryDTO.namespace.avatar_url,
       },
-      gitlabRepositoryDTO.pushedAt
-        ? new Date(gitlabRepositoryDTO.pushedAt)
+      gitlabRepositoryDTO.created_at
+        ? new Date(gitlabRepositoryDTO.created_at)
         : undefined,
       VCSProvider.Gitlab,
-      gitlabRepositoryDTO.htmlUrl,
+      gitlabRepositoryDTO.web_url,
       gitlabRepositoryDTO.permissions
         ? GitlabRepositoryMapper.isCurrentUserRepositoryAdmin(
             gitlabRepositoryDTO.permissions,
           )
         : false,
-      gitlabRepositoryDTO.defaultBranch,
+      gitlabRepositoryDTO.default_branch,
     );
   }
 
