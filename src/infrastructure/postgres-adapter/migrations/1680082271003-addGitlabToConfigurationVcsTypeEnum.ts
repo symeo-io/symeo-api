@@ -5,7 +5,13 @@ export class addGitlabToConfigurationVcsTypeEnum1680082271003
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
+      `ALTER TABLE "configurations" ALTER COLUMN "vcsType" DROP DEFAULT`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "configurations" ALTER COLUMN "vcsType" TYPE VARCHAR(255)`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "analytics-sdk-values-read" ALTER COLUMN "vcsType" DROP DEFAULT`,
     );
     await queryRunner.query(
       `ALTER TABLE "analytics-sdk-values-read" ALTER COLUMN "vcsType" TYPE VARCHAR(255)`,
@@ -37,7 +43,13 @@ export class addGitlabToConfigurationVcsTypeEnum1680082271003
       `ALTER TABLE "configurations" ALTER COLUMN "vcsType" TYPE configurations_vcstype_enum USING ("vcsType"::configurations_vcstype_enum)`,
     );
     await queryRunner.query(
+      `ALTER TABLE "configurations" ALTER COLUMN "vcsType" SET DEFAULT "github"`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "analytics-sdk-values-read" ALTER COLUMN "vcsType" TYPE configurations_vcstype_enum USING ("vcsType"::configurations_vcstype_enum)`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "analytics-sdk-values-read" ALTER COLUMN "vcsType" SET DEFAULT "github"`,
     );
   }
 }
