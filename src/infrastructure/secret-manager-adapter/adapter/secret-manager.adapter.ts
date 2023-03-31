@@ -39,7 +39,7 @@ export default class SecretManagerAdapter implements SecretValuesStoragePort {
       const { Versions } = await this.secretManagerClient.client
         .listSecretVersionIds({
           SecretId: environment.id,
-          IncludeDeprecated: false,
+          IncludeDeprecated: true,
         })
         .promise();
 

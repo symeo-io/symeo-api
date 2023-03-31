@@ -69,6 +69,10 @@ describe('Authorizations', () => {
       verbs: ['get'],
     },
     {
+      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
+      verbs: ['post'],
+    },
+    {
       path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/audits',
       verbs: ['get'],
     },
@@ -179,12 +183,14 @@ describe('Authorizations', () => {
       const configurationId = uuid();
       const environmentId = uuid();
       const apiKeyId = uuid();
+      const versionId = uuid();
 
       const url = route.path
         .replace(':repositoryVcsId', repository.id.toString())
         .replace(':configurationId', configurationId)
         .replace(':environmentId', environmentId)
-        .replace(':apiKeyId', apiKeyId);
+        .replace(':apiKeyId', apiKeyId)
+        .replace(':versionId', versionId);
 
       const response = await appClient
         .request(currentUser)

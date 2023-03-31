@@ -14,6 +14,8 @@ import { EnvironmentPermissionFacade } from 'src/domain/port/in/environment-perm
 import { isEmpty, merge } from 'lodash';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.port';
+import { SymeoException } from 'src/domain/exception/symeo.exception';
+import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 export class ValuesService implements ValuesFacade {
   constructor(
@@ -162,6 +164,47 @@ export class ValuesService implements ValuesFacade {
       {
         environmentName: environment.name,
         updatedProperties: updateValuesProperties,
+      },
+    );
+  }
+
+  async rollbackEnvironmentToVersions(
+    currentUser: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+    environment: Environment,
+    versionId: string,
+  ): Promise<void> {
+    const versions =
+      await this.secretValuesStoragePort.getVersionsForEnvironment(environment);
+
+    const version = versions.find((version) => version.versionId === versionId);
+
+    if (!version) {
+      throw new SymeoException(
+        `No version found with id ${versionId} for environment ${environment.id}`,
+        SymeoExceptionCode.VALUES_VERSION_NOT_FOUND,
+      );
+    }
+
+    const values = await this.secretValuesStoragePort.getValuesForEnvironmentId(
+      environment.id,
+      versionId,
+    );
+
+    await this.secretValuesStoragePort.setValuesForEnvironment(
+      environment,
+      values,
+    );
+
+    await this.environmentAuditFacade.saveWithRollbackMetadataType(
+      EnvironmentAuditEventType.VERSION_ROLLBACK,
+      currentUser,
+      repository,
+      environment,
+      {
+        versionId,
+        versionCreationDate: version.creationDate,
       },
     );
   }

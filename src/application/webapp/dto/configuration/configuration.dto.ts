@@ -72,7 +72,9 @@ export default class ConfigurationDTO {
       configuration.owner,
       configuration.contractFilePath,
       configuration.branch,
-      configuration.environments.map(EnvironmentDTO.fromDomain),
+      configuration.environments
+        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+        .map(EnvironmentDTO.fromDomain),
     );
   }
 }
