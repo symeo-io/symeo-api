@@ -6,7 +6,8 @@ export default class EnvironmentAuditMetadata {
     | EnvironmentMetadataType
     | ApiKeyMetadataType
     | PermissionMetadataType
-    | ValuesMetadataType;
+    | ValuesMetadataType
+    | RollbackMetadataType;
 }
 
 export type EnvironmentMetadataType = {
@@ -34,4 +35,9 @@ type UpdatedPropertiesType = {
 type ReadPropertiesType = {
   environmentName: string;
   readProperties: string[];
+};
+
+export type RollbackMetadataType = {
+  versionId: string;
+  versionCreationDate: Date;
 };

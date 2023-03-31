@@ -6,6 +6,7 @@ import Environment from 'src/domain/model/environment/environment.model';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
 import {
   EnvironmentMetadataType,
+  RollbackMetadataType,
   ValuesMetadataType,
 } from 'src/domain/model/audit/environment-audit/environment-audit-metadata';
 import ApiKey from 'src/domain/model/environment/api-key.model';
@@ -29,6 +30,14 @@ export default interface EnvironmentAuditFacade {
     repository: VcsRepository,
     environment: Environment,
     metadata: ValuesMetadataType,
+  ): Promise<void>;
+
+  saveWithRollbackMetadataType(
+    eventType: EnvironmentAuditEventType,
+    user: User,
+    repository: VcsRepository,
+    environment: Environment,
+    rollbackMetadata: RollbackMetadataType,
   ): Promise<void>;
 
   saveWithApiKeyMetadataType(

@@ -6,6 +6,7 @@ import Environment from 'src/domain/model/environment/environment.model';
 import EnvironmentAudit from 'src/domain/model/audit/environment-audit/environment-audit.model';
 import {
   EnvironmentMetadataType,
+  RollbackMetadataType,
   ValuesMetadataType,
 } from 'src/domain/model/audit/environment-audit/environment-audit-metadata';
 import { EnvironmentPermission } from 'src/domain/model/environment-permission/environment-permission.model';
@@ -125,6 +126,27 @@ export default class EnvironmentAuditService implements EnvironmentAuditFacade {
       currentUser.username,
       {
         metadata: valuesMetadata,
+      },
+      new Date(),
+    );
+    await this.environmentAuditStoragePort.save(environmentAudit);
+  }
+
+  async saveWithRollbackMetadataType(
+    environmentAuditEventType: EnvironmentAuditEventType,
+    currentUser: User,
+    repository: VcsRepository,
+    environment: Environment,
+    rollbackMetadata: RollbackMetadataType,
+  ) {
+    const environmentAudit = new EnvironmentAudit(
+      environment.id,
+      environmentAuditEventType,
+      repository.id,
+      currentUser.id,
+      currentUser.username,
+      {
+        metadata: rollbackMetadata,
       },
       new Date(),
     );

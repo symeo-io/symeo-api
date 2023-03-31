@@ -7,4 +7,5 @@ export enum EnvironmentAuditEventType {
   API_KEY_DELETED = 'apiKeyDeleted',
   VALUES_UPDATED = 'valuesUpdated',
   SECRETS_READ = 'secretsRead',
+  VERSION_ROLLBACK = 'versionRollback',
 }

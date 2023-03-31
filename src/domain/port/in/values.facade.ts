@@ -33,4 +33,12 @@ export interface ValuesFacade {
     values: ConfigurationValues,
     versionId?: string,
   ): Promise<void>;
+
+  rollbackEnvironmentToVersions(
+    currentUser: User,
+    repository: VcsRepository,
+    configuration: Configuration,
+    environment: Environment,
+    versionId: string,
+  ): Promise<void>;
 }

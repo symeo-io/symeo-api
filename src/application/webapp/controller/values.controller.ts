@@ -6,6 +6,7 @@ import {
   Inject,
   Post,
   Query,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { GetEnvironmentValuesResponseDTO } from 'src/application/webapp/dto/values/get-environment-values.response.dto';
@@ -121,6 +122,31 @@ export class ValuesController {
       configuration,
       environment,
       setEnvironmentValuesResponseDTO.values,
+      versionId,
+    );
+  }
+
+  @ApiOkResponse({
+    description: 'Environment values successfully rolled back',
+  })
+  @Post(
+    'github/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
+  )
+  @HttpCode(200)
+  @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
+  @UseGuards(EnvironmentAuthorizationGuard)
+  async rollback(
+    @CurrentUser() currentUser: User,
+    @RequestedRepository() repository: VcsRepository,
+    @RequestedConfiguration() configuration: Configuration,
+    @RequestedEnvironment() environment: Environment,
+    @Param('versionId') versionId: string,
+  ): Promise<void> {
+    await this.valuesFacade.rollbackEnvironmentToVersions(
+      currentUser,
+      repository,
+      configuration,
+      environment,
       versionId,
     );
   }
