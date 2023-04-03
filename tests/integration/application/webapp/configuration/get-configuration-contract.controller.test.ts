@@ -6,7 +6,7 @@ import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-toke
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;

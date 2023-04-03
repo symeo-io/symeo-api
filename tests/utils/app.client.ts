@@ -14,7 +14,7 @@ import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from 'testcontainers';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { WinstonLogger } from 'src/logger';
 import { createLogger, transports } from 'winston';
 import { AxiosInstance } from 'axios';

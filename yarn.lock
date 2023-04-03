@@ -6082,17 +6082,19 @@ symbol-observable@4.0.0:
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-4.0.0.tgz#5b425f192279e87f2f9b937ac8540d1984b39205"
   integrity sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==
 
-symeo-js@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/symeo-js/-/symeo-js-0.0.9.tgz#8df2a08d2d4e7b7e5a773a217c15fcce6ae2ee4b"
-  integrity sha512-/OB7i0yhMlkHXFuOCFs00T5v0rqobfy33POQnd4v/Y+5ElpsP7mcdFOYhu0jhaLP4mPo7ljtvLRW5zDt6wSJtg==
+symeo-js@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/symeo-js/-/symeo-js-0.0.12.tgz#a67938deb4395f39512ce8258672641626298bd9"
+  integrity sha512-ZHMr6CBcPpinj0YyOzkCrWDiQDTZxaUPKYObqdfLZLkw/hD2W+BT7hrj4NCYqYk7tUiPSp23J1z0Fms9s47AMQ==
   dependencies:
     chalk "^4.1.2"
     checksum "^1.0.0"
     commander "^10.0.0"
     cross-spawn "^7.0.3"
+    envfile "^6.18.0"
     fs-extra "^11.1.0"
     glob "^8.1.0"
+    lodash "^4.17.21"
     mkdirp "^2.1.3"
     ora "^5.4.1"
     sync-fetch "^0.4.2"

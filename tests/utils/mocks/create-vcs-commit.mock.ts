@@ -1,4 +1,4 @@
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
 import { faker } from '@faker-js/faker';

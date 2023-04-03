@@ -1,4 +1,4 @@
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import tracer from 'dd-trace';
 
 if (config.datadog.apm.active) {

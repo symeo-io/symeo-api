@@ -1,5 +1,5 @@
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import User from 'src/domain/model/user/user.model';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';

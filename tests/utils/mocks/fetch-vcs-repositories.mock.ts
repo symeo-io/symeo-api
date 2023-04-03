@@ -1,6 +1,6 @@
 import { MockedRepository } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import * as fs from 'fs';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
 

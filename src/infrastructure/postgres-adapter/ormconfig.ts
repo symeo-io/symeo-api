@@ -1,4 +1,4 @@
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { join } from 'path';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
