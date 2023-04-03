@@ -45,11 +45,11 @@ describe('Authorizations', () => {
       verbs: ['patch', 'delete'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
       verbs: ['get', 'post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
       verbs: ['delete'],
     },
     {
@@ -57,11 +57,11 @@ describe('Authorizations', () => {
       verbs: ['get', 'post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/values',
       verbs: ['get', 'post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
       verbs: ['get'],
     },
     {
@@ -69,7 +69,7 @@ describe('Authorizations', () => {
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
       verbs: ['post'],
     },
     {

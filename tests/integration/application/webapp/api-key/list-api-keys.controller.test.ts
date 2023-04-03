@@ -19,14 +19,6 @@ describe('ApiKeyController', () => {
   let environmentTestUtil: EnvironmentTestUtil;
   let apiKeyTestUtil: ApiKeyTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -57,41 +49,95 @@ describe('ApiKeyController', () => {
     appClient.mockReset();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
-    it('should respond 200 with api keys', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
-        currentUser,
-        repository.id,
-        VcsRepositoryRole.ADMIN,
-      );
-      const configuration = await configurationTestUtil.createConfiguration(
+  describe('(GET) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      const apiKey = await apiKeyTestUtil.createApiKey(environment);
+      it('should respond 200 with api keys', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
+          currentUser,
+          repository.id,
+          VcsRepositoryRole.ADMIN,
+        );
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        const apiKey = await apiKeyTestUtil.createApiKey(environment);
 
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys`,
-        )
-        .expect(200);
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys`,
+          )
+          .expect(200);
 
-      expect(response.body.apiKeys).toBeDefined();
-      expect(response.body.apiKeys.length).toEqual(1);
-      expect(response.body.apiKeys[0].id).toEqual(apiKey.id);
-      expect(response.body.apiKeys[0].environmentId).toEqual(
-        apiKey.environmentId,
+        expect(response.body.apiKeys).toBeDefined();
+        expect(response.body.apiKeys.length).toEqual(1);
+        expect(response.body.apiKeys[0].id).toEqual(apiKey.id);
+        expect(response.body.apiKeys[0].environmentId).toEqual(
+          apiKey.environmentId,
+        );
+        expect(response.body.apiKeys[0].hiddenKey).toEqual(apiKey.hiddenKey);
+        expect(response.body.apiKeys[0].key).toBeUndefined();
+      });
+    });
+
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
       );
-      expect(response.body.apiKeys[0].hiddenKey).toEqual(apiKey.hiddenKey);
-      expect(response.body.apiKeys[0].key).toBeUndefined();
+      it('should respond 200 with api keys', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        fetchUserVcsRepositoryPermissionMock.mockGitlabUserRepositoryRole(
+          currentUser,
+          repository.id,
+          50,
+        );
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        const apiKey = await apiKeyTestUtil.createApiKey(environment);
+
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys`,
+          )
+          .expect(200);
+
+        expect(response.body.apiKeys).toBeDefined();
+        expect(response.body.apiKeys.length).toEqual(1);
+        expect(response.body.apiKeys[0].id).toEqual(apiKey.id);
+        expect(response.body.apiKeys[0].environmentId).toEqual(
+          apiKey.environmentId,
+        );
+        expect(response.body.apiKeys[0].hiddenKey).toEqual(apiKey.hiddenKey);
+        expect(response.body.apiKeys[0].key).toBeUndefined();
+      });
     });
   });
 });
