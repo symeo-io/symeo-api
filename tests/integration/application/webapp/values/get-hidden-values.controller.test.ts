@@ -48,9 +48,8 @@ describe('ValuesController', () => {
     appClient.mockReset();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
-    it('should respond 200 and return hidden values', async () => {
-      // Given
+  describe('(GET) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
+    describe('With Github as VcsProvider', () => {
       const requestedBranch = 'staging';
       const userVcsId = 102222086;
       const currentUser = new User(
@@ -60,137 +59,269 @@ describe('ValuesController', () => {
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
-        VCSProvider.GitHub,
-        repository.id,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
-        configuration.repositoryVcsId,
-        configuration.contractFilePath,
-        './tests/utils/stubs/configuration/symeo.config.secret.yml',
-      );
+      it('should respond 200 and return hidden values', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
+          configuration.repositoryVcsId,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
+        );
 
-      const configurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
+        const configurationValues: ConfigurationValues = {
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
           },
-        },
-      };
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        };
 
-      fetchSecretMock.mockSecretPresent(configurationValues);
+        fetchSecretMock.mockSecretPresent(configurationValues);
 
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
-        )
-        .expect(200);
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+          )
+          .expect(200);
 
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
-      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment.id,
+        expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+        expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment.id,
+        });
+        expect(response.body.values).toEqual({
+          aws: {
+            region: '*********',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: '********',
+              type: 'postgres',
+            },
+          },
+        });
       });
-      expect(response.body.values).toEqual({
-        aws: {
-          region: '*********',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: '********',
-            type: 'postgres',
+
+      it('should respond 200 and return hidden values with specific versionId', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
+          configuration.repositoryVcsId,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
+        );
+
+        const configurationValues: ConfigurationValues = {
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
           },
-        },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        };
+
+        fetchSecretMock.mockSecretPresent(configurationValues);
+
+        const versionId = faker.datatype.uuid();
+
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}&versionId=${versionId}`,
+          )
+          .expect(200);
+
+        expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+        expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment.id,
+          VersionId: versionId,
+        });
+        expect(response.body.values).toEqual({
+          aws: {
+            region: '*********',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: '********',
+              type: 'postgres',
+            },
+          },
+        });
       });
     });
 
-    it('should respond 200 and return hidden values with specific versionId', async () => {
-      // Given
+    describe('With Gitlab as VcsProvider', () => {
       const requestedBranch = 'staging';
-      const userVcsId = 102222086;
+      const userVcsId = 12917479;
       const currentUser = new User(
-        `github|${userVcsId}`,
+        `gitlab|${userVcsId}`,
         faker.internet.email(),
         faker.name.firstName(),
-        VCSProvider.GitHub,
+        VCSProvider.Gitlab,
         faker.datatype.number(),
       );
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
-        VCSProvider.GitHub,
-        repository.id,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
-        configuration.repositoryVcsId,
-        configuration.contractFilePath,
-        './tests/utils/stubs/configuration/symeo.config.secret.yml',
-      );
+      it('should respond 200 and return hidden values', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGitlab(
+          configuration.repositoryVcsId,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
+        );
 
-      const configurationValues: ConfigurationValues = {
-        aws: {
-          region: 'eu-west-3',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: 'password',
-            type: 'postgres',
+        const configurationValues: ConfigurationValues = {
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
           },
-        },
-      };
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        };
 
-      fetchSecretMock.mockSecretPresent(configurationValues);
+        fetchSecretMock.mockSecretPresent(configurationValues);
 
-      const versionId = faker.datatype.uuid();
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+          )
+          .expect(200);
 
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}&versionId=${versionId}`,
-        )
-        .expect(200);
-
-      expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
-      expect(fetchSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment.id,
-        VersionId: versionId,
+        expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+        expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment.id,
+        });
+        expect(response.body.values).toEqual({
+          aws: {
+            region: '*********',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: '********',
+              type: 'postgres',
+            },
+          },
+        });
       });
-      expect(response.body.values).toEqual({
-        aws: {
-          region: '*********',
-          user: 'fake-user',
-        },
-        database: {
-          postgres: {
-            host: 'fake-host',
-            port: 9999,
-            password: '********',
-            type: 'postgres',
+
+      it('should respond 200 and return hidden values with specific versionId', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        fetchVcsFileMock.mockSymeoContractFilePresentOnGitlab(
+          configuration.repositoryVcsId,
+          configuration.contractFilePath,
+          './tests/utils/stubs/configuration/symeo.config.secret.yml',
+        );
+
+        const configurationValues: ConfigurationValues = {
+          aws: {
+            region: 'eu-west-3',
+            user: 'fake-user',
           },
-        },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: 'password',
+              type: 'postgres',
+            },
+          },
+        };
+
+        fetchSecretMock.mockSecretPresent(configurationValues);
+
+        const versionId = faker.datatype.uuid();
+
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}&versionId=${versionId}`,
+          )
+          .expect(200);
+
+        expect(fetchSecretMock.spy).toHaveBeenCalledTimes(1);
+        expect(fetchSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment.id,
+          VersionId: versionId,
+        });
+        expect(response.body.values).toEqual({
+          aws: {
+            region: '*********',
+            user: 'fake-user',
+          },
+          database: {
+            postgres: {
+              host: 'fake-host',
+              port: 9999,
+              password: '********',
+              type: 'postgres',
+            },
+          },
+        });
       });
     });
   });
