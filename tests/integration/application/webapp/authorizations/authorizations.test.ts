@@ -65,7 +65,7 @@ describe('Authorizations', () => {
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
       verbs: ['get'],
     },
     {
@@ -73,11 +73,11 @@ describe('Authorizations', () => {
       verbs: ['post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/audits',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/audits',
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/:environmentId/audits',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/:environmentId/audits',
       verbs: ['get'],
     },
   ];

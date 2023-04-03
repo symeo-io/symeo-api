@@ -22,14 +22,6 @@ describe('AuditController', () => {
   let environmentTestUtil: EnvironmentTestUtil;
   let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
     await appClient.init();
@@ -58,61 +50,136 @@ describe('AuditController', () => {
   });
 
   describe('getEnvironmentAudits', () => {
-    it('should get environment audits', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      await environmentAuditTestUtil.createEnvironmentAudit(
-        repository.id,
-        configuration.id,
-        environment.id,
-        EnvironmentAuditEventType.CREATED,
-        {
-          metadata: {
-            name: faker.name.firstName(),
-            color: 'amber',
+      it('should get environment audits', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        await environmentAuditTestUtil.createEnvironmentAudit(
+          repository.id,
+          configuration.id,
+          environment.id,
+          EnvironmentAuditEventType.CREATED,
+          {
+            metadata: {
+              name: faker.name.firstName(),
+              color: 'amber',
+            },
           },
-        },
-      );
-      await environmentAuditTestUtil.createEnvironmentAudit(
-        repository.id,
-        configuration.id,
-        environment.id,
-        EnvironmentAuditEventType.UPDATED,
-        {
-          metadata: {
-            name: faker.name.firstName(),
-            color: 'blue',
+        );
+        await environmentAuditTestUtil.createEnvironmentAudit(
+          repository.id,
+          configuration.id,
+          environment.id,
+          EnvironmentAuditEventType.UPDATED,
+          {
+            metadata: {
+              name: faker.name.firstName(),
+              color: 'blue',
+            },
           },
-        },
-      );
-      await environmentAuditTestUtil.createEnvironmentAudit(
-        repository.id,
-        configuration.id,
-        environment.id,
-        EnvironmentAuditEventType.API_KEY_CREATED,
-        {
-          metadata: {
-            hiddenKey: faker.datatype.string(),
+        );
+        await environmentAuditTestUtil.createEnvironmentAudit(
+          repository.id,
+          configuration.id,
+          environment.id,
+          EnvironmentAuditEventType.API_KEY_CREATED,
+          {
+            metadata: {
+              hiddenKey: faker.datatype.string(),
+            },
           },
-        },
-      );
+        );
 
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/${environment.id}/audits`,
-        )
-        .expect(200);
-      expect(response.body.environmentAudits.length).toEqual(3);
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repositoryVcsId}/${configuration.id}/${environment.id}/audits`,
+          )
+          .expect(200);
+        expect(response.body.environmentAudits.length).toEqual(3);
+      });
+    });
+
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
+      );
+      it('should get environment audits', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        await environmentAuditTestUtil.createEnvironmentAudit(
+          repository.id,
+          configuration.id,
+          environment.id,
+          EnvironmentAuditEventType.CREATED,
+          {
+            metadata: {
+              name: faker.name.firstName(),
+              color: 'amber',
+            },
+          },
+        );
+        await environmentAuditTestUtil.createEnvironmentAudit(
+          repository.id,
+          configuration.id,
+          environment.id,
+          EnvironmentAuditEventType.UPDATED,
+          {
+            metadata: {
+              name: faker.name.firstName(),
+              color: 'blue',
+            },
+          },
+        );
+        await environmentAuditTestUtil.createEnvironmentAudit(
+          repository.id,
+          configuration.id,
+          environment.id,
+          EnvironmentAuditEventType.API_KEY_CREATED,
+          {
+            metadata: {
+              hiddenKey: faker.datatype.string(),
+            },
+          },
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repositoryVcsId}/${configuration.id}/${environment.id}/audits`,
+          )
+          .expect(200);
+        expect(response.body.environmentAudits.length).toEqual(3);
+      });
     });
   });
 });
