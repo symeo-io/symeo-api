@@ -7,7 +7,6 @@ import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dt
 import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
 import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
 import { GitlabBlobDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.blob.dto';
-import { GithubCollaboratorDTO } from 'src/infrastructure/github-adapter/dto/github.collaborator.dto';
 import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
 
 export class GitlabHttpClient {

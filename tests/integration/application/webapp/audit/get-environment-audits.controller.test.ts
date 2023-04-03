@@ -5,14 +5,9 @@ import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.u
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
-import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
-import { ConfigurationAuditDTO } from 'src/application/webapp/dto/audit/configuration-audit.dto';
-import { GetConfigurationAuditsResponseDTO } from 'src/application/webapp/dto/audit/get-configuration-audits.response.dto';
 import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
-import { EnvironmentColors } from 'src/domain/model/environment/environment-color.model';
 
 describe('AuditController', () => {
   let appClient: AppClient;
