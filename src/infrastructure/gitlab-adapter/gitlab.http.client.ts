@@ -279,7 +279,7 @@ export class GitlabHttpClient {
     const token = await this.vcsAccessTokenStorage.getAccessToken(user);
     const url =
       config.vcsProvider.gitlab.apiUrl +
-      `projects/${repositoryId}/members/${user.getVcsUserId()}`;
+      `projects/${repositoryId}/members/all/${user.getVcsUserId()}`;
     try {
       const response = await this.client.get(url, {
         headers: {

@@ -13,9 +13,9 @@ export class GitlabCollaboratorsMapper {
     return new VcsUser(
       gitlabCollaboratorDTO.id,
       gitlabCollaboratorDTO.username,
-      gitlabCollaboratorDTO.avatar_url,
+      gitlabCollaboratorDTO.avatarUrl,
       GitlabCollaboratorsMapper.mapGitlabRoleToDomain(
-        gitlabCollaboratorDTO.access_level,
+        gitlabCollaboratorDTO.accessLevel,
       ),
     );
   }

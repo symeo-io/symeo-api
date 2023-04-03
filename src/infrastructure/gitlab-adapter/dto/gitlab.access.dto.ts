@@ -4,8 +4,8 @@ import { IsNumber } from 'class-validator';
 export class GitlabAccessDTO {
   @Expose({ name: 'access_level' })
   @IsNumber()
-  access_level: number;
+  accessLevel: number;
   @Expose({ name: 'notification_level' })
   @IsNumber()
-  notification_level: number;
+  notificationLevel: number;
 }

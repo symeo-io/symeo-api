@@ -36,7 +36,7 @@ export class FetchUserVcsRepositoryPermissionMock {
     this.gitlabClientSpy
       .onGet(
         config.vcsProvider.gitlab.apiUrl +
-          `projects/${repositoryId}/members/${user.getVcsUserId()}`,
+          `projects/${repositoryId}/members/all/${user.getVcsUserId()}`,
       )
       .reply(200, {
         access_level: accessLevelNumber,

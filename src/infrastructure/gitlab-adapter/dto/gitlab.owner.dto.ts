@@ -10,5 +10,5 @@ export class GitlabOwnerDTO {
   name: string;
   @Expose({ name: 'avatar_url' })
   @IsString()
-  avatar_url: string;
+  avatarUrl: string;
 }

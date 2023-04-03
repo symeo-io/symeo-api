@@ -7,5 +7,5 @@ export class GitlabCommitDTO {
   id: string;
   @Expose({ name: 'web_url' })
   @IsString()
-  web_url: string;
+  webUrl: string;
 }

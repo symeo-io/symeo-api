@@ -22,15 +22,15 @@ export class GitlabRepositoryDTO {
   @Expose({ name: 'created_at' })
   @IsString()
   @IsOptional()
-  created_at: string;
+  createdAt: string;
   @Expose({ name: 'web_url' })
   @IsString()
-  web_url: string;
+  webUrl: string;
   @Expose({ name: 'permissions' })
   @ValidateNested({ each: true })
   @Type(() => GitlabPermissionsDTO)
   permissions: GitlabPermissionsDTO;
   @Expose({ name: 'default_branch' })
   @IsString()
-  default_branch: string;
+  defaultBranch: string;
 }

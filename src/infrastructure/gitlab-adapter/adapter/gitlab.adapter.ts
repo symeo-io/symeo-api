@@ -23,6 +23,7 @@ import { GitlabAccessLevelMapper } from 'src/infrastructure/gitlab-adapter/mappe
 import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 import { GitlabCollaboratorsMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.collaborators.mapper';
 import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
+import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
 
 @Injectable()
 export default class GitlabAdapter implements GitlabAdapterPort {
@@ -142,8 +143,9 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       repositoryVcsId,
       branch,
     );
-    const rawEnvFiles = files.filter(
-      (file) => file.type === 'blob' && this.isEnvFile(file.path),
+    const rawEnvFiles = plainToInstance(
+      GitlabFileDTO,
+      files.filter((file) => file.type === 'blob' && this.isEnvFile(file.path)),
     );
     const envFilesContents = await Promise.all(
       rawEnvFiles.map((rawEnvFile) =>
@@ -220,7 +222,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
         user,
         repositoryVcsId,
       );
-
     if (!repositoryPermission) {
       return undefined;
     }
@@ -228,7 +229,7 @@ export default class GitlabAdapter implements GitlabAdapterPort {
     const gitlabPermissionRole =
       GitlabAccessLevelMapper.accessLevelToVcsRepositoryRole(
         plainToInstance(GitlabUserPermissionDTO, repositoryPermission)
-          .access_level,
+          .accessLevel,
       );
 
     return gitlabPermissionRole as VcsRepositoryRole;
@@ -279,18 +280,12 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       alreadyCollectedCollaboratorsDTO.map((collaboratorDTO) =>
         plainToInstance(GitlabCollaboratorDTO, collaboratorDTO),
       ),
-      (collaborator) => collaborator.access_level,
+      (collaborator) => collaborator.accessLevel,
       'asc',
     );
 
     return GitlabCollaboratorsMapper.dtoToDomains(
-      uniqBy(
-        alreadyCollaboratorsSortedByAscendingAccessLevel.map(
-          (collaboratorDTO) =>
-            plainToInstance(GitlabCollaboratorDTO, collaboratorDTO),
-        ),
-        'id',
-      ),
+      uniqBy(alreadyCollaboratorsSortedByAscendingAccessLevel, 'id'),
     );
   }
 }

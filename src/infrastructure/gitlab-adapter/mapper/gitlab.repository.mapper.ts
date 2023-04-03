@@ -19,38 +19,38 @@ export class GitlabRepositoryMapper {
       {
         name: gitlabRepositoryDTO.namespace.name,
         id: gitlabRepositoryDTO.namespace.id,
-        avatarUrl: gitlabRepositoryDTO.namespace.avatar_url,
+        avatarUrl: gitlabRepositoryDTO.namespace.avatarUrl,
       },
-      gitlabRepositoryDTO.created_at
-        ? new Date(gitlabRepositoryDTO.created_at)
+      gitlabRepositoryDTO.createdAt
+        ? new Date(gitlabRepositoryDTO.createdAt)
         : undefined,
       VCSProvider.Gitlab,
-      gitlabRepositoryDTO.web_url,
+      gitlabRepositoryDTO.webUrl,
       gitlabRepositoryDTO.permissions
         ? GitlabRepositoryMapper.isCurrentUserRepositoryAdmin(
             gitlabRepositoryDTO.permissions,
           )
         : false,
-      gitlabRepositoryDTO.default_branch,
+      gitlabRepositoryDTO.defaultBranch,
     );
   }
 
   private static isCurrentUserRepositoryAdmin(
     permissions: GitlabPermissionsDTO,
   ) {
-    if (!!permissions.project_access && !!permissions.group_access) {
+    if (!!permissions.projectAccess && !!permissions.groupAccess) {
       return (
-        permissions.project_access.access_level === 50 ||
-        permissions.group_access.access_level === 50
+        permissions.projectAccess.accessLevel === 50 ||
+        permissions.groupAccess.accessLevel === 50
       );
     }
 
-    if (!!permissions.project_access) {
-      return permissions.project_access.access_level === 50;
+    if (!!permissions.projectAccess) {
+      return permissions.projectAccess.accessLevel === 50;
     }
 
-    if (!!permissions.group_access) {
-      return permissions.group_access.access_level === 50;
+    if (!!permissions.groupAccess) {
+      return permissions.groupAccess.accessLevel === 50;
     }
 
     return false;

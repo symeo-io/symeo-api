@@ -14,7 +14,7 @@ export class GitlabOrganizationMapper {
     return new VcsOrganization(
       gitlabOrganizationDTO.id,
       gitlabOrganizationDTO.name,
-      gitlabOrganizationDTO.avatar_url,
+      gitlabOrganizationDTO.avatarUrl,
       VCSProvider.Gitlab,
     );
   }
@@ -25,7 +25,7 @@ export class GitlabOrganizationMapper {
     return new VcsOrganization(
       gitlabUserDTO.id,
       gitlabUserDTO.username,
-      gitlabUserDTO.avatar_url,
+      gitlabUserDTO.avatarUrl,
       VCSProvider.Gitlab,
     );
   }
