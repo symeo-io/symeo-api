@@ -53,7 +53,7 @@ describe('Authorizations', () => {
       verbs: ['delete'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
       verbs: ['get', 'post'],
     },
     {

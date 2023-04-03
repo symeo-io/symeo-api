@@ -56,7 +56,7 @@ describe('EnvironmentPermissionController', () => {
     appClient.mockReset();
   });
 
-  describe('(GET) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions', () => {
+  describe('(GET) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId/permissions', () => {
     describe('With Github as VcsProvider', () => {
       const currentUser = new User(
         `github|${faker.datatype.number()}`,
@@ -93,7 +93,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -163,7 +163,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -231,7 +231,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -320,7 +320,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -395,7 +395,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -465,7 +465,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -533,7 +533,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);
@@ -622,7 +622,7 @@ describe('EnvironmentPermissionController', () => {
             .request(currentUser)
             // When
             .get(
-              `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+              `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
             )
             // Then
             .expect(200);

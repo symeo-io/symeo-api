@@ -101,7 +101,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send({ data: faker.name.firstName() })
           // Then
@@ -139,7 +139,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send({ data: faker.name.firstName() })
           // Then
@@ -185,7 +185,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -242,7 +242,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -308,7 +308,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -415,7 +415,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -497,7 +497,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send({ data: faker.name.firstName() })
           // Then
@@ -535,7 +535,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send({ data: faker.name.firstName() })
           // Then
@@ -581,7 +581,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -638,7 +638,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -704,7 +704,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
@@ -811,7 +811,7 @@ describe('EnvironmentPermissionController', () => {
           .request(currentUser)
           // When
           .post(
-            `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/permissions`,
           )
           .send(updateEnvironmentPermissionsDTO)
           // Then
