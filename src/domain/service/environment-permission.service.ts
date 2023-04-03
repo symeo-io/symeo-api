@@ -111,31 +111,32 @@ export class EnvironmentPermissionService
     environment: Environment,
     environmentPermissions: EnvironmentPermission[],
   ): Promise<EnvironmentPermission[]> {
-    switch (user.provider) {
-      case VCSProvider.GitHub:
-        const previousEnvironmentPermissions: EnvironmentPermissionWithUser[] =
-          await this.getEnvironmentPermissionsForEnvironmentAndUserVcsIds(
-            user,
-            repository,
-            environment,
-            environmentPermissions,
-          );
-        const updatedEnvironmentPermissions: EnvironmentPermission[] =
-          await this.updateEnvironmentPermissionsWithGithub(
-            environmentPermissions,
-          );
-        await this.environmentAuditFacade.saveAllWithPermissionMetadataType(
-          EnvironmentAuditEventType.PERMISSION_UPDATED,
-          user,
-          repository,
-          environment,
-          previousEnvironmentPermissions,
-          updatedEnvironmentPermissions,
-        );
-        return updatedEnvironmentPermissions;
-      default:
-        return [];
+    if (
+      user.provider !== VCSProvider.GitHub &&
+      user.provider !== VCSProvider.Gitlab
+    ) {
+      return [];
     }
+
+    const previousEnvironmentPermissions: EnvironmentPermissionWithUser[] =
+      await this.getEnvironmentPermissionsForEnvironmentAndUserVcsIds(
+        user,
+        repository,
+        environment,
+        environmentPermissions,
+      );
+
+    const updatedEnvironmentPermissions: EnvironmentPermission[] =
+      await this.saveEnvironmentPermissions(environmentPermissions);
+    await this.environmentAuditFacade.saveAllWithPermissionMetadataType(
+      EnvironmentAuditEventType.PERMISSION_UPDATED,
+      user,
+      repository,
+      environment,
+      previousEnvironmentPermissions,
+      updatedEnvironmentPermissions,
+    );
+    return updatedEnvironmentPermissions;
   }
 
   private async getEnvironmentPermissionsWithGithub(
@@ -338,7 +339,7 @@ export class EnvironmentPermissionService
     return [...persistedEnvironmentPermissions, ...generatedPermissions];
   }
 
-  private async updateEnvironmentPermissionsWithGithub(
+  private async saveEnvironmentPermissions(
     environmentPermissionsToUpdate: EnvironmentPermission[],
   ) {
     await this.environmentPermissionStoragePort.saveAll(
@@ -359,13 +360,25 @@ export class EnvironmentPermissionService
     environmentPermissionsToUpdate: EnvironmentPermission[],
   ) {
     const previousEnvironmentPermissions: EnvironmentPermissionWithUser[] = [];
-    const permissionUserIdsNotInGithubUsers: number[] = [];
+    const permissionUserIdsNotInVcsUsers: number[] = [];
+    let repositoryUsersWithRole: VcsUser[];
 
-    const githubRepositoryUsersWithRole: VcsUser[] =
-      await this.githubAdapterPort.getCollaboratorsForRepository(
-        user,
-        repository.id,
-      );
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        repositoryUsersWithRole =
+          await this.githubAdapterPort.getCollaboratorsForRepository(
+            user,
+            repository.id,
+          );
+        break;
+      case VCSProvider.Gitlab:
+        repositoryUsersWithRole =
+          await this.gitlabAdapterPort.getCollaboratorsForRepository(
+            user,
+            repository.id,
+          );
+        break;
+    }
 
     const persistedEnvironmentPermissionsForEnvironmentId: EnvironmentPermission[] =
       await this.environmentPermissionStoragePort.findForEnvironmentId(
@@ -380,20 +393,20 @@ export class EnvironmentPermissionService
             environmentPermissionToUpdate.id,
         );
 
-      const githubRepositoryUser = githubRepositoryUsersWithRole.find(
+      const repositoryUser = repositoryUsersWithRole.find(
         (vcsUser) => environmentPermissionToUpdate.userVcsId === vcsUser.id,
       );
 
-      if (!githubRepositoryUser) {
-        permissionUserIdsNotInGithubUsers.push(
+      if (!repositoryUser) {
+        permissionUserIdsNotInVcsUsers.push(
           environmentPermissionToUpdate.userVcsId,
         );
         return;
       }
 
-      if (this.isUserRepositoryAdministrator(githubRepositoryUser)) {
+      if (this.isUserRepositoryAdministrator(repositoryUser)) {
         throw new SymeoException(
-          `User with vcsId ${githubRepositoryUser.id} is administrator of the repository, thus you can not modify his environment permissions`,
+          `User with vcsId ${repositoryUser.id} is administrator of the repository, thus you can not modify his environment permissions`,
           SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION,
         );
       }
@@ -401,7 +414,7 @@ export class EnvironmentPermissionService
       if (persistedEnvironmentPermissionForId) {
         previousEnvironmentPermissions.push(
           this.environmentPermissionUtils.generateEnvironmentPermissionWithUser(
-            githubRepositoryUser,
+            repositoryUser,
             persistedEnvironmentPermissionForId,
           ),
         );
@@ -410,16 +423,16 @@ export class EnvironmentPermissionService
 
       previousEnvironmentPermissions.push(
         this.environmentPermissionUtils.generateDefaultEnvironmentPermissionFromVcsUser(
-          githubRepositoryUser,
+          repositoryUser,
           environment,
         ),
       );
       return;
     });
 
-    if (permissionUserIdsNotInGithubUsers.length > 0) {
+    if (permissionUserIdsNotInVcsUsers.length > 0) {
       throw new SymeoException(
-        `User with vcsIds ${permissionUserIdsNotInGithubUsers.join(
+        `User with vcsIds ${permissionUserIdsNotInVcsUsers.join(
           ', ',
         )} do not have access to repository with repositoryVcsId ${
           repository.id
