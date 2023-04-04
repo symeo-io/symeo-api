@@ -2,7 +2,7 @@ import { instance, mock, when } from 'ts-mockito';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import * as fs from 'fs';
 import { GitlabHttpClient } from 'src/infrastructure/gitlab-adapter/gitlab.http.client';

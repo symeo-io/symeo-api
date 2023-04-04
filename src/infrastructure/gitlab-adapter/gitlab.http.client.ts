@@ -2,7 +2,7 @@ import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage'
 import { AxiosError, AxiosInstance } from 'axios';
 import User from 'src/domain/model/user/user.model';
 import { GitlabRepositoryDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.repository.dto';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.authenticated.user.dto';
 import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.branch.dto';
 import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';

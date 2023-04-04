@@ -3,7 +3,7 @@ import User from 'src/domain/model/user/user.model';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { Injectable } from '@nestjs/common';
 import { GitlabHttpClient } from 'src/infrastructure/gitlab-adapter/gitlab.http.client';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { plainToInstance } from 'class-transformer';
 import { orderBy, uniqBy } from 'lodash';
 import { GitlabOrganizationMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.organization.mapper';
