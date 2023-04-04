@@ -17,7 +17,7 @@ export class GitlabRepositoryMapper {
       gitlabRepositoryDTO.id,
       gitlabRepositoryDTO.name,
       {
-        name: gitlabRepositoryDTO.namespace.name,
+        name: gitlabRepositoryDTO.namespace.path,
         id: gitlabRepositoryDTO.namespace.id,
         avatarUrl: gitlabRepositoryDTO.namespace.avatarUrl,
       },

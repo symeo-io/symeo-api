@@ -19,7 +19,7 @@ export type MockedGithubRepository = {
 export type MockedGitlabRepository = {
   name: string;
   id: number;
-  namespace: { name: string; id: number; avatar_url: string };
+  namespace: { name: string; path: string; id: number; avatar_url: string };
   permissions: {
     project_access: {
       access_level: number;
@@ -78,6 +78,7 @@ export class FetchVcsRepositoryMock {
       id: repositoryVcsId,
       namespace: {
         name: faker.lorem.slug(),
+        path: faker.lorem.slug(),
         id: faker.datatype.number(),
         avatar_url: faker.lorem.slug(),
       },
