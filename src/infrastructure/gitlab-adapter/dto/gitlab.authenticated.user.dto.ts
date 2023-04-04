@@ -8,6 +8,9 @@ export class GitlabAuthenticatedUserDTO {
   @Expose({ name: 'username' })
   @IsString()
   username: string;
+  @Expose({ name: 'name' })
+  @IsString()
+  name: string;
   @Expose({ name: 'avatar_url' })
   @IsString()
   avatarUrl: string;

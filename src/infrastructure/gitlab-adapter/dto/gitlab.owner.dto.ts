@@ -8,6 +8,9 @@ export class GitlabOwnerDTO {
   @Expose({ name: 'name' })
   @IsString()
   name: string;
+  @Expose({ name: 'path' })
+  @IsString()
+  path: string;
   @Expose({ name: 'avatar_url' })
   @IsString()
   avatarUrl: string;
