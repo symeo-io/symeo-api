@@ -55,6 +55,7 @@ describe('OrganizationController', () => {
               {
                 vcsId: 1,
                 name: 'octocat',
+                displayName: 'octocat',
                 avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
               },
             ],
@@ -75,6 +76,7 @@ describe('OrganizationController', () => {
               {
                 vcsId: 1,
                 name: 'octocat',
+                displayName: 'octocat',
                 avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
               },
             ],
@@ -104,6 +106,7 @@ describe('OrganizationController', () => {
               {
                 vcsId: 65616175,
                 name: 'dfrances-test',
+                displayName: 'dfrances-test',
                 avatarUrl:
                   '/uploads/-/system/group/avatar/65616175/gitlab8368.jpeg',
               },
@@ -125,6 +128,7 @@ describe('OrganizationController', () => {
               {
                 vcsId: 12917479,
                 name: 'DorianSymeo',
+                displayName: 'Dorian Frances',
                 avatarUrl:
                   'https://secure.gravatar.com/avatar/84a0b53a86a1f2bf0ddbbd85156631de?s=80&d=identicon',
               },

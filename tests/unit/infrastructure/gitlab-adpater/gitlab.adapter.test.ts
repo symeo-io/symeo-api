@@ -62,6 +62,7 @@ describe('GitlabAdapter', () => {
         new VcsOrganization(
           65616175,
           'dfrances-test',
+          'dfrances-test',
           '/uploads/-/system/group/avatar/65616175/gitlab8368.jpeg',
           VCSProvider.Gitlab,
         ),
@@ -117,6 +118,7 @@ describe('GitlabAdapter', () => {
       expect(organizations).toEqual([
         new VcsOrganization(
           65616175,
+          'dfrances-test',
           'dfrances-test',
           '/uploads/-/system/group/avatar/65616175/gitlab8368.jpeg',
           VCSProvider.Gitlab,

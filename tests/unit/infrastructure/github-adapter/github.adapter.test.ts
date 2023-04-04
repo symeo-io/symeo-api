@@ -62,6 +62,7 @@ describe('GithubAdapter', () => {
         new VcsOrganization(
           1,
           'octocat',
+          'octocat',
           'https://github.com/images/error/octocat_happy.gif',
           VCSProvider.GitHub,
         ),
@@ -117,6 +118,7 @@ describe('GithubAdapter', () => {
       expect(organizations).toEqual([
         new VcsOrganization(
           1,
+          'octocat',
           'octocat',
           'https://github.com/images/error/octocat_happy.gif',
           VCSProvider.GitHub,
