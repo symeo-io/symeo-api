@@ -12,14 +12,6 @@ describe('OrganizationController', () => {
   let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
   let fetchAuthenticatedUserMock: FetchAuthenticatedUserMock;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
     await appClient.init();
@@ -41,43 +33,104 @@ describe('OrganizationController', () => {
   });
 
   describe('(GET) /organizations', () => {
-    it('should respond 200 with github repository', async () => {
-      // Given
-      fetchVcsRepositoriesMock.mockRepositoryPresent();
+    describe('For Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
 
-      return appClient
-        .request(currentUser)
-        .get(`/api/v1/organizations`)
-        .expect(200)
-        .expect({
-          organizations: [
-            {
-              vcsId: 1,
-              name: 'octocat',
-              avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
-            },
-          ],
-        });
+      it('should respond 200 with github repository', async () => {
+        // Given
+        fetchVcsRepositoriesMock.mockGithubRepositoryPresent();
+
+        return appClient
+          .request(currentUser)
+          .get(`/api/v1/organizations`)
+          .expect(200)
+          .expect({
+            organizations: [
+              {
+                vcsId: 1,
+                name: 'octocat',
+                avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
+              },
+            ],
+          });
+      });
+
+      it('should respond 200 with github organization when no repositories', async () => {
+        // Given
+        fetchVcsRepositoriesMock.mockGithubRepositoryNotPresent();
+        fetchAuthenticatedUserMock.mockGithubAuthenticatedPresent();
+
+        return appClient
+          .request(currentUser)
+          .get(`/api/v1/organizations`)
+          .expect(200)
+          .expect({
+            organizations: [
+              {
+                vcsId: 1,
+                name: 'octocat',
+                avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
+              },
+            ],
+          });
+      });
     });
 
-    it('should respond 200 with github organization when no repositories', async () => {
-      // Given
-      fetchVcsRepositoriesMock.mockRepositoryNotPresent();
-      fetchAuthenticatedUserMock.mockAuthenticatedPresent();
+    describe('For Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
+      );
 
-      return appClient
-        .request(currentUser)
-        .get(`/api/v1/organizations`)
-        .expect(200)
-        .expect({
-          organizations: [
-            {
-              vcsId: 1,
-              name: 'octocat',
-              avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
-            },
-          ],
-        });
+      it('should respond 200 with gitlab repository', async () => {
+        // Given
+        fetchVcsRepositoriesMock.mockGitlabRepositoryPresent();
+
+        return appClient
+          .request(currentUser)
+          .get(`/api/v1/organizations`)
+          .expect(200)
+          .expect({
+            organizations: [
+              {
+                vcsId: 65616175,
+                name: 'dfrances-test',
+                avatarUrl:
+                  '/uploads/-/system/group/avatar/65616175/gitlab8368.jpeg',
+              },
+            ],
+          });
+      });
+
+      it('should respond 200 with gitlab organization when no repositories', async () => {
+        // Given
+        fetchVcsRepositoriesMock.mockGitlabRepositoryNotPresent();
+        fetchAuthenticatedUserMock.mockGitlabAuthenticatedPresent();
+
+        return appClient
+          .request(currentUser)
+          .get(`/api/v1/organizations`)
+          .expect(200)
+          .expect({
+            organizations: [
+              {
+                vcsId: 12917479,
+                name: 'DorianSymeo',
+                avatarUrl:
+                  'https://secure.gravatar.com/avatar/84a0b53a86a1f2bf0ddbbd85156631de?s=80&d=identicon',
+              },
+            ],
+          });
+      });
     });
   });
 });

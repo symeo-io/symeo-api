@@ -26,14 +26,6 @@ describe('ConfigurationController', () => {
   let environmentTestUtil: EnvironmentTestUtil;
   let configurationAuditTestUtil: ConfigurationAuditTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -66,72 +58,155 @@ describe('ConfigurationController', () => {
   afterEach(() => {
     appClient.mockReset();
     fetchVcsAccessTokenMock.restore();
+    deleteSecretMock.restore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId', () => {
-    it('should respond 200 and delete configuration', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
-      fetchUserVcsRepositoryPermissionMock.mockUserRepositoryRole(
-        currentUser,
-        repository.id,
-        VcsRepositoryRole.ADMIN,
+  describe('(DELETE) /configurations/:repositoryVcsId/:configurationId', () => {
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
       );
-      const configuration = await configurationTestUtil.createConfiguration(
-        repository.id,
-      );
-      const environment1 = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      const environment2 = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
+      it('should respond 200 and delete configuration', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
+          currentUser,
+          repository.id,
+          VcsRepositoryRole.ADMIN,
+        );
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        const environment1 = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        const environment2 = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
 
-      await appClient
-        .request(currentUser)
-        .delete(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}`,
-        )
-        .expect(200);
+        await appClient
+          .request(currentUser)
+          .delete(`/api/v1/configurations/${repository.id}/${configuration.id}`)
+          .expect(200);
 
-      expect(deleteSecretMock.spy).toHaveBeenCalledTimes(2);
-      expect(deleteSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment1.id,
-      });
-      expect(deleteSecretMock.spy).toHaveBeenCalledWith({
-        SecretId: environment2.id,
-      });
-
-      const deletedConfiguration: ConfigurationEntity | null =
-        await configurationTestUtil.repository.findOneBy({
-          id: configuration.id,
+        expect(deleteSecretMock.spy).toHaveBeenCalledTimes(2);
+        expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment1.id,
+        });
+        expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment2.id,
         });
 
-      expect(deletedConfiguration).toBeNull();
+        const deletedConfiguration: ConfigurationEntity | null =
+          await configurationTestUtil.repository.findOneBy({
+            id: configuration.id,
+          });
 
-      const configurationAuditEntity: ConfigurationAuditEntity[] =
-        await configurationAuditTestUtil.repository.find();
-      expect(configurationAuditEntity.length).toEqual(1);
-      expect(configurationAuditEntity[0].id).toBeDefined();
-      expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
-      expect(configurationAuditEntity[0].userName).toEqual(
-        currentUser.username,
+        expect(deletedConfiguration).toBeNull();
+
+        const configurationAuditEntity: ConfigurationAuditEntity[] =
+          await configurationAuditTestUtil.repository.find();
+        expect(configurationAuditEntity.length).toEqual(1);
+        expect(configurationAuditEntity[0].id).toBeDefined();
+        expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(configurationAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(configurationAuditEntity[0].configurationId).toEqual(
+          configuration?.id,
+        );
+        expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(configurationAuditEntity[0].eventType).toEqual(
+          ConfigurationAuditEventType.CREATED,
+        );
+        expect(configurationAuditEntity[0].metadata).toEqual({
+          metadata: {
+            name: configuration.name,
+          },
+        });
+      });
+    });
+
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
       );
-      expect(configurationAuditEntity[0].configurationId).toEqual(
-        configuration?.id,
-      );
-      expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
-        repositoryVcsId,
-      );
-      expect(configurationAuditEntity[0].eventType).toEqual(
-        ConfigurationAuditEventType.CREATED,
-      );
-      expect(configurationAuditEntity[0].metadata).toEqual({
-        metadata: {
-          name: configuration.name,
-        },
+      it('should respond 200 and delete configuration', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        fetchUserVcsRepositoryPermissionMock.mockGitlabUserRepositoryRole(
+          currentUser,
+          repository.id,
+          50,
+        );
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        const environment1 = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        const environment2 = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+
+        await appClient
+          .request(currentUser)
+          .delete(`/api/v1/configurations/${repository.id}/${configuration.id}`)
+          .expect(200);
+
+        expect(deleteSecretMock.spy).toHaveBeenCalledTimes(2);
+        expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment1.id,
+        });
+        expect(deleteSecretMock.spy).toHaveBeenCalledWith({
+          SecretId: environment2.id,
+        });
+
+        const deletedConfiguration: ConfigurationEntity | null =
+          await configurationTestUtil.repository.findOneBy({
+            id: configuration.id,
+          });
+
+        expect(deletedConfiguration).toBeNull();
+
+        const configurationAuditEntity: ConfigurationAuditEntity[] =
+          await configurationAuditTestUtil.repository.find();
+        expect(configurationAuditEntity.length).toEqual(1);
+        expect(configurationAuditEntity[0].id).toBeDefined();
+        expect(configurationAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(configurationAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(configurationAuditEntity[0].configurationId).toEqual(
+          configuration?.id,
+        );
+        expect(configurationAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(configurationAuditEntity[0].eventType).toEqual(
+          ConfigurationAuditEventType.CREATED,
+        );
+        expect(configurationAuditEntity[0].metadata).toEqual({
+          metadata: {
+            name: configuration.name,
+          },
+        });
       });
     });
   });

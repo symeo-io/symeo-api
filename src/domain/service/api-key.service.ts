@@ -3,7 +3,6 @@ import { ApiKeyFacade } from 'src/domain/port/in/api-key.facade';
 import ApiKey from 'src/domain/model/environment/api-key.model';
 import ApiKeyStoragePort from 'src/domain/port/out/api-key.storage.port';
 import Environment from 'src/domain/model/environment/environment.model';
-import EnvironmentAuditService from 'src/domain/service/environment-audit.service';
 import User from 'src/domain/model/user/user.model';
 import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';

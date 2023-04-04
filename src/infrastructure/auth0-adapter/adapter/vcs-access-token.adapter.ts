@@ -10,7 +10,7 @@ export class VCSAccessTokenAdapter implements VCSAccessTokenStorage {
   > = {};
   constructor(private auth0Client: Auth0Client) {}
 
-  async getGitHubAccessToken(user: User): Promise<string | undefined> {
+  async getAccessToken(user: User): Promise<string | undefined> {
     if (
       !this.cache[user.id] ||
       !this.cache[user.id][user.accessTokenExpiration]
@@ -23,10 +23,11 @@ export class VCSAccessTokenAdapter implements VCSAccessTokenStorage {
     }
 
     const userData = await this.cache[user.id][user.accessTokenExpiration];
-    const githubIdentity = userData?.identities?.find(
-      (identity) => identity.provider === 'github',
+    const vcsIdentity = userData?.identities?.find(
+      (identity) =>
+        identity.connection === 'github' || identity.connection === 'gitlab',
     );
 
-    return githubIdentity?.access_token;
+    return vcsIdentity?.access_token;
   }
 }

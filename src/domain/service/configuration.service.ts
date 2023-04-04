@@ -131,7 +131,7 @@ export default class ConfigurationService implements ConfigurationFacade {
     const configuration = new Configuration(
       uuid(),
       name,
-      VCSProvider.GitHub,
+      currentUser.provider,
       {
         name: repository.name,
         vcsId: repository.id,

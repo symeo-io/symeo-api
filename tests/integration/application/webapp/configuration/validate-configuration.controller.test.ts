@@ -12,14 +12,6 @@ describe('ConfigurationController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsFileMock: FetchVcsFileMock;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -43,77 +35,167 @@ describe('ConfigurationController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(GET) /github/validate', () => {
-    it('should respond false for unknown repository id', async () => {
-      // Given
-      const repositoryVcsId = 105865802;
-      fetchVcsRepositoryMock.mockRepositoryMissing(repositoryVcsId);
+  describe('(GET) /validate', () => {
+    describe('For Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.GitHub,
+        faker.datatype.number(),
+      );
+      it('should respond false for unknown repository id', async () => {
+        // Given
+        const repositoryVcsId = 105865802;
+        fetchVcsRepositoryMock.mockGithubRepositoryMissing(repositoryVcsId);
 
-      const response = await appClient
-        .request(currentUser)
-        // When
-        .post(`/api/v1/configurations/github/validate`)
-        .send({
-          repositoryVcsId,
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .post(`/api/v1/configurations/validate`)
+          .send({
+            repositoryVcsId,
+            contractFilePath: 'symeo.config.yml',
+            branch: 'staging',
+          })
+          // Then
+          .expect(200);
+
+        expect(response.body.isValid).toEqual(false);
+      });
+
+      it('should respond false for non existing file', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const dataToSend = {
+          repositoryVcsId: repository.id,
+          contractFilePath: faker.lorem.slug(),
+          branch: faker.lorem.slug(),
+        };
+        fetchVcsFileMock.mockGithubFileMissing(
+          repository.id,
+          dataToSend.contractFilePath,
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .post(`/api/v1/configurations/validate`)
+          .send(dataToSend)
+          // Then
+          .expect(200);
+
+        expect(response.body.isValid).toEqual(false);
+      });
+
+      it('should respond true for existing file', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const dataToSend = {
+          repositoryVcsId: repository.id,
           contractFilePath: 'symeo.config.yml',
           branch: 'staging',
-        })
-        // Then
-        .expect(200);
+        };
+        fetchVcsFileMock.mockGithubFilePresent(
+          repository.id,
+          dataToSend.contractFilePath,
+        );
 
-      expect(response.body.isValid).toEqual(false);
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .post(`/api/v1/configurations/validate`)
+          .send(dataToSend)
+          // Then
+          .expect(200);
+
+        expect(response.body.isValid).toEqual(true);
+      });
     });
 
-    it('should respond false for non existing file', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
-      const dataToSend = {
-        repositoryVcsId: repository.id,
-        contractFilePath: faker.lorem.slug(),
-        branch: faker.lorem.slug(),
-      };
-      fetchVcsFileMock.mockFileMissing(
-        repository.id,
-        dataToSend.contractFilePath,
+    describe('For Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
       );
+      it('should respond false for unknown repository id', async () => {
+        // Given
+        const repositoryVcsId = 105865802;
+        fetchVcsRepositoryMock.mockGitlabRepositoryMissing(repositoryVcsId);
 
-      const response = await appClient
-        .request(currentUser)
-        // When
-        .post(`/api/v1/configurations/github/validate`)
-        .send(dataToSend)
-        // Then
-        .expect(200);
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .post(`/api/v1/configurations/validate`)
+          .send({
+            repositoryVcsId,
+            contractFilePath: 'symeo.config.yml',
+            branch: 'staging',
+          })
+          // Then
+          .expect(200);
 
-      expect(response.body.isValid).toEqual(false);
-    });
+        expect(response.body.isValid).toEqual(false);
+      });
 
-    it('should respond true for existing file', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockRepositoryPresent(repositoryVcsId);
-      const dataToSend = {
-        repositoryVcsId: repository.id,
-        contractFilePath: 'symeo.config.yml',
-        branch: 'staging',
-      };
-      fetchVcsFileMock.mockFilePresent(
-        repository.id,
-        dataToSend.contractFilePath,
-      );
+      it('should respond false for non existing file', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const dataToSend = {
+          repositoryVcsId: repository.id,
+          contractFilePath: faker.lorem.slug(),
+          branch: faker.lorem.slug(),
+        };
+        fetchVcsFileMock.mockGitlabFileMissing(
+          repository.id,
+          dataToSend.contractFilePath,
+        );
 
-      const response = await appClient
-        .request(currentUser)
-        // When
-        .post(`/api/v1/configurations/github/validate`)
-        .send(dataToSend)
-        // Then
-        .expect(200);
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .post(`/api/v1/configurations/validate`)
+          .send(dataToSend)
+          // Then
+          .expect(200);
 
-      expect(response.body.isValid).toEqual(true);
+        expect(response.body.isValid).toEqual(false);
+      });
+
+      it('should respond true for existing file', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const dataToSend = {
+          repositoryVcsId: repository.id,
+          contractFilePath: 'symeo.config.yml',
+          branch: 'staging',
+        };
+        fetchVcsFileMock.mockGitlabFilePresent(
+          repository.id,
+          dataToSend.contractFilePath,
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          // When
+          .post(`/api/v1/configurations/validate`)
+          .send(dataToSend)
+          // Then
+          .expect(200);
+
+        expect(response.body.isValid).toEqual(true);
+      });
     });
   });
 });
