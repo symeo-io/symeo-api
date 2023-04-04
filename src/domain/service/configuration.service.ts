@@ -1,7 +1,6 @@
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import Configuration from 'src/domain/model/configuration/configuration.model';
 import ConfigurationFacade from 'src/domain/port/in/configuration.facade.port';
-import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import User from 'src/domain/model/user/user.model';
 import { RepositoryFacade } from 'src/domain/port/in/repository.facade.port';
 import { v4 as uuid } from 'uuid';

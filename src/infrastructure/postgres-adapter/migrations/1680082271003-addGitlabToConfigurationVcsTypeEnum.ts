@@ -18,7 +18,7 @@ export class addGitlabToConfigurationVcsTypeEnum1680082271003
     );
     await queryRunner.query(`DROP TYPE configurations_vcstype_enum`);
     await queryRunner.query(
-      `CREATE TYPE configurations_vcstype_enum AS ENUM('github', 'gitlab)`,
+      `CREATE TYPE configurations_vcstype_enum AS ENUM('github', 'gitlab')`,
     );
     await queryRunner.query(
       `ALTER TABLE "configurations" ALTER COLUMN "vcsType" TYPE configurations_vcstype_enum USING ("vcsType"::configurations_vcstype_enum)`,

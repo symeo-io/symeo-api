@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 
-export class GitlabAuthenticatedUserDTO {
+export class GitlabCollaboratorDTO {
   @Expose({ name: 'id' })
   @IsNumber()
   id: number;
@@ -11,4 +11,7 @@ export class GitlabAuthenticatedUserDTO {
   @Expose({ name: 'avatar_url' })
   @IsString()
   avatarUrl: string;
+  @Expose({ name: 'access_level' })
+  @IsNumber()
+  accessLevel: number;
 }

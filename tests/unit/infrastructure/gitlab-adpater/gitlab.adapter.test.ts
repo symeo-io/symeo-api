@@ -1,11 +1,9 @@
-import { GithubHttpClient } from 'src/infrastructure/github-adapter/github.http.client';
 import { instance, mock, when } from 'ts-mockito';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { config } from 'symeo-js';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
-import GithubAdapter from 'src/infrastructure/github-adapter/adapter/github.adapter';
 import * as fs from 'fs';
 import { GitlabHttpClient } from 'src/infrastructure/gitlab-adapter/gitlab.http.client';
 import GitlabAdapter from 'src/infrastructure/gitlab-adapter/adapter/gitlab.adapter';
@@ -15,7 +13,7 @@ describe('GitlabAdapter', () => {
     const mockedGitlabHttpClient: GitlabHttpClient = mock(GitlabHttpClient);
 
     const user = new User(
-      `gitlab|${faker.datatype.number()}`,
+      `oauth2|gitlab|${faker.datatype.number()}`,
       faker.internet.email(),
       faker.internet.userName(),
       VCSProvider.Gitlab,

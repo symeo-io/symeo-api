@@ -17,15 +17,15 @@ export class GitlabRepositoryMapper {
       gitlabRepositoryDTO.id,
       gitlabRepositoryDTO.name,
       {
-        name: gitlabRepositoryDTO.owner.login,
-        id: gitlabRepositoryDTO.owner.id,
-        avatarUrl: gitlabRepositoryDTO.owner.avatarUrl,
+        name: gitlabRepositoryDTO.namespace.name,
+        id: gitlabRepositoryDTO.namespace.id,
+        avatarUrl: gitlabRepositoryDTO.namespace.avatarUrl,
       },
-      gitlabRepositoryDTO.pushedAt
-        ? new Date(gitlabRepositoryDTO.pushedAt)
+      gitlabRepositoryDTO.createdAt
+        ? new Date(gitlabRepositoryDTO.createdAt)
         : undefined,
       VCSProvider.Gitlab,
-      gitlabRepositoryDTO.htmlUrl,
+      gitlabRepositoryDTO.webUrl,
       gitlabRepositoryDTO.permissions
         ? GitlabRepositoryMapper.isCurrentUserRepositoryAdmin(
             gitlabRepositoryDTO.permissions,
@@ -38,19 +38,19 @@ export class GitlabRepositoryMapper {
   private static isCurrentUserRepositoryAdmin(
     permissions: GitlabPermissionsDTO,
   ) {
-    if (!!permissions.project_access && !!permissions.group_access) {
+    if (!!permissions.projectAccess && !!permissions.groupAccess) {
       return (
-        permissions.project_access.access_level === 50 ||
-        permissions.group_access.access_level === 50
+        permissions.projectAccess.accessLevel === 50 ||
+        permissions.groupAccess.accessLevel === 50
       );
     }
 
-    if (!!permissions.project_access) {
-      return permissions.project_access.access_level === 50;
+    if (!!permissions.projectAccess) {
+      return permissions.projectAccess.accessLevel === 50;
     }
 
-    if (!!permissions.group_access) {
-      return permissions.group_access.access_level === 50;
+    if (!!permissions.groupAccess) {
+      return permissions.groupAccess.accessLevel === 50;
     }
 
     return false;

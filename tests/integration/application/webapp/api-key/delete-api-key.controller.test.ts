@@ -23,14 +23,6 @@ describe('ApiKeyController', () => {
   let apiKeyTestUtil: ApiKeyTestUtil;
   let environmentAuditTestUtil: EnvironmentAuditTestUtil;
 
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
-
   beforeAll(async () => {
     appClient = new AppClient();
 
@@ -63,56 +55,130 @@ describe('ApiKeyController', () => {
     fetchVcsAccessTokenMock.restore();
   });
 
-  describe('(DELETE) /configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId', () => {
-    it('should respond 200 and delete api key', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
+  describe('(DELETE) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId', () => {
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
-      fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
-        currentUser,
-        repository.id,
-        VcsRepositoryRole.ADMIN,
-      );
-      const environment = await environmentTestUtil.createEnvironment(
-        configuration,
-      );
-      const apiKey = await apiKeyTestUtil.createApiKey(environment);
+      it('should respond 200 and delete api key', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockGithubUserRepositoryRole(
+          currentUser,
+          repository.id,
+          VcsRepositoryRole.ADMIN,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        const apiKey = await apiKeyTestUtil.createApiKey(environment);
 
-      await appClient
-        .request(currentUser)
-        .delete(
-          `/api/v1/configurations/github/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys/${apiKey.id}`,
-        )
-        .expect(200);
+        await appClient
+          .request(currentUser)
+          .delete(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys/${apiKey.id}`,
+          )
+          .expect(200);
 
-      const deletedApiKey = await apiKeyTestUtil.repository.findOneBy({
-        id: apiKey.id,
+        const deletedApiKey = await apiKeyTestUtil.repository.findOneBy({
+          id: apiKey.id,
+        });
+
+        expect(deletedApiKey).toBeNull();
+
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.API_KEY_DELETED,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            hiddenKey: apiKey?.hiddenKey,
+          },
+        });
       });
+    });
 
-      expect(deletedApiKey).toBeNull();
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
+      );
+      it('should respond 200 and delete api key', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        fetchUserVcsRepositoryPermissionMock.mockGitlabUserRepositoryRole(
+          currentUser,
+          repository.id,
+          50,
+        );
+        const environment = await environmentTestUtil.createEnvironment(
+          configuration,
+        );
+        const apiKey = await apiKeyTestUtil.createApiKey(environment);
 
-      const environmentAuditEntity: EnvironmentAuditEntity[] =
-        await environmentAuditTestUtil.repository.find();
-      expect(environmentAuditEntity.length).toEqual(1);
-      expect(environmentAuditEntity[0].id).toBeDefined();
-      expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
-      expect(environmentAuditEntity[0].userName).toEqual(currentUser.username);
-      expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
-      expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
-        repositoryVcsId,
-      );
-      expect(environmentAuditEntity[0].eventType).toEqual(
-        EnvironmentAuditEventType.API_KEY_DELETED,
-      );
-      expect(environmentAuditEntity[0].metadata).toEqual({
-        metadata: {
-          hiddenKey: apiKey?.hiddenKey,
-        },
+        await appClient
+          .request(currentUser)
+          .delete(
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/api-keys/${apiKey.id}`,
+          )
+          .expect(200);
+
+        const deletedApiKey = await apiKeyTestUtil.repository.findOneBy({
+          id: apiKey.id,
+        });
+
+        expect(deletedApiKey).toBeNull();
+
+        const environmentAuditEntity: EnvironmentAuditEntity[] =
+          await environmentAuditTestUtil.repository.find();
+        expect(environmentAuditEntity.length).toEqual(1);
+        expect(environmentAuditEntity[0].id).toBeDefined();
+        expect(environmentAuditEntity[0].userId).toEqual(currentUser.id);
+        expect(environmentAuditEntity[0].userName).toEqual(
+          currentUser.username,
+        );
+        expect(environmentAuditEntity[0].environmentId).toEqual(environment.id);
+        expect(environmentAuditEntity[0].repositoryVcsId).toEqual(
+          repositoryVcsId,
+        );
+        expect(environmentAuditEntity[0].eventType).toEqual(
+          EnvironmentAuditEventType.API_KEY_DELETED,
+        );
+        expect(environmentAuditEntity[0].metadata).toEqual({
+          metadata: {
+            hiddenKey: apiKey?.hiddenKey,
+          },
+        });
       });
     });
   });

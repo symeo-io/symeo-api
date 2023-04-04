@@ -37,47 +37,47 @@ describe('Authorizations', () => {
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments',
       verbs: ['post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId',
       verbs: ['patch', 'delete'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
       verbs: ['get', 'post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
       verbs: ['delete'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
       verbs: ['get', 'post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/values',
       verbs: ['get', 'post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
       verbs: ['post'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/audits',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/audits',
       verbs: ['get'],
     },
     {
-      path: '/api/v1/configurations/github/:repositoryVcsId/:configurationId/:environmentId/audits',
+      path: '/api/v1/configurations/:repositoryVcsId/:configurationId/:environmentId/audits',
       verbs: ['get'],
     },
   ];
@@ -180,17 +180,17 @@ describe('Authorizations', () => {
           VcsRepositoryRole.ADMIN,
         );
 
-      const configurationId = uuid();
-      const environmentId = uuid();
-      const apiKeyId = uuid();
-      const versionId = uuid();
+        const configurationId = uuid();
+        const environmentId = uuid();
+        const apiKeyId = uuid();
+        const versionId = uuid();
 
-      const url = route.path
-        .replace(':repositoryVcsId', repository.id.toString())
-        .replace(':configurationId', configurationId)
-        .replace(':environmentId', environmentId)
-        .replace(':apiKeyId', apiKeyId)
-        .replace(':versionId', versionId);
+        const url = route.path
+          .replace(':repositoryVcsId', repository.id.toString())
+          .replace(':configurationId', configurationId)
+          .replace(':environmentId', environmentId)
+          .replace(':apiKeyId', apiKeyId)
+          .replace(':versionId', versionId);
 
         const response = await appClient
           .request(currentUser)

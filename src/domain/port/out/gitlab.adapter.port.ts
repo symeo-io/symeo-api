@@ -4,6 +4,7 @@ import { VcsRepository } from 'src/domain/model/vcs/vcs.repository.model';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { EnvFile } from 'src/domain/model/vcs/env-file.model';
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
 
 export interface GitlabAdapterPort {
   getOrganizations(user: User): Promise<VcsOrganization[]>;
@@ -44,7 +45,7 @@ export interface GitlabAdapterPort {
 
   getUserRepositoryRole(
     user: User,
-    id: number,
+    repositoryVcsId: number,
   ): Promise<VcsRepositoryRole | undefined>;
 
   getFileContent(
@@ -53,4 +54,9 @@ export interface GitlabAdapterPort {
     filePath: string,
     branch: string,
   ): Promise<string | undefined>;
+
+  getCollaboratorsForRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsUser[]>;
 }

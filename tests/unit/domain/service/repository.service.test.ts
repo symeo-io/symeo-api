@@ -50,7 +50,7 @@ describe('RepositoryService', () => {
     it('should get repositories for gitlab as vcs provider', async () => {
       // Given
       const user = new User(
-        `gitlab|${faker.datatype.number()}`,
+        `oauth2|gitlab|${faker.datatype.number()}`,
         faker.internet.email(),
         faker.internet.userName(),
         VCSProvider.Gitlab,
@@ -138,7 +138,7 @@ describe('RepositoryService', () => {
     it('should get a repository given a vcsId for gitlab as vcsProvider', async () => {
       // Given
       const user = new User(
-        `gitlab|${faker.datatype.number()}`,
+        `oauth2|gitlab|${faker.datatype.number()}`,
         faker.internet.email(),
         faker.internet.userName(),
         VCSProvider.Gitlab,

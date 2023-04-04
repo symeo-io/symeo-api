@@ -13,7 +13,7 @@ export class GitlabOrganizationMapper {
   static dtoToDomain(gitlabOrganizationDTO: GitlabOwnerDTO): VcsOrganization {
     return new VcsOrganization(
       gitlabOrganizationDTO.id,
-      gitlabOrganizationDTO.login,
+      gitlabOrganizationDTO.name,
       gitlabOrganizationDTO.avatarUrl,
       VCSProvider.Gitlab,
     );
@@ -24,7 +24,7 @@ export class GitlabOrganizationMapper {
   ): VcsOrganization {
     return new VcsOrganization(
       gitlabUserDTO.id,
-      gitlabUserDTO.login,
+      gitlabUserDTO.username,
       gitlabUserDTO.avatarUrl,
       VCSProvider.Gitlab,
     );

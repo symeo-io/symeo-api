@@ -20,9 +20,7 @@ export class ValuesVersionController {
     description: 'Versions of the environment successfully retrieved',
     type: GetValuesVersionsResponseDto,
   })
-  @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/versions',
-  )
+  @Get(':repositoryVcsId/:configurationId/environments/:environmentId/versions')
   @UseGuards(EnvironmentAuthorizationGuard)
   async getValuesVersions(
     @RequestedEnvironment() environment: Environment,

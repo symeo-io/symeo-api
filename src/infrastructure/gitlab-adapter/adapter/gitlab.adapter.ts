@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { GitlabHttpClient } from 'src/infrastructure/gitlab-adapter/gitlab.http.client';
 import { config } from 'symeo-js';
 import { plainToInstance } from 'class-transformer';
-import { uniqBy } from 'lodash';
+import { orderBy, uniqBy } from 'lodash';
 import { GitlabOrganizationMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.organization.mapper';
 import { GitlabRepositoryDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.repository.dto';
 import { GitlabAuthenticatedUserDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.authenticated.user.dto';
@@ -20,6 +20,10 @@ import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.en
 import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum';
 import { GitlabUserPermissionDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.user.permission.dto';
 import { GitlabAccessLevelMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.access.level.mapper';
+import { VcsUser } from 'src/domain/model/vcs/vcs.user.model';
+import { GitlabCollaboratorsMapper } from 'src/infrastructure/gitlab-adapter/mapper/gitlab.collaborators.mapper';
+import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
+import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
 
 @Injectable()
 export default class GitlabAdapter implements GitlabAdapterPort {
@@ -53,7 +57,7 @@ export default class GitlabAdapter implements GitlabAdapterPort {
 
     const gitlabOrganizationsDTO = alreadyCollectedRepositoriesDTO.map(
       (repositoryDTO) =>
-        plainToInstance(GitlabRepositoryDTO, repositoryDTO).owner,
+        plainToInstance(GitlabRepositoryDTO, repositoryDTO).namespace,
     );
     return GitlabOrganizationMapper.dtoToDomains(
       uniqBy(gitlabOrganizationsDTO, 'id'),
@@ -139,8 +143,9 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       repositoryVcsId,
       branch,
     );
-    const rawEnvFiles = files.filter(
-      (file) => file.type === 'blob' && this.isEnvFile(file.path),
+    const rawEnvFiles = plainToInstance(
+      GitlabFileDTO,
+      files.filter((file) => file.type === 'blob' && this.isEnvFile(file.path)),
     );
     const envFilesContents = await Promise.all(
       rawEnvFiles.map((rawEnvFile) =>
@@ -208,7 +213,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       branch,
     );
   }
-
   async getUserRepositoryRole(
     user: User,
     repositoryVcsId: number,
@@ -218,7 +222,6 @@ export default class GitlabAdapter implements GitlabAdapterPort {
         user,
         repositoryVcsId,
       );
-
     if (!repositoryPermission) {
       return undefined;
     }
@@ -243,6 +246,46 @@ export default class GitlabAdapter implements GitlabAdapterPort {
       repositoryVcsId,
       filePath,
       branch,
+    );
+  }
+
+  async getCollaboratorsForRepository(
+    user: User,
+    repositoryVcsId: number,
+  ): Promise<VcsUser[]> {
+    let page = 1;
+    const perPage = config.vcsProvider.paginationLength;
+    let gitlabCollaboratorsDTO =
+      await this.gitlabHttpClient.getCollaboratorsForRepository(
+        user,
+        repositoryVcsId,
+        page,
+        perPage,
+      );
+    let alreadyCollectedCollaboratorsDTO = gitlabCollaboratorsDTO;
+    while (gitlabCollaboratorsDTO.length === perPage) {
+      page += 1;
+      gitlabCollaboratorsDTO =
+        await this.gitlabHttpClient.getCollaboratorsForRepository(
+          user,
+          repositoryVcsId,
+          page,
+          perPage,
+        );
+      alreadyCollectedCollaboratorsDTO =
+        alreadyCollectedCollaboratorsDTO.concat(gitlabCollaboratorsDTO);
+    }
+
+    const alreadyCollaboratorsSortedByAscendingAccessLevel = orderBy(
+      alreadyCollectedCollaboratorsDTO.map((collaboratorDTO) =>
+        plainToInstance(GitlabCollaboratorDTO, collaboratorDTO),
+      ),
+      (collaborator) => collaborator.accessLevel,
+      'asc',
+    );
+
+    return GitlabCollaboratorsMapper.dtoToDomains(
+      uniqBy(alreadyCollaboratorsSortedByAscendingAccessLevel, 'id'),
     );
   }
 }

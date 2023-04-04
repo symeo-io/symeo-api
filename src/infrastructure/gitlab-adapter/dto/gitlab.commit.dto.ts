@@ -4,8 +4,8 @@ import { IsString } from 'class-validator';
 export class GitlabCommitDTO {
   @Expose({ name: 'id' })
   @IsString()
-  sha: string;
+  id: string;
   @Expose({ name: 'web_url' })
   @IsString()
-  url: string;
+  webUrl: string;
 }

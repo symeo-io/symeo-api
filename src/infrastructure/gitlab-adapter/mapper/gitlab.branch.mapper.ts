@@ -10,7 +10,7 @@ export class GitlabBranchMapper {
   public static dtoToDomain(gitlabBranchDTO: GitlabBranchDTO): VcsBranch {
     return new VcsBranch(
       gitlabBranchDTO.name,
-      gitlabBranchDTO.commit.sha,
+      gitlabBranchDTO.commit.id,
       VCSProvider.Gitlab,
     );
   }

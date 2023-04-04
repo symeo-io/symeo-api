@@ -7,8 +7,6 @@ import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
 import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
-import { ConfigurationAuditDTO } from 'src/application/webapp/dto/audit/configuration-audit.dto';
-import { GetConfigurationAuditsResponseDTO } from 'src/application/webapp/dto/audit/get-configuration-audits.response.dto';
 
 describe('AuditController', () => {
   let appClient: AppClient;
@@ -16,14 +14,6 @@ describe('AuditController', () => {
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let configurationTestUtil: ConfigurationTestUtil;
   let configurationAuditTestUtil: ConfigurationAuditTestUtil;
-
-  const currentUser = new User(
-    `github|${faker.datatype.number()}`,
-    faker.internet.email(),
-    faker.internet.userName(),
-    VCSProvider.GitHub,
-    faker.datatype.number(),
-  );
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -51,33 +41,80 @@ describe('AuditController', () => {
   });
 
   describe('getConfigurationAudits', () => {
-    it('should get configuration audits', async () => {
-      // Given
-      const repositoryVcsId = faker.datatype.number();
-      const repository =
-        fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
-      const configuration = await configurationTestUtil.createConfiguration(
+    describe('With Github as VcsProvider', () => {
+      const currentUser = new User(
+        `github|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
         VCSProvider.GitHub,
-        repository.id,
+        faker.datatype.number(),
       );
-      await configurationAuditTestUtil.createConfigurationAudit(
-        repository.id,
-        configuration.id,
-        ConfigurationAuditEventType.CREATED,
-      );
-      await configurationAuditTestUtil.createConfigurationAudit(
-        repository.id,
-        configuration.id,
-        ConfigurationAuditEventType.UPDATED,
-      );
+      it('should get configuration audits', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGithubRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.GitHub,
+          repository.id,
+        );
+        await configurationAuditTestUtil.createConfigurationAudit(
+          repository.id,
+          configuration.id,
+          ConfigurationAuditEventType.CREATED,
+        );
+        await configurationAuditTestUtil.createConfigurationAudit(
+          repository.id,
+          configuration.id,
+          ConfigurationAuditEventType.UPDATED,
+        );
 
-      const response = await appClient
-        .request(currentUser)
-        .get(
-          `/api/v1/configurations/github/${repositoryVcsId}/${configuration.id}/audits`,
-        )
-        .expect(200);
-      expect(response.body.configurationAudits.length).toEqual(2);
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repositoryVcsId}/${configuration.id}/audits`,
+          )
+          .expect(200);
+        expect(response.body.configurationAudits.length).toEqual(2);
+      });
+    });
+
+    describe('With Gitlab as VcsProvider', () => {
+      const currentUser = new User(
+        `gitlab|${faker.datatype.number()}`,
+        faker.internet.email(),
+        faker.internet.userName(),
+        VCSProvider.Gitlab,
+        faker.datatype.number(),
+      );
+      it('should get configuration audits', async () => {
+        // Given
+        const repositoryVcsId = faker.datatype.number();
+        const repository =
+          fetchVcsRepositoryMock.mockGitlabRepositoryPresent(repositoryVcsId);
+        const configuration = await configurationTestUtil.createConfiguration(
+          VCSProvider.Gitlab,
+          repository.id,
+        );
+        await configurationAuditTestUtil.createConfigurationAudit(
+          repository.id,
+          configuration.id,
+          ConfigurationAuditEventType.CREATED,
+        );
+        await configurationAuditTestUtil.createConfigurationAudit(
+          repository.id,
+          configuration.id,
+          ConfigurationAuditEventType.UPDATED,
+        );
+
+        const response = await appClient
+          .request(currentUser)
+          .get(
+            `/api/v1/configurations/${repositoryVcsId}/${configuration.id}/audits`,
+          )
+          .expect(200);
+        expect(response.body.configurationAudits.length).toEqual(2);
+      });
     });
   });
 });
