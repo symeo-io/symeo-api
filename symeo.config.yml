@@ -47,6 +47,11 @@ vcsProvider:
   gitlab:
     apiUrl:
       type: string
+    clientId:
+      type: string
+    clientSecret:
+      type: string
+      secret: true
   paginationLength:
     type: integer
 datadog:
