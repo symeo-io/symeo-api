@@ -11,6 +11,7 @@ export type IdentityWithRefreshToken = Identity & {
 };
 
 export class GitlabAccessTokenSupplier {
+  MAX_AMOUNT_OF_RETRY = 3;
   constructor(
     private vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
     private auth0Client: Auth0Provider,
@@ -19,7 +20,7 @@ export class GitlabAccessTokenSupplier {
 
   public async getGitlabAccessToken(
     user: User,
-    maxTry: number,
+    maxRetry = this.MAX_AMOUNT_OF_RETRY,
     retryCount = 1,
   ): Promise<string | undefined> {
     try {
@@ -55,13 +56,13 @@ export class GitlabAccessTokenSupplier {
       }
       return persistedAccessToken?.accessToken;
     } catch (error) {
-      if (retryCount > maxTry) {
+      if (retryCount > this.MAX_AMOUNT_OF_RETRY) {
         console.log(
-          `All ${maxTry} retry attempts exhausted while trying to retrieve gitlab access token for user with userId ${user.id}`,
+          `All ${maxRetry} retry attempts exhausted while trying to retrieve gitlab access token for user with userId ${user.id}`,
         );
         throw error;
       }
-      return this.getGitlabAccessToken(user, maxTry, retryCount + 1);
+      return this.getGitlabAccessToken(user, maxRetry, retryCount + 1);
     }
   }
 
