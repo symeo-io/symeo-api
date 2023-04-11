@@ -1,16 +1,15 @@
 import SpyInstance = jest.SpyInstance;
 import { AppClient } from 'tests/utils/app.client';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
+import VCSAccessTokenStoragePort from 'src/domain/port/out/vcs-access-token.storage.port';
 import { v4 as uuid } from 'uuid';
 
 export class FetchVcsAccessTokenMock {
   public spy: SpyInstance | undefined;
-  private readonly vcsAccessTokenStorage: VCSAccessTokenStorage;
+  private readonly vcsAccessTokenStorage: VCSAccessTokenStoragePort;
 
   constructor(appClient: AppClient) {
-    this.vcsAccessTokenStorage = appClient.module.get<VCSAccessTokenStorage>(
-      'VCSAccessTokenAdapter',
-    );
+    this.vcsAccessTokenStorage =
+      appClient.module.get<VCSAccessTokenStoragePort>('VCSAccessTokenAdapter');
   }
 
   public mockAccessTokenPresent(): string {
