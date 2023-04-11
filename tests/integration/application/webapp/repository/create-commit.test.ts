@@ -2,16 +2,18 @@ import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-access-token.mock';
 import { FetchVcsRepositoryBranchMock } from 'tests/utils/mocks/fetch-vcs-repository-branch.mock';
 import { CreateVcsBlobMock } from 'tests/utils/mocks/create-vcs-blob.mock';
 import { CreateVcsTreeMock } from 'tests/utils/mocks/create-vcs-tree.mock';
 import { CreateVcsCommitMock } from 'tests/utils/mocks/create-vcs-commit.mock';
 import { UpdateVcsRepositoryRefMock } from 'tests/utils/mocks/update-vcs-repository-ref.mock';
+import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
 
 describe('RepositoryController', () => {
   let appClient: AppClient;
-  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchGithubAccessTokenMock: FetchGithubAccessTokenMock;
+  let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoryBranchMock: FetchVcsRepositoryBranchMock;
   let createVcsBlobMock: CreateVcsBlobMock;
   let createVcsTreeMock: CreateVcsTreeMock;
@@ -23,7 +25,8 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchGithubAccessTokenMock = new FetchGithubAccessTokenMock(appClient);
+    fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchVcsRepositoryBranchMock = new FetchVcsRepositoryBranchMock(appClient);
     createVcsBlobMock = new CreateVcsBlobMock(appClient);
     createVcsTreeMock = new CreateVcsTreeMock(appClient);
@@ -36,12 +39,14 @@ describe('RepositoryController', () => {
   });
 
   beforeEach(async () => {
-    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchGithubAccessTokenMock.mockAccessTokenPresent();
+    fetchGitlabAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(async () => {
     await appClient.mockReset();
-    fetchVcsAccessTokenMock.restore();
+    fetchGithubAccessTokenMock.restore();
+    fetchGitlabAccessTokenMock.restore();
     appClient.axiosMockGithub.restore();
   });
 

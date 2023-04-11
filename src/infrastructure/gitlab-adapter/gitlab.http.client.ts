@@ -1,4 +1,3 @@
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
 import { AxiosError, AxiosInstance } from 'axios';
 import User from 'src/domain/model/user/user.model';
 import { GitlabRepositoryDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.repository.dto';
@@ -8,10 +7,11 @@ import { GitlabBranchDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.br
 import { GitlabFileDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.file.dto';
 import { GitlabBlobDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.blob.dto';
 import { GitlabCollaboratorDTO } from 'src/infrastructure/gitlab-adapter/dto/gitlab.collaborator.dto';
+import { GitlabAccessTokenSupplier } from './gitlab-access-token-supplier';
 
 export class GitlabHttpClient {
   constructor(
-    private vcsAccessTokenStorage: VCSAccessTokenStorage,
+    private gitlabAccessTokenSupplier: GitlabAccessTokenSupplier,
     private client: AxiosInstance,
   ) {}
 
@@ -20,7 +20,9 @@ export class GitlabHttpClient {
     page: number,
     perPage: number,
   ): Promise<GitlabRepositoryDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url = config.vcsProvider.gitlab.apiUrl + 'projects?membership=true';
 
     const response = await this.client.get(url, {
@@ -37,7 +39,9 @@ export class GitlabHttpClient {
   }
 
   async getAuthenticatedUser(user: User): Promise<GitlabAuthenticatedUserDTO> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
 
     const url = config.vcsProvider.gitlab.apiUrl + 'user';
     const response = await this.client.get(url, {
@@ -50,7 +54,9 @@ export class GitlabHttpClient {
   }
 
   async getRepositoryById(user: User, repositoryVcsId: number) {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl + `projects/${repositoryVcsId}`;
 
@@ -79,7 +85,9 @@ export class GitlabHttpClient {
     page: number,
     perPage: number,
   ): Promise<GitlabBranchDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryVcsId}/repository/branches`;
@@ -111,7 +119,9 @@ export class GitlabHttpClient {
     repositoryVcsId: number,
     branch: string,
   ): Promise<GitlabFileDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryVcsId}/repository/tree?ref=${branch}&recursive=true`;
@@ -140,7 +150,9 @@ export class GitlabHttpClient {
     filePath: string,
     branch: string,
   ): Promise<string | undefined> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryVcsId}/repository/files/${encodeURIComponent(
@@ -183,7 +195,9 @@ export class GitlabHttpClient {
     repositoryVcsId: number,
     branch: string,
   ): Promise<GitlabBranchDTO | undefined> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryVcsId}/repository/branches/${branch}`;
@@ -213,7 +227,9 @@ export class GitlabHttpClient {
     filePath: string,
     commitMessage: string,
   ): Promise<GitlabBlobDTO> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryId}/repository/files/${filePath}`;
@@ -245,7 +261,9 @@ export class GitlabHttpClient {
     filePath: string,
     branch: string,
   ) {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryVcsId}/repository/files/${encodeURIComponent(
@@ -275,7 +293,9 @@ export class GitlabHttpClient {
   }
 
   async getUserRepositoryPermission(user: User, repositoryId: number) {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryId}/members/all/${user.getVcsUserId()}`;
@@ -303,7 +323,9 @@ export class GitlabHttpClient {
     page: number,
     perPage: any,
   ): Promise<GitlabCollaboratorDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getAccessToken(user);
+    const token = await this.gitlabAccessTokenSupplier.getGitlabAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.gitlab.apiUrl +
       `projects/${repositoryVcsId}/members/all`;
