@@ -57,9 +57,10 @@ export class GitlabAccessTokenSupplier {
       }
       return persistedAccessToken?.accessToken;
     } catch (error) {
-      console.log(`Retry ${retryCount} failed.`);
       if (retryCount > maxTry) {
-        console.log(`All ${maxTry} retry attempts exhausted`);
+        console.log(
+          `All ${maxTry} retry attempts exhausted while trying to retrieve gitlab access token for user with userId ${user.id}`,
+        );
         throw error;
       }
       return this.getGitlabAccessToken(user, maxTry, retryCount + 1);
@@ -84,8 +85,6 @@ export class GitlabAccessTokenSupplier {
     const vcsIdentity = identities?.find(
       (identity) => identity.connection === 'gitlab',
     );
-
-    console.log(vcsIdentity);
 
     if (vcsIdentity && vcsIdentity.access_token) {
       return new VcsAccessToken(
