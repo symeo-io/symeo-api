@@ -34,26 +34,24 @@ export class GitlabAccessTokenSupplier {
           await this.vcsAccessTokenStoragePort.save(gitlabAccessToken);
           return gitlabAccessToken.accessToken;
         }
-      } else {
-        if (this.isTokenExpired(persistedAccessToken)) {
-          const refreshToken = persistedAccessToken.refreshToken;
-          console.log(refreshToken);
-          const newTokens = await this.gitlabAccessTokenHttpClient.refreshToken(
-            refreshToken,
-          );
+      }
 
-          const newVcsAccessToken = new VcsAccessToken(
-            VCSProvider.Gitlab,
-            user.id,
-            user.accessTokenExpiration,
-            newTokens?.data.access_token,
-            Math.round(Date.now() / 1000) + newTokens?.data.expires_in,
-            newTokens?.data.refresh_token,
-          );
-
-          await this.vcsAccessTokenStoragePort.save(newVcsAccessToken);
-          return newVcsAccessToken.accessToken;
-        }
+      if (this.isTokenExpired(persistedAccessToken as VcsAccessToken)) {
+        const refreshToken = (persistedAccessToken as VcsAccessToken)
+          .refreshToken;
+        const newTokens = await this.gitlabAccessTokenHttpClient.refreshToken(
+          refreshToken,
+        );
+        const newVcsAccessToken = new VcsAccessToken(
+          VCSProvider.Gitlab,
+          user.id,
+          user.accessTokenExpiration,
+          newTokens?.data.access_token,
+          Math.round(Date.now() / 1000) + newTokens?.data.expires_in,
+          newTokens?.data.refresh_token,
+        );
+        await this.vcsAccessTokenStoragePort.save(newVcsAccessToken);
+        return newVcsAccessToken.accessToken;
       }
       return persistedAccessToken?.accessToken;
     } catch (error) {
