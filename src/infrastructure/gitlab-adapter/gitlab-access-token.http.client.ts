@@ -17,7 +17,7 @@ export class GitlabAccessTokenHttpClient {
           refresh_token: refreshToken,
         }),
       };
-      return await this.client.request(options);
+      return this.client.request(options);
     }
 
     return null;

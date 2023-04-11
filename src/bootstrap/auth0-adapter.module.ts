@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { Auth0Client } from '../infrastructure/auth0-adapter/auth0.client';
+import { Auth0Provider } from '../infrastructure/auth0-adapter/auth0.client';
 
 const Auth0ClientProvider = {
   provide: 'Auth0Client',
-  useClass: Auth0Client,
+  useClass: Auth0Provider,
 };
 
 @Module({

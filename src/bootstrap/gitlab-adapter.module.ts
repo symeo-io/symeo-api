@@ -4,7 +4,7 @@ import GitlabAdapter from 'src/infrastructure/gitlab-adapter/adapter/gitlab.adap
 import axios, { AxiosInstance } from 'axios';
 import { GitlabAccessTokenSupplier } from '../infrastructure/gitlab-adapter/gitlab-access-token-supplier';
 import VCSAccessTokenStoragePort from '../domain/port/out/vcs-access-token.storage.port';
-import { Auth0Client } from '../infrastructure/auth0-adapter/auth0.client';
+import { Auth0Provider } from '../infrastructure/auth0-adapter/auth0.client';
 import { PostgresAdapterModule } from './postgres-adapter.module';
 import { Auth0AdapterModule } from './auth0-adapter.module';
 import { GitlabAccessTokenHttpClient } from '../infrastructure/gitlab-adapter/gitlab-access-token.http.client';
@@ -21,7 +21,7 @@ const GitlabAccessTokenSupplierProvider = {
   provide: 'GitlabAccessTokenSupplier',
   useFactory: (
     vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    auth0Client: Auth0Client,
+    auth0Client: Auth0Provider,
     gitlabAccessTokenHttpClient: GitlabAccessTokenHttpClient,
   ) =>
     new GitlabAccessTokenSupplier(

@@ -1,13 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import AbstractEntity from '../abstract.entity';
 import { VCSProvider } from '../../../../domain/model/vcs/vcs-provider.enum';
 import VcsAccessToken from '../../../../domain/model/vcs/vcs.access-token.model';
 
 @Entity('vcs-access-tokens')
 export default class VcsAccessTokenEntity extends AbstractEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-  @Column()
+  @PrimaryColumn()
   userId: string;
   @Column()
   jwtExpirationDate: number;
@@ -39,8 +37,8 @@ export default class VcsAccessTokenEntity extends AbstractEntity {
 
   static fromDomain(vcsAccessToken: VcsAccessToken): VcsAccessTokenEntity {
     const entity = new VcsAccessTokenEntity();
-    entity.vcsType = vcsAccessToken.vcsType;
     entity.userId = vcsAccessToken.userId;
+    entity.vcsType = vcsAccessToken.vcsType;
     entity.jwtExpirationDate = vcsAccessToken.jwtExpirationDate;
     entity.accessToken = vcsAccessToken.accessToken;
     entity.expirationDate = vcsAccessToken.expirationDate

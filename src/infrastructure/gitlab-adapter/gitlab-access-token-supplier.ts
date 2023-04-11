@@ -2,67 +2,100 @@ import User from '../../domain/model/user/user.model';
 import VcsAccessToken from '../../domain/model/vcs/vcs.access-token.model';
 import { VCSProvider } from '../../domain/model/vcs/vcs-provider.enum';
 import VCSAccessTokenStoragePort from '../../domain/port/out/vcs-access-token.storage.port';
-import { Auth0Client } from '../auth0-adapter/auth0.client';
+import { Auth0Provider } from '../auth0-adapter/auth0.client';
 import { GitlabAccessTokenHttpClient } from './gitlab-access-token.http.client';
+import { Identity } from 'auth0';
+
+export type IdentityWithRefreshToken = Identity & {
+  refresh_token?: string;
+};
 
 export class GitlabAccessTokenSupplier {
   constructor(
     private vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    private auth0Client: Auth0Client,
+    private auth0Client: Auth0Provider,
     private gitlabAccessTokenHttpClient: GitlabAccessTokenHttpClient,
   ) {}
 
-  public async getGitlabAccessToken(user: User): Promise<string | undefined> {
-    const persistedAccessToken =
-      await this.vcsAccessTokenStoragePort.findByUser(user);
+  public async getGitlabAccessToken(
+    user: User,
+    maxTry: number,
+    retryCount = 1,
+  ): Promise<string | undefined> {
+    try {
+      const persistedAccessToken =
+        await this.vcsAccessTokenStoragePort.findByUser(user);
 
-    if (!persistedAccessToken) {
-      const userData = await this.auth0Client.client.getUser({
-        id: user.id,
-      });
-      const vcsIdentity = userData?.identities?.find(
-        (identity) => identity.connection === 'gitlab',
-      );
-
-      if (vcsIdentity && vcsIdentity.access_token) {
-        const vcsAccessToken = new VcsAccessToken(
-          VCSProvider.Gitlab,
-          user.id,
-          user.accessTokenExpiration,
-          vcsIdentity.access_token,
-          user.accessTokenExpiration + 3600,
-          // @ts-ignore
-          vcsIdentity?.refresh_token,
+      if (!persistedAccessToken) {
+        const gitlabAccessToken = await this.getGitlabAccessTokenFromAuth0(
+          user,
         );
-        await this.vcsAccessTokenStoragePort.save(vcsAccessToken);
-        return vcsAccessToken.accessToken;
+        if (gitlabAccessToken) {
+          await this.vcsAccessTokenStoragePort.save(gitlabAccessToken);
+          return gitlabAccessToken.accessToken;
+        }
+      } else {
+        if (this.isTokenExpired(persistedAccessToken)) {
+          const refreshToken = persistedAccessToken.refreshToken;
+          console.log(refreshToken);
+          const newTokens = await this.gitlabAccessTokenHttpClient.refreshToken(
+            refreshToken,
+          );
+
+          const newVcsAccessToken = new VcsAccessToken(
+            VCSProvider.Gitlab,
+            user.id,
+            user.accessTokenExpiration,
+            newTokens?.data.access_token,
+            Math.round(Date.now() / 1000) + newTokens?.data.expires_in,
+            newTokens?.data.refresh_token,
+          );
+
+          await this.vcsAccessTokenStoragePort.save(newVcsAccessToken);
+          return newVcsAccessToken.accessToken;
+        }
       }
+      return persistedAccessToken?.accessToken;
+    } catch (error) {
+      console.log(`Retry ${retryCount} failed.`);
+      if (retryCount > maxTry) {
+        console.log(`All ${maxTry} retry attempts exhausted`);
+        throw error;
+      }
+      return this.getGitlabAccessToken(user, maxTry, retryCount + 1);
     }
-
-    if (!!persistedAccessToken && this.isTokenExpired(persistedAccessToken)) {
-      const refreshToken = persistedAccessToken.refreshToken;
-      const newTokens = await this.gitlabAccessTokenHttpClient.refreshToken(
-        refreshToken,
-      );
-
-      const newVcsAccessToken = new VcsAccessToken(
-        VCSProvider.Gitlab,
-        user.id,
-        user.accessTokenExpiration,
-        newTokens?.data.access_token,
-        Date.now() + newTokens?.data.expires_in,
-        newTokens?.data.refresh_token,
-      );
-      await this.vcsAccessTokenStoragePort.save(newVcsAccessToken);
-      return newVcsAccessToken.accessToken;
-    }
-
-    return persistedAccessToken?.accessToken;
   }
 
   private isTokenExpired(vcsAccessToken: VcsAccessToken): boolean {
     return vcsAccessToken.expirationDate
-      ? Date.now() > vcsAccessToken.expirationDate
+      ? Date.now() > vcsAccessToken.expirationDate * 1000
       : true;
+  }
+
+  private async getGitlabAccessTokenFromAuth0(
+    user: User,
+  ): Promise<VcsAccessToken | undefined> {
+    const userData = await this.auth0Client.client.getUser({
+      id: user.id,
+    });
+    const identities = userData?.identities as
+      | IdentityWithRefreshToken[]
+      | undefined;
+    const vcsIdentity = identities?.find(
+      (identity) => identity.connection === 'gitlab',
+    );
+
+    console.log(vcsIdentity);
+
+    if (vcsIdentity && vcsIdentity.access_token) {
+      return new VcsAccessToken(
+        VCSProvider.Gitlab,
+        user.id,
+        user.accessTokenExpiration,
+        vcsIdentity.access_token,
+        user.accessTokenExpiration + 3600,
+        vcsIdentity?.refresh_token ?? null,
+      );
+    }
   }
 }

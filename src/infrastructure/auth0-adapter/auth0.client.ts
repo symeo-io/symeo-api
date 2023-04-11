@@ -1,7 +1,7 @@
 import { ManagementClient } from 'auth0';
 import { config } from '@symeo-sdk';
 
-export class Auth0Client {
+export class Auth0Provider {
   public client: ManagementClient;
 
   constructor() {

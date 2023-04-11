@@ -1,13 +1,14 @@
 import User from '../../domain/model/user/user.model';
 import VCSAccessTokenStoragePort from '../../domain/port/out/vcs-access-token.storage.port';
 import VcsAccessToken from '../../domain/model/vcs/vcs.access-token.model';
-import { Auth0Client } from '../auth0-adapter/auth0.client';
+import { Auth0Provider } from '../auth0-adapter/auth0.client';
 import { VCSProvider } from '../../domain/model/vcs/vcs-provider.enum';
+import { v4 as uuid } from 'uuid';
 
 export class GithubAccessTokenSupplier {
   constructor(
     private vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    private auth0Client: Auth0Client,
+    private auth0Client: Auth0Provider,
   ) {}
 
   async getGithubAccessToken(user: User): Promise<string | undefined> {

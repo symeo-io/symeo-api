@@ -4,7 +4,7 @@ import GithubAdapter from '../infrastructure/github-adapter/adapter/github.adapt
 import axios, { AxiosInstance } from 'axios';
 import { GithubAccessTokenSupplier } from '../infrastructure/github-adapter/github-access-token-supplier';
 import VCSAccessTokenStoragePort from '../domain/port/out/vcs-access-token.storage.port';
-import { Auth0Client } from '../infrastructure/auth0-adapter/auth0.client';
+import { Auth0Provider } from '../infrastructure/auth0-adapter/auth0.client';
 import { InMemoryCacheAdapterModule } from './in-memory-cache-adapter.module';
 import { Auth0AdapterModule } from './auth0-adapter.module';
 
@@ -19,7 +19,7 @@ const GithubAccessTokenSupplierProvider = {
   provide: 'GithubAccessTokenSupplier',
   useFactory: (
     vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    auth0Client: Auth0Client,
+    auth0Client: Auth0Provider,
   ) => new GithubAccessTokenSupplier(vcsAccessTokenStoragePort, auth0Client),
   inject: ['InMemoryVcsAccessTokenCacheAdapter', 'Auth0Client'],
 };

@@ -1,6 +1,6 @@
 import { mock } from 'ts-mockito';
 import { InMemoryVcsAccessTokenCacheAdapter } from '../../../../src/infrastructure/in-memory-cache-adapter/adapter/in-memory-vcs-access-token-cache.adapter';
-import { Auth0Client } from '../../../../src/infrastructure/auth0-adapter/auth0.client';
+import { Auth0Provider } from '../../../../src/infrastructure/auth0-adapter/auth0.client';
 import { GithubAccessTokenSupplier } from '../../../../src/infrastructure/github-adapter/github-access-token-supplier';
 import User from '../../../../src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
@@ -22,7 +22,7 @@ describe('GithubAccessTokenSupplier', () => {
       const mockedInMemoryCacheAdapter = mock(
         InMemoryVcsAccessTokenCacheAdapter,
       );
-      const mockedAuth0Client = mock(Auth0Client);
+      const mockedAuth0Client = mock(Auth0Provider);
       const githubAccessTokenSupplier: GithubAccessTokenSupplier =
         new GithubAccessTokenSupplier(
           mockedInMemoryCacheAdapter,
