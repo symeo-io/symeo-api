@@ -41,6 +41,7 @@ export default class VcsAccessTokenEntity extends AbstractEntity {
     const entity = new VcsAccessTokenEntity();
     entity.vcsType = vcsAccessToken.vcsType;
     entity.userId = vcsAccessToken.userId;
+    entity.jwtExpirationDate = vcsAccessToken.jwtExpirationDate;
     entity.accessToken = vcsAccessToken.accessToken;
     entity.expirationDate = vcsAccessToken.expirationDate
       ? vcsAccessToken.expirationDate

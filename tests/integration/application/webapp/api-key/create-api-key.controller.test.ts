@@ -3,7 +3,7 @@ import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import ApiKey from 'src/domain/model/environment/api-key.model';
-import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-access-token.mock';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
@@ -14,10 +14,12 @@ import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum
 import { EnvironmentAuditTestUtil } from 'tests/utils/entities/environment-audit.test.util';
 import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
 import { EnvironmentAuditEventType } from 'src/domain/model/audit/environment-audit/environment-audit-event-type.enum';
+import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
 
 describe('ApiKeyController', () => {
   let appClient: AppClient;
-  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchGithubAccessTokenMock: FetchGithubAccessTokenMock;
+  let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
   let configurationTestUtil: ConfigurationTestUtil;
@@ -31,7 +33,8 @@ describe('ApiKeyController', () => {
     await appClient.init();
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchGithubAccessTokenMock = new FetchGithubAccessTokenMock(appClient);
+    fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
     configurationTestUtil = new ConfigurationTestUtil(appClient);
@@ -49,12 +52,14 @@ describe('ApiKeyController', () => {
     await environmentTestUtil.empty();
     await apiKeyTestUtil.empty();
     await environmentAuditTestUtil.empty();
-    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchGithubAccessTokenMock.mockAccessTokenPresent();
+    fetchGitlabAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
     appClient.mockReset();
-    fetchVcsAccessTokenMock.restore();
+    fetchGithubAccessTokenMock.restore();
+    fetchGitlabAccessTokenMock.restore();
   });
 
   describe('(POST) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys', () => {

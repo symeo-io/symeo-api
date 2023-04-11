@@ -4,7 +4,7 @@ import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
-import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-access-token.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
@@ -13,10 +13,12 @@ import { VcsRepositoryRole } from 'src/domain/model/vcs/vcs.repository.role.enum
 import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
 import { ConfigurationAuditTestUtil } from 'tests/utils/entities/configuration-audit.test.util';
 import { ConfigurationAuditEventType } from 'src/domain/model/audit/configuration-audit/configuration-audit-event-type.enum';
+import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
 
 describe('ConfigurationController', () => {
   let appClient: AppClient;
-  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchGithubAccessTokenMock: FetchGithubAccessTokenMock;
+  let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchVcsFileMock: FetchVcsFileMock;
   let fetchUserVcsRepositoryPermissionMock: FetchUserVcsRepositoryPermissionMock;
@@ -29,7 +31,8 @@ describe('ConfigurationController', () => {
     await appClient.init();
 
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchGithubAccessTokenMock = new FetchGithubAccessTokenMock(appClient);
+    fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchUserVcsRepositoryPermissionMock =
       new FetchUserVcsRepositoryPermissionMock(appClient);
     fetchVcsFileMock = new FetchVcsFileMock(appClient);
@@ -44,12 +47,14 @@ describe('ConfigurationController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     await configurationAuditTestUtil.empty();
-    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchGithubAccessTokenMock.mockAccessTokenPresent();
+    fetchGitlabAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(async () => {
     await appClient.mockReset();
-    fetchVcsAccessTokenMock.restore();
+    fetchGithubAccessTokenMock.restore();
+    fetchGitlabAccessTokenMock.restore();
   });
 
   describe('(POST) /configurations/:repositoryVcsId', () => {

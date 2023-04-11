@@ -9,7 +9,9 @@ export class InMemoryVcsAccessTokenCacheAdapter
     {};
 
   async findByUser(user: User): Promise<VcsAccessToken | undefined> {
-    return this.cache[user.id][user.accessTokenExpiration];
+    if (this.cache[user.id]) {
+      return this.cache[user.id][user.accessTokenExpiration];
+    }
   }
 
   async save(vcsAccessToken: VcsAccessToken): Promise<void> {

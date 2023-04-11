@@ -3,13 +3,13 @@ import VcsAccessToken from '../../domain/model/vcs/vcs.access-token.model';
 import { VCSProvider } from '../../domain/model/vcs/vcs-provider.enum';
 import VCSAccessTokenStoragePort from '../../domain/port/out/vcs-access-token.storage.port';
 import { Auth0Client } from '../auth0-adapter/auth0.client';
-import { GitlabHttpClient } from './gitlab.http.client';
+import { GitlabAccessTokenHttpClient } from './gitlab-access-token.http.client';
 
 export class GitlabAccessTokenSupplier {
   constructor(
     private vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
     private auth0Client: Auth0Client,
-    private gitlabHttpClient: GitlabHttpClient,
+    private gitlabAccessTokenHttpClient: GitlabAccessTokenHttpClient,
   ) {}
 
   public async getGitlabAccessToken(user: User): Promise<string | undefined> {
@@ -41,7 +41,9 @@ export class GitlabAccessTokenSupplier {
 
     if (!!persistedAccessToken && this.isTokenExpired(persistedAccessToken)) {
       const refreshToken = persistedAccessToken.refreshToken;
-      const newTokens = await this.gitlabHttpClient.refreshToken(refreshToken);
+      const newTokens = await this.gitlabAccessTokenHttpClient.refreshToken(
+        refreshToken,
+      );
 
       const newVcsAccessToken = new VcsAccessToken(
         VCSProvider.Gitlab,

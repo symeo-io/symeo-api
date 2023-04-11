@@ -7,6 +7,8 @@ import VCSAccessTokenStoragePort from '../domain/port/out/vcs-access-token.stora
 import { Auth0Client } from '../infrastructure/auth0-adapter/auth0.client';
 import { PostgresAdapterModule } from './postgres-adapter.module';
 import { Auth0AdapterModule } from './auth0-adapter.module';
+import { GitlabAccessTokenHttpClient } from '../infrastructure/gitlab-adapter/gitlab-access-token.http.client';
+import { use } from 'passport';
 
 const GitlabAdapterProvider = {
   provide: 'GitlabAdapter',
@@ -20,14 +22,18 @@ const GitlabAccessTokenSupplierProvider = {
   useFactory: (
     vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
     auth0Client: Auth0Client,
-    gitlabHttpClient: GitlabHttpClient,
+    gitlabAccessTokenHttpClient: GitlabAccessTokenHttpClient,
   ) =>
     new GitlabAccessTokenSupplier(
       vcsAccessTokenStoragePort,
       auth0Client,
-      gitlabHttpClient,
+      gitlabAccessTokenHttpClient,
     ),
-  inject: ['PostgresVcsAccessTokenAdapter', 'Auth0Client', 'GitlabHttpClient'],
+  inject: [
+    'PostgresVcsAccessTokenAdapter',
+    'Auth0Client',
+    'GitlabAccessTokenHttpClient',
+  ],
 };
 
 const GitlabHttpClientProvider = {
@@ -37,6 +43,13 @@ const GitlabHttpClientProvider = {
     client: AxiosInstance,
   ) => new GitlabHttpClient(gitlabAccessTokenSupplier, client),
   inject: ['GitlabAccessTokenSupplier', 'AxiosInstanceGitlab'],
+};
+
+const GitlabAccessTokenHttpClientProvider = {
+  provide: 'GitlabAccessTokenHttpClient',
+  useFactory: (client: AxiosInstance) =>
+    new GitlabAccessTokenHttpClient(client),
+  inject: ['AxiosInstanceGitlab'],
 };
 
 const AxiosInstanceProvider = {
@@ -50,12 +63,14 @@ const AxiosInstanceProvider = {
     GitlabAdapterProvider,
     GitlabAccessTokenSupplierProvider,
     GitlabHttpClientProvider,
+    GitlabAccessTokenHttpClientProvider,
     AxiosInstanceProvider,
   ],
   exports: [
     GitlabAdapterProvider,
     GitlabAccessTokenSupplierProvider,
     GitlabHttpClientProvider,
+    GitlabAccessTokenHttpClientProvider,
     AxiosInstanceProvider,
   ],
 })

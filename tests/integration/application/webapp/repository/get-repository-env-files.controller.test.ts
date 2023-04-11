@@ -2,14 +2,16 @@ import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-access-token.mock';
 import { FetchVcsRepositoryFilesMock } from 'tests/utils/mocks/fetch-vcs-repository-files.mock';
 import { FetchVcsFileMock } from 'tests/utils/mocks/fetch-vcs-file.mock';
 import * as fs from 'fs';
+import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
 
 describe('RepositoryController', () => {
   let appClient: AppClient;
-  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchGithubAccessTokenMock: FetchGithubAccessTokenMock;
+  let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoryFilesMock: FetchVcsRepositoryFilesMock;
   let fetchVcsFileMock: FetchVcsFileMock;
 
@@ -18,7 +20,8 @@ describe('RepositoryController', () => {
 
     await appClient.init();
 
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchGithubAccessTokenMock = new FetchGithubAccessTokenMock(appClient);
+    fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchVcsRepositoryFilesMock = new FetchVcsRepositoryFilesMock(appClient);
     fetchVcsFileMock = new FetchVcsFileMock(appClient);
   }, 30000);
@@ -28,11 +31,13 @@ describe('RepositoryController', () => {
   });
 
   beforeEach(async () => {
-    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchGithubAccessTokenMock.mockAccessTokenPresent();
+    fetchGitlabAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
-    fetchVcsAccessTokenMock.restore();
+    fetchGithubAccessTokenMock.restore();
+    fetchGitlabAccessTokenMock.restore();
     appClient.mockReset();
   });
 

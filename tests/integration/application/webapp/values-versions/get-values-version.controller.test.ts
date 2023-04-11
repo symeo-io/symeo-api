@@ -2,15 +2,17 @@ import { AppClient } from 'tests/utils/app.client';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { FetchVcsAccessTokenMock } from 'tests/utils/mocks/fetch-vcs-access-token.mock';
+import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-access-token.mock';
 import { FetchVcsRepositoryMock } from 'tests/utils/mocks/fetch-vcs-repository.mock';
 import { ConfigurationTestUtil } from 'tests/utils/entities/configuration.test.util';
 import { EnvironmentTestUtil } from 'tests/utils/entities/environment.test.util';
 import { FetchSecretVersionMock } from 'tests/utils/mocks/fetch-secret-version.mock';
+import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
 
 describe('ValuesVersionController', () => {
   let appClient: AppClient;
-  let fetchVcsAccessTokenMock: FetchVcsAccessTokenMock;
+  let fetchGithubAccessTokenMock: FetchGithubAccessTokenMock;
+  let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoryMock: FetchVcsRepositoryMock;
   let fetchSecretVersionMock: FetchSecretVersionMock;
   let configurationTestUtil: ConfigurationTestUtil;
@@ -20,7 +22,8 @@ describe('ValuesVersionController', () => {
     appClient = new AppClient();
     await appClient.init();
 
-    fetchVcsAccessTokenMock = new FetchVcsAccessTokenMock(appClient);
+    fetchGithubAccessTokenMock = new FetchGithubAccessTokenMock(appClient);
+    fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchVcsRepositoryMock = new FetchVcsRepositoryMock(appClient);
     fetchSecretVersionMock = new FetchSecretVersionMock(appClient);
 
@@ -35,11 +38,13 @@ describe('ValuesVersionController', () => {
   beforeEach(async () => {
     await configurationTestUtil.empty();
     await environmentTestUtil.empty();
-    fetchVcsAccessTokenMock.mockAccessTokenPresent();
+    fetchGithubAccessTokenMock.mockAccessTokenPresent();
+    fetchGitlabAccessTokenMock.mockAccessTokenPresent();
   });
 
   afterEach(() => {
-    fetchVcsAccessTokenMock.restore();
+    fetchGithubAccessTokenMock.restore();
+    fetchGitlabAccessTokenMock.restore();
     fetchSecretVersionMock.restore();
     appClient.mockReset();
   });
