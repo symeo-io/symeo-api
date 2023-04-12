@@ -46,7 +46,14 @@ export class ValuesService implements ValuesFacade {
         environment.id,
         versionId,
       );
-    const configurationContract: ConfigurationContract =
+    const configurationContractForDefaultBranch =
+      await this.configurationFacade.findContract(
+        user,
+        configuration,
+        configuration.branch,
+      );
+
+    const configurationContractForSelectedBranch: ConfigurationContract =
       await this.configurationFacade.findContract(
         user,
         configuration,
@@ -57,7 +64,10 @@ export class ValuesService implements ValuesFacade {
 
     return this.parseContractAndValuesToHideSecrets(
       emptyConfigurationValues,
-      configurationContract,
+      merge(
+        configurationContractForSelectedBranch,
+        configurationContractForDefaultBranch,
+      ),
       configurationValues,
     );
   }

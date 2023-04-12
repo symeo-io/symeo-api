@@ -36,7 +36,7 @@ describe('ValuesService', () => {
     mockedEnvironmentAuditService,
   );
 
-  const mockedConfigurationContract: ConfigurationContract = {
+  const mockedDefaultBranchContract: ConfigurationContract = {
     aws: {
       region: {
         type: 'string',
@@ -65,6 +65,32 @@ describe('ValuesService', () => {
     },
   };
 
+  const mockedSelectedBranchContract: ConfigurationContract = {
+    aws: {
+      region: {
+        type: 'string',
+      },
+      user: {
+        type: 'string',
+        secret: true,
+      },
+    },
+    database: {
+      postgres: {
+        host: {
+          type: 'string',
+        },
+        port: {
+          type: 'integer',
+        },
+        password: {
+          type: 'string',
+          secret: true,
+        },
+      },
+    },
+  };
+
   const vcsUserId = faker.datatype.number({ min: 111111, max: 999999 });
   const currentUser = new User(
     `github|${vcsUserId}`,
@@ -88,7 +114,7 @@ describe('ValuesService', () => {
     isCurrentUserAdmin: false,
   };
 
-  const branchName = 'staging';
+  const branchName = faker.name.firstName();
   const environment: Environment = new Environment(
     uuid(),
     faker.name.firstName(),
@@ -106,12 +132,6 @@ describe('ValuesService', () => {
     branchName,
     [environment],
   );
-
-  beforeEach(() => {
-    jest
-      .spyOn(mockedConfigurationFacade, 'findContract')
-      .mockImplementation(() => Promise.resolve(mockedConfigurationContract));
-  });
 
   describe('getHiddenValuesByEnvironmentForWebapp', () => {
     it('should return hidden configuration values for contract completely filled with values', async () => {
@@ -135,6 +155,16 @@ describe('ValuesService', () => {
       jest
         .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
         .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
+      jest
+        .spyOn(mockedConfigurationFacade, 'findContract')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockedDefaultBranchContract),
+        );
+      jest
+        .spyOn(mockedConfigurationFacade, 'findContract')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockedDefaultBranchContract),
+        );
 
       const hiddenConfigurationValues: ConfigurationValues =
         await valuesService.getHiddenValuesByEnvironmentForWebapp(
@@ -181,6 +211,16 @@ describe('ValuesService', () => {
       jest
         .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
         .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
+      jest
+        .spyOn(mockedConfigurationFacade, 'findContract')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockedDefaultBranchContract),
+        );
+      jest
+        .spyOn(mockedConfigurationFacade, 'findContract')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockedDefaultBranchContract),
+        );
 
       const hiddenConfigurationValues: ConfigurationValues =
         await valuesService.getHiddenValuesByEnvironmentForWebapp(
@@ -196,6 +236,60 @@ describe('ValuesService', () => {
         aws: {
           region: '*********',
           user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+          },
+        },
+      });
+    });
+
+    it('should return hidden configuration values for contract partially filled with values and selected contract different from default branch', async () => {
+      // Given
+      const mockedConfigurationValues: ConfigurationValues = {
+        aws: {
+          region: 'eu-west-3',
+          user: 'fake-user',
+        },
+        database: {
+          postgres: {
+            host: 'fake-host',
+            port: 9999,
+          },
+        },
+      };
+
+      // When
+      jest
+        .spyOn(mockedSecretValuesStoragePort, 'getValuesForEnvironmentId')
+        .mockImplementation(() => Promise.resolve(mockedConfigurationValues));
+      jest
+        .spyOn(mockedConfigurationFacade, 'findContract')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockedDefaultBranchContract),
+        );
+      jest
+        .spyOn(mockedConfigurationFacade, 'findContract')
+        .mockImplementationOnce(() =>
+          Promise.resolve(mockedSelectedBranchContract),
+        );
+
+      const hiddenConfigurationValues: ConfigurationValues =
+        await valuesService.getHiddenValuesByEnvironmentForWebapp(
+          currentUser,
+          repository,
+          configuration,
+          branchName,
+          environment,
+        );
+
+      // Then
+      expect(hiddenConfigurationValues).toEqual({
+        aws: {
+          region: '*********',
+          user: '*********',
         },
         database: {
           postgres: {

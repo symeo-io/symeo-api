@@ -23,7 +23,7 @@ export class FetchVcsFileMock {
         config.vcsProvider.github.apiUrl +
           `repositories/${repositoryId}/contents/${filePath}`,
       )
-      .reply(200, {
+      .replyOnce(200, {
         content: content ? base64encode(content) : undefined,
         encoding: 'base64',
       });
@@ -41,7 +41,7 @@ export class FetchVcsFileMock {
             filePath,
           )}`,
       )
-      .reply(200, {
+      .replyOnce(200, {
         content: content ? base64encode(content) : undefined,
         encoding: 'base64',
       });
