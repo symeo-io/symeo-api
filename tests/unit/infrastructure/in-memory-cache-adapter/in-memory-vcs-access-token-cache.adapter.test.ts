@@ -32,25 +32,25 @@ describe('InMemoryVcsAccessTokenCacheAdapter', () => {
       const inMemoryVcsAccessTokenCacheAdapter =
         new InMemoryVcsAccessTokenCacheAdapter();
 
+      const jwtExpirationDate = faker.datatype.number();
+
       const user = new User(
         `github|${faker.datatype.number()}`,
         faker.internet.email(),
         faker.internet.userName(),
         VCSProvider.GitHub,
-        faker.datatype.number(),
+        jwtExpirationDate,
       );
       const fakeVcsAccessToken = new VcsAccessToken(
         VCSProvider.GitHub,
         user.id,
-        faker.datatype.number(),
+        jwtExpirationDate,
         faker.datatype.string(),
         faker.datatype.number(),
         faker.datatype.string(),
       );
 
-      inMemoryVcsAccessTokenCacheAdapter.cache[user.id] = {
-        [user.accessTokenExpiration]: fakeVcsAccessToken,
-      };
+      await inMemoryVcsAccessTokenCacheAdapter.save(fakeVcsAccessToken);
 
       // When
       const vcsAccessToken =
@@ -90,13 +90,10 @@ describe('InMemoryVcsAccessTokenCacheAdapter', () => {
       await inMemoryVcsAccessTokenCacheAdapter.save(fakeVcsAccessToken);
 
       // Then
-      expect(inMemoryVcsAccessTokenCacheAdapter.cache).toBeDefined();
-      expect(inMemoryVcsAccessTokenCacheAdapter.cache[user.id]).toBeDefined();
-      expect(
-        inMemoryVcsAccessTokenCacheAdapter.cache[user.id][
-          user.accessTokenExpiration
-        ],
-      ).toEqual(fakeVcsAccessToken);
+      const vcsAccessToken =
+        await inMemoryVcsAccessTokenCacheAdapter.findByUser(user);
+      expect(vcsAccessToken).toBeDefined();
+      expect(vcsAccessToken).toEqual(fakeVcsAccessToken);
     });
   });
 });
