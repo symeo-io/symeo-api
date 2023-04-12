@@ -17,7 +17,6 @@ database:
       type: string
     password:
       type: string
-      secret: true
     database:
       type: string
     synchronize:
