@@ -160,11 +160,6 @@ describe('ValuesService', () => {
         .mockImplementationOnce(() =>
           Promise.resolve(mockedDefaultBranchContract),
         );
-      jest
-        .spyOn(mockedConfigurationFacade, 'findContract')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockedDefaultBranchContract),
-        );
 
       const hiddenConfigurationValues: ConfigurationValues =
         await valuesService.getHiddenValuesByEnvironmentForWebapp(
@@ -216,11 +211,6 @@ describe('ValuesService', () => {
         .mockImplementationOnce(() =>
           Promise.resolve(mockedDefaultBranchContract),
         );
-      jest
-        .spyOn(mockedConfigurationFacade, 'findContract')
-        .mockImplementationOnce(() =>
-          Promise.resolve(mockedDefaultBranchContract),
-        );
 
       const hiddenConfigurationValues: ConfigurationValues =
         await valuesService.getHiddenValuesByEnvironmentForWebapp(
@@ -246,7 +236,7 @@ describe('ValuesService', () => {
       });
     });
 
-    it('should return hidden configuration values for contract partially filled with values and selected contract different from default branch', async () => {
+    it('should return hidden configuration values for contract partially filled with values and selected contract different from default branch contract', async () => {
       // Given
       const mockedConfigurationValues: ConfigurationValues = {
         aws: {
@@ -281,7 +271,7 @@ describe('ValuesService', () => {
           currentUser,
           repository,
           configuration,
-          branchName,
+          faker.name.firstName(),
           environment,
         );
 

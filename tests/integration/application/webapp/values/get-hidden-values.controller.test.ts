@@ -55,7 +55,6 @@ describe('ValuesController', () => {
 
   describe('(GET) /configurations/:repositoryVcsId/:configurationId/environments/:environmentId/values', () => {
     describe('With Github as VcsProvider', () => {
-      const requestedBranch = 'staging';
       const userVcsId = 102222086;
       const currentUser = new User(
         `github|${userVcsId}`,
@@ -75,11 +74,6 @@ describe('ValuesController', () => {
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
-        );
-        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
-          configuration.repositoryVcsId,
-          configuration.contractFilePath,
-          './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
         fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
           configuration.repositoryVcsId,
@@ -107,7 +101,7 @@ describe('ValuesController', () => {
         const response = await appClient
           .request(currentUser)
           .get(
-            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${configuration.branch}`,
           )
           .expect(200);
 
@@ -174,7 +168,11 @@ describe('ValuesController', () => {
         const response = await appClient
           .request(currentUser)
           .get(
-            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+            `/api/v1/configurations/${repository.id}/${
+              configuration.id
+            }/environments/${
+              environment.id
+            }/values?branch=${faker.name.firstName()}`,
           )
           .expect(200);
 
@@ -198,7 +196,7 @@ describe('ValuesController', () => {
         });
       });
 
-      it('should respond 200 and return hidden values with specific versionId', async () => {
+      it('should respond 200 and return hidden values with specific versionId with selected branch contract equal default branch contract', async () => {
         // Given
         const repositoryVcsId = faker.datatype.number();
         const repository =
@@ -209,11 +207,6 @@ describe('ValuesController', () => {
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
-        );
-        fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
-          configuration.repositoryVcsId,
-          configuration.contractFilePath,
-          './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
         fetchVcsFileMock.mockSymeoContractFilePresentOnGithub(
           configuration.repositoryVcsId,
@@ -243,7 +236,7 @@ describe('ValuesController', () => {
         const response = await appClient
           .request(currentUser)
           .get(
-            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}&versionId=${versionId}`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${configuration.branch}&versionId=${versionId}`,
           )
           .expect(200);
 
@@ -270,7 +263,6 @@ describe('ValuesController', () => {
     });
 
     describe('With Gitlab as VcsProvider', () => {
-      const requestedBranch = 'staging';
       const userVcsId = 12917479;
       const currentUser = new User(
         `gitlab|${userVcsId}`,
@@ -290,11 +282,6 @@ describe('ValuesController', () => {
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
-        );
-        fetchVcsFileMock.mockSymeoContractFilePresentOnGitlab(
-          configuration.repositoryVcsId,
-          configuration.contractFilePath,
-          './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
         fetchVcsFileMock.mockSymeoContractFilePresentOnGitlab(
           configuration.repositoryVcsId,
@@ -322,7 +309,7 @@ describe('ValuesController', () => {
         const response = await appClient
           .request(currentUser)
           .get(
-            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${configuration.branch}`,
           )
           .expect(200);
 
@@ -389,7 +376,11 @@ describe('ValuesController', () => {
         const response = await appClient
           .request(currentUser)
           .get(
-            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}`,
+            `/api/v1/configurations/${repository.id}/${
+              configuration.id
+            }/environments/${
+              environment.id
+            }/values?branch=${faker.name.firstName()}`,
           )
           .expect(200);
 
@@ -413,7 +404,7 @@ describe('ValuesController', () => {
         });
       });
 
-      it('should respond 200 and return hidden values with specific versionId', async () => {
+      it('should respond 200 and return hidden values with specific versionId with selected branch contract equal default branch contract', async () => {
         // Given
         const repositoryVcsId = faker.datatype.number();
         const repository =
@@ -424,11 +415,6 @@ describe('ValuesController', () => {
         );
         const environment = await environmentTestUtil.createEnvironment(
           configuration,
-        );
-        fetchVcsFileMock.mockSymeoContractFilePresentOnGitlab(
-          configuration.repositoryVcsId,
-          configuration.contractFilePath,
-          './tests/utils/stubs/configuration/symeo.config.secret.yml',
         );
         fetchVcsFileMock.mockSymeoContractFilePresentOnGitlab(
           configuration.repositoryVcsId,
@@ -458,7 +444,7 @@ describe('ValuesController', () => {
         const response = await appClient
           .request(currentUser)
           .get(
-            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${requestedBranch}&versionId=${versionId}`,
+            `/api/v1/configurations/${repository.id}/${configuration.id}/environments/${environment.id}/values?branch=${configuration.branch}&versionId=${versionId}`,
           )
           .expect(200);
 

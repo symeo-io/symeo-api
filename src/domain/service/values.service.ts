@@ -46,21 +46,34 @@ export class ValuesService implements ValuesFacade {
         environment.id,
         versionId,
       );
-    const configurationContractForDefaultBranch =
-      await this.configurationFacade.findContract(
-        user,
-        configuration,
-        configuration.branch,
-      );
 
-    const configurationContractForSelectedBranch: ConfigurationContract =
-      await this.configurationFacade.findContract(
+    const emptyConfigurationValues = new ConfigurationValues();
+
+    if (branchName === configuration.branch) {
+      const configurationContract = await this.configurationFacade.findContract(
         user,
         configuration,
         branchName,
       );
+      return this.parseContractAndValuesToHideSecrets(
+        emptyConfigurationValues,
+        configurationContract,
+        configurationValues,
+      );
+    }
 
-    const emptyConfigurationValues = new ConfigurationValues();
+    // To avoid seeing secret values from another branch
+    const [
+      configurationContractForDefaultBranch,
+      configurationContractForSelectedBranch,
+    ] = await Promise.all([
+      this.configurationFacade.findContract(
+        user,
+        configuration,
+        configuration.branch,
+      ),
+      this.configurationFacade.findContract(user, configuration, branchName),
+    ]);
 
     return this.parseContractAndValuesToHideSecrets(
       emptyConfigurationValues,
