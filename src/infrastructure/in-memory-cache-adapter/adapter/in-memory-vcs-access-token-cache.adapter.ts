@@ -5,8 +5,7 @@ import User from '../../../domain/model/user/user.model';
 export class InMemoryVcsAccessTokenCacheAdapter
   implements VCSAccessTokenStoragePort
 {
-  private cache: Record<string, Record<number, VcsAccessToken | undefined>> =
-    {};
+  cache: Record<string, Record<number, VcsAccessToken | undefined>> = {};
 
   async findByUser(user: User): Promise<VcsAccessToken | undefined> {
     if (this.cache[user.id]) {
