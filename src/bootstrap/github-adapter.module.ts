@@ -7,6 +7,7 @@ import VCSAccessTokenStoragePort from '../domain/port/out/vcs-access-token.stora
 import { Auth0Provider } from '../infrastructure/auth0-adapter/auth0.client';
 import { InMemoryCacheAdapterModule } from './in-memory-cache-adapter.module';
 import { Auth0AdapterModule } from './auth0-adapter.module';
+import { AuthenticationProviderPort } from '../domain/port/out/authentication-provider.port';
 
 const GithubAdapterProvider = {
   provide: 'GithubAdapter',
@@ -19,8 +20,12 @@ const GithubAccessTokenSupplierProvider = {
   provide: 'GithubAccessTokenSupplier',
   useFactory: (
     vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    auth0Client: Auth0Provider,
-  ) => new GithubAccessTokenSupplier(vcsAccessTokenStoragePort, auth0Client),
+    authenticationProviderPort: AuthenticationProviderPort,
+  ) =>
+    new GithubAccessTokenSupplier(
+      vcsAccessTokenStoragePort,
+      authenticationProviderPort,
+    ),
   inject: ['InMemoryVcsAccessTokenCacheAdapter', 'Auth0Client'],
 };
 

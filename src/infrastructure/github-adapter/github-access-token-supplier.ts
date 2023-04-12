@@ -1,14 +1,13 @@
 import User from '../../domain/model/user/user.model';
 import VCSAccessTokenStoragePort from '../../domain/port/out/vcs-access-token.storage.port';
 import VcsAccessToken from '../../domain/model/vcs/vcs.access-token.model';
-import { Auth0Provider } from '../auth0-adapter/auth0.client';
 import { VCSProvider } from '../../domain/model/vcs/vcs-provider.enum';
-import { v4 as uuid } from 'uuid';
+import { AuthenticationProviderPort } from '../../domain/port/out/authentication-provider.port';
 
 export class GithubAccessTokenSupplier {
   constructor(
     private vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    private auth0Client: Auth0Provider,
+    private authenticationProviderPort: AuthenticationProviderPort,
   ) {}
 
   async getGithubAccessToken(user: User): Promise<string | undefined> {
@@ -17,23 +16,15 @@ export class GithubAccessTokenSupplier {
     );
 
     if (!githubAccessToken) {
-      // TODO : créer un port identity-provider
-      // TODO : dans l'adapteur auth0 mapper sur un object du domain
-      // TODO : github et gitlab ne doivent pas voir Auth0
+      const authenticationProviderUser =
+        await this.authenticationProviderPort.getUser(user, VCSProvider.GitHub);
 
-      const auth0User = await this.auth0Client.client.getUser({
-        id: user.id,
-      });
-      const vcsIdentity = auth0User?.identities?.find(
-        (identity) => identity.connection === 'github',
-      );
-
-      if (vcsIdentity && vcsIdentity.access_token) {
+      if (authenticationProviderUser) {
         githubAccessToken = new VcsAccessToken(
           VCSProvider.GitHub,
           user.id,
           user.accessTokenExpiration,
-          vcsIdentity.access_token,
+          authenticationProviderUser.accessToken,
           null,
           null,
         );
@@ -42,6 +33,6 @@ export class GithubAccessTokenSupplier {
       }
     }
 
-    return githubAccessToken?.accessToken;
+    return (githubAccessToken as VcsAccessToken).accessToken;
   }
 }

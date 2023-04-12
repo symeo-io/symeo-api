@@ -1,10 +1,18 @@
 import { AxiosInstance } from 'axios/index';
 import { config } from '@symeo-sdk';
 
+export type NewGitlabAccessTokens = {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+};
+
 export class GitlabAccessTokenHttpClient {
   constructor(private client: AxiosInstance) {}
 
-  async refreshToken(refreshToken: string | null) {
+  async refreshToken(
+    refreshToken: string | null,
+  ): Promise<NewGitlabAccessTokens | undefined> {
     if (refreshToken) {
       const options = {
         method: 'POST',
@@ -17,9 +25,8 @@ export class GitlabAccessTokenHttpClient {
           refresh_token: refreshToken,
         }),
       };
-      return this.client.request(options);
+      const response = await this.client.request(options);
+      return response.data as NewGitlabAccessTokens;
     }
-
-    return null;
   }
 }
