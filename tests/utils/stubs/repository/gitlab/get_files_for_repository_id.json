@@ -1,0 +1,72 @@
+[
+  {
+    "id": "c020df33ed5a1dda65e06760aff5d68149a57771",
+    "name": ".idea",
+    "type": "tree",
+    "path": ".idea",
+    "mode": "040000"
+  },
+  {
+    "id": "e1de48c8f9697fb5479a3211dac8c0e6eb4393df",
+    "name": "infrastructure",
+    "type": "tree",
+    "path": "infrastructure",
+    "mode": "040000"
+  },
+  {
+    "id": "bbf3674d00b0b5c77747641a486969b289146be9",
+    "name": ".env",
+    "type": "blob",
+    "path": ".env",
+    "mode": "100644"
+  },
+  {
+    "id": "13566b81b018ad684f3a35fee301741b2734c8f4",
+    "name": ".gitignore",
+    "type": "blob",
+    "path": ".idea/.gitignore",
+    "mode": "100644"
+  },
+  {
+    "id": "c956989b29ad0767edc6cf3a202545927c3d1e76",
+    "name": "first-project.iml",
+    "type": "blob",
+    "path": ".idea/first-project.iml",
+    "mode": "100644"
+  },
+  {
+    "id": "65a244d8f71533fe80f17656cca0dbec87305c89",
+    "name": "modules.xml",
+    "type": "blob",
+    "path": ".idea/modules.xml",
+    "mode": "100644"
+  },
+  {
+    "id": "f324872a8ba94b4ec07a8aad82965487b3b15d57",
+    "name": "php.xml",
+    "type": "blob",
+    "path": ".idea/php.xml",
+    "mode": "100644"
+  },
+  {
+    "id": "35eb1ddfbbc029bcab630581847471d7f238ec53",
+    "name": "vcs.xml",
+    "type": "blob",
+    "path": ".idea/vcs.xml",
+    "mode": "100644"
+  },
+  {
+    "id": "ca0b972740260f6c60495bf4f8fdbbd92109eb78",
+    "name": "README.md",
+    "type": "blob",
+    "path": "README.md",
+    "mode": "100644"
+  },
+  {
+    "id": "dc53f4b07fce916396694828c4c4948d8091119c",
+    "name": ".env.test",
+    "type": "blob",
+    "path": "infrastructure/.env.test",
+    "mode": "100644"
+  }
+]

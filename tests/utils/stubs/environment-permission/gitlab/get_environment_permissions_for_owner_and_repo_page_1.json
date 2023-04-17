@@ -1,0 +1,14 @@
+[
+  {
+    "access_level": 50,
+    "created_at": "2022-10-31T10:10:56.873Z",
+    "expires_at": null,
+    "id": 12917446,
+    "username": "pierre.oucif",
+    "name": "Pierre Oucif",
+    "state": "active",
+    "avatar_url": "https://secure.gravatar.com/avatar/81cd372487eb29dc85d122ecb8e24639?s=80&d=identicon",
+    "web_url": "https://gitlab.com/pierre.oucif",
+    "membership_state": "active"
+  }
+]

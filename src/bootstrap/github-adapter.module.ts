@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { GithubHttpClient } from '../infrastructure/github-adapter/github.http.client';
 import GithubAdapter from '../infrastructure/github-adapter/adapter/github.adapter';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { Auth0AdapterModule } from 'src/bootstrap/auth0-adapter.module';
 import axios, { AxiosInstance } from 'axios';
+import { GithubAccessTokenSupplier } from '../infrastructure/github-adapter/github-access-token-supplier';
+import VCSAccessTokenStoragePort from '../domain/port/out/vcs-access-token.storage.port';
+import { Auth0Provider } from '../infrastructure/auth0-adapter/auth0.client';
+import { InMemoryCacheAdapterModule } from './in-memory-cache-adapter.module';
+import { Auth0AdapterModule } from './auth0-adapter.module';
+import { AuthenticationProviderPort } from '../domain/port/out/authentication-provider.port';
 
 const GithubAdapterProvider = {
   provide: 'GithubAdapter',
@@ -12,29 +16,44 @@ const GithubAdapterProvider = {
   inject: ['GithubHttpClient'],
 };
 
+const GithubAccessTokenSupplierProvider = {
+  provide: 'GithubAccessTokenSupplier',
+  useFactory: (
+    vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
+    authenticationProviderPort: AuthenticationProviderPort,
+  ) =>
+    new GithubAccessTokenSupplier(
+      vcsAccessTokenStoragePort,
+      authenticationProviderPort,
+    ),
+  inject: ['InMemoryVcsAccessTokenCacheAdapter', 'Auth0Client'],
+};
+
 const GithubHttpClientProvider = {
   provide: 'GithubHttpClient',
   useFactory: (
-    vcsAccessTokenStorage: VCSAccessTokenStorage,
+    githubAccessTokenSupplier: GithubAccessTokenSupplier,
     client: AxiosInstance,
-  ) => new GithubHttpClient(vcsAccessTokenStorage, client),
-  inject: ['VCSAccessTokenAdapter', 'AxiosInstance'],
+  ) => new GithubHttpClient(githubAccessTokenSupplier, client),
+  inject: ['GithubAccessTokenSupplier', 'AxiosInstanceGithub'],
 };
 
 const AxiosInstanceProvider = {
-  provide: 'AxiosInstance',
+  provide: 'AxiosInstanceGithub',
   useValue: axios.create(),
 };
 
 @Module({
-  imports: [Auth0AdapterModule],
+  imports: [InMemoryCacheAdapterModule, Auth0AdapterModule],
   providers: [
     GithubAdapterProvider,
+    GithubAccessTokenSupplierProvider,
     GithubHttpClientProvider,
     AxiosInstanceProvider,
   ],
   exports: [
     GithubAdapterProvider,
+    GithubAccessTokenSupplierProvider,
     GithubHttpClientProvider,
     AxiosInstanceProvider,
   ],

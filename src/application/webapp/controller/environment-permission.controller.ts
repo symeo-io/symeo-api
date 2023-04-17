@@ -38,7 +38,7 @@ export class EnvironmentPermissionController {
     type: GetEnvironmentPermissionsResponseDto,
   })
   @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
+    ':repositoryVcsId/:configurationId/environments/:environmentId/permissions',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
@@ -57,7 +57,7 @@ export class EnvironmentPermissionController {
   }
 
   @Post(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/permissions',
+    ':repositoryVcsId/:configurationId/environments/:environmentId/permissions',
   )
   @ApiResponse({ status: 200 })
   @HttpCode(200)

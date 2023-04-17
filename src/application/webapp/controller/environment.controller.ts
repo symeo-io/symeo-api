@@ -38,7 +38,7 @@ export class EnvironmentController {
     private readonly environmentFacade: EnvironmentFacade,
   ) {}
 
-  @Patch('github/:repositoryVcsId/:configurationId/environments/:environmentId')
+  @Patch(':repositoryVcsId/:configurationId/environments/:environmentId')
   @ApiOkResponse({
     description: 'Environment successfully updated',
     type: UpdateEnvironmentResponseDTO,
@@ -64,9 +64,7 @@ export class EnvironmentController {
   @ApiOkResponse({
     description: 'Environment successfully deleted',
   })
-  @Delete(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId',
-  )
+  @Delete(':repositoryVcsId/:configurationId/environments/:environmentId')
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async deleteEnvironment(
@@ -86,7 +84,7 @@ export class EnvironmentController {
     description: 'Environment successfully created',
     type: CreateEnvironmentResponseDTO,
   })
-  @Post('github/:repositoryVcsId/:configurationId/environments')
+  @Post(':repositoryVcsId/:configurationId/environments')
   @UseGuards(ConfigurationAuthorizationGuard)
   @RequiredRepositoryRole(VcsRepositoryRole.ADMIN)
   async createEnvironment(

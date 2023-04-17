@@ -39,9 +39,7 @@ export class ValuesController {
     description: 'Environment values successfully retrieved',
     type: GetEnvironmentValuesResponseDTO,
   })
-  @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
-  )
+  @Get(':repositoryVcsId/:configurationId/environments/:environmentId/values')
   @UseGuards(EnvironmentAuthorizationGuard)
   @ApiQuery({ name: 'branch', required: false })
   @ApiQuery({ name: 'versionId', required: false })
@@ -71,7 +69,7 @@ export class ValuesController {
     type: GetEnvironmentValuesResponseDTO,
   })
   @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
+    ':repositoryVcsId/:configurationId/environments/:environmentId/values/secrets',
   )
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.READ_SECRET)
@@ -101,9 +99,7 @@ export class ValuesController {
   @ApiOkResponse({
     description: 'Environment values successfully created',
   })
-  @Post(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/values',
-  )
+  @Post(':repositoryVcsId/:configurationId/environments/:environmentId/values')
   @UseGuards(EnvironmentAuthorizationGuard)
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)
@@ -130,7 +126,7 @@ export class ValuesController {
     description: 'Environment values successfully rolled back',
   })
   @Post(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
+    ':repositoryVcsId/:configurationId/environments/:environmentId/rollback/:versionId',
   )
   @HttpCode(200)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.WRITE)

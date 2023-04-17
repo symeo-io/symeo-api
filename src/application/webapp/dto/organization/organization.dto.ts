@@ -7,11 +7,19 @@ export class OrganizationDTO {
   @ApiProperty()
   name: string;
   @ApiProperty()
+  displayName: string;
+  @ApiProperty()
   avatarUrl: string;
 
-  constructor(vcsId: number, name: string, avatarUrl: string) {
+  constructor(
+    vcsId: number,
+    name: string,
+    displayName: string,
+    avatarUrl: string,
+  ) {
     this.vcsId = vcsId;
     this.name = name;
+    this.displayName = displayName;
     this.avatarUrl = avatarUrl;
   }
 
@@ -19,6 +27,7 @@ export class OrganizationDTO {
     return new OrganizationDTO(
       vcsOrganization.vcsId,
       vcsOrganization.name,
+      vcsOrganization.displayName,
       vcsOrganization.avatarUrl,
     );
   }

@@ -1,46 +1,54 @@
 import * as fs from 'fs';
 import { base64encode } from 'nodejs-base64';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import MockAdapter from 'axios-mock-adapter';
 import { AppClient } from 'tests/utils/app.client';
 
 export class FetchVcsFileMock {
-  public spy: MockAdapter;
+  public githubClientSpy: MockAdapter;
+  public gitlabClientSpy: MockAdapter;
 
   constructor(private appClient: AppClient) {
-    this.spy = appClient.axiosMock;
+    this.githubClientSpy = appClient.axiosMockGithub;
+    this.gitlabClientSpy = appClient.axiosMockGitlab;
   }
 
-  public mockFilePresent(
+  public mockGithubFilePresent(
     repositoryId: number,
     filePath: string,
     content?: string,
   ): void {
-    this.spy
+    this.githubClientSpy
       .onGet(
         config.vcsProvider.github.apiUrl +
           `repositories/${repositoryId}/contents/${filePath}`,
       )
-      .reply(200, {
+      .replyOnce(200, {
         content: content ? base64encode(content) : undefined,
         encoding: 'base64',
       });
   }
 
-  public mockSymeoContractFilePresent(
+  public mockGitlabFilePresent(
     repositoryId: number,
-    contractFilePath: string,
-    stubPath: string,
-  ) {
-    return this.mockFilePresent(
-      repositoryId,
-      contractFilePath,
-      fs.readFileSync(stubPath).toString() as string,
-    );
+    filePath: string,
+    content?: string,
+  ): void {
+    this.gitlabClientSpy
+      .onGet(
+        config.vcsProvider.gitlab.apiUrl +
+          `projects/${repositoryId}/repository/files/${encodeURIComponent(
+            filePath,
+          )}`,
+      )
+      .replyOnce(200, {
+        content: content ? base64encode(content) : undefined,
+        encoding: 'base64',
+      });
   }
 
-  public mockFileMissing(repositoryId: number, filePath?: string): void {
-    this.spy
+  public mockGithubFileMissing(repositoryId: number, filePath?: string): void {
+    this.githubClientSpy
       .onGet(
         config.vcsProvider.github.apiUrl +
           `repositories/${repositoryId}/contents/${filePath}`,
@@ -48,5 +56,40 @@ export class FetchVcsFileMock {
       .replyOnce(() => {
         throw { response: { status: 404 } };
       });
+  }
+
+  public mockGitlabFileMissing(repositoryId: number, filePath?: string): void {
+    this.gitlabClientSpy
+      .onGet(
+        config.vcsProvider.gitlab.apiUrl +
+          `projects/${repositoryId}/repository/files/${filePath}`,
+      )
+      .replyOnce(() => {
+        throw { response: { status: 404 } };
+      });
+  }
+
+  public mockSymeoContractFilePresentOnGithub(
+    repositoryId: number,
+    contractFilePath: string,
+    stubPath: string,
+  ) {
+    return this.mockGithubFilePresent(
+      repositoryId,
+      contractFilePath,
+      fs.readFileSync(stubPath).toString() as string,
+    );
+  }
+
+  public mockSymeoContractFilePresentOnGitlab(
+    repositoryId: number,
+    contractFilePath: string,
+    stubPath: string,
+  ) {
+    return this.mockGitlabFilePresent(
+      repositoryId,
+      contractFilePath,
+      fs.readFileSync(stubPath).toString() as string,
+    );
   }
 }

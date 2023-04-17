@@ -3,7 +3,7 @@ import { instance, mock, when } from 'ts-mockito';
 import User from 'src/domain/model/user/user.model';
 import { faker } from '@faker-js/faker';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import GithubAdapter from 'src/infrastructure/github-adapter/adapter/github.adapter';
 import * as fs from 'fs';
@@ -25,7 +25,7 @@ describe('GithubAdapter', () => {
       const githubOrganizationsDTO = await JSON.parse(
         fs
           .readFileSync(
-            './tests/utils/stubs/repository/get_repositories_for_user_page_1.json',
+            './tests/utils/stubs/repository/github/get_repositories_for_user_page_1.json',
           )
           .toString(),
       );
@@ -62,6 +62,7 @@ describe('GithubAdapter', () => {
         new VcsOrganization(
           1,
           'octocat',
+          'octocat',
           'https://github.com/images/error/octocat_happy.gif',
           VCSProvider.GitHub,
         ),
@@ -73,7 +74,7 @@ describe('GithubAdapter', () => {
       const githubOrganizationsDTO = await JSON.parse(
         fs
           .readFileSync(
-            './tests/utils/stubs/repository/get_repositories_for_user_page_1.json',
+            './tests/utils/stubs/repository/github/get_repositories_for_user_page_1.json',
           )
           .toString(),
       );
@@ -117,6 +118,7 @@ describe('GithubAdapter', () => {
       expect(organizations).toEqual([
         new VcsOrganization(
           1,
+          'octocat',
           'octocat',
           'https://github.com/images/error/octocat_happy.gif',
           VCSProvider.GitHub,

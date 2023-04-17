@@ -6,10 +6,12 @@ import GithubAdapterPort from 'src/domain/port/out/github.adapter.port';
 import ConfigurationStoragePort from 'src/domain/port/out/configuration.storage.port';
 import { VcsBranch } from 'src/domain/model/vcs/vcs.branch.model';
 import { EnvFile } from 'src/domain/model/vcs/env-file.model';
+import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
 
 export class RepositoryService implements RepositoryFacade {
   constructor(
     private readonly githubAdapterPort: GithubAdapterPort,
+    private readonly gitlabAdapterPort: GitlabAdapterPort,
     private readonly configurationStoragePort: ConfigurationStoragePort,
   ) {}
   async getRepositories(user: User): Promise<VcsRepository[]> {
@@ -17,6 +19,9 @@ export class RepositoryService implements RepositoryFacade {
     switch (user.provider) {
       case VCSProvider.GitHub:
         repositories = await this.githubAdapterPort.getRepositories(user);
+        break;
+      case VCSProvider.Gitlab:
+        repositories = await this.gitlabAdapterPort.getRepositories(user);
         break;
       default:
         repositories = [];
@@ -48,6 +53,11 @@ export class RepositoryService implements RepositoryFacade {
           user,
           repositoryVcsId,
         );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.getRepositoryById(
+          user,
+          repositoryVcsId,
+        );
       default:
         return undefined;
     }
@@ -60,6 +70,11 @@ export class RepositoryService implements RepositoryFacade {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return await this.githubAdapterPort.getBranchByRepositoryId(
+          user,
+          repositoryVcsId,
+        );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.getBranchByRepositoryId(
           user,
           repositoryVcsId,
         );
@@ -80,6 +95,12 @@ export class RepositoryService implements RepositoryFacade {
           repositoryVcsId,
           branch,
         );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.getEnvFilesForRepositoryIdAndBranch(
+          user,
+          repositoryVcsId,
+          branch,
+        );
       default:
         return [];
     }
@@ -96,6 +117,15 @@ export class RepositoryService implements RepositoryFacade {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return await this.githubAdapterPort.commitFileToRepositoryBranch(
+          user,
+          repositoryVcsId,
+          branch,
+          filePath,
+          fileContent,
+          commitMessage,
+        );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.commitFileToRepositoryBranch(
           user,
           repositoryVcsId,
           branch,
@@ -135,6 +165,13 @@ export class RepositoryService implements RepositoryFacade {
           filePath,
           branch,
         );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.checkFileExistsOnBranch(
+          user,
+          repositoryId,
+          filePath,
+          branch,
+        );
       default:
         return false;
     }
@@ -149,6 +186,13 @@ export class RepositoryService implements RepositoryFacade {
     switch (user.provider) {
       case VCSProvider.GitHub:
         return await this.githubAdapterPort.getFileContent(
+          user,
+          repositoryId,
+          filePath,
+          branch,
+        );
+      case VCSProvider.Gitlab:
+        return await this.gitlabAdapterPort.getFileContent(
           user,
           repositoryId,
           filePath,

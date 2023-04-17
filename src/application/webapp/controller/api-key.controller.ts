@@ -37,9 +37,7 @@ export class ApiKeyController {
     description: 'Api keys successfully retrieved',
     type: GetApiKeysResponseDTO,
   })
-  @Get(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
-  )
+  @Get(':repositoryVcsId/:configurationId/environments/:environmentId/api-keys')
   @UseGuards(EnvironmentAuthorizationGuard)
   @RequiredEnvironmentPermission(EnvironmentPermissionRole.ADMIN)
   async listApiKeysForEnvironment(
@@ -53,7 +51,7 @@ export class ApiKeyController {
   }
 
   @Post(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
+    ':repositoryVcsId/:configurationId/environments/:environmentId/api-keys',
   )
   @ApiOkResponse({
     description: 'Api keys successfully created',
@@ -76,7 +74,7 @@ export class ApiKeyController {
   }
 
   @Delete(
-    'github/:repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
+    ':repositoryVcsId/:configurationId/environments/:environmentId/api-keys/:apiKeyId',
   )
   @ApiOkResponse({
     description: 'Api keys successfully deleted',

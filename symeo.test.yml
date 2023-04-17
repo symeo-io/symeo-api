@@ -21,6 +21,10 @@ auth0:
 vcsProvider:
   github:
     apiUrl: "https://api.github.com/"
+  gitlab:
+    apiUrl: "https://gitlab.com/api/v4/"
+    clientId: "0"
+    clientSecret: "0"
   paginationLength: 1
 logger:
   local: false

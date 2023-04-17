@@ -14,6 +14,7 @@ export class GithubOrganizationMapper {
     return new VcsOrganization(
       githubOrganizationDTO.id,
       githubOrganizationDTO.login,
+      githubOrganizationDTO.login,
       githubOrganizationDTO.avatarUrl,
       VCSProvider.GitHub,
     );
@@ -24,6 +25,7 @@ export class GithubOrganizationMapper {
   ): VcsOrganization {
     return new VcsOrganization(
       githubUserDTO.id,
+      githubUserDTO.login,
       githubUserDTO.login,
       githubUserDTO.avatarUrl,
       VCSProvider.GitHub,

@@ -14,10 +14,13 @@ import {
   VCS_REPOSITORY_ROLE_ORDER,
   VcsRepositoryRole,
 } from 'src/domain/model/vcs/vcs.repository.role.enum';
+import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
+import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 
 export class PermissionRoleService {
   constructor(
     private githubAdapterPort: GithubAdapterPort,
+    private gitlabAdapterPort: GitlabAdapterPort,
     private environmentPermissionStoragePort: EnvironmentPermissionStoragePort,
     private environmentPermissionUtils: EnvironmentPermissionUtils,
   ) {}
@@ -44,8 +47,20 @@ export class PermissionRoleService {
       );
     }
 
-    const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
+    let userRepositoryRole: VcsRepositoryRole | undefined;
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        userRepositoryRole = await this.githubAdapterPort.getUserRepositoryRole(
+          user,
+          repository.id,
+        );
+        break;
+      case VCSProvider.Gitlab:
+        userRepositoryRole = await this.gitlabAdapterPort.getUserRepositoryRole(
+          user,
+          repository.id,
+        );
+    }
 
     if (!userRepositoryRole) {
       throw new SymeoException(
@@ -55,7 +70,7 @@ export class PermissionRoleService {
     }
 
     const environmentPermissionRole =
-      this.environmentPermissionUtils.mapGithubRoleToDefaultEnvironmentPermission(
+      this.environmentPermissionUtils.mapVcsRoleToDefaultEnvironmentPermission(
         userRepositoryRole,
       );
 
@@ -72,9 +87,20 @@ export class PermissionRoleService {
     repository: VcsRepository,
   ) {
     const userVcsId = user.getVcsUserId();
-
-    const userRepositoryRole =
-      await this.githubAdapterPort.getUserRepositoryRole(user, repository.id);
+    let userRepositoryRole: VcsRepositoryRole | undefined;
+    switch (user.provider) {
+      case VCSProvider.GitHub:
+        userRepositoryRole = await this.githubAdapterPort.getUserRepositoryRole(
+          user,
+          repository.id,
+        );
+        break;
+      case VCSProvider.Gitlab:
+        userRepositoryRole = await this.gitlabAdapterPort.getUserRepositoryRole(
+          user,
+          repository.id,
+        );
+    }
 
     if (!userRepositoryRole) {
       throw new SymeoException(

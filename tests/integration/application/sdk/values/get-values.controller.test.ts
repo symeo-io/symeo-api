@@ -96,6 +96,7 @@ describe('ValuesController', () => {
 
     it('should respond 200 with matching key', async () => {
       const configuration = await configurationTestUtil.createConfiguration(
+        VCSProvider.GitHub,
         faker.datatype.number(),
       );
       const environment = await environmentTestUtil.createEnvironment(

@@ -14,7 +14,7 @@ import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from 'testcontainers';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { WinstonLogger } from 'src/logger';
 import { createLogger, transports } from 'winston';
 import { AxiosInstance } from 'axios';
@@ -35,7 +35,8 @@ export class AppClient {
   public app: INestApplication;
   public module: TestingModule;
   public container: StartedPostgreSqlContainer;
-  public axiosMock: MockAdapter;
+  public axiosMockGithub: MockAdapter;
+  public axiosMockGitlab: MockAdapter;
 
   public async init() {
     this.container = await new PostgreSqlContainer()
@@ -61,8 +62,14 @@ export class AppClient {
       .useClass(AuthGuardMock)
       .compile();
 
-    const axiosInstance = this.module.get<AxiosInstance>('AxiosInstance');
-    this.axiosMock = new MockAdapter(axiosInstance);
+    const axiosInstanceGithub = this.module.get<AxiosInstance>(
+      'AxiosInstanceGithub',
+    );
+    this.axiosMockGithub = new MockAdapter(axiosInstanceGithub);
+    const axiosInstanceGitlab = this.module.get<AxiosInstance>(
+      'AxiosInstanceGitlab',
+    );
+    this.axiosMockGitlab = new MockAdapter(axiosInstanceGitlab);
 
     const winstonLogger = new WinstonLogger();
     const loggerInstance = createLogger({
@@ -82,7 +89,7 @@ export class AppClient {
   }
 
   public async mockReset() {
-    await this.axiosMock.reset();
+    await this.axiosMockGithub.reset();
   }
 
   public request(currentUser?: User): supertest.SuperTest<supertest.Test> {

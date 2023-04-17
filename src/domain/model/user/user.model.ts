@@ -22,6 +22,6 @@ export default class User {
   }
 
   public getVcsUserId(): number {
-    return parseInt(this.id.split('|')[1]);
+    return parseInt(this.id.replace('oauth2|', '').split('|')[1]);
   }
 }

@@ -1,6 +1,5 @@
 import User from 'src/domain/model/user/user.model';
-import VCSAccessTokenStorage from 'src/domain/port/out/vcs-access-token.storage';
-import { config } from 'symeo-js';
+import { config } from '@symeo-sdk';
 import { GithubRepositoryDTO } from 'src/infrastructure/github-adapter/dto/github.repository.dto';
 import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
 import { GithubBranchDTO } from 'src/infrastructure/github-adapter/dto/github.branch.dto';
@@ -11,10 +10,11 @@ import { GithubFileDTO } from 'src/infrastructure/github-adapter/dto/github.file
 import { GithubBlobDTO } from 'src/infrastructure/github-adapter/dto/github.blob.dto';
 import { GithubTreeDTO } from 'src/infrastructure/github-adapter/dto/github.tree.dto';
 import { GithubCommitDTO } from 'src/infrastructure/github-adapter/dto/github.commit.dto';
+import { GithubAccessTokenSupplier } from './github-access-token-supplier';
 
 export class GithubHttpClient {
   constructor(
-    private vcsAccessTokenStorage: VCSAccessTokenStorage,
+    private githubAccessTokenSupplier: GithubAccessTokenSupplier,
     private client: AxiosInstance,
   ) {}
 
@@ -23,7 +23,9 @@ export class GithubHttpClient {
     page: number,
     perPage: number,
   ): Promise<GithubRepositoryDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url = config.vcsProvider.github.apiUrl + 'user/repos';
     const response = await this.client.get(url, {
       params: {
@@ -39,7 +41,9 @@ export class GithubHttpClient {
   }
 
   async getAuthenticatedUser(user: User): Promise<GithubAuthenticatedUserDTO> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
 
     const url = config.vcsProvider.github.apiUrl + 'user';
     const response = await this.client.get(url, {
@@ -55,7 +59,9 @@ export class GithubHttpClient {
     user: User,
     repositoryVcsId: number,
   ): Promise<GithubRepositoryDTO | undefined> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`;
 
@@ -84,7 +90,9 @@ export class GithubHttpClient {
     page: number,
     perPage: number,
   ): Promise<GithubBranchDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryVcsId}/branches`;
@@ -116,7 +124,9 @@ export class GithubHttpClient {
     repositoryVcsId: number,
     branch: string,
   ): Promise<GithubFileDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryVcsId}/git/trees/${branch}?recursive=true`;
@@ -143,7 +153,9 @@ export class GithubHttpClient {
     user: User,
     repositoryVcsId: number,
   ): Promise<boolean> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl + `repositories/${repositoryVcsId}`;
     try {
@@ -172,7 +184,9 @@ export class GithubHttpClient {
     filePath: string,
     branch: string,
   ): Promise<boolean> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/contents/${filePath}`;
@@ -205,7 +219,9 @@ export class GithubHttpClient {
     filePath: string,
     branch: string,
   ): Promise<string | undefined> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/contents/${filePath}`;
@@ -247,7 +263,9 @@ export class GithubHttpClient {
     page: number,
     perPage: number,
   ): Promise<GithubCollaboratorDTO[]> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/collaborators`;
@@ -279,7 +297,9 @@ export class GithubHttpClient {
     user: User,
     repositoryId: number,
   ): Promise<GithubUserPermissionDTO | undefined> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/collaborators/${user.username}/permission`;
@@ -306,7 +326,9 @@ export class GithubHttpClient {
     repositoryId: number,
     branch: string,
   ): Promise<GithubBranchDTO | undefined> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/branches/${branch}`;
@@ -334,7 +356,9 @@ export class GithubHttpClient {
     repositoryId: number,
     fileContent: string,
   ): Promise<GithubBlobDTO> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/git/blobs`;
@@ -365,7 +389,9 @@ export class GithubHttpClient {
     filePath: string,
     blobSha: string,
   ): Promise<GithubTreeDTO> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/git/trees`;
@@ -403,7 +429,9 @@ export class GithubHttpClient {
     treeSha: string,
     commitMessage: string,
   ): Promise<GithubCommitDTO> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/git/commits`;
@@ -438,7 +466,9 @@ export class GithubHttpClient {
     branch: string,
     commitSha: string,
   ): Promise<void> {
-    const token = await this.vcsAccessTokenStorage.getGitHubAccessToken(user);
+    const token = await this.githubAccessTokenSupplier.getGithubAccessToken(
+      user,
+    );
     const url =
       config.vcsProvider.github.apiUrl +
       `repositories/${repositoryId}/git/refs/heads/${branch}`;

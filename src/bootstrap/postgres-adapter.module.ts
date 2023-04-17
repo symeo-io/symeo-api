@@ -13,6 +13,8 @@ import PostgresEnvironmentAdapter from 'src/infrastructure/postgres-adapter/adap
 import SdkValuesReadAnalyticsEntity from 'src/infrastructure/postgres-adapter/entity/analytics/sdk-values-read.analytics.entity';
 import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/configuration-audit.entity';
 import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
+import VcsAccessTokenEntity from '../infrastructure/postgres-adapter/entity/vcs/vcs-access-token.entity';
+import { PostgresVcsAccessTokenAdapter } from '../infrastructure/postgres-adapter/adapter/postgres.vcs-access-token.adapter';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
@@ -44,6 +46,13 @@ const PostgresEnvironmentPermissionAdapterProvider = {
   inject: [getRepositoryToken(EnvironmentPermissionEntity)],
 };
 
+const PostgresVcsAccessTokenAdapterProvider = {
+  provide: 'PostgresVcsAccessTokenAdapter',
+  useFactory: (vcsAccessTokenRepository: Repository<VcsAccessTokenEntity>) =>
+    new PostgresVcsAccessTokenAdapter(vcsAccessTokenRepository),
+  inject: [getRepositoryToken(VcsAccessTokenEntity)],
+};
+
 const entities = [
   ConfigurationEntity,
   EnvironmentEntity,
@@ -52,6 +61,7 @@ const entities = [
   SdkValuesReadAnalyticsEntity,
   ConfigurationAuditEntity,
   EnvironmentAuditEntity,
+  VcsAccessTokenEntity,
 ];
 
 @Module({
@@ -67,12 +77,14 @@ const entities = [
     PostgresApiKeyAdapterProvider,
     PostgresEnvironmentPermissionAdapterProvider,
     PostgresEnvironmentAdapterProvider,
+    PostgresVcsAccessTokenAdapterProvider,
   ],
   exports: [
     PostgresConfigurationAdapterProvider,
     PostgresApiKeyAdapterProvider,
     PostgresEnvironmentPermissionAdapterProvider,
     PostgresEnvironmentAdapterProvider,
+    PostgresVcsAccessTokenAdapterProvider,
     TypeOrmModule.forFeature(entities),
   ],
 })

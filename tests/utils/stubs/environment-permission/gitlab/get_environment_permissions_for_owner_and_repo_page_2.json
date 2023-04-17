@@ -1,0 +1,22 @@
+[
+  {
+    "access_level": 30,
+    "created_at": "2022-10-31T10:11:21.129Z",
+    "created_by": {
+      "id": 12917446,
+      "username": "pierre.oucif",
+      "name": "Pierre Oucif",
+      "state": "active",
+      "avatar_url": "https://secure.gravatar.com/avatar/81cd372487eb29dc85d122ecb8e24639?s=80&d=identicon",
+      "web_url": "https://gitlab.com/pierre.oucif"
+    },
+    "expires_at": null,
+    "id": 12917492,
+    "username": "georgesbiaux",
+    "name": "Georges Biaux",
+    "state": "active",
+    "avatar_url": "https://secure.gravatar.com/avatar/84a0b53a86a1f2bf0ddbbd85156631de?s=80&d=identicon",
+    "web_url": "https://gitlab.com/georgesbiaux",
+    "membership_state": "active"
+  }
+]
