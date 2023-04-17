@@ -134,9 +134,6 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: basic_success_1
   build-aws-infrastructure:
     working_directory: ~/symeo-api
     executor: aws-cli/default
@@ -169,9 +166,6 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: basic_success_1
 
 workflows:
   ci:
