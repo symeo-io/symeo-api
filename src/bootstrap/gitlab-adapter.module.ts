@@ -8,7 +8,7 @@ import { Auth0Provider } from '../infrastructure/auth0-adapter/auth0.client';
 import { PostgresAdapterModule } from './postgres-adapter.module';
 import { Auth0AdapterModule } from './auth0-adapter.module';
 import { GitlabAccessTokenHttpClient } from '../infrastructure/gitlab-adapter/gitlab-access-token.http.client';
-import { use } from 'passport';
+import { AuthenticationProviderPort } from '../domain/port/out/authentication-provider.port';
 
 const GitlabAdapterProvider = {
   provide: 'GitlabAdapter',
@@ -21,12 +21,12 @@ const GitlabAccessTokenSupplierProvider = {
   provide: 'GitlabAccessTokenSupplier',
   useFactory: (
     vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    auth0Client: Auth0Provider,
+    authenticationProviderPort: AuthenticationProviderPort,
     gitlabAccessTokenHttpClient: GitlabAccessTokenHttpClient,
   ) =>
     new GitlabAccessTokenSupplier(
       vcsAccessTokenStoragePort,
-      auth0Client,
+      authenticationProviderPort,
       gitlabAccessTokenHttpClient,
     ),
   inject: [

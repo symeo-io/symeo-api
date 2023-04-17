@@ -2,19 +2,16 @@ import User from '../../domain/model/user/user.model';
 import VcsAccessToken from '../../domain/model/vcs/vcs.access-token.model';
 import { VCSProvider } from '../../domain/model/vcs/vcs-provider.enum';
 import VCSAccessTokenStoragePort from '../../domain/port/out/vcs-access-token.storage.port';
-import { Auth0Provider } from '../auth0-adapter/auth0.client';
 import { GitlabAccessTokenHttpClient } from './gitlab-access-token.http.client';
-import { Identity } from 'auth0';
-
-export type IdentityWithRefreshToken = Identity & {
-  refresh_token?: string;
-};
+import { AuthenticationProviderPort } from '../../domain/port/out/authentication-provider.port';
+import { SymeoException } from '../../domain/exception/symeo.exception';
+import { SymeoExceptionCode } from '../../domain/exception/symeo.exception.code.enum';
 
 export class GitlabAccessTokenSupplier {
   MAX_AMOUNT_OF_RETRY = 3;
   constructor(
     private vcsAccessTokenStoragePort: VCSAccessTokenStoragePort,
-    private auth0Client: Auth0Provider,
+    private authenticationProviderPort: AuthenticationProviderPort,
     private gitlabAccessTokenHttpClient: GitlabAccessTokenHttpClient,
   ) {}
 
@@ -43,24 +40,26 @@ export class GitlabAccessTokenSupplier {
         const newTokens = await this.gitlabAccessTokenHttpClient.refreshToken(
           refreshToken,
         );
-        const newVcsAccessToken = new VcsAccessToken(
-          VCSProvider.Gitlab,
-          user.id,
-          user.accessTokenExpiration,
-          newTokens?.data.access_token,
-          Math.round(Date.now() / 1000) + newTokens?.data.expires_in,
-          newTokens?.data.refresh_token,
-        );
-        await this.vcsAccessTokenStoragePort.save(newVcsAccessToken);
-        return newVcsAccessToken.accessToken;
+        if (newTokens) {
+          const newVcsAccessToken = new VcsAccessToken(
+            VCSProvider.Gitlab,
+            user.id,
+            user.accessTokenExpiration,
+            newTokens.access_token,
+            Math.round(Date.now() / 1000) + newTokens.expires_in,
+            newTokens.refresh_token,
+          );
+          await this.vcsAccessTokenStoragePort.save(newVcsAccessToken);
+          return newVcsAccessToken.accessToken;
+        }
       }
-      return persistedAccessToken?.accessToken;
+      return (persistedAccessToken as VcsAccessToken).accessToken;
     } catch (error) {
-      if (retryCount > this.MAX_AMOUNT_OF_RETRY) {
-        console.log(
+      if (retryCount > maxRetry) {
+        throw new SymeoException(
           `All ${maxRetry} retry attempts exhausted while trying to retrieve gitlab access token for user with userId ${user.id}`,
+          SymeoExceptionCode.TOKEN_REFRESH_FAILURE,
         );
-        throw error;
       }
       return this.getGitlabAccessToken(user, maxRetry, retryCount + 1);
     }
@@ -75,24 +74,16 @@ export class GitlabAccessTokenSupplier {
   private async getGitlabAccessTokenFromAuth0(
     user: User,
   ): Promise<VcsAccessToken | undefined> {
-    const userData = await this.auth0Client.client.getUser({
-      id: user.id,
-    });
-    const identities = userData?.identities as
-      | IdentityWithRefreshToken[]
-      | undefined;
-    const vcsIdentity = identities?.find(
-      (identity) => identity.connection === 'gitlab',
-    );
-
-    if (vcsIdentity && vcsIdentity.access_token) {
+    const authenticationProviderUser =
+      await this.authenticationProviderPort.getUser(user, VCSProvider.Gitlab);
+    if (authenticationProviderUser) {
       return new VcsAccessToken(
         VCSProvider.Gitlab,
         user.id,
         user.accessTokenExpiration,
-        vcsIdentity.access_token,
+        authenticationProviderUser.accessToken,
         user.accessTokenExpiration + 3600,
-        vcsIdentity?.refresh_token ?? null,
+        authenticationProviderUser.refreshToken ?? null,
       );
     }
   }
