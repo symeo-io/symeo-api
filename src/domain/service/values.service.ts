@@ -128,7 +128,7 @@ export class ValuesService implements ValuesFacade {
       const contractProperty = configurationContract[propertyName];
       const valuesProperty = configurationValues[propertyName];
 
-      if (valuesProperty) {
+      if (valuesProperty !== undefined && valuesProperty !== null) {
         if (!this.isConfigProperty(contractProperty)) {
           emptyConfigurationValues[propertyName] =
             this.parseContractAndValuesToHideSecrets(
