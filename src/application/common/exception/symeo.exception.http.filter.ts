@@ -29,6 +29,7 @@ export class SymeoExceptionHttpFilter implements ExceptionFilter {
         code: exception.symeoExceptionCode,
       });
     } else if (exception instanceof HttpException) {
+      console.log(exception);
       response.status(exception.getStatus()).json({
         statusCode: exception.getStatus(),
         message: exception.message,

@@ -5,11 +5,11 @@ import License from '../../../../domain/model/license/license.model';
 
 @Entity('licenses')
 export default class LicenseEntity extends AbstractEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({ unique: true })
   licenseKey: string;
   @Column()
   plan: PlanEnum;
-  @Column()
+  @Column({ nullable: true })
   organizationVcsId?: number;
 
   static fromDomain(license: License) {

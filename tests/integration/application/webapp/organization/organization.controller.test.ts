@@ -9,6 +9,7 @@ import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab
 import { LicenseTestUtil } from '../../../../utils/entities/license.test.util';
 import License from '../../../../../src/domain/model/license/license.model';
 import { PlanEnum } from '../../../../../src/domain/model/license/plan.enum';
+import { v4 as uuid } from 'uuid';
 
 describe('OrganizationController', () => {
   let appClient: AppClient;
@@ -168,6 +169,76 @@ describe('OrganizationController', () => {
             ],
           });
       });
+    });
+  });
+
+  describe('(POST) /organizations/license-key', () => {
+    const currentUser = new User(
+      `github|${faker.datatype.number()}`,
+      faker.internet.email(),
+      faker.internet.userName(),
+      VCSProvider.GitHub,
+      faker.datatype.number(),
+    );
+
+    it('should respond 404 for invalid license key', async () => {
+      // Given
+      const licenseKey = 'license-test-12345';
+      const organizationVcsId = faker.datatype.number();
+      const updateLicenseDTO = {
+        organizationId: organizationVcsId,
+        licenseKey: licenseKey,
+      };
+      await licenseTestUtilMock.createLicense(
+        new License(PlanEnum.APP_SUMO, uuid()),
+      );
+      return appClient
+        .request(currentUser)
+        .post(`/api/v1/organizations/license-key`)
+        .send(updateLicenseDTO)
+        .expect(404);
+    });
+
+    it('should respond 400 for license key already used', async () => {
+      // Given
+      const licenseKey = 'license-test-12345';
+      const organizationVcsId = faker.datatype.number();
+      const updateLicenseDTO = {
+        organizationId: organizationVcsId,
+        licenseKey: licenseKey,
+      };
+      await licenseTestUtilMock.createLicense(
+        new License(PlanEnum.APP_SUMO, licenseKey, faker.datatype.number()),
+      );
+      return appClient
+        .request(currentUser)
+        .post(`/api/v1/organizations/license-key`)
+        .send(updateLicenseDTO)
+        .expect(400);
+    });
+
+    it('should respond 200 with new license', async () => {
+      // Given
+      const licenseKey = 'license-test-12345';
+      const organizationVcsId = faker.datatype.number();
+      const updateLicenseDTO = {
+        organizationId: organizationVcsId,
+        licenseKey: licenseKey,
+      };
+      await licenseTestUtilMock.createLicense(
+        new License(PlanEnum.APP_SUMO, licenseKey),
+      );
+      return appClient
+        .request(currentUser)
+        .post(`/api/v1/organizations/license-key`)
+        .send(updateLicenseDTO)
+        .expect(200)
+        .expect({
+          license: {
+            plan: PlanEnum.APP_SUMO,
+            licenseKey: '**************2345',
+          },
+        });
     });
   });
 });

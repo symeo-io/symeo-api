@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PlanEnum } from '../../../../domain/model/license/plan.enum';
 import License from '../../../../domain/model/license/license.model';
+import { IsString } from 'class-validator';
 
 export class LicenseDTO {
-  @ApiProperty()
+  @ApiProperty({ enum: PlanEnum })
   plan: PlanEnum;
   @ApiProperty()
+  @IsString()
   licenseKey: string | null;
 
   constructor(plan: PlanEnum, licenseKey: string | null) {

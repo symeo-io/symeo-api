@@ -6,6 +6,9 @@ import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
 import { LicenseStoragePort } from '../port/out/license.storage.port';
 import License from '../model/license/license.model';
+import { SymeoExceptionCode } from '../exception/symeo.exception.code.enum';
+import { SymeoException } from '../exception/symeo.exception';
+import { PlanEnum } from '../model/license/plan.enum';
 
 export class OrganizationService implements OrganizationFacade {
   constructor(
@@ -20,10 +23,9 @@ export class OrganizationService implements OrganizationFacade {
       const vcsOrganizationIds = vcsOrganizations.map(
         (vcsOrganization) => vcsOrganization.vcsId,
       );
-      const licenses =
-        await this.licenseStoragePort.getLicenseForOrganizationIds(
-          vcsOrganizationIds,
-        );
+      const licenses = await this.licenseStoragePort.findForOrganizationIds(
+        vcsOrganizationIds,
+      );
       return this.getVcsOrganizationsWithLicences(vcsOrganizations, licenses);
     }
     return [];
@@ -95,5 +97,34 @@ export class OrganizationService implements OrganizationFacade {
       ('' + licenseKey).slice(0, -numberOfCharacterToShow).replace(/./g, '*') +
       ('' + licenseKey).slice(-numberOfCharacterToShow)
     );
+  }
+
+  async updateLicense(
+    user: User,
+    organizationId: number,
+    licenseKey: string,
+  ): Promise<License> {
+    const persistedLicense = await this.licenseStoragePort.findForLicenseKey(
+      licenseKey,
+    );
+    if (!persistedLicense) {
+      throw new SymeoException(
+        'License key not valid.',
+        SymeoExceptionCode.LICENSE_KEY_NOT_FOUND,
+      );
+    }
+    if (persistedLicense.organizationVcsId) {
+      throw new SymeoException(
+        'The license key has already been used.',
+        SymeoExceptionCode.LICENSE_KEY_ALREADY_USED,
+      );
+    }
+    const updatedLicense = new License(
+      PlanEnum.APP_SUMO,
+      licenseKey,
+      organizationId,
+    );
+    await this.licenseStoragePort.save(updatedLicense);
+    return this.hideLicenseKey(updatedLicense);
   }
 }

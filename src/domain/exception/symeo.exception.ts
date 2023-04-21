@@ -1,8 +1,8 @@
 import { SymeoExceptionCode } from 'src/domain/exception/symeo.exception.code.enum';
 
 export class SymeoException {
-  symeoExceptionCode: SymeoExceptionCode;
   errorMessage: string;
+  symeoExceptionCode: SymeoExceptionCode;
 
   constructor(
     errorMessage: string | Record<string, any>,

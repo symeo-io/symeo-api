@@ -28,7 +28,7 @@ describe('PostgresLicenseAdapter', () => {
 
       // When
       const expectedLicenses =
-        await postgresLicenseAdapter.getLicenseForOrganizationIds([
+        await postgresLicenseAdapter.findForOrganizationIds([
           faker.datatype.number(),
           faker.datatype.number(),
         ]);
