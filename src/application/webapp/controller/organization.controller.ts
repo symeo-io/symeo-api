@@ -13,9 +13,8 @@ import { CurrentUser } from 'src/application/webapp/decorator/current-user.decor
 import { GetOrganizationsResponseDTO } from 'src/application/webapp/dto/organization/get-organizations.response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UpdateLicenseResponseDTO } from '../dto/organization/update-license.response.dto';
-import { UpdateConfigurationDTO } from '../dto/configuration/update-configuration.dto';
-import { UpdateLicenseDTO } from '../dto/organization/update-license.dto';
+import { UpdateLicenceResponseDTO } from '../dto/organization/update-licence.response.dto';
+import { UpdateLicenceDTO } from '../dto/organization/update-licence.dto';
 
 @Controller('organizations')
 @ApiTags('organizations')
@@ -40,20 +39,20 @@ export class OrganizationController {
   }
 
   @ApiOkResponse({
-    description: 'Organization license successfully saved',
-    type: UpdateLicenseResponseDTO,
+    description: 'Organization licence successfully saved',
+    type: UpdateLicenceResponseDTO,
   })
   @HttpCode(200)
-  @Post('license-key')
-  async updateLicense(
+  @Post('licence-key')
+  async updateLicence(
     @CurrentUser() user: User,
-    @Body() updateLicenseDTO: UpdateLicenseDTO,
-  ): Promise<UpdateLicenseResponseDTO> {
-    return UpdateLicenseResponseDTO.fromDomain(
-      await this.organizationFacade.updateLicense(
+    @Body() updateLicenceDTO: UpdateLicenceDTO,
+  ): Promise<UpdateLicenceResponseDTO> {
+    return UpdateLicenceResponseDTO.fromDomain(
+      await this.organizationFacade.updateLicence(
         user,
-        updateLicenseDTO.organizationId,
-        updateLicenseDTO.licenseKey,
+        updateLicenceDTO.organizationId,
+        updateLicenceDTO.licenceKey,
       ),
     );
   }

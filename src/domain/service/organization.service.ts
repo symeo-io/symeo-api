@@ -4,17 +4,17 @@ import User from 'src/domain/model/user/user.model';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
-import { LicenseStoragePort } from '../port/out/license.storage.port';
-import License from '../model/license/license.model';
+import { LicenceStoragePort } from '../port/out/licence.storage.port';
+import Licence from '../model/licence/licence.model';
 import { SymeoExceptionCode } from '../exception/symeo.exception.code.enum';
 import { SymeoException } from '../exception/symeo.exception';
-import { PlanEnum } from '../model/license/plan.enum';
+import { PlanEnum } from '../model/licence/plan.enum';
 
 export class OrganizationService implements OrganizationFacade {
   constructor(
     private readonly githubAdapterPort: GithubAdapterPort,
     private readonly gitlabAdapterPort: GitlabAdapterPort,
-    private readonly licenseStoragePort: LicenseStoragePort,
+    private readonly licenceStoragePort: LicenceStoragePort,
   ) {}
 
   async getOrganizations(user: User): Promise<VcsOrganization[]> {
@@ -23,10 +23,10 @@ export class OrganizationService implements OrganizationFacade {
       const vcsOrganizationIds = vcsOrganizations.map(
         (vcsOrganization) => vcsOrganization.vcsId,
       );
-      const licenses = await this.licenseStoragePort.findForOrganizationIds(
+      const licences = await this.licenceStoragePort.findForOrganizationIds(
         vcsOrganizationIds,
       );
-      return this.getVcsOrganizationsWithLicences(vcsOrganizations, licenses);
+      return this.getVcsOrganizationsWithLicences(vcsOrganizations, licences);
     }
     return [];
   }
@@ -44,87 +44,87 @@ export class OrganizationService implements OrganizationFacade {
 
   private getVcsOrganizationsWithLicences(
     vcsOrganizations: VcsOrganization[],
-    persistedLicenses: License[] | undefined,
+    persistedLicences: Licence[] | undefined,
   ): VcsOrganization[] {
-    if (persistedLicenses) {
-      const vcsOrganizationsWithLicense: VcsOrganization[] = [];
+    if (persistedLicences) {
+      const vcsOrganizationsWithLicence: VcsOrganization[] = [];
       vcsOrganizations.map((vcsOrganization) => {
-        const licenseForVcsOrganization = this.getLicenseForVcsOrganization(
+        const licenceForVcsOrganization = this.getLicenceForVcsOrganization(
           vcsOrganization,
-          persistedLicenses,
+          persistedLicences,
         );
-        if (licenseForVcsOrganization) {
-          const licenseForVcsOrganizationWithHiddenKey = this.hideLicenseKey(
-            licenseForVcsOrganization,
+        if (licenceForVcsOrganization) {
+          const licenceForVcsOrganizationWithHiddenKey = this.hideLicenceKey(
+            licenceForVcsOrganization,
           );
-          const vcsOrganizationWithLicense = {
+          const vcsOrganizationWithLicence = {
             ...vcsOrganization,
-            license: licenseForVcsOrganizationWithHiddenKey,
+            licence: licenceForVcsOrganizationWithHiddenKey,
           } as VcsOrganization;
-          vcsOrganizationsWithLicense.push(vcsOrganizationWithLicense);
+          vcsOrganizationsWithLicence.push(vcsOrganizationWithLicence);
           return;
         }
-        vcsOrganizationsWithLicense.push(vcsOrganization);
+        vcsOrganizationsWithLicence.push(vcsOrganization);
       });
-      return vcsOrganizationsWithLicense;
+      return vcsOrganizationsWithLicence;
     }
     return vcsOrganizations;
   }
 
-  private getLicenseForVcsOrganization(
+  private getLicenceForVcsOrganization(
     vcsOrganization: VcsOrganization,
-    persistedLicenses: License[],
-  ): License | undefined {
-    return persistedLicenses.find(
-      (persistedLicense) =>
-        persistedLicense.organizationVcsId === vcsOrganization.vcsId,
+    persistedLicences: Licence[],
+  ): Licence | undefined {
+    return persistedLicences.find(
+      (persistedLicence) =>
+        persistedLicence.organizationVcsId === vcsOrganization.vcsId,
     );
   }
 
-  private hideLicenseKey(licenseForVcsOrganization: License): License {
-    const hiddenLicenseKey = this.maskCharacter(
-      licenseForVcsOrganization.licenseKey,
+  private hideLicenceKey(licenceForVcsOrganization: Licence): Licence {
+    const hiddenLicenceKey = this.maskCharacter(
+      licenceForVcsOrganization.licenceKey,
       4,
     );
     return {
-      ...licenseForVcsOrganization,
-      licenseKey: hiddenLicenseKey,
-    } as License;
+      ...licenceForVcsOrganization,
+      licenceKey: hiddenLicenceKey,
+    } as Licence;
   }
 
-  private maskCharacter(licenseKey: string, numberOfCharacterToShow: number) {
+  private maskCharacter(licenceKey: string, numberOfCharacterToShow: number) {
     return (
-      ('' + licenseKey).slice(0, -numberOfCharacterToShow).replace(/./g, '*') +
-      ('' + licenseKey).slice(-numberOfCharacterToShow)
+      ('' + licenceKey).slice(0, -numberOfCharacterToShow).replace(/./g, '*') +
+      ('' + licenceKey).slice(-numberOfCharacterToShow)
     );
   }
 
-  async updateLicense(
+  async updateLicence(
     user: User,
     organizationId: number,
-    licenseKey: string,
-  ): Promise<License> {
-    const persistedLicense = await this.licenseStoragePort.findForLicenseKey(
-      licenseKey,
+    licenceKey: string,
+  ): Promise<Licence> {
+    const persistedLicence = await this.licenceStoragePort.findForLicenceKey(
+      licenceKey,
     );
-    if (!persistedLicense) {
+    if (!persistedLicence) {
       throw new SymeoException(
-        'License key not valid.',
+        'Licence key not valid.',
         SymeoExceptionCode.LICENSE_KEY_NOT_FOUND,
       );
     }
-    if (persistedLicense.organizationVcsId) {
+    if (persistedLicence.organizationVcsId) {
       throw new SymeoException(
-        'The license key has already been used.',
+        'The licence key has already been used.',
         SymeoExceptionCode.LICENSE_KEY_ALREADY_USED,
       );
     }
-    const updatedLicense = new License(
+    const updatedLicence = new Licence(
       PlanEnum.APP_SUMO,
-      licenseKey,
+      licenceKey,
       organizationId,
     );
-    await this.licenseStoragePort.save(updatedLicense);
-    return this.hideLicenseKey(updatedLicense);
+    await this.licenceStoragePort.save(updatedLicence);
+    return this.hideLicenceKey(updatedLicence);
   }
 }

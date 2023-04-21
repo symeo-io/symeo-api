@@ -6,10 +6,10 @@ import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-acces
 import { FetchVcsRepositoriesMock } from 'tests/utils/mocks/fetch-vcs-repositories.mock';
 import { FetchAuthenticatedUserMock } from 'tests/utils/mocks/fetch-authenticated-user.mock';
 import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
-import { LicenseTestUtil } from '../../../../utils/entities/license.test.util';
-import License from '../../../../../src/domain/model/license/license.model';
-import { PlanEnum } from '../../../../../src/domain/model/license/plan.enum';
+import { PlanEnum } from '../../../../../src/domain/model/licence/plan.enum';
 import { v4 as uuid } from 'uuid';
+import Licence from '../../../../../src/domain/model/licence/licence.model';
+import { LicenceTestUtil } from '../../../../utils/entities/licence.test.util';
 
 describe('OrganizationController', () => {
   let appClient: AppClient;
@@ -17,7 +17,7 @@ describe('OrganizationController', () => {
   let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
   let fetchAuthenticatedUserMock: FetchAuthenticatedUserMock;
-  let licenseTestUtilMock: LicenseTestUtil;
+  let licenceTestUtilMock: LicenceTestUtil;
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -26,7 +26,7 @@ describe('OrganizationController', () => {
     fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
     fetchAuthenticatedUserMock = new FetchAuthenticatedUserMock(appClient);
-    licenseTestUtilMock = new LicenseTestUtil(appClient);
+    licenceTestUtilMock = new LicenceTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
@@ -36,7 +36,7 @@ describe('OrganizationController', () => {
   beforeEach(async () => {
     fetchGithubAccessTokenMock.mockAccessTokenPresent();
     fetchGitlabAccessTokenMock.mockAccessTokenPresent();
-    await licenseTestUtilMock.empty();
+    await licenceTestUtilMock.empty();
   });
 
   afterEach(() => {
@@ -58,8 +58,8 @@ describe('OrganizationController', () => {
       it('should respond 200 with github repository', async () => {
         // Given
         fetchVcsRepositoriesMock.mockGithubRepositoryPresent();
-        await licenseTestUtilMock.createLicense(
-          new License(PlanEnum.APP_SUMO, 'license-test-12345', 1),
+        await licenceTestUtilMock.createLicence(
+          new Licence(PlanEnum.APP_SUMO, 'licence-test-12345', 1),
         );
         return appClient
           .request(currentUser)
@@ -74,14 +74,14 @@ describe('OrganizationController', () => {
                 avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
                 settings: {
                   plan: PlanEnum.APP_SUMO,
-                  licenseKey: '**************2345',
+                  licenceKey: '**************2345',
                 },
               },
             ],
           });
       });
 
-      it('should respond 200 with github organization when no repositories and no license', async () => {
+      it('should respond 200 with github organization when no repositories and no licence', async () => {
         // Given
         fetchVcsRepositoriesMock.mockGithubRepositoryNotPresent();
         fetchAuthenticatedUserMock.mockGithubAuthenticatedPresent();
@@ -99,7 +99,7 @@ describe('OrganizationController', () => {
                 avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
                 settings: {
                   plan: PlanEnum.FREE,
-                  licenseKey: null,
+                  licenceKey: null,
                 },
               },
             ],
@@ -119,8 +119,8 @@ describe('OrganizationController', () => {
       it('should respond 200 with gitlab repository', async () => {
         // Given
         fetchVcsRepositoriesMock.mockGitlabRepositoryPresent();
-        await licenseTestUtilMock.createLicense(
-          new License(PlanEnum.APP_SUMO, 'license-test-12345', 65616175),
+        await licenceTestUtilMock.createLicence(
+          new Licence(PlanEnum.APP_SUMO, 'licence-test-12345', 65616175),
         );
 
         return appClient
@@ -137,7 +137,7 @@ describe('OrganizationController', () => {
                   '/uploads/-/system/group/avatar/65616175/gitlab8368.jpeg',
                 settings: {
                   plan: PlanEnum.APP_SUMO,
-                  licenseKey: '**************2345',
+                  licenceKey: '**************2345',
                 },
               },
             ],
@@ -163,7 +163,7 @@ describe('OrganizationController', () => {
                   'https://secure.gravatar.com/avatar/84a0b53a86a1f2bf0ddbbd85156631de?s=80&d=identicon',
                 settings: {
                   plan: PlanEnum.FREE,
-                  licenseKey: null,
+                  licenceKey: null,
                 },
               },
             ],
@@ -172,7 +172,7 @@ describe('OrganizationController', () => {
     });
   });
 
-  describe('(POST) /organizations/license-key', () => {
+  describe('(POST) /organizations/licence-key', () => {
     const currentUser = new User(
       `github|${faker.datatype.number()}`,
       faker.internet.email(),
@@ -181,62 +181,62 @@ describe('OrganizationController', () => {
       faker.datatype.number(),
     );
 
-    it('should respond 404 for invalid license key', async () => {
+    it('should respond 404 for invalid licence key', async () => {
       // Given
-      const licenseKey = 'license-test-12345';
+      const licenceKey = 'licence-test-12345';
       const organizationVcsId = faker.datatype.number();
-      const updateLicenseDTO = {
+      const updateLicenceDTO = {
         organizationId: organizationVcsId,
-        licenseKey: licenseKey,
+        licenceKey: licenceKey,
       };
-      await licenseTestUtilMock.createLicense(
-        new License(PlanEnum.APP_SUMO, uuid()),
+      await licenceTestUtilMock.createLicence(
+        new Licence(PlanEnum.APP_SUMO, uuid()),
       );
       return appClient
         .request(currentUser)
-        .post(`/api/v1/organizations/license-key`)
-        .send(updateLicenseDTO)
+        .post(`/api/v1/organizations/licence-key`)
+        .send(updateLicenceDTO)
         .expect(404);
     });
 
-    it('should respond 400 for license key already used', async () => {
+    it('should respond 400 for licence key already used', async () => {
       // Given
-      const licenseKey = 'license-test-12345';
+      const licenceKey = 'licence-test-12345';
       const organizationVcsId = faker.datatype.number();
-      const updateLicenseDTO = {
+      const updateLicenceDTO = {
         organizationId: organizationVcsId,
-        licenseKey: licenseKey,
+        licenceKey: licenceKey,
       };
-      await licenseTestUtilMock.createLicense(
-        new License(PlanEnum.APP_SUMO, licenseKey, faker.datatype.number()),
+      await licenceTestUtilMock.createLicence(
+        new Licence(PlanEnum.APP_SUMO, licenceKey, faker.datatype.number()),
       );
       return appClient
         .request(currentUser)
-        .post(`/api/v1/organizations/license-key`)
-        .send(updateLicenseDTO)
+        .post(`/api/v1/organizations/licence-key`)
+        .send(updateLicenceDTO)
         .expect(400);
     });
 
-    it('should respond 200 with new license', async () => {
+    it('should respond 200 with new licence', async () => {
       // Given
-      const licenseKey = 'license-test-12345';
+      const licenceKey = 'licence-test-12345';
       const organizationVcsId = faker.datatype.number();
-      const updateLicenseDTO = {
+      const updateLicenceDTO = {
         organizationId: organizationVcsId,
-        licenseKey: licenseKey,
+        licenceKey: licenceKey,
       };
-      await licenseTestUtilMock.createLicense(
-        new License(PlanEnum.APP_SUMO, licenseKey),
+      await licenceTestUtilMock.createLicence(
+        new Licence(PlanEnum.APP_SUMO, licenceKey),
       );
       return appClient
         .request(currentUser)
-        .post(`/api/v1/organizations/license-key`)
-        .send(updateLicenseDTO)
+        .post(`/api/v1/organizations/licence-key`)
+        .send(updateLicenceDTO)
         .expect(200)
         .expect({
-          license: {
+          licence: {
             plan: PlanEnum.APP_SUMO,
-            licenseKey: '**************2345',
+            licenceKey: '**************2345',
           },
         });
     });

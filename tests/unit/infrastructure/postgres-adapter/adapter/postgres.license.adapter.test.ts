@@ -1,40 +1,40 @@
-import { PostgresLicenseAdapter } from '../../../../../src/infrastructure/postgres-adapter/adapter/postgres.license.adapter';
+import { PostgresLicenceAdapter } from '../../../../../src/infrastructure/postgres-adapter/adapter/postgres.licence.adapter';
 import { mock } from 'ts-mockito';
 import { Repository } from 'typeorm';
-import LicenseEntity from '../../../../../src/infrastructure/postgres-adapter/entity/license/license.entity';
-import License from '../../../../../src/domain/model/license/license.model';
-import { PlanEnum } from '../../../../../src/domain/model/license/plan.enum';
+import LicenceEntity from '../../../../../src/infrastructure/postgres-adapter/entity/licence/licence.entity';
+import Licence from '../../../../../src/domain/model/licence/licence.model';
+import { PlanEnum } from '../../../../../src/domain/model/licence/plan.enum';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 
-describe('PostgresLicenseAdapter', () => {
-  describe('getLicenseForOrganizationIds', () => {
+describe('PostgresLicenceAdapter', () => {
+  describe('getLicenceForOrganizationIds', () => {
     it('should get licences for oganizationIds', async () => {
       // Given
-      const licenseRepository = mock(Repository<LicenseEntity>);
-      const postgresLicenseAdapter = new PostgresLicenseAdapter(
-        licenseRepository,
+      const licenceRepository = mock(Repository<LicenceEntity>);
+      const postgresLicenceAdapter = new PostgresLicenceAdapter(
+        licenceRepository,
       );
 
-      const licenses = [
-        new License(PlanEnum.FREE, uuid(), faker.datatype.number()),
-        new License(PlanEnum.FREE, uuid(), faker.datatype.number()),
-        new License(PlanEnum.APP_SUMO, uuid(), faker.datatype.number()),
+      const licences = [
+        new Licence(PlanEnum.FREE, uuid(), faker.datatype.number()),
+        new Licence(PlanEnum.FREE, uuid(), faker.datatype.number()),
+        new Licence(PlanEnum.APP_SUMO, uuid(), faker.datatype.number()),
       ];
-      const licenseEntities = licenses.map(LicenseEntity.fromDomain);
+      const licenceEntities = licences.map(LicenceEntity.fromDomain);
       jest
-        .spyOn(licenseRepository, 'findBy')
-        .mockImplementation(() => Promise.resolve(licenseEntities));
+        .spyOn(licenceRepository, 'findBy')
+        .mockImplementation(() => Promise.resolve(licenceEntities));
 
       // When
-      const expectedLicenses =
-        await postgresLicenseAdapter.findForOrganizationIds([
+      const expectedLicences =
+        await postgresLicenceAdapter.findForOrganizationIds([
           faker.datatype.number(),
           faker.datatype.number(),
         ]);
 
       // Then
-      expect(expectedLicenses).toEqual(licenses);
+      expect(expectedLicences).toEqual(licences);
     });
   });
 });

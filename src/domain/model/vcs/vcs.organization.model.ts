@@ -1,5 +1,5 @@
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
-import License from '../license/license.model';
+import Licence from '../licence/licence.model';
 
 export class VcsOrganization {
   vcsId: number;
@@ -7,7 +7,7 @@ export class VcsOrganization {
   displayName: string;
   avatarUrl: string;
   vcsType: VCSProvider;
-  license?: License;
+  licence?: Licence;
 
   constructor(
     vcsId: number,
@@ -15,13 +15,13 @@ export class VcsOrganization {
     displayName: string,
     avatarUrl: string,
     vcsType: VCSProvider,
-    license?: License,
+    licence?: Licence,
   ) {
     this.vcsId = vcsId;
     this.name = name;
     this.displayName = displayName;
     this.avatarUrl = avatarUrl;
     this.vcsType = vcsType;
-    this.license = license;
+    this.licence = licence;
   }
 }

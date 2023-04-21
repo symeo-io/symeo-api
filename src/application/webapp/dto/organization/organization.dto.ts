@@ -1,7 +1,7 @@
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { LicenseDTO } from './license.dto';
-import { PlanEnum } from '../../../../domain/model/license/plan.enum';
+import { LicenceDTO } from './licence.dto';
+import { PlanEnum } from '../../../../domain/model/licence/plan.enum';
 
 export class OrganizationDTO {
   @ApiProperty()
@@ -12,15 +12,15 @@ export class OrganizationDTO {
   displayName: string;
   @ApiProperty()
   avatarUrl: string;
-  @ApiProperty({ type: LicenseDTO })
-  settings: LicenseDTO;
+  @ApiProperty({ type: LicenceDTO })
+  settings: LicenceDTO;
 
   constructor(
     vcsId: number,
     name: string,
     displayName: string,
     avatarUrl: string,
-    settings: LicenseDTO,
+    settings: LicenceDTO,
   ) {
     this.vcsId = vcsId;
     this.name = name;
@@ -35,9 +35,9 @@ export class OrganizationDTO {
       vcsOrganization.name,
       vcsOrganization.displayName,
       vcsOrganization.avatarUrl,
-      vcsOrganization.license
-        ? LicenseDTO.fromDomain(vcsOrganization.license)
-        : new LicenseDTO(PlanEnum.FREE, null),
+      vcsOrganization.licence
+        ? LicenceDTO.fromDomain(vcsOrganization.licence)
+        : new LicenceDTO(PlanEnum.FREE, null),
     );
   }
 

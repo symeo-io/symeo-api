@@ -7,8 +7,8 @@ import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import * as fs from 'fs';
 import { GitlabHttpClient } from 'src/infrastructure/gitlab-adapter/gitlab.http.client';
 import GitlabAdapter from 'src/infrastructure/gitlab-adapter/adapter/gitlab.adapter';
-import License from '../../../../src/domain/model/license/license.model';
-import { PlanEnum } from '../../../../src/domain/model/license/plan.enum';
+import Licence from '../../../../src/domain/model/licence/licence.model';
+import { PlanEnum } from '../../../../src/domain/model/licence/plan.enum';
 
 describe('GitlabAdapter', () => {
   describe('getOrganizations', () => {
