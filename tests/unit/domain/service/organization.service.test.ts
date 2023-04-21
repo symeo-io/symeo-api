@@ -223,7 +223,7 @@ describe('OrganizationService', () => {
         VCSProvider.GitHub,
         faker.datatype.number(),
       );
-      const licenseKey = uuid();
+      const licenseKey = 'fake-license-key';
       const organizationVcsId = faker.datatype.number();
 
       // When
@@ -240,6 +240,7 @@ describe('OrganizationService', () => {
       // Then
       expect(updatedLicense).toEqual({
         ...persistedLicense,
+        licenseKey: '************-key',
         organizationVcsId: organizationVcsId,
       } as License);
     });
