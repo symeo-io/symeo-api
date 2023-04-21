@@ -15,6 +15,8 @@ import ConfigurationAuditEntity from 'src/infrastructure/postgres-adapter/entity
 import EnvironmentAuditEntity from 'src/infrastructure/postgres-adapter/entity/audit/environment-audit.entity';
 import VcsAccessTokenEntity from '../infrastructure/postgres-adapter/entity/vcs/vcs-access-token.entity';
 import { PostgresVcsAccessTokenAdapter } from '../infrastructure/postgres-adapter/adapter/postgres.vcs-access-token.adapter';
+import LicenseEntity from '../infrastructure/postgres-adapter/entity/license/license.entity';
+import { PostgresLicenseAdapter } from '../infrastructure/postgres-adapter/adapter/postgres.license.adapter';
 
 const PostgresConfigurationAdapterProvider = {
   provide: 'PostgresConfigurationAdapter',
@@ -53,6 +55,13 @@ const PostgresVcsAccessTokenAdapterProvider = {
   inject: [getRepositoryToken(VcsAccessTokenEntity)],
 };
 
+const PostgresLicenseAdapterProvider = {
+  provide: 'PostgresLicenseAdapter',
+  useFactory: (licenseRepository: Repository<LicenseEntity>) =>
+    new PostgresLicenseAdapter(licenseRepository),
+  inject: [getRepositoryToken(LicenseEntity)],
+};
+
 const entities = [
   ConfigurationEntity,
   EnvironmentEntity,
@@ -62,6 +71,7 @@ const entities = [
   ConfigurationAuditEntity,
   EnvironmentAuditEntity,
   VcsAccessTokenEntity,
+  LicenseEntity,
 ];
 
 @Module({
@@ -78,6 +88,7 @@ const entities = [
     PostgresEnvironmentPermissionAdapterProvider,
     PostgresEnvironmentAdapterProvider,
     PostgresVcsAccessTokenAdapterProvider,
+    PostgresLicenseAdapterProvider,
   ],
   exports: [
     PostgresConfigurationAdapterProvider,
@@ -85,6 +96,7 @@ const entities = [
     PostgresEnvironmentPermissionAdapterProvider,
     PostgresEnvironmentAdapterProvider,
     PostgresVcsAccessTokenAdapterProvider,
+    PostgresLicenseAdapterProvider,
     TypeOrmModule.forFeature(entities),
   ],
 })

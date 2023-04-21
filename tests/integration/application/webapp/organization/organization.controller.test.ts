@@ -6,6 +6,9 @@ import { FetchGithubAccessTokenMock } from 'tests/utils/mocks/fetch-github-acces
 import { FetchVcsRepositoriesMock } from 'tests/utils/mocks/fetch-vcs-repositories.mock';
 import { FetchAuthenticatedUserMock } from 'tests/utils/mocks/fetch-authenticated-user.mock';
 import { FetchGitlabAccessTokenMock } from '../../../../utils/mocks/fetch-gitlab-access-token.mock';
+import { LicenseTestUtil } from '../../../../utils/entities/license.test.util';
+import License from '../../../../../src/domain/model/license/license.model';
+import { PlanEnum } from '../../../../../src/domain/model/license/plan.enum';
 
 describe('OrganizationController', () => {
   let appClient: AppClient;
@@ -13,6 +16,7 @@ describe('OrganizationController', () => {
   let fetchGitlabAccessTokenMock: FetchGitlabAccessTokenMock;
   let fetchVcsRepositoriesMock: FetchVcsRepositoriesMock;
   let fetchAuthenticatedUserMock: FetchAuthenticatedUserMock;
+  let licenseTestUtilMock: LicenseTestUtil;
 
   beforeAll(async () => {
     appClient = new AppClient();
@@ -21,16 +25,19 @@ describe('OrganizationController', () => {
     fetchGitlabAccessTokenMock = new FetchGitlabAccessTokenMock(appClient);
     fetchVcsRepositoriesMock = new FetchVcsRepositoriesMock(appClient);
     fetchAuthenticatedUserMock = new FetchAuthenticatedUserMock(appClient);
+    licenseTestUtilMock = new LicenseTestUtil(appClient);
   }, 30000);
 
   afterAll(async () => {
     await appClient.close();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fetchGithubAccessTokenMock.mockAccessTokenPresent();
     fetchGitlabAccessTokenMock.mockAccessTokenPresent();
+    await licenseTestUtilMock.empty();
   });
+
   afterEach(() => {
     fetchGithubAccessTokenMock.restore();
     fetchGitlabAccessTokenMock.restore();
@@ -50,7 +57,9 @@ describe('OrganizationController', () => {
       it('should respond 200 with github repository', async () => {
         // Given
         fetchVcsRepositoriesMock.mockGithubRepositoryPresent();
-
+        await licenseTestUtilMock.createLicense(
+          new License(PlanEnum.APP_SUMO, 'license-test-12345', 1),
+        );
         return appClient
           .request(currentUser)
           .get(`/api/v1/organizations`)
@@ -62,12 +71,16 @@ describe('OrganizationController', () => {
                 name: 'octocat',
                 displayName: 'octocat',
                 avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
+                settings: {
+                  plan: PlanEnum.APP_SUMO,
+                  licenseKey: '**************2345',
+                },
               },
             ],
           });
       });
 
-      it('should respond 200 with github organization when no repositories', async () => {
+      it('should respond 200 with github organization when no repositories and no license', async () => {
         // Given
         fetchVcsRepositoriesMock.mockGithubRepositoryNotPresent();
         fetchAuthenticatedUserMock.mockGithubAuthenticatedPresent();
@@ -83,6 +96,10 @@ describe('OrganizationController', () => {
                 name: 'octocat',
                 displayName: 'octocat',
                 avatarUrl: 'https://github.com/images/error/octocat_happy.gif',
+                settings: {
+                  plan: PlanEnum.FREE,
+                  licenseKey: null,
+                },
               },
             ],
           });
@@ -101,6 +118,9 @@ describe('OrganizationController', () => {
       it('should respond 200 with gitlab repository', async () => {
         // Given
         fetchVcsRepositoriesMock.mockGitlabRepositoryPresent();
+        await licenseTestUtilMock.createLicense(
+          new License(PlanEnum.APP_SUMO, 'license-test-12345', 65616175),
+        );
 
         return appClient
           .request(currentUser)
@@ -114,6 +134,10 @@ describe('OrganizationController', () => {
                 displayName: 'dfrances-test',
                 avatarUrl:
                   '/uploads/-/system/group/avatar/65616175/gitlab8368.jpeg',
+                settings: {
+                  plan: PlanEnum.APP_SUMO,
+                  licenseKey: '**************2345',
+                },
               },
             ],
           });
@@ -136,6 +160,10 @@ describe('OrganizationController', () => {
                 displayName: 'Dorian Frances',
                 avatarUrl:
                   'https://secure.gravatar.com/avatar/84a0b53a86a1f2bf0ddbbd85156631de?s=80&d=identicon',
+                settings: {
+                  plan: PlanEnum.FREE,
+                  licenseKey: null,
+                },
               },
             ],
           });

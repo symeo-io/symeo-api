@@ -2,6 +2,8 @@ import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import { VCSProvider } from 'src/domain/model/vcs/vcs-provider.enum';
 import { GithubOwnerDTO } from 'src/infrastructure/github-adapter/dto/github.owner.dto';
 import { GithubAuthenticatedUserDTO } from 'src/infrastructure/github-adapter/dto/github.authenticated.user.dto';
+import { PlanEnum } from '../../../domain/model/license/plan.enum';
+import License from '../../../domain/model/license/license.model';
 
 export class GithubOrganizationMapper {
   static dtoToDomains(
