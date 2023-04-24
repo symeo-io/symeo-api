@@ -11,4 +11,6 @@ export const SymeoExceptionCodeToHttpStatusMap = {
   [SymeoExceptionCode.UPDATE_ADMINISTRATOR_PERMISSION]: 400,
   [SymeoExceptionCode.RESOURCE_ACCESS_DENIED]: 403,
   [SymeoExceptionCode.TOKEN_REFRESH_FAILURE]: 401,
+  [SymeoExceptionCode.LICENSE_KEY_ALREADY_USED]: 400,
+  [SymeoExceptionCode.LICENSE_KEY_NOT_FOUND]: 404,
 };

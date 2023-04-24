@@ -32,6 +32,7 @@ import EnvironmentAuditFacade from 'src/domain/port/in/environment-audit.facade.
 import { ValuesVersionService } from 'src/domain/service/values-version.service';
 import { GitlabAdapterPort } from 'src/domain/port/out/gitlab.adapter.port';
 import { GitlabAdapterModule } from 'src/bootstrap/gitlab-adapter.module';
+import { LicenceStoragePort } from '../domain/port/out/licence.storage.port';
 
 const ConfigurationFacadeProvider = {
   provide: 'ConfigurationFacade',
@@ -157,8 +158,14 @@ const OrganizationFacadeProvider = {
   useFactory: (
     githubAdapterPort: GithubAdapterPort,
     gitlabAdapterPort: GitlabAdapterPort,
-  ) => new OrganizationService(githubAdapterPort, gitlabAdapterPort),
-  inject: ['GithubAdapter', 'GitlabAdapter'],
+    licenceStoragePort: LicenceStoragePort,
+  ) =>
+    new OrganizationService(
+      githubAdapterPort,
+      gitlabAdapterPort,
+      licenceStoragePort,
+    ),
+  inject: ['GithubAdapter', 'GitlabAdapter', 'PostgresLicenceAdapter'],
 };
 
 const RepositoryFacadeProvider = {
