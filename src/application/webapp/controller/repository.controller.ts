@@ -77,7 +77,7 @@ export class RepositoryController {
 
   @Post(':repositoryVcsId/commit/:branch')
   @ApiOkResponse({
-    description: 'Repository env files successfully retrieved',
+    description: 'File successfully committed to repository',
     type: GetRepositoryEnvFilesResponseDTO,
   })
   async commitFileToRepository(

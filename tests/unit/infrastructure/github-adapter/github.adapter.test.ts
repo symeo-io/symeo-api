@@ -7,6 +7,8 @@ import { config } from '@symeo-sdk';
 import { VcsOrganization } from 'src/domain/model/vcs/vcs.organization.model';
 import GithubAdapter from 'src/infrastructure/github-adapter/adapter/github.adapter';
 import * as fs from 'fs';
+import { PlanEnum } from '../../../../src/domain/model/licence/plan.enum';
+import Licence from '../../../../src/domain/model/licence/licence.model';
 
 describe('GithubAdapter', () => {
   describe('getOrganizations', () => {
