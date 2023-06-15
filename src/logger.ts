@@ -1,6 +1,4 @@
 import { format } from 'winston';
-import tracer from 'dd-trace';
-import { formats } from 'dd-trace/ext';
 import { config } from '@symeo-sdk';
 
 export class WinstonLogger {
@@ -10,7 +8,6 @@ export class WinstonLogger {
       logFormat = format.printf((info) =>
         JSON.stringify({
           timestamp: new Date().toDateString(),
-          service: config.datadog.service,
           level: info.level,
           message: info.message,
         }),
@@ -23,13 +20,6 @@ export class WinstonLogger {
         format.cli(),
       );
     }
-
-    const span = tracer.scope().active();
-
-    if (span) {
-      tracer.inject(span.context(), formats.LOG, logFormat);
-    }
-
     return logFormat;
   }
 }
