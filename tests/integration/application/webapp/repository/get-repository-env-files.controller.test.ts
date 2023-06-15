@@ -59,19 +59,19 @@ describe('RepositoryController', () => {
           mockBranch,
         );
         const envContent = fs
-          .readFileSync('./tests/utils/stubs/repository/.env.development')
+          .readFileSync('./tests/utils/stubs/repository/.env')
           .toString();
         fetchVcsFileMock.mockGithubFilePresent(
           mockRepositoryVcsId,
-          '.env.development',
+          '.env',
           envContent,
         );
         const envTestContent = fs
-          .readFileSync('./tests/utils/stubs/repository/.env.development.test')
+          .readFileSync('./tests/utils/stubs/repository/.env.test')
           .toString();
         fetchVcsFileMock.mockGithubFilePresent(
           mockRepositoryVcsId,
-          '.env.development.test',
+          '.env.test',
           envTestContent,
         );
 
@@ -84,7 +84,7 @@ describe('RepositoryController', () => {
           .expect({
             files: [
               {
-                path: '.env.development',
+                path: '.env',
                 content: envContent,
                 contract:
                   'port:\n' +
@@ -103,7 +103,7 @@ describe('RepositoryController', () => {
                   '    secret: true\n',
               },
               {
-                path: '.env.development.test',
+                path: '.env.test',
                 content: envTestContent,
                 contract:
                   'port:\n  type: integer\ndatabaseName:\n  type: string\n',
@@ -130,19 +130,19 @@ describe('RepositoryController', () => {
           mockBranch,
         );
         const envContent = fs
-          .readFileSync('./tests/utils/stubs/repository/.env.development')
+          .readFileSync('./tests/utils/stubs/repository/.env')
           .toString();
         fetchVcsFileMock.mockGitlabFilePresent(
           mockRepositoryVcsId,
-          '.env.development',
+          '.env',
           envContent,
         );
         const envTestContent = fs
-          .readFileSync('./tests/utils/stubs/repository/.env.development.test')
+          .readFileSync('./tests/utils/stubs/repository/.env.test')
           .toString();
         fetchVcsFileMock.mockGitlabFilePresent(
           mockRepositoryVcsId,
-          'infrastructure/.env.development.test',
+          'infrastructure/.env.test',
           envTestContent,
         );
 
@@ -155,7 +155,7 @@ describe('RepositoryController', () => {
           .expect({
             files: [
               {
-                path: '.env.development',
+                path: '.env',
                 content: envContent,
                 contract:
                   'port:\n' +
@@ -174,7 +174,7 @@ describe('RepositoryController', () => {
                   '    secret: true\n',
               },
               {
-                path: 'infrastructure/.env.development.test',
+                path: 'infrastructure/.env.test',
                 content: envTestContent,
                 contract:
                   'port:\n  type: integer\ndatabaseName:\n  type: string\n',
