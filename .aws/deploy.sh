@@ -24,10 +24,6 @@ case $key in
     ENV="$2"
     shift # past argument
     ;;
-    -ddk|--datadog-api-key)
-    DATADOG_API_KEY="$2"
-    shift # past argument
-    ;;
     -p|--profile)
     PROFILE="$2"
     shift # past argument
@@ -65,11 +61,6 @@ api_container="
   \"portMappings\":[{\"containerPort\":9999}],
   \"cpu\":412,
   \"memory\":768,
-  \"dockerLabels\": {
-    \"com.datadoghq.ad.instances\": \"[{\\\"host\\\": \\\"%%host%%\\\", \\\"port\\\": 9999}]\",
-    \"com.datadoghq.ad.check_names\": \"[\\\"symeo-api-${ENV}\\\"]\",
-    \"com.datadoghq.ad.init_configs\": \"[{}]\"
-  },
   \"logConfiguration\":{
     \"logDriver\":\"awslogs\",
     \"options\":{
@@ -80,36 +71,9 @@ api_container="
   }
 }"
 
-datadog_container="
-{
-  \"name\":\"DataDogAgent-${ENV}\",
-  \"image\":\"public.ecr.aws/datadog/agent:latest\",
-  \"cpu\":100,
-  \"memory\":256,
-  \"portMappings\":[{
-    \"hostPort\":8126,
-    \"protocol\":\"tcp\",
-    \"containerPort\":8126
-  }],
-  \"dockerLabels\": {
-    \"com.datadoghq.ad.instances\": \"[{\\\"dbm\\\":true,\\\"host\\\":\\\"${ClusterEndpoint}\\\",\\\"username\\\":\\\"datadog\\\"\\\"password\\\": \\\"${DB_PASSWORD}\\\"\\\"port\\\": 9999}]\",
-    \"com.datadoghq.ad.check_names\": \"[\\\"postgres\\\"]\",
-    \"com.datadoghq.ad.init_configs\": \"[{}]\"
-  },
-  \"environment\":[
-    {\"name\":\"DD_API_KEY\",\"value\":\"${DATADOG_API_KEY}\"},
-    {\"name\":\"DD_SITE\",\"value\":\"datadoghq.eu\"},
-    {\"name\":\"DD_APM_ENABLED\",\"value\":\"true\"},
-    {\"name\":\"DD_APM_NON_LOCAL_TRAFFIC\",\"value\":\"true\"},
-    {\"name\":\"ECS_FARGATE\",\"value\":\"true\"},
-    {\"name\":\"DD_APM_IGNORE_RESOURCES\",\"value\":\"GET /actuator/health\"}
-  ]
-}
-"
-
 # if [ "$ENV" = "production" ]
 # then
-container_definition="[${api_container},${datadog_container}]"
+container_definition="[${api_container}]"
 # else
 #  container_definition="[${api_container}]"
 # fi

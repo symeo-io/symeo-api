@@ -24,10 +24,6 @@ case $key in
     PROFILE="$2"
     shift # past argument
     ;;
-    -ddik|--datadog-api-key)
-    DATADOG_API_KEY="$2"
-    shift # past argument
-    ;;
     -d|--domain)
     DOMAIN="$2"
     shift # past argument
@@ -160,7 +156,6 @@ aws cloudformation deploy \
       ECSTaskRole=${SymeoApiTaskRole} \
       ECSExecutionRole=${SymeoApiECSExecutionRole} \
       Env=${ENV} \
-      DataDogApiKey=${DATADOG_API_KEY} \
       Tag=${MY_TAG} \
       TargetGroup=${TargetGroup} \
       TargetGroupName=${TargetGroupName} \

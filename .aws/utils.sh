@@ -63,16 +63,7 @@ function build_and_push_docker_image() {
   docker build --no-cache \
     --tag "${repository}:${tag}" \
     --tag "${repository}:latest" \
-    --build-arg dd_service="$dd_service" \
-    --build-arg dd_env="$dd_env" \
     --build-arg symeo_api_key="$symeo_api_key" \
     -f $docker_file_path $docker_base_path
   docker push "${repository}" --all-tags
-}
-
-function set_datadog_forwarder_arn_to_env() {
-    local stack_name=$1
-    local region=$2
-
-    export DatadogForwarderArn=$(aws cloudformation describe-stacks --stack-name $stack_name --region $region --output text --query 'Stacks[].Outputs[]' | tr '\t' '=' | grep 'DatadogForwarderArn' | grep -o '[^=]*$')
 }

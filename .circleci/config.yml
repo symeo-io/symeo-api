@@ -129,7 +129,6 @@ jobs:
             cd .aws && ./deploy.sh \
               --region ${AWS_REGION} \
               --env ${ENVIRONMENT} \
-              --datadog-api-key ${DATADOG_API_KEY} \
               --tag ${CIRCLE_SHA1}
       - slack/notify:
           event: fail
@@ -154,8 +153,6 @@ jobs:
             cd .aws && ./build_infrastructure.sh \
               --region ${AWS_REGION} \
               --env ${ENVIRONMENT} \
-              --datadog-api-key ${DATADOG_API_KEY} \
-              --datadog-app-key ${DATADOG_APP_KEY} \
               --domain ${DOMAIN} \
               --prefix-url ${PREFIX_URL} \
               --acm-arn ${ACM_ARN} \
