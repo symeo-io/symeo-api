@@ -73,6 +73,7 @@ api_container="
 
 # if [ "$ENV" = "production" ]
 # then
+container_definition="[${api_container}]"
 # else
 #  container_definition="[${api_container}]"
 # fi
